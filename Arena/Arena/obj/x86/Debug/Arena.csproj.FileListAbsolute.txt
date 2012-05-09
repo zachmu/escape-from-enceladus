@@ -1,0 +1,2 @@
+C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\Arena\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\Arena\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
