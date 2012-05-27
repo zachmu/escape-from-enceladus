@@ -1,21 +1,99 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
   <Asset Type="Pipeline:BuildItemCollection">
+    <Item>
+      <Source>INSIDE2.jpg</Source>
+      <Name>INSIDE2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\INSIDE2.xnb</Output>
+      <Time>2012-05-08T22:30:00-07:00</Time>
+    </Item>
+    <Item>
+      <Source>levelTest.png</Source>
+      <Name>levelTest</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\levelTest.xnb</Output>
+      <Time>2012-05-14T17:08:13.3882362-07:00</Time>
+    </Item>
+    <Item>
+      <Source>met_tile.png</Source>
+      <Name>met_tile</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\met_tile.xnb</Output>
+      <Time>2012-05-08T22:30:00-07:00</Time>
+    </Item>
+    <Item>
+      <Source>samus.png</Source>
+      <Name>samus</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\samus.xnb</Output>
+      <Time>2012-05-08T22:30:00-07:00</Time>
+    </Item>
+    <Item>
+      <Source>star.png</Source>
+      <Name>star</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\star.xnb</Output>
+      <Time>2012-05-08T22:30:00-07:00</Time>
+    </Item>
+    <Item>
+      <Source>welcome16.png</Source>
+      <Name>welcome16</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\welcome16.xnb</Output>
+      <Time>2012-05-08T22:30:00-07:00</Time>
+    </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <TargetPlatform>Windows</TargetPlatform>
       <TargetProfile>HiDef</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\ArenaContent\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\Arena\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\ArenaContent\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\Arena\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\ArenaContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\ArenaContent\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\Arena\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2010-08-23T12:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2010-08-23T12:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
         <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2012-03-22T21:44:36.6302585-07:00</Value>
+        <Value>2012-05-07T15:34:03.4493826-07:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>

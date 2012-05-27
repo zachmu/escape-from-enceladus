@@ -1,1 +1,2 @@
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\Projects\GameDev\Arena\ArenaContent\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\zachmu\Documents\Visual Studio 2010\Projects\gamedev\Arena\ArenaContent\obj\x86\Debug\ResolveAssemblyReference.cache

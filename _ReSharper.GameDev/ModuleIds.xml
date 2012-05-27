@@ -1,0 +1,6 @@
+<Modules>
+  <Module PersistentId="6CF0E7DF-28BA-4E91-AED8-9BFB0B2BAA95" ModuleId="Arena" />
+  <Module PersistentId="1681ADA2-B2F3-4157-A603-82C742379856" ModuleId="Samples XNA" />
+  <Module PersistentId="0A850700-1ABB-4288-A391-6726B90EBEB9" ModuleId="Farseer Physics XNA" />
+  <Module PersistentId="FC7845FA-13FE-4FF8-822A-A577F3F59B00" ModuleId="DebugView XNA" />
+</Modules>
