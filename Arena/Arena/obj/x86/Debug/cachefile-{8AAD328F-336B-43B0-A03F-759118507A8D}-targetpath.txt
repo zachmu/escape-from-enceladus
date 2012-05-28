@@ -1,0 +1,6 @@
+Content\INSIDE2.xnb
+Content\levelTest.xnb
+Content\met_tile.xnb
+Content\samus.xnb
+Content\star.xnb
+Content\welcome16.xnb

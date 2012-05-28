@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using FarseerPhysics.SamplesFramework;
@@ -61,21 +62,21 @@ namespace Test {
 
             Console.Out.WriteLine("Found {0} groups of tiles", tileGroups.Count);
 
-            //CreateEdges(tileGroups);
+            CreateEdges(tileGroups, world);
 
-            foreach ( Tile tile in Tiles.Where(tile => tile.IsSolid()) ) {
-                Body rectangle = BodyFactory.CreateRectangle(world, 1f, 1f, 1f);
-                rectangle.IsStatic = true;
-                rectangle.Restitution = 0.2f;
-                rectangle.Friction = 0.2f;
-                rectangle.Position = tile._position;
-            }
+//            foreach ( Tile tile in Tiles.Where(tile => tile.IsSolid()) ) {
+//                Body rectangle = BodyFactory.CreateRectangle(world, 1f, 1f, 1f);
+//                rectangle.IsStatic = true;
+//                rectangle.Restitution = 0.2f;
+//                rectangle.Friction = 0.2f;
+//                rectangle.Position = tile._position;
+//            }
         }
 
         /// <summary>
         /// Creates world edges for the groups of tiles given
         /// </summary>
-        private void CreateEdges(IEnumerable<Tile> tileGroups) {
+        private void CreateEdges(IEnumerable<Tile> tileGroups, World world) {
             // Alternate coordinate system: 0,0 refers to the upper left corner of the upper-left tile,
             // 1,1 the bottom-right corner of that same tile.  Thus a tile's four corners are defined by:
             // Upper-left: x, y
@@ -117,17 +118,22 @@ namespace Test {
                 Vector2 initialVertex = edges.GetInitialVertex();
                 Vector2 currentVertex = initialVertex;
                 // Pick a random edge to start walking.  This determines the handedness of the loop we will build
-                Edge currentEdge = edges.GetEdgesWithVertex(currentVertex).GetEnumerator().Current;
-                IList<Vector2> chain = new List<Vector2>();              
+                Edge currentEdge = edges.GetEdgesWithVertex(currentVertex).First();
+                Vertices chain = new Vertices();
+                Vector2 offset = new Vector2(-.5f, -.5f); // offset to account for different in position v. edge
                 // work our way through the vertices, linking them together into a chain
-                while ( true ) {
-                    chain.Add(currentVertex);
+                do {
+                    chain.Add(currentVertex + offset);
+                    currentVertex = currentEdge.GetOtherVertex(currentVertex);
                     foreach ( Edge edge in edges.GetEdgesWithVertex(currentVertex) ) {
-                        if (edge != currentEdge) {
-                            
+                        if ( edge != currentEdge ) {
+                            currentEdge = edge;
+                            break;
                         }
                     }
-                }
+                } while ( currentVertex != initialVertex );
+
+                BodyFactory.CreateLoopShape(world, chain);
             }
         }
 
@@ -155,7 +161,7 @@ namespace Test {
             }
 
             public Vector2 GetInitialVertex() {
-                return edgesByVertex.Keys.GetEnumerator().Current;
+                return edgesByVertex.Keys.First();
             }
         }
 
@@ -306,7 +312,6 @@ namespace Test {
             public static Texture2D Image { get; set; }
 
             private Vector2[] stars = new Vector2[3];
-            private const int starSize = 3;
 
             private static Random r = new Random();
 

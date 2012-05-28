@@ -22,8 +22,7 @@ namespace Test {
         Camera2D _camera;
         private World _world;
         private DebugViewXNA _debugView;
-        private float _characterHeight = .5f;
-        private float _characterWidth = .5f;
+        private Player _player;
 
         public Arena() {
             graphics = new GraphicsDeviceManager(this);
@@ -56,11 +55,8 @@ namespace Test {
             _world = new World(new Vector2(0, 20f));
             _camera = new Camera2D(graphics.GraphicsDevice);
 
-            _character = BodyFactory.CreateRectangle(_world, _characterWidth, _characterHeight, 1f);
-            _character.IsStatic = false;
-            _character.Restitution = 0.2f;
-            _character.Friction = 0.2f;
-            _character.Position = new Vector2(5,5);
+            _player = new Player(new Vector2(5, 5), _world);
+            _player.Image = Content.Load<Texture2D>("samus");
 
             base.Initialize();
         }
@@ -69,7 +65,7 @@ namespace Test {
         Texture2D _myTexture;
 
         // Set the coordinates to draw the sprite at.
-//        Vector2 _spritePosition = new Vector2(5,5);
+        //        Vector2 _spritePosition = new Vector2(5,5);
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
@@ -82,8 +78,7 @@ namespace Test {
             _myTexture = Content.Load<Texture2D>("welcome16");
             _level = new Level(Content, Content.Load<Texture2D>("levelTest"), _world);
 
-            if (_debugView == null)
-            {
+            if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
                 _debugView.RemoveFlags(DebugViewFlags.Shape);
                 _debugView.RemoveFlags(DebugViewFlags.Joint);
@@ -103,7 +98,6 @@ namespace Test {
         }
 
         private Vector2 _spriteSpeed = new Vector2(1.0f);
-        private Body _character;
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -115,22 +109,8 @@ namespace Test {
             if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
 
-            Vector2 leftStick = GamePad.GetState(PlayerIndex.One).ThumbSticks.Left;
-            Vector2 adjustedDelta = new Vector2(leftStick.X * 10f, leftStick.Y * -10f);
-            foreach (var pressedKey in keyboardState.GetPressedKeys()) {
+            foreach ( var pressedKey in keyboardState.GetPressedKeys() ) {
                 switch ( pressedKey ) {
-                    case Keys.Left:
-                        adjustedDelta.X += -1f;
-                        break;
-                    case Keys.Right:
-                        adjustedDelta.X += 1f;
-                        break;
-                    case Keys.Down:
-                        adjustedDelta.Y += 1f;
-                        break;
-                    case Keys.Up:
-                        adjustedDelta.Y += -1f;
-                        break;
                     case Keys.F1:
                         EnableOrDisableFlag(DebugViewFlags.Shape);
                         break;
@@ -159,21 +139,13 @@ namespace Test {
                         break;
                 }
             }
-            _spriteSpeed += adjustedDelta;
-
-            _character.ApplyLinearImpulse(adjustedDelta);
-
-            // Move the sprite by speed, scaled by elapsed time.
-/*
-            _spritePosition +=
-                _spriteSpeed * (float) gameTime.ElapsedGameTime.TotalSeconds;
-*/
+            _player.Update();
 
             // If the sprite goes outside a margin area, move the camera
             int margin = 40;
             Rectangle viewportMargin = new Rectangle(graphics.GraphicsDevice.Viewport.X + margin, graphics.GraphicsDevice.Viewport.Y + margin,
                 graphics.GraphicsDevice.Viewport.Width - 2 * margin, graphics.GraphicsDevice.Viewport.Height - 2 * margin);
-            Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_character.Position);
+            Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
             int maxx =
                 viewportMargin.Right - _myTexture.Width;
             int minx = viewportMargin.Left;
@@ -198,7 +170,7 @@ namespace Test {
                 _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
             }
 
-            _world.Step(Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
+            _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
 
             _camera.Update(gameTime);
 
@@ -214,10 +186,7 @@ namespace Test {
 
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
             _level.Draw(_spriteBatch, _camera);
-            Vector2 position = _character.Position;
-            position.X -= _characterWidth / 2;
-            position.Y -= _characterHeight / 2;
-            _spriteBatch.Draw(_myTexture, ConvertUnits.ToDisplayUnits(position), Microsoft.Xna.Framework.Color.White);
+            _player.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 
             Matrix projection = _camera.SimProjection;
@@ -225,23 +194,16 @@ namespace Test {
 
             _debugView.RenderDebugData(ref projection, ref view);
 
-
             base.Draw(gameTime);
         }
 
-        private void EnableOrDisableFlag(DebugViewFlags flag)
-        {
-            if ((_debugView.Flags & flag) == flag)
-            {
+        private void EnableOrDisableFlag(DebugViewFlags flag) {
+            if ( (_debugView.Flags & flag) == flag ) {
                 _debugView.RemoveFlags(flag);
-            }
-            else
-            {
+            } else {
                 _debugView.AppendFlags(flag);
             }
         }
-
-
     }
 }
 
