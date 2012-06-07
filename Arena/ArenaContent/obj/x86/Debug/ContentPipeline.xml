@@ -17,7 +17,7 @@
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
       <Output>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\levelTest.xnb</Output>
-      <Time>2012-05-27T16:06:08.9085989-07:00</Time>
+      <Time>2012-06-06T18:03:58.9266042-07:00</Time>
     </Item>
     <Item>
       <Source>met_tile.png</Source>
@@ -54,6 +54,24 @@
       <Options>None</Options>
       <Output>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\welcome16.xnb</Output>
       <Time>2012-05-27T16:06:08.9155993-07:00</Time>
+    </Item>
+    <Item>
+      <Source>DebugFont.spritefont</Source>
+      <Name>DebugFont</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\DebugFont.xnb</Output>
+      <Time>2012-06-06T17:11:52.9198617-07:00</Time>
+    </Item>
+    <Item>
+      <Source>levelTest2.png</Source>
+      <Name>levelTest2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\levelTest2.xnb</Output>
+      <Time>2012-06-06T18:01:35.9874735-07:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>

@@ -109,7 +109,10 @@
   <ItemGroup>
     <Compile Include="Arena.cs" />
     <Compile Include="Camera.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="Camera2D.cs" />
+    <Compile Include="ConvertUnits.cs" />
+    <Compile Include="InputHelper.cs" />
+    <Compile Include="Shot.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

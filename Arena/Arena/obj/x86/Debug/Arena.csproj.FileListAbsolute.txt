@@ -74,6 +74,7 @@ C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Ar
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\samus.xnb
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\star.xnb
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\welcome16.xnb
+C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\DebugFont.xnb
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Arena.exe
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Arena.pdb
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\DebugViewXNA.dll
@@ -88,3 +89,4 @@ C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Ar
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\obj\x86\Debug\Arena.exe
 C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\obj\x86\Debug\Arena.pdb
+C:\Users\Zach Musgrave\Documents\Visual Studio 2010\GitCheckout\gamedev\Arena\Arena\bin\x86\Debug\Content\levelTest2.xnb

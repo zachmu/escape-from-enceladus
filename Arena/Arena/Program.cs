@@ -1,6 +1,4 @@
-using System;
-
-namespace Test
+namespace Arena
 {
 #if WINDOWS || XBOX
     static class Program

@@ -1,20 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using FarseerPhysics;
 using FarseerPhysics.DebugViews;
 using FarseerPhysics.Dynamics;
-using FarseerPhysics.Factories;
-using FarseerPhysics.SamplesFramework;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 
-namespace Test {
+namespace Arena {
     public class Arena : Microsoft.Xna.Framework.Game {
         GraphicsDeviceManager graphics;
         SpriteBatch _spriteBatch;
@@ -23,7 +15,10 @@ namespace Test {
         private World _world;
         private DebugViewXNA _debugView;
         private Player _player;
+        private bool _manualCamera = false;
 
+        public static Boolean Debug = true;
+    
         public Arena() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -57,6 +52,8 @@ namespace Test {
 
             _player = new Player(new Vector2(5, 5), _world);
             _player.Image = Content.Load<Texture2D>("samus");
+
+            Shot.Image = Content.Load<Texture2D>("star");
 
             base.Initialize();
         }
@@ -105,11 +102,15 @@ namespace Test {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
+            
             KeyboardState keyboardState = Keyboard.GetState();
             if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
 
-            foreach ( var pressedKey in keyboardState.GetPressedKeys() ) {
+            InputHelper helper = InputHelper.Instance;
+            helper.Update(gameTime);
+
+            foreach ( var pressedKey in helper.GetNewKeyPresses() ) {
                 switch ( pressedKey ) {
                     case Keys.F1:
                         EnableOrDisableFlag(DebugViewFlags.Shape);
@@ -139,35 +140,60 @@ namespace Test {
                         break;
                 }
             }
-            _player.Update();
-
-            // If the sprite goes outside a margin area, move the camera
-            int margin = 40;
-            Rectangle viewportMargin = new Rectangle(graphics.GraphicsDevice.Viewport.X + margin, graphics.GraphicsDevice.Viewport.Y + margin,
-                graphics.GraphicsDevice.Viewport.Width - 2 * margin, graphics.GraphicsDevice.Viewport.Height - 2 * margin);
-            Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
-            int maxx =
-                viewportMargin.Right - _myTexture.Width;
-            int minx = viewportMargin.Left;
-            int maxy =
-                viewportMargin.Bottom - _myTexture.Height;
-            int miny = viewportMargin.Top;
-
-            // Move the camera just enough to position the sprite at the edge of the margin
-            if ( spriteScreenPosition.X > maxx ) {
-                float delta = spriteScreenPosition.X - maxx;
-                _camera.MoveCamera(ConvertUnits.ToSimUnits(delta, 0));
-            } else if ( spriteScreenPosition.X < minx ) {
-                float delta = spriteScreenPosition.X - minx;
-                _camera.MoveCamera(ConvertUnits.ToSimUnits(delta, 0));
+            foreach ( var pressedKey in helper.KeyboardState.GetPressedKeys() ) {
+                switch ( pressedKey ) {
+                    case Keys.Up:
+                        _manualCamera = true;
+                        _camera.MoveCamera(new Vector2(0, -1));
+                        break;
+                    case Keys.Down:
+                        _manualCamera = true;
+                        _camera.MoveCamera(new Vector2(0, 1));
+                        break;
+                    case Keys.Left:
+                        _manualCamera = true;
+                        _camera.MoveCamera(new Vector2(-1, 0));
+                        break;
+                    case Keys.Right:
+                        _manualCamera = true;
+                        _camera.MoveCamera(new Vector2(1, 0));
+                        break;
+                }
             }
 
-            if ( spriteScreenPosition.Y > maxy ) {
-                float delta = spriteScreenPosition.Y - maxy;
-                _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
-            } else if ( spriteScreenPosition.Y < miny ) {
-                float delta = spriteScreenPosition.Y - miny;
-                _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
+            _player.Update();
+
+            if ( !_manualCamera ) {
+                // If the sprite goes outside a margin area, move the camera
+                const int margin = 150;
+                Rectangle viewportMargin = new Rectangle(graphics.GraphicsDevice.Viewport.X + margin,
+                                                         graphics.GraphicsDevice.Viewport.Y + margin,
+                                                         graphics.GraphicsDevice.Viewport.Width - 2 * margin,
+                                                         graphics.GraphicsDevice.Viewport.Height - 2 * margin);
+                Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
+                int maxx =
+                    viewportMargin.Right - _myTexture.Width;
+                int minx = viewportMargin.Left;
+                int maxy =
+                    viewportMargin.Bottom - _myTexture.Height;
+                int miny = viewportMargin.Top;
+
+                // Move the camera just enough to position the sprite at the edge of the margin
+                if ( spriteScreenPosition.X > maxx ) {
+                    float delta = spriteScreenPosition.X - maxx;
+                    _camera.MoveCamera(ConvertUnits.ToSimUnits(delta, 0));
+                } else if ( spriteScreenPosition.X < minx ) {
+                    float delta = spriteScreenPosition.X - minx;
+                    _camera.MoveCamera(ConvertUnits.ToSimUnits(delta, 0));
+                }
+
+                if ( spriteScreenPosition.Y > maxy ) {
+                    float delta = spriteScreenPosition.Y - maxy;
+                    _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
+                } else if ( spriteScreenPosition.Y < miny ) {
+                    float delta = spriteScreenPosition.Y - miny;
+                    _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
+                }
             }
 
             _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));

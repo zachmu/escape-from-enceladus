@@ -4,3 +4,5 @@ Content\met_tile.xnb
 Content\samus.xnb
 Content\star.xnb
 Content\welcome16.xnb
+Content\DebugFont.xnb
+Content\levelTest2.xnb

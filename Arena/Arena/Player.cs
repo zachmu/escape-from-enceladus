@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
@@ -11,7 +9,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Test {
+namespace Arena {
+
     internal class Player {
         private const float CharacterHeight = 2f;
         private const float CharacterWidth = 1f;
@@ -20,10 +19,14 @@ namespace Test {
         private const float JumpMultiplier = .4f;
         private const float RunMultiplier = .4f;
 
-        private enum Direction {
+        private readonly World _world;
+
+        public enum Direction {
             Left,
             Right
         };
+
+        private readonly List<Shot> _shots = new List<Shot>();
 
         private Direction _direction = Direction.Right;
 
@@ -44,9 +47,12 @@ namespace Test {
             _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
             _body.IsStatic = false;
             _body.Restitution = 0.0f;
-            _body.Friction = 1f;
+            _body.Friction = 0f;
             _body.Position = position;
             _body.FixedRotation = true;
+            _body.SleepingAllowed = false;
+
+            _world = world;
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D c) {
@@ -56,12 +62,11 @@ namespace Test {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             float height = ConvertUnits.ToDisplayUnits(CharacterHeight);
             float width = ConvertUnits.ToDisplayUnits(CharacterWidth);
-            spriteBatch.Draw(Image, new Rectangle((int) displayPosition.X, (int) displayPosition.Y, (int) width, (int) height), 
+            spriteBatch.Draw(Image, new Rectangle((int) displayPosition.X, (int) displayPosition.Y, (int) width, (int) height),
                 null, Color.White, 0f, new Vector2(), _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-        }
-
-        public void ApplyForce(Vector2 force) {
-            _body.ApplyLinearImpulse(force);
+            foreach ( Shot shot in _shots ) {
+                shot.Draw(spriteBatch, c);
+            }
         }
 
         public void Update() {
@@ -71,31 +76,48 @@ namespace Test {
 
             Vector2 adjustedDelta = new Vector2(leftStick.X, 0);
 
-            foreach ( var pressedKey in keyboardState.GetPressedKeys() ) {
-                switch ( pressedKey ) {
-                    case Keys.Left:
-                        adjustedDelta.X += -1f;
-                        break;
-                    case Keys.Right:
-                        adjustedDelta.X += 1f;
-                        break;
-                    case Keys.Down:
-                        adjustedDelta.Y += 1f;
-                        break;
-                    case Keys.Up:
-                        adjustedDelta.Y += -1f;
-                        break;
-                }
-            }
+//            foreach ( var pressedKey in keyboardState.GetPressedKeys() ) {
+//                switch ( pressedKey ) {
+//                    case Keys.Left:
+//                        adjustedDelta.X += -1f;
+//                        break;
+//                    case Keys.Right:
+//                        adjustedDelta.X += 1f;
+//                        break;
+//                    case Keys.Down:
+//                        adjustedDelta.Y += 1f;
+//                        break;
+//                    case Keys.Up:
+//                        adjustedDelta.Y += -1f;
+//                        break;
+//                }
+//            }
 
             HandleJump(gamePadState);
 
-            if (gamePadState.IsButtonDown(Buttons.X)) {
-                
-            }
+            HandleShot(gamePadState);
 
             HandleRun(adjustedDelta);
+        }
 
+        private void HandleShot(GamePadState gamePadState) {
+            if ( InputHelper.Instance.IsNewButtonPress(Buttons.X) ) {
+                Vector2 position = _body.Position;
+                switch ( _direction ) {
+                    case Direction.Right:
+                        position += new Vector2(CharacterWidth / 2f + .5f, 0);
+                        break;
+                    case Direction.Left:
+                        position += new Vector2(-(CharacterWidth / 2f) - .5f, 0);
+                        break;
+                }
+                _shots.Add(new Shot(position, _world, _direction));
+            }
+
+            foreach ( Shot shot in _shots ) {
+                shot.Update();
+            }
+            _shots.RemoveAll(shot => shot.Disposed);
         }
 
         private void HandleRun(Vector2 adjustedDelta) {
@@ -116,21 +138,26 @@ namespace Test {
                     _body.ApplyLinearImpulse(new Vector2(0, (-MaxJumpingFrames + _jumpingFrames) * JumpMultiplier));
                     _jumpingFrames++;
                 } else {
+                    bool touchingGround = false;
                     ContactEdge contactEdge = _body.ContactList;
                     if ( contactEdge != null ) {
                         Vector2 normal;
                         FixedArray2<Vector2> points;
-                        while ( contactEdge.Next != null ) {
+                        do {
                             if ( contactEdge.Contact.IsTouching() ) {
                                 contactEdge.Contact.GetWorldManifold(out normal, out points);
                                 // A normal of -1 in the y direction indicates standing on something
-                                if ( normal.Y == -1 ) {
-                                    _body.ApplyLinearImpulse(new Vector2(0, -100));
-                                    _jumpingFrames = 1;
+                                if ( normal.Y < -.5 ) {
+                                    touchingGround = true;
+                                    break;
                                 }
                             }
                             contactEdge = contactEdge.Next;
-                        }
+                        } while ( contactEdge != null );
+                    }
+                    if ( touchingGround ) {
+                        _body.ApplyLinearImpulse(new Vector2(0, -100));
+                        _jumpingFrames = 1;
                     }
                 }
             } else {
