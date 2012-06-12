@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="64" tileheight="64">
+ <tileset firstgid="1" name="Metroid_64" tilewidth="64" tileheight="64">
+  <image source="metroidTiles_64.png" width="1024" height="2296"/>
+ </tileset>
+ <layer name="Blocks" width="100" height="100">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3ZUQ7CIBBFUXfi/nfpl4kSRitYmDu9J/G77zEllfZ2kyRp3L3z0z7t+vfm47zWGVlf53WeM9bPGY1btVbup2MyrImzepe191XnQ+p5hfmQe1WcS4U+leZSqUeFLlEH4vOUkvOTX/IfeZ+yez12X38WPX8rwz0xg5w9Qu5Ezh4hdyJnj5A7kbN/Qu1Fzf0NtRf9/0iE3ImcPULutDL70TPl7BnTeeRC7kTOHiF3ImePkDuRs0fIncjZI+RO5OwRaqeK50Fyn2/ZV50X/mn39WeQs0fIncjZI+RO5Ow99D70/C1yH3L2CLkTOXuE3ImcvYfeh56/Re+zI/+ZZ0vnscbR+VD6ROj5W/Q+9PyvMrw3m0XP/6pClwodnip0qbDHn+yRR7X7it6Fnr8ny7e9EcTMv8j+PbaVLc9qmb6pX30WM0bnSNqrkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkqTregAST8iMQJwAAA==
+  </data>
+ </layer>
+ <layer name="Collision" width="100" height="100">
+  <properties>
+   <property name="invisible" value="true"/>
+  </properties>
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3ZUQ6CMBBFUd2P+1+fXyZaGcVW2rnDPYnfvNehwcLlIklSv9v1/ad12vXfmo/zmqdnfZ3XcY5YP2fUb9ZauZ/2ybAmzupV1t5nnQ+p5xnmQ+5VcS4V+lSaS6UeFbpEHYjPU0rOT37Jv+d9yur1WH39UfT8rQz3xAhy9gi5Ezl7hNyJnD1C7kTO/gm1FzX3N9Re9P8jEXIncvYIudPM7HvPlKNnTOeRC7kTOXuE3ImcPULuRM4eIXciZ4+QO5GzR6idKp4HyX2+ZZ91Xvin1dcfQc4eIXciZ4+QO5Gzb6H3oedvkfuQs0fIncjZI+RO5Oxb6H3o+Vv0PivyH3m2dB5z7J0PpU+Enr9F70PP/yzDe7NR9PzPKnSp0OGhQpcKe/zBHnlUu6/oXej5t2T5tteDmPkX2b/HtrLlmS3TN/Wzz2JE7xxJe1WSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSdF53Dns98ECcAAA=
+  </data>
+ </layer>
+</map>
