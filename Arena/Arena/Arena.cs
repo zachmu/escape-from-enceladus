@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using FarseerPhysics;
 using FarseerPhysics.DebugViews;
 using FarseerPhysics.Dynamics;
@@ -8,10 +9,11 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Arena {
     public class Arena : Microsoft.Xna.Framework.Game {
-        GraphicsDeviceManager graphics;
-        SpriteBatch _spriteBatch;
-        Level _level;
-        Camera2D _camera;
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch _spriteBatch;
+        private Level _level;
+        private TileLevel _tileLevel;
+        private Camera2D _camera;
         private World _world;
         private DebugViewXNA _debugView;
         private Player _player;
@@ -27,7 +29,7 @@ namespace Arena {
 #if WINDOWS || XBOX
             graphics.PreferredBackBufferWidth = 1280;
             graphics.PreferredBackBufferHeight = 720;
-            ConvertUnits.SetDisplayUnitToSimUnitRatio(32f);
+            ConvertUnits.SetDisplayUnitToSimUnitRatio(64f);
             IsFixedTimeStep = true;
 #elif WINDOWS_PHONE
             ConvertUnits.SetDisplayUnitToSimUnitRatio(16f);
@@ -58,12 +60,6 @@ namespace Arena {
             base.Initialize();
         }
 
-        // This is a texture we can render.
-        Texture2D _myTexture;
-
-        // Set the coordinates to draw the sprite at.
-        //        Vector2 _spritePosition = new Vector2(5,5);
-
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -72,8 +68,8 @@ namespace Arena {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _myTexture = Content.Load<Texture2D>("welcome16");
-            _level = new Level(Content, Content.Load<Texture2D>("levelTest"), _world);
+            //_level = new Level(Content, Content.Load<Texture2D>("levelTest"), _world);
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world);
 
             if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
@@ -83,7 +79,6 @@ namespace Arena {
                 _debugView.SleepingShapeColor = Color.LightGray;
                 _debugView.LoadContent(GraphicsDevice, Content);
             }
-
         }
 
         /// <summary>
@@ -172,10 +167,10 @@ namespace Arena {
                                                          graphics.GraphicsDevice.Viewport.Height - 2 * margin);
                 Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
                 int maxx =
-                    viewportMargin.Right - _myTexture.Width;
+                    viewportMargin.Right - _player.Image.Width;
                 int minx = viewportMargin.Left;
                 int maxy =
-                    viewportMargin.Bottom - _myTexture.Height;
+                    viewportMargin.Bottom - _player.Image.Height;
                 int miny = viewportMargin.Top;
 
                 // Move the camera just enough to position the sprite at the edge of the margin
@@ -211,7 +206,8 @@ namespace Arena {
             graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
 
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-            _level.Draw(_spriteBatch, _camera);
+            //_level.Draw(_spriteBatch, _camera);
+            _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
             _player.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 

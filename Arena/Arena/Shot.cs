@@ -10,6 +10,7 @@ using FarseerPhysics.Factories;
 using FarseerPhysics.SamplesFramework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Squared.Tiled;
 using Test;
 
 namespace Arena {
@@ -29,7 +30,7 @@ namespace Arena {
 
         private readonly Player.Direction _direction;
         private int _framesToLive = 200;
-        private Level.Tile _destroyedTile = null;
+        private Layer.TiledTile _destroyedTile = null;
         private readonly World _world;
 
         public Shot(Vector2 position, World world, Player.Direction direction) {
@@ -49,7 +50,7 @@ namespace Arena {
                                          FixedArray2<Vector2> points;
                                          Vector2 normal;
                                          contact.GetWorldManifold(out normal, out points);
-                                         _destroyedTile = Level.CurrentLevel.GetTile(points[0], normal);
+                                         _destroyedTile = TileLevel.CurrentLevel.GetTile(points[0], normal);
                                          if ( _destroyedTile != null ) {
                                              Console.WriteLine(String.Format("Hit tile at {0}", _destroyedTile.Position));
                                          } else {
@@ -82,7 +83,7 @@ namespace Arena {
                 _body.Dispose();
             }
             if (_destroyedTile != null) {
-                Level.CurrentLevel.DestroyTile(_world, _destroyedTile);
+                TileLevel.CurrentLevel.DestroyTile(_world, _destroyedTile);
                 _destroyedTile = null;
             }
         }

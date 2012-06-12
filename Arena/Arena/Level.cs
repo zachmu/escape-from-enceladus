@@ -658,7 +658,6 @@ namespace Arena {
                     ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
                     spriteBatch.Draw(Image, displayPosition, Color.White);
                 }
-
                 
                 if (Arena.Debug) 
                     DebugPrint(spriteBatch, camera);
