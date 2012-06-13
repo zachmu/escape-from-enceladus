@@ -38,6 +38,7 @@ Copyright (C) 2009 Kevin Gadd
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using Arena;
 using FarseerPhysics.Dynamics;
@@ -150,85 +151,7 @@ namespace Squared.Tiled {
 
     public class Layer {
         public SortedList<string, string> Properties = new SortedList<string, string>();
-        private Map _map;
-
-        public struct TileInfo {
-            public Texture2D Texture;
-            public Rectangle Rectangle;
-        }
-
-        public class TiledTile : IEquatable<TiledTile> {
-            public Vector2 Position { get; set; }
-            public readonly IList<Body> Bodies = new List<Body>();
-            public ISet<TiledTile> Group;
-            public TileInfo Info { get; private set; }
-            public Layer Layer { get; private set; }
-
-            public TiledTile(Layer layer, Vector2 position, TileInfo info) {
-                Position = position;
-                Info = info;
-                Layer = layer;
-            }
-
-            public TiledTile GetLeftTile() {
-                return Layer.GetLeftTile(this);
-            }
-
-            public TiledTile GetUpTile() {
-                return Layer.GetUpTile(this);
-            }
-
-            public TiledTile GetRightTile() {
-                return Layer.GetRightTile(this);
-            }
-
-            public TiledTile GetDownTile() {
-                return Layer.GetDownTile(this);
-            }
-
-            public bool Equals(TiledTile other) {
-                if ( ReferenceEquals(null, other) ) {
-                    return false;
-                }
-                if ( ReferenceEquals(this, other) ) {
-                    return true;
-                }
-                return other.Position.Equals(Position);
-            }
-
-            public override bool Equals(object obj) {
-                if ( ReferenceEquals(null, obj) ) {
-                    return false;
-                }
-                if ( ReferenceEquals(this, obj) ) {
-                    return true;
-                }
-                if ( obj.GetType() != typeof ( TiledTile ) ) {
-                    return false;
-                }
-                return Equals((TiledTile) obj);
-            }
-
-            public override int GetHashCode() {
-                return Position.GetHashCode();
-            }
-
-            public static bool operator ==(TiledTile left, TiledTile right) {
-                return Equals(left, right);
-            }
-
-            public static bool operator !=(TiledTile left, TiledTile right) {
-                return !Equals(left, right);
-            }
-
-            // TODO: make temporary destruction possible
-            public void Dispose() {
-                Layer.DestroyTile(this);
-                foreach ( Body body in Bodies ) {
-                    body.Dispose();
-                }
-            }
-        }
+        internal Map _map;
 
         public string Name;
         public int Width, Height;
@@ -257,42 +180,66 @@ namespace Squared.Tiled {
                     case XmlNodeType.Element:
                         switch ( name ) {
                             case "data": {
-                                if ( reader.GetAttribute("encoding") != null ) {
-                                    var encoding = reader.GetAttribute("encoding");
-                                    var compressor = reader.GetAttribute("compression");
-                                    switch ( encoding ) {
-                                        case "base64": {
-                                            int dataSize = (result.Width * result.Height * 4) + 1024;
-                                            var buffer = new byte[dataSize];
-                                            reader.ReadElementContentAsBase64(buffer, 0, dataSize);
+                                    if ( reader.GetAttribute("encoding") != null ) {
+                                        var encoding = reader.GetAttribute("encoding");
+                                        var compressor = reader.GetAttribute("compression");
+                                        switch ( encoding ) {
+                                            case "base64": {
+                                                    int dataSize = (result.Width * result.Height * 4) + 1024;
+                                                    var buffer = new byte[dataSize];
+                                                    reader.ReadElementContentAsBase64(buffer, 0, dataSize);
 
-                                            Stream stream = new MemoryStream(buffer, false);
-                                            if ( compressor == "gzip" || compressor == "zlib" )
-                                                stream = new GZipStream(stream, CompressionMode.Decompress, false);
+                                                    Stream stream = new MemoryStream(buffer, false);
+                                                    if ( compressor == "gzip" || compressor == "zlib" )
+                                                        stream = new GZipStream(stream, CompressionMode.Decompress, false);
 
-                                            using ( stream )
-                                            using ( var br = new BinaryReader(stream) ) {
-                                                for ( int i = 0; i < result.Tiles.Length; i++ )
-                                                    result.Tiles[i] = br.ReadInt32();
-                                            }
+                                                    using ( stream )
+                                                    using ( var br = new BinaryReader(stream) ) {
+                                                        for ( int i = 0; i < result.Tiles.Length; i++ )
+                                                            result.Tiles[i] = br.ReadInt32();
+                                                    }
 
-                                            continue;
+                                                    continue;
+                                                }
+                                                ;
+
+                                            default:
+                                                throw new Exception("Unrecognized encoding.");
                                         }
-                                            ;
+                                    } else {
+                                        using ( var st = reader.ReadSubtree() ) {
+                                            int i = 0;
+                                            while ( !st.EOF ) {
+                                                switch ( st.NodeType ) {
+                                                    case XmlNodeType.Element:
+                                                        if ( st.Name == "tile" ) {
+                                                            if ( i < result.Tiles.Length ) {
+                                                                result.Tiles[i] = int.Parse(st.GetAttribute("gid"));
+                                                                i++;
+                                                            }
+                                                        }
 
-                                        default:
-                                            throw new Exception("Unrecognized encoding.");
+                                                        break;
+                                                    case XmlNodeType.EndElement:
+                                                        break;
+                                                }
+
+                                                st.Read();
+                                            }
+                                        }
                                     }
-                                } else {
+                                    Console.WriteLine("It made it!");
+                                }
+                                break;
+                            case "properties": {
                                     using ( var st = reader.ReadSubtree() ) {
-                                        int i = 0;
                                         while ( !st.EOF ) {
                                             switch ( st.NodeType ) {
                                                 case XmlNodeType.Element:
-                                                    if ( st.Name == "tile" ) {
-                                                        if ( i < result.Tiles.Length ) {
-                                                            result.Tiles[i] = int.Parse(st.GetAttribute("gid"));
-                                                            i++;
+                                                    if ( st.Name == "property" ) {
+                                                        if ( st.GetAttribute("name") != null ) {
+                                                            result.Properties.Add(st.GetAttribute("name"),
+                                                                                  st.GetAttribute("value"));
                                                         }
                                                     }
 
@@ -305,30 +252,6 @@ namespace Squared.Tiled {
                                         }
                                     }
                                 }
-                                Console.WriteLine("It made it!");
-                            }
-                                break;
-                            case "properties": {
-                                using ( var st = reader.ReadSubtree() ) {
-                                    while ( !st.EOF ) {
-                                        switch ( st.NodeType ) {
-                                            case XmlNodeType.Element:
-                                                if ( st.Name == "property" ) {
-                                                    if ( st.GetAttribute("name") != null ) {
-                                                        result.Properties.Add(st.GetAttribute("name"),
-                                                                              st.GetAttribute("value"));
-                                                    }
-                                                }
-
-                                                break;
-                                            case XmlNodeType.EndElement:
-                                                break;
-                                        }
-
-                                        st.Read();
-                                    }
-                                }
-                            }
                                 break;
                         }
 
@@ -346,7 +269,7 @@ namespace Squared.Tiled {
         /// <summary>
         /// Returns the tile at these coordinates, or null if no such tile exists.
         /// </summary>
-        public TiledTile GetTile(int x, int y) {
+        public Tile GetTile(int x, int y) {
             if ( (x < 0) || (y < 0) || (x >= Width) || (y >= Height) )
                 return null;
 
@@ -354,21 +277,22 @@ namespace Squared.Tiled {
             return GetTiles()[index];
         }
 
-        private IList<TiledTile> _tiles;
+        private IList<Tile> _tiles;
 
         /// <summary>
-        /// Returns all tiles in this layer as a dense list, with nulls representing empty spaces.
+        /// Returns all tiles in this layer as a dense list,
+        /// with nulls representing empty spaces.
         /// </summary>
-        public IList<TiledTile> GetTiles() {
+        public IList<Tile> GetTiles() {
 
             if ( _tiles == null ) {
                 TileInfo[] tileInfoCache = _map.GetTileInfoCache();
-                _tiles = new List<TiledTile>();
+                _tiles = new List<Tile>();
                 for ( int y = 0; y < Height; y++ ) {
                     for ( int x = 0; x < Width; x++ ) {
                         int cacheIndex = Tiles[(y * Width) + x] - 1;
                         if ( (cacheIndex >= 0) && (cacheIndex < tileInfoCache.Length) ) {
-                            _tiles.Add(new TiledTile(this, new Vector2(x, y), tileInfoCache[cacheIndex]));
+                            _tiles.Add(new Tile(this, new Vector2(x, y), cacheIndex));
                         } else {
                             _tiles.Add(null);
                         }
@@ -379,39 +303,63 @@ namespace Squared.Tiled {
             return _tiles;
         }
 
-        public void DestroyTile(TiledTile tile) {
-            GetTiles();
+        private List<Tile> _destroyedTiles = new List<Tile>(); 
+
+        /// <summary>
+        /// Destroys the given tile.  Meant to be called on tiles in the collision layer only; 
+        /// the underlying Block layer will be automatically updated to reflect the changes.
+        /// </summary>
+        internal void DestroyTile(Tile tile) {
+            Layer blockLayer = _map.Layers["Blocks"];
 
             int x = (int) tile.Position.X;
             int y = (int) tile.Position.Y;
             int index = y * Width + x;
-            _tiles[index] = null;
+            Tile blockLayerTile = blockLayer.GetTile(x, y);
+            if ( blockLayerTile != null ) {
+                blockLayerTile.Disposed = true;
+                blockLayerTile.TimeUntilReappear = tile.TimeUntilReappear;
+            }
+
+            _destroyedTiles.Add(tile);
+        }
+
+        /// <summary>
+        /// Revives the given tile.  Meant to be called on tiles in the collision layer only; 
+        /// the underlying Block layer will be automatically updated.
+        /// </summary>
+        /// <param name="tile"></param>
+        internal void ReviveTile(Tile tile) {
             Layer blockLayer = _map.Layers["Blocks"];
-            if ( blockLayer != null ) {
-                blockLayer.GetTiles();
-                blockLayer._tiles[index] = null;
+
+            int x = (int) tile.Position.X;
+            int y = (int) tile.Position.Y;
+            int index = y * Width + x;
+            Tile blockLayerTile = blockLayer.GetTile(x, y);
+            if ( blockLayerTile != null ) {
+                blockLayerTile.Disposed = false;
             }
         }
 
-        internal TiledTile GetDownTile(TiledTile tile) {
+        internal Tile GetDownTile(Tile tile) {
             if ( tile == null )
                 return null;
             return GetTile((int) tile.Position.X, (int) tile.Position.Y + 1);
         }
 
-        internal TiledTile GetRightTile(TiledTile tile) {
+        internal Tile GetRightTile(Tile tile) {
             if ( tile == null )
                 return null;
             return GetTile((int) tile.Position.X + 1, (int) tile.Position.Y);
         }
 
-        internal TiledTile GetUpTile(TiledTile tile) {
+        internal Tile GetUpTile(Tile tile) {
             if ( tile == null )
                 return null;
             return GetTile((int) tile.Position.X, (int) tile.Position.Y - 1);
         }
 
-        internal TiledTile GetLeftTile(TiledTile tile) {
+        internal Tile GetLeftTile(Tile tile) {
             if ( tile == null )
                 return null;
             return GetTile((int) tile.Position.X - 1, (int) tile.Position.Y);
@@ -421,16 +369,172 @@ namespace Squared.Tiled {
                          int tileWidth, int tileHeight) {
 
             TileInfo[] tileInfoCache = _map.GetTileInfoCache();
-            foreach ( TiledTile tile in GetTiles().Where(tile => tile != null) ) {
-                TileInfo info = tile.Info;
-
-                var tileCorner = new Vector2(tile.Position.X - 1f / 2f,
-                                             tile.Position.Y - 1f / 2f);
-                Vector2 displayPosition = new Vector2();
-                ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
-                batch.Draw(info.Texture, displayPosition, info.Rectangle, Color.White);
+            foreach ( Tile tile in GetTiles().Where(tile => tile != null) ) {
+                tile.Draw(batch, viewportSize, viewportPosition, tileWidth, tileHeight);
             }
         }
+
+        internal IDictionary<Tile, int> deadTiles = new Dictionary<Tile, int>(); 
+
+        public void Update(GameTime gameTime) {
+            Layer blockLayer = _map.Layers["Blocks"];
+            foreach (Tile tile in _destroyedTiles) {
+                tile.Update(gameTime);
+                int x = (int) tile.Position.X;
+                int y = (int) tile.Position.Y;
+                int index = y * Width + x;
+                Tile blockLayerTile = blockLayer.GetTile(x, y);
+                if (blockLayerTile != null) {
+                    blockLayerTile.Update(gameTime);
+                } 
+            }
+
+            _destroyedTiles.RemoveAll(tile => !tile.Disposed);
+        } 
+    }
+
+    public struct TileInfo {
+        public Texture2D Texture;
+        public Rectangle Rectangle;
+    }
+
+    public class Tile : IEquatable<Tile> {
+        public Vector2 Position { get; private set; }
+
+        // TODO: share this data
+        public readonly IList<Body> Bodies = new List<Body>();
+        public ISet<Tile> Group;
+        private readonly int _tileInfoIndex;
+
+        private Layer Layer { get; set; }
+        public bool Disposed { get; internal set; }
+        public int TimeUntilReappear { get; internal set; }
+
+        public Tile(Layer layer, Vector2 position, int tileInfoIndex) {
+            Position = position;
+            Layer = layer;
+            _tileInfoIndex = tileInfoIndex;
+        }
+
+        public Tile GetLeftTile() {
+            return Layer.GetLeftTile(this);
+        }
+
+        public Tile GetUpTile() {
+            return Layer.GetUpTile(this);
+        }
+
+        public Tile GetRightTile() {
+            return Layer.GetRightTile(this);
+        }
+
+        public Tile GetDownTile() {
+            return Layer.GetDownTile(this);
+        }
+
+        public bool Equals(Tile other) {
+            if ( ReferenceEquals(null, other) ) {
+                return false;
+            }
+            if ( ReferenceEquals(this, other) ) {
+                return true;
+            }
+            return other.Position.Equals(Position);
+        }
+
+        public override bool Equals(object obj) {
+            if ( ReferenceEquals(null, obj) ) {
+                return false;
+            }
+            if ( ReferenceEquals(this, obj) ) {
+                return true;
+            }
+            if ( obj.GetType() != typeof(Tile) ) {
+                return false;
+            }
+            return Equals((Tile) obj);
+        }
+
+        public override int GetHashCode() {
+            return Position.GetHashCode();
+        }
+
+        public static bool operator ==(Tile left, Tile right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Tile left, Tile right) {
+            return !Equals(left, right);
+        }
+
+        /// <summary>
+        /// Destroys this tile, removing it and any underlying block model from the game model.
+        /// </summary>
+        public void Dispose() {
+            if ( Disposed )
+                return;
+
+            TimeUntilReappear = BlockTimeUntilReappear;
+            DestroyAttachedBodies();
+            Disposed = true;
+
+            Layer.DestroyTile(this);
+        }
+
+        /// <summary>
+        /// Destroys all Box2d bodies attached to this tile's group.
+        /// </summary>
+        public void DestroyAttachedBodies() {
+            foreach ( Body body in Bodies ) {
+                Console.WriteLine("Disposing body with id {0} ", RuntimeHelpers.GetHashCode(body));
+                body.Dispose();
+            }
+            Bodies.Clear();            
+
+            foreach ( Tile t in Group ) {
+                t.Bodies.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Revives this tile, restoring it and any underlying block model to the game model.
+        /// </summary>
+        public void Revive() {
+            if ( !Disposed )
+                return;
+
+            Console.WriteLine("Reviving tile at {0}", Position);
+            Disposed = false;
+            TileLevel.CurrentLevel.ReviveTile(this);
+            
+            Layer.ReviveTile(this);
+        }
+
+        public void Draw(SpriteBatch batch, Rectangle viewportSize, Vector2 viewportPosition, int tileWidth, int tileHeight) {
+                var tileCorner = new Vector2(Position.X - 1f / 2f,
+                                             Position.Y - 1f / 2f);
+                Vector2 displayPosition = new Vector2();
+                ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
+                TileInfo tileInfo = Layer._map.GetTileInfoCache()[_tileInfoIndex];
+            if ( !Disposed ) {
+                batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White);
+            } else if (TimeUntilReappear <= BlockTimeUntilReappear / 4) {
+                float alpha = 1 - TimeUntilReappear / (float) (BlockTimeUntilReappear / 4);
+                batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White * alpha);
+            }
+        }
+
+        public void Update(GameTime gameTime) {
+            if ( Disposed ) {
+                TimeUntilReappear -= gameTime.ElapsedGameTime.Milliseconds;
+                if ( TimeUntilReappear <= 0 ) {
+                    Revive();
+                }
+                //Console.WriteLine("Updating tile with game time {0}", gameTime.ElapsedGameTime.Milliseconds);
+            }
+        }
+
+        static readonly private int BlockTimeUntilReappear = 2000;
     }
 
     public class ObjectGroup {
@@ -605,24 +709,24 @@ namespace Squared.Tiled {
         public SortedList<string, string> Properties = new SortedList<string, string>();
         public int Width, Height;
         public int TileWidth, TileHeight;
-        private Layer.TileInfo[] _tileInfoCache = null;
+        private TileInfo[] _tileInfoCache = null;
 
-        public Layer.TileInfo[] GetTileInfoCache() {
-            if (_tileInfoCache == null) {
+        public TileInfo[] GetTileInfoCache() {
+            if ( _tileInfoCache == null ) {
                 _tileInfoCache = BuildTileInfoCache(Tilesets.Values);
             }
             return _tileInfoCache;
         }
 
-        protected Layer.TileInfo[] BuildTileInfoCache(IList<Tileset> tilesets) {
+        protected TileInfo[] BuildTileInfoCache(IList<Tileset> tilesets) {
             Rectangle rect = new Rectangle();
-            var cache = new List<Layer.TileInfo>();
+            var cache = new List<TileInfo>();
             int i = 1;
 
         next:
             for ( int t = 0; t < tilesets.Count; t++ ) {
                 if ( tilesets[t].MapTileToRect(i, ref rect) ) {
-                    cache.Add(new Layer.TileInfo {
+                    cache.Add(new TileInfo {
                         Texture = tilesets[t].Texture,
                         Rectangle = rect
                     });
@@ -740,6 +844,12 @@ namespace Squared.Tiled {
 
             foreach ( var objectGroup in ObjectGroups.Values ) {
                 objectGroup.Draw(this, batch, rectangle, viewportPosition);
+            }
+        }
+
+        public void Update(GameTime gameTime) {
+            foreach ( Layer layer in Layers.Values ) {
+                layer.Update(gameTime);
             }
         }
     }

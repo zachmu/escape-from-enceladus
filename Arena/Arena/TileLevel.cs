@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using FarseerPhysics.Collision.Shapes;
+using System.Runtime.CompilerServices;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -10,51 +10,54 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Squared.Tiled;
-using TiledTile = Squared.Tiled.Layer.TiledTile;
 
 namespace Arena {
 
     public class TileLevel {
         private SpriteFont _debugFont;
 
-        internal const float TileSize = 1f;
-        internal Layer CollisionLayer;
+        private const float TileSize = 1f;
+        private readonly Layer _collisionLayer;
+        private readonly Map _levelMap;
+        private readonly World _world;
 
         public static TileLevel CurrentLevel { get; private set; }
-        public Map LevelMap { get; private set; }
 
         public TileLevel(ContentManager cm, String mapFile, World world) {
             CurrentLevel = this;
 
-            //BlankTile.Image = cm.Load<Texture2D>("star");
             _debugFont = cm.Load<SpriteFont>("debugFont");
+            _levelMap = Map.Load(mapFile, cm);
+            _collisionLayer = _levelMap.Layers["Collision"];
+            _world = world;
 
-            LevelMap = Map.Load(mapFile, cm);
-            CollisionLayer = LevelMap.Layers["Collision"];
-
-            InitializeEdges(world);
+            InitializeEdges();
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
-            LevelMap.Draw(spriteBatch, viewportSize, camera.ConvertScreenToWorld(new Vector2(0f, 0f)));
+            _levelMap.Draw(spriteBatch, viewportSize, camera.ConvertScreenToWorld(new Vector2(0f, 0f)));
+        }
+
+        public void Update(GameTime gameTime) {
+            _levelMap.Update(gameTime);
         }
 
         /// <summary>
         /// Analyzes and stores the edges of the tiles, to be used by the physics engine.
         /// </summary>
         /// <param name="world"> </param>
-        public void InitializeEdges(World world) {
+        private void InitializeEdges() {
             // First we break the tiles down into connected groups.
             FindGroups();
 
             // Then create edges using these groups
-            CreateEdges(world);
+            CreateEdges();
         }
 
         /// <summary>
         /// Gets the tile located at the sim location given, having the collision normal given.
         /// </summary>
-        internal TiledTile GetTile(Vector2 location, Vector2 normal) {
+        internal Tile GetTile(Vector2 location, Vector2 normal) {
 
             // Nudge the location of the collision a bit in the appropriate direction 
             // so that it will be inside the tile that was hit.
@@ -74,20 +77,21 @@ namespace Arena {
             int x = (int) location.X;
             int y = (int) location.Y;
 
-            // Assume that this tile, or the one of its neighbors, is the cause of the collision
-            IList<TiledTile> candidates = new List<TiledTile>() {
-                                                          CollisionLayer.GetTile(x, y),
-                                                          CollisionLayer.GetTile(x, y - 1),
-                                                          CollisionLayer.GetTile(x, y + 1),
-                                                          CollisionLayer.GetTile(x + 1, y),
-                                                          CollisionLayer.GetTile(x - 1, y),
-                                                          CollisionLayer.GetTile(x + 1, y + 1),
-                                                          CollisionLayer.GetTile(x - 1, y - 1),
-                                                          CollisionLayer.GetTile(x + 1, y - 1),
-                                                          CollisionLayer.GetTile(x - 1, y + 1),
+            // Assume that this tile, or the one of its neighbors, 
+            // is the cause of the collision
+            IList<Tile> candidates = new List<Tile> {
+                _collisionLayer.GetTile(x, y),
+                _collisionLayer.GetTile(x, y - 1),
+                _collisionLayer.GetTile(x, y + 1),
+                _collisionLayer.GetTile(x + 1, y),
+                _collisionLayer.GetTile(x - 1, y),
+                _collisionLayer.GetTile(x + 1, y + 1),
+                _collisionLayer.GetTile(x - 1, y - 1),
+                _collisionLayer.GetTile(x + 1, y - 1),
+                _collisionLayer.GetTile(x - 1, y + 1),
             };
 
-            foreach ( TiledTile t in candidates.Where(cand => cand != null) ) {
+            foreach ( Tile t in candidates.Where(cand => cand != null && !cand.Disposed) ) {
                 Vector2 upperleft = t.Position - new Vector2(TileSize / 2);
                 Vector2 lowerRight = t.Position + new Vector2(TileSize / 2);
                 Console.WriteLine("Evaluating tile with bounds {0},{1}", upperleft, lowerRight);
@@ -103,7 +107,7 @@ namespace Arena {
         /// <summary>
         /// Creates world edges for all tiles
         /// </summary>
-        private void CreateEdges(World world) {
+        private void CreateEdges() {
             // Alternate coordinate system: 0,0 refers to the upper left corner of the upper-left tile,
             // 1,1 the bottom-right corner of that same tile.  Thus a tile's four corners are defined by:
             // Upper-left: x, y
@@ -111,12 +115,12 @@ namespace Arena {
             // Bottom-right: x+1, y+1
             // Bottom-left: x, y+1
 
-            HashSet<TiledTile> seen = new HashSet<TiledTile>();
+            HashSet<Tile> seen = new HashSet<Tile>();
 
-            foreach ( Layer.TiledTile tile in CollisionLayer.GetTiles().Where(tile => tile != null) ) {
+            foreach ( Tile tile in _collisionLayer.GetTiles().Where(tile => tile != null && !tile.Disposed) ) {
                 if ( !seen.Contains(tile) ) {
                     seen.UnionWith(tile.Group);
-                    CreateEdges(world, tile);
+                    CreateEdges(tile);
                 }
             }
         }
@@ -124,28 +128,28 @@ namespace Arena {
         /// <summary>
         /// Creates the edges for the group containing the tile given.  Group membership must already be established.
         /// </summary>
-        private void CreateEdges(World world, TiledTile tile) {
+        private void CreateEdges(Tile tile) {
             Edges edges = new Edges();
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            foreach ( TiledTile t in tile.Group ) {
-                TiledTile left = t.GetLeftTile();
-                if ( left == null ) {
+            foreach ( Tile t in tile.Group ) {
+                Tile left = t.GetLeftTile();
+                if ( TileNullOrDisposed(left) ) {
                     edges.Add(GetLeftEdge(t));
                 }
 
-                TiledTile up = t.GetUpTile();
-                if ( up == null ) {
+                Tile up = t.GetUpTile();
+                if ( TileNullOrDisposed(up) ) {
                     edges.Add(GetTopEdge(t));
                 }
 
-                TiledTile right = t.GetRightTile();
-                if ( right == null ) {
+                Tile right = t.GetRightTile();
+                if ( TileNullOrDisposed(right) ) {
                     edges.Add(GetRightEdge(t));
                 }
 
-                TiledTile down = t.GetDownTile();
-                if ( down == null ) {
+                Tile down = t.GetDownTile();
+                if ( TileNullOrDisposed(down) ) {
                     edges.Add(GetBottomEdge(t));
                 }
             }
@@ -183,12 +187,19 @@ namespace Arena {
                 } while ( currentVertex != initialVertex );
 
                 Stopwatch factoryWatch = new Stopwatch();
+                if ( chain.Count <= 10 ) {
+                    int i = 0;
+                    i++;
+                }
+
                 factoryWatch.Start();
-                Body loopShape = BodyFactory.CreateLoopShape(world, chain);
+                Console.WriteLine("Creating chain with vertices {0}", string.Join(",", chain));
+                Body loopShape = BodyFactory.CreateLoopShape(_world, chain);
+                Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
                 Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
 
-                foreach ( TiledTile t in tile.Group ) {
+                foreach ( Tile t in tile.Group ) {
                     t.Bodies.Add(loopShape);
                 }
 
@@ -198,41 +209,65 @@ namespace Arena {
             Console.WriteLine("Processing edges into shape took {0} ticks", watch.ElapsedTicks);
         }
 
+        private static bool TileNullOrDisposed(Tile left) {
+            return left == null || left.Disposed;
+        }
+
         private bool AreEdgesColinear(Edge prevEdge, Edge currentEdge) {
+            // ReSharper disable CompareOfFloatsByEqualityOperator
             return (currentEdge.One.X == prevEdge.One.X
                     && currentEdge.Two.X == prevEdge.Two.X)
                    || (currentEdge.One.Y == prevEdge.One.Y
                        && currentEdge.Two.Y == prevEdge.Two.Y);
+            // ReSharper restore CompareOfFloatsByEqualityOperator
         }
 
-        private static Edge GetBottomEdge(TiledTile tile) {
+        private static Edge GetBottomEdge(Tile tile) {
             return new Edge(tile.Position + new Vector2(0, 1), tile.Position + new Vector2(1, 1));
         }
 
-        private static Edge GetRightEdge(TiledTile tile) {
+        private static Edge GetRightEdge(Tile tile) {
             return new Edge(tile.Position + new Vector2(1, 0), tile.Position + new Vector2(1, 1));
         }
 
-        private static Edge GetTopEdge(TiledTile tile) {
+        private static Edge GetTopEdge(Tile tile) {
             return new Edge(tile.Position, tile.Position + new Vector2(1, 0));
         }
 
-        private static Edge GetLeftEdge(TiledTile tile) {
+        private static Edge GetLeftEdge(Tile tile) {
             return new Edge(tile.Position, tile.Position + new Vector2(0, 1));
         }
 
         /// <summary>
         /// Destroys this tile
         /// </summary>
-        public void DestroyTile(World world, TiledTile t) {
+        public void DestroyTile(Tile t) {
             t.Dispose();
 
-            IEnumerable<TiledTile> neighbors = FindAdjacentSolidTiles(t);
-            var seenTiles = new HashSet<TiledTile>();
+            RecreateEdges(t);
+        }
 
-            foreach ( TiledTile tile in neighbors ) {
+        /// <summary>
+        /// Revives the tile given, restoring it to the game model.
+        /// </summary>
+        public void ReviveTile(Tile tile) {
+            tile.Revive();
+            List<Tile> neighbors = FindAdjacentSolidTiles(tile);
+            foreach ( Tile neighbor in neighbors ) {
+                neighbor.DestroyAttachedBodies();
+            }
+
+            RecreateEdges(tile);
+        }
+
+        private void RecreateEdges(Tile t) {
+            List<Tile> neighbors = FindAdjacentSolidTiles(t);
+            neighbors.Add(t);
+            var seenTiles = new HashSet<Tile>();
+
+            foreach ( Tile tile in neighbors.Where(n => n != null && !n.Disposed) ) {
                 if ( !seenTiles.Contains(tile) ) {
-                    HashSet<TiledTile> group = new HashSet<TiledTile>();
+                    HashSet<Tile> group = new HashSet<Tile>();
 
                     Stopwatch watch = new Stopwatch();
                     watch.Start();
@@ -242,7 +277,7 @@ namespace Arena {
                     watch.Reset();
 
                     watch.Start();
-                    CreateEdges(world, tile);
+                    CreateEdges(tile);
                     watch.Stop();
                     Console.WriteLine("Creating edges took {0} ticks", watch.ElapsedTicks);
                 }
@@ -252,12 +287,12 @@ namespace Arena {
         /// <summary>
         /// Collection of edges with vertex querying capability
         /// </summary>
-        internal class Edges {
+        private class Edges {
             private readonly IDictionary<Vector2, ICollection<Edge>> _edgesByVertex =
                 new Dictionary<Vector2, ICollection<Edge>>();
 
             public void Add(Edge edge) {
-                foreach ( Vector2 endpoint in new Vector2[] { edge.One, edge.Two } ) {
+                foreach ( Vector2 endpoint in new[] { edge.One, edge.Two } ) {
                     if ( !_edgesByVertex.ContainsKey(endpoint) ) {
                         _edgesByVertex.Add(endpoint, new HashSet<Edge>());
                     }
@@ -265,11 +300,7 @@ namespace Arena {
                 }
             }
 
-            public bool ContainsVertex(Vector2 vertex) {
-                return _edgesByVertex.ContainsKey(vertex);
-            }
-
-            public ICollection<Edge> GetEdgesWithVertex(Vector2 vertex) {
+            public IEnumerable<Edge> GetEdgesWithVertex(Vector2 vertex) {
                 return _edgesByVertex[vertex];
             }
 
@@ -281,7 +312,7 @@ namespace Arena {
                 return _edgesByVertex.Count > 0;
             }
 
-            public void Remove(IList<Vector2> chain) {
+            public void Remove(IEnumerable<Vector2> chain) {
                 foreach ( Vector2 v in chain ) {
                     _edgesByVertex.Remove(v);
                 }
@@ -355,11 +386,11 @@ namespace Arena {
         /// Establishes connectedness groups for all tiles in the level.
         /// </summary>
         private void FindGroups() {
-            var seenTiles = new HashSet<TiledTile>();            
+            var seenTiles = new HashSet<Tile>();            
 
-            foreach ( TiledTile tile in CollisionLayer.GetTiles().Where(tile => tile != null) ) {
+            foreach ( Tile tile in _collisionLayer.GetTiles().Where(tile => tile != null && !tile.Disposed) ) {
                 if ( !seenTiles.Contains(tile) ) {
-                    HashSet<TiledTile> group = new HashSet<TiledTile>();
+                    HashSet<Tile> group = new HashSet<Tile>();
                     FindConnectedTiles(tile, group, seenTiles);
                 }
             }
@@ -368,13 +399,13 @@ namespace Arena {
         /// <summary>
         /// Finds all tiles that are connected to this one, setting its membership to be the group given.
         /// </summary>
-        internal void FindConnectedTiles(TiledTile tile, ISet<TiledTile> group, ISet<TiledTile> seenTiles) {
+        private void FindConnectedTiles(Tile tile, ISet<Tile> group, ISet<Tile> seenTiles) {
             //Console.WriteLine("Adding tile {0} to group {1}", tile.Position, group);
 
             group.Add(tile);
             seenTiles.Add(tile);
             tile.Group = group;
-            foreach ( Layer.TiledTile connected in FindAdjacentSolidTiles(tile) ) {
+            foreach ( Tile connected in FindAdjacentSolidTiles(tile) ) {
                 if ( !seenTiles.Contains(connected) ) {
                     FindConnectedTiles(connected, group, seenTiles);
                 }
@@ -384,10 +415,10 @@ namespace Arena {
         /// <summary>
         /// Returns the 0-4 adjacent solid tiles connected to this one.
         /// </summary>
-        internal IEnumerable<Layer.TiledTile> FindAdjacentSolidTiles(Layer.TiledTile tile) {
+        private List<Tile> FindAdjacentSolidTiles(Tile tile) {
             return
-                new Layer.TiledTile[] { tile.GetLeftTile(), tile.GetUpTile(), tile.GetRightTile(), tile.GetDownTile() }.Where(
-                    adj => adj != null).ToList();
+                new[] { tile.GetLeftTile(), tile.GetUpTile(), tile.GetRightTile(), tile.GetDownTile() }.Where(
+                    adj => adj != null && !adj.Disposed).ToList();
         }
     }
 

@@ -11,7 +11,6 @@ namespace Arena {
     public class Arena : Microsoft.Xna.Framework.Game {
         private GraphicsDeviceManager graphics;
         private SpriteBatch _spriteBatch;
-        private Level _level;
         private TileLevel _tileLevel;
         private Camera2D _camera;
         private World _world;
@@ -69,7 +68,7 @@ namespace Arena {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //_level = new Level(Content, Content.Load<Texture2D>("levelTest"), _world);
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world);
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test_simple.tmx"), _world);
 
             if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
@@ -190,6 +189,8 @@ namespace Arena {
                     _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
                 }
             }
+
+            _tileLevel.Update(gameTime);
 
             _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
 

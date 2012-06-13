@@ -30,7 +30,7 @@ namespace Arena {
 
         private readonly Player.Direction _direction;
         private int _framesToLive = 200;
-        private Layer.TiledTile _destroyedTile = null;
+        private Tile _destroyedTile = null;
         private readonly World _world;
 
         public Shot(Vector2 position, World world, Player.Direction direction) {
@@ -83,7 +83,7 @@ namespace Arena {
                 _body.Dispose();
             }
             if (_destroyedTile != null) {
-                TileLevel.CurrentLevel.DestroyTile(_world, _destroyedTile);
+                TileLevel.CurrentLevel.DestroyTile(_destroyedTile);
                 _destroyedTile = null;
             }
         }
