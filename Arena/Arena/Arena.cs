@@ -207,7 +207,6 @@ namespace Arena {
             graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
 
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-            //_level.Draw(_spriteBatch, _camera);
             _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
             _player.Draw(_spriteBatch, _camera);
             _spriteBatch.End();

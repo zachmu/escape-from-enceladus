@@ -165,37 +165,34 @@ namespace Arena {
                 Edge currentEdge = edges.GetEdgesWithVertex(currentVertex).First();
                 Edge prevEdge = null;
                 Vertices chain = new Vertices();
-                IList<Vector2> processedVertices = new List<Vector2>();
+                Edges processedEdges = new Edges();
                 Vector2 offset = new Vector2(-TileSize / 2); // offset to account for different in position v. edge
 
+                int i = 0;
                 // work our way through the vertices, linking them together into a chain
                 do {
-                    processedVertices.Add(currentVertex);
+                    processedEdges.Add(currentEdge);
 
                     // only add vertices that aren't colinear with our current edge
                     if ( prevEdge == null || !AreEdgesColinear(prevEdge, currentEdge) ) {
                         chain.Add(currentVertex + offset);
                     }
+                    Edge edge = edges.GetNextEdge(currentEdge, currentVertex);
                     currentVertex = currentEdge.GetOtherVertex(currentVertex);
-                    foreach ( Edge edge in edges.GetEdgesWithVertex(currentVertex) ) {
-                        if ( edge != currentEdge ) {
-                            prevEdge = currentEdge;
-                            currentEdge = edge;
-                            break;
-                        }
+                    prevEdge = currentEdge;
+                    currentEdge = edge;
+
+                    if ( i++ > 10000 ) {
+                        i++;
                     }
                 } while ( currentVertex != initialVertex );
 
                 Stopwatch factoryWatch = new Stopwatch();
-                if ( chain.Count <= 10 ) {
-                    int i = 0;
-                    i++;
-                }
 
                 factoryWatch.Start();
-                Console.WriteLine("Creating chain with vertices {0}", string.Join(",", chain));
+                //Console.WriteLine("Creating chain with vertices {0}", string.Join(",", chain));
                 Body loopShape = BodyFactory.CreateLoopShape(_world, chain);
-                Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
+                //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
                 Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
 
@@ -203,10 +200,10 @@ namespace Arena {
                     t.Bodies.Add(loopShape);
                 }
 
-                edges.Remove(processedVertices);
+                edges.Remove(processedEdges);
             }
             watch.Stop();
-            Console.WriteLine("Processing edges into shape took {0} ticks", watch.ElapsedTicks);
+            Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
         }
 
         private static bool TileNullOrDisposed(Tile left) {
@@ -222,7 +219,7 @@ namespace Arena {
             // ReSharper restore CompareOfFloatsByEqualityOperator
         }
 
-        private static Edge GetBottomEdge(Tile tile) {
+        private static Edge GetBottomEdge(Tile tile) {            
             return new Edge(tile.Position + new Vector2(0, 1), tile.Position + new Vector2(1, 1));
         }
 
@@ -292,7 +289,7 @@ namespace Arena {
                 new Dictionary<Vector2, ICollection<Edge>>();
 
             public void Add(Edge edge) {
-                foreach ( Vector2 endpoint in new[] { edge.One, edge.Two } ) {
+                foreach ( Vector2 endpoint in new[] {edge.One, edge.Two} ) {
                     if ( !_edgesByVertex.ContainsKey(endpoint) ) {
                         _edgesByVertex.Add(endpoint, new HashSet<Edge>());
                     }
@@ -315,6 +312,45 @@ namespace Arena {
             public void Remove(IEnumerable<Vector2> chain) {
                 foreach ( Vector2 v in chain ) {
                     _edgesByVertex.Remove(v);
+                }
+            }
+
+            public void Remove(Edges processedEdges) {
+                foreach ( Vector2 v in processedEdges._edgesByVertex.Keys ) {
+                    if ( _edgesByVertex.ContainsKey(v) ) {
+                        var edges = _edgesByVertex[v];
+                        foreach ( Edge e in processedEdges._edgesByVertex[v] ) {
+                            edges.Remove(e);
+                        }
+                        if ( edges.Count == 0 ) {
+                            _edgesByVertex.Remove(v);
+                        }
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Returns the next edge to walk after this one, which will always attempt to try to take a right-hand turn.
+            /// </summary>
+            /// <param name="currentEdge"> </param>
+            /// <param name="initialVertex">The initial vertex of this edge to determine which direction to walk.</param>
+            public Edge GetNextEdge(Edge edge, Vector2 initialVertex) {
+                var otherVertex = edge.GetOtherVertex(initialVertex);
+                Edge down = new Edge(otherVertex, otherVertex + new Vector2(0, 1));
+                Edge up = new Edge(otherVertex, otherVertex + new Vector2(0, -1));
+                Edge left = new Edge(otherVertex, otherVertex + new Vector2(-1, 0));
+                Edge right = new Edge(otherVertex, otherVertex + new Vector2(1, 0));                
+
+                if ( otherVertex.X > initialVertex.X ) { // walking right
+                    return new[] { down, up, right }.FirstOrDefault(e => _edgesByVertex[otherVertex].Contains(e));
+                } else if (otherVertex.X < initialVertex.X) { // walking left
+                    return new[] { up, down, left }.FirstOrDefault(e => _edgesByVertex[otherVertex].Contains(e));                    
+                } else if (otherVertex.Y > initialVertex.Y) { // walking down
+                    return new[] { left, right, down }.FirstOrDefault(e => _edgesByVertex[otherVertex].Contains(e));                                        
+                } else if (otherVertex.Y < initialVertex.Y) { // walking up
+                    return new[] { right, left, up }.FirstOrDefault(e => _edgesByVertex[otherVertex].Contains(e));                    
+                } else {
+                    throw new Exception(String.Format("Illegal state when walking edge {0} from {1}", edge, initialVertex));
                 }
             }
         }
