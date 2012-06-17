@@ -20,6 +20,7 @@ namespace Arena {
         private readonly Layer _collisionLayer;
         private readonly Map _levelMap;
         private readonly World _world;
+        private ISet<Fixture> _fixturesCreatedThisStep = new HashSet<Fixture>();  
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -35,10 +36,14 @@ namespace Arena {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
-            _levelMap.Draw(spriteBatch, viewportSize, camera.ConvertScreenToWorld(new Vector2(0f, 0f)));
+            var topLeft = camera.ConvertScreenToWorld(new Vector2(0f, 0f));
+            var bottomRight = camera.ConvertScreenToWorld(new Vector2(viewportSize.Width, viewportSize.Height));
+            var diff = bottomRight - topLeft;
+            _levelMap.Draw(spriteBatch, new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) diff.X, (int) diff.Y));
         }
 
         public void Update(GameTime gameTime) {
+            _fixturesCreatedThisStep.Clear();
             _levelMap.Update(gameTime);
         }
 
@@ -192,6 +197,8 @@ namespace Arena {
                 factoryWatch.Start();
                 //Console.WriteLine("Creating chain with vertices {0}", string.Join(",", chain));
                 Body loopShape = BodyFactory.CreateLoopShape(_world, chain);
+                loopShape.Friction = 0;
+                loopShape.IsStatic = true;
                 //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
                 Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);

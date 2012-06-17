@@ -365,12 +365,19 @@ namespace Squared.Tiled {
             return GetTile((int) tile.Position.X - 1, (int) tile.Position.Y);
         }
 
-        public void Draw(SpriteBatch batch, IList<Tileset> tilesets, Rectangle viewportSize, Vector2 viewportPosition,
-                         int tileWidth, int tileHeight) {
+        public void Draw(SpriteBatch batch, IList<Tileset> tilesets, Rectangle visibleWorld) {
 
-            TileInfo[] tileInfoCache = _map.GetTileInfoCache();
-            foreach ( Tile tile in GetTiles().Where(tile => tile != null) ) {
-                tile.Draw(batch, viewportSize, viewportPosition, tileWidth, tileHeight);
+            int minx = Math.Max(visibleWorld.Left - 1, 0);
+            int miny = Math.Max(visibleWorld.Top - 1, 0);
+            int maxx = Math.Min(visibleWorld.Right + 1, Width);
+            int maxy = Math.Min(visibleWorld.Bottom + 1, Height);
+
+            for ( int y = miny; y <= maxy; y++ ) {
+                for ( int x = minx; x <= maxx; x++ ) {
+                    var tile = GetTile(x, y);
+                    if ( tile != null )
+                        tile.Draw(batch);
+                }
             }
         }
 
@@ -378,15 +385,15 @@ namespace Squared.Tiled {
 
         public void Update(GameTime gameTime) {
             Layer blockLayer = _map.Layers["Blocks"];
-            foreach (Tile tile in _destroyedTiles) {
+            foreach ( Tile tile in _destroyedTiles ) {
                 tile.Update(gameTime);
                 int x = (int) tile.Position.X;
                 int y = (int) tile.Position.Y;
                 int index = y * Width + x;
                 Tile blockLayerTile = blockLayer.GetTile(x, y);
-                if (blockLayerTile != null) {
+                if ( blockLayerTile != null ) {
                     blockLayerTile.Update(gameTime);
-                } 
+                }
             }
 
             _destroyedTiles.RemoveAll(tile => !tile.Disposed);
@@ -510,7 +517,7 @@ namespace Squared.Tiled {
             Layer.ReviveTile(this);
         }
 
-        public void Draw(SpriteBatch batch, Rectangle viewportSize, Vector2 viewportPosition, int tileWidth, int tileHeight) {
+        public void Draw(SpriteBatch batch) {
                 var tileCorner = new Vector2(Position.X - 1f / 2f,
                                              Position.Y - 1f / 2f);
                 Vector2 displayPosition = new Vector2();
@@ -837,14 +844,14 @@ namespace Squared.Tiled {
             return result;
         }
 
-        public void Draw(SpriteBatch batch, Rectangle rectangle, Vector2 viewportPosition) {
+        public void Draw(SpriteBatch batch, Rectangle visibleWorld) {
             foreach ( Layer layer in Layers.Values.Where(layer => !layer.Properties.ContainsKey("invisible")) ) {
-                layer.Draw(batch, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
+                layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
 
-            foreach ( var objectGroup in ObjectGroups.Values ) {
-                objectGroup.Draw(this, batch, rectangle, viewportPosition);
-            }
+//            foreach ( var objectGroup in ObjectGroups.Values ) {
+//                objectGroup.Draw(this, batch, visibleWorld, viewportPosition);
+//            }
         }
 
         public void Update(GameTime gameTime) {

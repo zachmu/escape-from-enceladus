@@ -18,6 +18,8 @@ namespace Arena {
         private Player _player;
         private bool _manualCamera = false;
 
+        private const string Gravity = "World gravity (m/s/s)";
+
         public static Boolean Debug = true;
     
         public Arena() {
@@ -48,11 +50,12 @@ namespace Arena {
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize() {
-            _world = new World(new Vector2(0, 20f));
+            Constants.Register(new Constant(Gravity, 25f, Keys.G));
+
+            _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
 
-            _player = new Player(new Vector2(5, 5), _world);
-            _player.Image = Content.Load<Texture2D>("samus");
+            _player = new Player(new Vector2(10, 10), _world) {Image = Content.Load<Texture2D>("samus")};
 
             Shot.Image = Content.Load<Texture2D>("star");
 
@@ -67,8 +70,9 @@ namespace Arena {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //_level = new Level(Content, Content.Load<Texture2D>("levelTest"), _world);
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test_simple.tmx"), _world);
+
+            Constants.font = Content.Load<SpriteFont>("DebugFont");
 
             if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
@@ -152,14 +156,36 @@ namespace Arena {
                         _manualCamera = true;
                         _camera.MoveCamera(new Vector2(1, 0));
                         break;
+                    case Keys.LeftAlt:
+                        _manualCamera = false;
+                        break;
                 }
             }
 
-            _player.Update();
+            _tileLevel.Update(gameTime);
 
+            _world.Gravity = new Vector2(0, Constants.Get(Gravity));
+
+            _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
+
+            _player.Update(gameTime);
+
+            Constants.Update(helper);
+
+            TrackPlayer();
+
+            _camera.Update(gameTime);
+
+            base.Update(gameTime);
+        }
+
+        /// <summary>
+        /// Moves the camera to follow the player around the screen.
+        /// </summary>
+        private void TrackPlayer() {
             if ( !_manualCamera ) {
                 // If the sprite goes outside a margin area, move the camera
-                const int margin = 150;
+                const int margin = 300;
                 Rectangle viewportMargin = new Rectangle(graphics.GraphicsDevice.Viewport.X + margin,
                                                          graphics.GraphicsDevice.Viewport.Y + margin,
                                                          graphics.GraphicsDevice.Viewport.Width - 2 * margin,
@@ -189,14 +215,6 @@ namespace Arena {
                     _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
                 }
             }
-
-            _tileLevel.Update(gameTime);
-
-            _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
-
-            _camera.Update(gameTime);
-
-            base.Update(gameTime);
         }
 
         /// <summary>
@@ -209,6 +227,10 @@ namespace Arena {
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
             _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
             _player.Draw(_spriteBatch, _camera);
+            _spriteBatch.End();
+
+            _spriteBatch.Begin();
+            Constants.Draw(_spriteBatch);
             _spriteBatch.End();
 
             Matrix projection = _camera.SimProjection;
