@@ -253,23 +253,10 @@ namespace Arena {
 
         private bool IsStanding() {
             return _floorSensorContactCount > 0;
-            return IsSensorTouchingWall(_floorSensor);
         }
 
         private bool IsTouchingCeiling() {
             return _ceilingSensorContantCount > 0;
-            return IsSensorTouchingWall(_ceilingSensor);
-        }
-
-        private bool IsSensorTouchingWall(Fixture sensor) {
-            var contactEdge = sensor.Body.ContactList;
-            while ( contactEdge != null && contactEdge.Contact != null ) {
-                if ( contactEdge.Contact.IsTouching() && contactEdge.Contact.FixtureA == sensor || contactEdge.Contact.FixtureB == sensor ) {
-                    return true;
-                }
-                contactEdge = contactEdge.Next;
-            }
-            return false;
         }
     }
 }

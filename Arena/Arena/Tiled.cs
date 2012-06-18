@@ -397,7 +397,11 @@ namespace Squared.Tiled {
             }
 
             _destroyedTiles.RemoveAll(tile => !tile.Disposed);
-        } 
+        }
+
+        public Tile GetTile(Vector2 v) {
+            return GetTile((int) v.X, (int) v.Y);
+        }
     }
 
     public struct TileInfo {
@@ -493,13 +497,7 @@ namespace Squared.Tiled {
         /// </summary>
         public void DestroyAttachedBodies() {
             foreach ( Body body in Bodies ) {
-                Console.WriteLine("Disposing body with id {0} ", RuntimeHelpers.GetHashCode(body));
                 body.Dispose();
-            }
-            Bodies.Clear();            
-
-            foreach ( Tile t in Group ) {
-                t.Bodies.Clear();
             }
         }
 
@@ -537,11 +535,10 @@ namespace Squared.Tiled {
                 if ( TimeUntilReappear <= 0 ) {
                     Revive();
                 }
-                //Console.WriteLine("Updating tile with game time {0}", gameTime.ElapsedGameTime.Milliseconds);
             }
         }
 
-        static readonly private int BlockTimeUntilReappear = 2000;
+        private const int BlockTimeUntilReappear = 2000;
     }
 
     public class ObjectGroup {

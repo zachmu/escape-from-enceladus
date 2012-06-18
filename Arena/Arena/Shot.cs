@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using FarseerPhysics.Collision;
@@ -47,16 +48,20 @@ namespace Arena {
                                      _framesToLive = 1;
 
                                      if ( _destroyedTile == null ) {
+                                         Stopwatch watch = new Stopwatch();
+                                         watch.Start();
                                          FixedArray2<Vector2> points;
                                          Vector2 normal;
                                          contact.GetWorldManifold(out normal, out points);
-                                         _destroyedTile = TileLevel.CurrentLevel.GetTile(points[0], normal);
+                                         _destroyedTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
                                          if ( _destroyedTile != null ) {
-                                             Console.WriteLine(String.Format("Hit tile at {0}", _destroyedTile.Position));
+//                                             Console.WriteLine(String.Format("Hit tile at {0}", _destroyedTile.Position));
                                          } else {
                                              Console.WriteLine("Missed a tile.  Collision was {0},{1} with normal {2}",
                                                                points[0], points[1], normal);
                                          }
+                                         watch.Stop();
+//                                         Console.WriteLine("Took {0} ticks to evaluate hit", watch.ElapsedTicks);
                                      } else {
                                          Console.WriteLine(String.Format("Second collision at {0}", _destroyedTile.Position));
                                      }

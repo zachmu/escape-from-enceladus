@@ -20,7 +20,8 @@ namespace Arena {
         private readonly Layer _collisionLayer;
         private readonly Map _levelMap;
         private readonly World _world;
-        private ISet<Fixture> _fixturesCreatedThisStep = new HashSet<Fixture>();  
+        private ISet<Tile> _tilesToRemove = new HashSet<Tile>();
+        private ISet<Tile> _tilesToAdd = new HashSet<Tile>();
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -43,8 +44,24 @@ namespace Arena {
         }
 
         public void Update(GameTime gameTime) {
-            _fixturesCreatedThisStep.Clear();
             _levelMap.Update(gameTime);
+
+            if ( _tilesToRemove.Count > 0 || _tilesToAdd.Count > 0 ) {
+                ISet<Tile> affectedTiles = new HashSet<Tile>();
+                foreach ( Tile t in _tilesToRemove ) {
+                    t.Dispose();
+                    affectedTiles.Add(t);
+                }
+                foreach ( Tile t in _tilesToAdd ) {
+                    t.Revive();
+                    FindAdjacentSolidTiles(t).ForEach(tile => tile.DestroyAttachedBodies());
+                    affectedTiles.Add(t);
+                }
+                RecreateEdges(affectedTiles);
+
+                _tilesToRemove.Clear();
+                _tilesToAdd.Clear();                
+            }
         }
 
         /// <summary>
@@ -62,7 +79,7 @@ namespace Arena {
         /// <summary>
         /// Gets the tile located at the sim location given, having the collision normal given.
         /// </summary>
-        internal Tile GetTile(Vector2 location, Vector2 normal) {
+        internal Tile GetCollidedTile(Vector2 location, Vector2 normal) {
 
             // Nudge the location of the collision a bit in the appropriate direction 
             // so that it will be inside the tile that was hit.
@@ -84,25 +101,40 @@ namespace Arena {
 
             // Assume that this tile, or the one of its neighbors, 
             // is the cause of the collision
-            IList<Tile> candidates = new List<Tile> {
-                _collisionLayer.GetTile(x, y),
-                _collisionLayer.GetTile(x, y - 1),
-                _collisionLayer.GetTile(x, y + 1),
-                _collisionLayer.GetTile(x + 1, y),
-                _collisionLayer.GetTile(x - 1, y),
-                _collisionLayer.GetTile(x + 1, y + 1),
-                _collisionLayer.GetTile(x - 1, y - 1),
-                _collisionLayer.GetTile(x + 1, y - 1),
-                _collisionLayer.GetTile(x - 1, y + 1),
+//            IList<Tile> candidates = new List<Tile> {
+//                _collisionLayer.GetTile(x, y),
+//                _collisionLayer.GetTile(x, y - 1),
+//                _collisionLayer.GetTile(x, y + 1),
+//                _collisionLayer.GetTile(x + 1, y),
+//                _collisionLayer.GetTile(x - 1, y),
+//                _collisionLayer.GetTile(x + 1, y + 1),
+//                _collisionLayer.GetTile(x - 1, y - 1),
+//                _collisionLayer.GetTile(x + 1, y - 1),
+//                _collisionLayer.GetTile(x - 1, y + 1),
+//            };
+
+            List<Vector2> positions = new List<Vector2> {
+                new Vector2(x, y),
+                new Vector2(x, y - 1),
+                new Vector2(x, y + 1),
+                new Vector2(x + 1, y),
+                new Vector2(x - 1, y),
+                new Vector2(x + 1, y + 1),
+                new Vector2(x - 1, y - 1),
+                new Vector2(x + 1, y - 1),
+                new Vector2(x - 1, y + 1),
             };
 
-            foreach ( Tile t in candidates.Where(cand => cand != null && !cand.Disposed) ) {
-                Vector2 upperleft = t.Position - new Vector2(TileSize / 2);
-                Vector2 lowerRight = t.Position + new Vector2(TileSize / 2);
-                Console.WriteLine("Evaluating tile with bounds {0},{1}", upperleft, lowerRight);
-                if ( location.X >= upperleft.X && location.X <= lowerRight.X && location.Y >= upperleft.Y &&
-                     location.Y <= lowerRight.Y ) {
-                    return t;
+            foreach ( Vector2 v in positions ) {
+                Tile t = _collisionLayer.GetTile(v);
+                if ( t != null && !t.Disposed ) {
+                    Vector2 upperleft = t.Position - new Vector2(TileSize / 2);
+                    Vector2 lowerRight = t.Position + new Vector2(TileSize / 2);
+//                    Console.WriteLine("Evaluating tile with bounds {0},{1}", upperleft, lowerRight);
+                    if ( location.X >= upperleft.X && location.X <= lowerRight.X && location.Y >= upperleft.Y &&
+                         location.Y <= lowerRight.Y ) {
+                        return t;
+                    }
                 }
             }
 
@@ -138,6 +170,8 @@ namespace Arena {
             Stopwatch watch = new Stopwatch();
             watch.Start();
             foreach ( Tile t in tile.Group ) {
+                t.Bodies.Clear();
+
                 Tile left = t.GetLeftTile();
                 if ( TileNullOrDisposed(left) ) {
                     edges.Add(GetLeftEdge(t));
@@ -246,30 +280,25 @@ namespace Arena {
         /// Destroys this tile
         /// </summary>
         public void DestroyTile(Tile t) {
-            t.Dispose();
-
-            RecreateEdges(t);
+            _tilesToRemove.Add(t);
         }
 
         /// <summary>
         /// Revives the tile given, restoring it to the game model.
         /// </summary>
         public void ReviveTile(Tile tile) {
-            tile.Revive();
-            List<Tile> neighbors = FindAdjacentSolidTiles(tile);
-            foreach ( Tile neighbor in neighbors ) {
-                neighbor.DestroyAttachedBodies();
-            }
-
-            RecreateEdges(tile);
+            _tilesToAdd.Add(tile);
         }
 
-        private void RecreateEdges(Tile t) {
-            List<Tile> neighbors = FindAdjacentSolidTiles(t);
-            neighbors.Add(t);
+        private void RecreateEdges(IEnumerable<Tile> tiles) {
+            ISet<Tile> tilesToConsider = new HashSet<Tile>();
+            foreach (Tile t in tiles) {
+                tilesToConsider.Add(t);
+                FindAdjacentSolidTiles(t).ForEach(tile => tilesToConsider.Add(tile));
+            }
             var seenTiles = new HashSet<Tile>();
 
-            foreach ( Tile tile in neighbors.Where(n => n != null && !n.Disposed) ) {
+            foreach ( Tile tile in tilesToConsider.Where(n => n != null && !n.Disposed) ) {
                 if ( !seenTiles.Contains(tile) ) {
                     HashSet<Tile> group = new HashSet<Tile>();
 
