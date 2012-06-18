@@ -41,12 +41,16 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml;
 using Arena;
+using FarseerPhysics.Collision;
+using FarseerPhysics.Collision.Shapes;
+using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
 using System.IO;
 using System.IO.Compression;
+using Path = System.IO.Path;
 
 namespace Squared.Tiled {
     public class Tileset {
@@ -303,7 +307,7 @@ namespace Squared.Tiled {
             return _tiles;
         }
 
-        private List<Tile> _destroyedTiles = new List<Tile>(); 
+        private readonly List<Tile> _destroyedTiles = new List<Tile>(); 
 
         /// <summary>
         /// Destroys the given tile.  Meant to be called on tiles in the collision layer only; 
@@ -319,6 +323,7 @@ namespace Squared.Tiled {
             if ( blockLayerTile != null ) {
                 blockLayerTile.Disposed = true;
                 blockLayerTile.TimeUntilReappear = tile.TimeUntilReappear;
+                blockLayerTile.Age = 0;
             }
 
             _destroyedTiles.Add(tile);
@@ -381,8 +386,6 @@ namespace Squared.Tiled {
             }
         }
 
-        internal IDictionary<Tile, int> deadTiles = new Dictionary<Tile, int>(); 
-
         public void Update(GameTime gameTime) {
             Layer blockLayer = _map.Layers["Blocks"];
             foreach ( Tile tile in _destroyedTiles ) {
@@ -396,7 +399,7 @@ namespace Squared.Tiled {
                 }
             }
 
-            _destroyedTiles.RemoveAll(tile => !tile.Disposed);
+            _destroyedTiles.RemoveAll(tile => !tile.Disposed && tile.Age > Tile.FadeInTime);
         }
 
         public Tile GetTile(Vector2 v) {
@@ -420,6 +423,7 @@ namespace Squared.Tiled {
         private Layer Layer { get; set; }
         public bool Disposed { get; internal set; }
         public int TimeUntilReappear { get; internal set; }
+        public int Age { get; internal set; }
 
         public Tile(Layer layer, Vector2 position, int tileInfoIndex) {
             Position = position;
@@ -485,6 +489,7 @@ namespace Squared.Tiled {
             if ( Disposed )
                 return;
 
+            Age = 0;
             TimeUntilReappear = BlockTimeUntilReappear;
             DestroyAttachedBodies();
             Disposed = true;
@@ -516,29 +521,51 @@ namespace Squared.Tiled {
         }
 
         public void Draw(SpriteBatch batch) {
-                var tileCorner = new Vector2(Position.X - 1f / 2f,
-                                             Position.Y - 1f / 2f);
-                Vector2 displayPosition = new Vector2();
-                ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
-                TileInfo tileInfo = Layer._map.GetTileInfoCache()[_tileInfoIndex];
-            if ( !Disposed ) {
-                batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White);
-            } else if (TimeUntilReappear <= BlockTimeUntilReappear / 4) {
-                float alpha = 1 - TimeUntilReappear / (float) (BlockTimeUntilReappear / 4);
-                batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White * alpha);
+            if ( Disposed )
+                return;
+            var tileCorner = new Vector2(Position.X - 1f / 2f,
+                                         Position.Y - 1f / 2f);
+            Vector2 displayPosition = new Vector2();
+            ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
+            TileInfo tileInfo = Layer._map.GetTileInfoCache()[_tileInfoIndex];
+
+            float alpha = 1.0f;
+            if ( Age > 0 && Age < FadeInTime ) {
+                alpha = (float) Age / (float) FadeInTime;
             }
+            batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White * alpha);
         }
 
         public void Update(GameTime gameTime) {
             if ( Disposed ) {
                 TimeUntilReappear -= gameTime.ElapsedGameTime.Milliseconds;
-                if ( TimeUntilReappear <= 0 ) {
+                if ( TimeUntilReappear <= 0 && !EntitiesOverlapping()) {
+                    Age = 1;
                     Revive();
                 }
+            } else {
+                Age += gameTime.ElapsedGameTime.Milliseconds;
             }
         }
 
+        private bool EntitiesOverlapping() {
+            Vertices vertices = PolygonTools.CreateRectangle(.5f, .5f);
+            PolygonShape shape = new PolygonShape(vertices, 0f);
+
+            Mat22 m = new Mat22();
+            m.SetIdentity();
+            Vector2 position = Position;
+            Transform transform = new Transform(ref position, ref m);
+            Transform playerTransform = Player.Instance.Transform;
+            PolygonShape playerShape = Player.Instance.Shape;
+            Manifold manifold = new Manifold();
+            Collision.CollidePolygons(ref manifold, shape, ref transform, playerShape, ref playerTransform);
+            
+            return manifold.PointCount > 0;
+        }
+
         private const int BlockTimeUntilReappear = 2000;
+        public const int FadeInTime = 1000;        
     }
 
     public class ObjectGroup {

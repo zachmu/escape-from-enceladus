@@ -14,6 +14,13 @@ using Microsoft.Xna.Framework.Input;
 namespace Arena {
 
     internal class Player {
+
+        private static Player _instance;
+
+        public static Player Instance {
+            get { return _instance; }
+        }
+
         /// <summary>
         /// How much bigger the image of the character should be than his hit box
         /// </summary>
@@ -62,18 +69,29 @@ namespace Arena {
 
         private readonly Body _body;
         private readonly Fixture _floorSensor;
-        private Fixture _standingOnFixture;
         private int _floorSensorContactCount = 0;
         private readonly Fixture _ceilingSensor;
         private int _ceilingSensorContantCount = 0;
-        private readonly Fixture _rightSideSensor;
-        private readonly Fixture _leftSideSensor;
 
         public Vector2 Position {
             get { return _body.Position; }
         }
 
+        public PolygonShape Shape {
+            get { return (PolygonShape) _body.FixtureList.First().Shape; }
+        }
+
+        public Transform Transform {
+            get {
+                Transform t = new Transform();
+                _body.GetTransform(out t);
+                return t;
+            }
+        }
+
         public Player(Vector2 position, World world) {
+            _instance = this;
+
             _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
             _body.IsStatic = false;
             _body.Restitution = 0.0f;
