@@ -99,6 +99,8 @@ namespace Arena {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
+            _body.CollidesWith = Arena.TerrainCategory;
+            _body.CollisionCategories = Arena.PlayerCategory;
             _body.FixtureList.First().UserData = "body";
 
             var rectangle = PolygonTools.CreateRectangle(CharacterWidth / 2f - .1f, .05f);
@@ -177,10 +179,10 @@ namespace Arena {
                 Vector2 position = _body.Position;
                 switch ( _direction ) {
                     case Direction.Right:
-                        position += new Vector2(CharacterWidth / 2f + .5f, 0);
+                        position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 3f);
                         break;
                     case Direction.Left:
-                        position += new Vector2(-(CharacterWidth / 2f) - .5f, 0);
+                        position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 3f);
                         break;
                 }
                 _shots.Add(new Shot(position, _world, _direction));

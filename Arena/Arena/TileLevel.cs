@@ -233,6 +233,9 @@ namespace Arena {
                 Body loopShape = BodyFactory.CreateLoopShape(_world, chain);
                 loopShape.Friction = 0;
                 loopShape.IsStatic = true;
+                loopShape.CollidesWith = Arena.PlayerCategory | Arena.PlayerProjectileCategory;
+                loopShape.CollisionCategories = Arena.TerrainCategory;
+
                 //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
                 Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);

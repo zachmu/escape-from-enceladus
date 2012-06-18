@@ -20,6 +20,10 @@ namespace Arena {
 
         private const string Gravity = "World gravity (m/s/s)";
 
+        public const Category PlayerCategory = Category.Cat1;
+        public const Category TerrainCategory = Category.Cat2;
+        public const Category PlayerProjectileCategory = Category.Cat3;
+
         public static Boolean Debug = true;
     
         public Arena() {

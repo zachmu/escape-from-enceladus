@@ -42,6 +42,8 @@ namespace Arena {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.IgnoreGravity = true;
+            _body.CollidesWith = Arena.TerrainCategory;
+            _body.CollisionCategories = Arena.PlayerProjectileCategory;
 
             _body.OnCollision += (a, b, contact) => {
                                      _body.IgnoreGravity = false;
