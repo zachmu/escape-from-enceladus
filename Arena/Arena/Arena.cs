@@ -58,8 +58,7 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
-
-            _player = new Player(new Vector2(350, 250), _world) {Image = Content.Load<Texture2D>("samus")};
+            _player = new Player(new Vector2(350, 250), _world);
 
             Shot.Image = Content.Load<Texture2D>("star");
 
@@ -73,8 +72,8 @@ namespace Arena {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "big_square.tmx"), _world);
+            _player.LoadContent(Content);
 
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
@@ -189,17 +188,17 @@ namespace Arena {
         private void TrackPlayer() {
             if ( !_manualCamera ) {
                 // If the sprite goes outside a margin area, move the camera
-                const int margin = 300;
+                const int margin = 250;
                 Rectangle viewportMargin = new Rectangle(graphics.GraphicsDevice.Viewport.X + margin,
                                                          graphics.GraphicsDevice.Viewport.Y + margin,
                                                          graphics.GraphicsDevice.Viewport.Width - 2 * margin,
                                                          graphics.GraphicsDevice.Viewport.Height - 2 * margin);
                 Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
                 int maxx =
-                    viewportMargin.Right - _player.Image.Width;
+                    viewportMargin.Right - Player.ImageWidth;
                 int minx = viewportMargin.Left;
                 int maxy =
-                    viewportMargin.Bottom - _player.Image.Height;
+                    viewportMargin.Bottom - Player.ImageHeight;
                 int miny = viewportMargin.Top;
 
                 // Move the camera just enough to position the sprite at the edge of the margin

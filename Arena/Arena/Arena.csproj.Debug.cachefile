@@ -15,7 +15,6 @@ Content\Character\run3.xnb
 Content\Character\run4.xnb
 Content\Character\run5.xnb
 Content\Character\run6.xnb
-Content\Character\run7.png.xnb
 Content\Character\run8.xnb
 Content\Character\stand.xnb
 Content\Character\walk1.xnb
@@ -27,6 +26,15 @@ Content\Character\walk6.xnb
 Content\Character\walk7.xnb
 Content\Character\walk8.xnb
 Content\Character\walk_all.xnb
+Content\Character\run7.xnb
+Content\Character\run0001.xnb
+Content\Character\run0002.xnb
+Content\Character\run0003.xnb
+Content\Character\run0004.xnb
+Content\Character\run0005.xnb
+Content\Character\run0006.xnb
+Content\Character\run0007.xnb
+Content\Character\run0008.xnb
 Content\Maps\big_square.tmx
 Content\Maps\scratch.tmx
 Content\Maps\test_simple.tmx

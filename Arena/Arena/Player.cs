@@ -8,6 +8,7 @@ using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using FarseerPhysics.SamplesFramework;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -28,6 +29,9 @@ namespace Arena {
 
         private const float CharacterHeight = 2f - ImageBuffer;
         private const float CharacterWidth = 1f - ImageBuffer;
+
+        public const int ImageWidth = 64;
+        public const int ImageHeight = 128;
 
         private static readonly int DisplayHeight = (int) ConvertUnits.ToDisplayUnits(CharacterHeight + ImageBuffer);
         private static readonly int DisplayWidth = (int) ConvertUnits.ToDisplayUnits(CharacterWidth + ImageBuffer);
@@ -64,8 +68,6 @@ namespace Arena {
         /// How long, in milliseconds, the player has been holding down the jump button.
         /// </summary>
         private long _airBoostTime = -1;
-
-        public Texture2D Image { get; set; }
 
         private readonly Body _body;
         private readonly Fixture _floorSensor;
@@ -146,17 +148,44 @@ namespace Arena {
             _world = world;
         }
 
-        public void Draw(SpriteBatch spriteBatch, Camera2D c) {
+        public Texture2D Image { get; private set; }
+
+        private readonly Texture2D[] WalkAnimation = new Texture2D[8];
+        private readonly Texture2D[] RunAnimation = new Texture2D[8];
+        private readonly Texture2D[] DuckAnimation = new Texture2D[2];
+        private Texture2D StandImage;
+
+        private int _animationFrame = 0;
+        private long _timeSinceLastAnimationUpdate;
+        private bool _isDucking;
+        private bool _isRunning;
+
+        public void LoadContent(ContentManager content) {
+            for ( int i = 1; i <= 8; i++ ) {
+                WalkAnimation[i - 1] = content.Load<Texture2D>("Character/walk" + i);
+                RunAnimation[i - 1] = content.Load<Texture2D>("Character/run000" + i);
+            }
+            DuckAnimation[0] = content.Load<Texture2D>("Character/duck1");
+            DuckAnimation[1] = content.Load<Texture2D>("Character/duck2");
+            StandImage = content.Load<Texture2D>("Character/stand");
+
+            Image = StandImage;
+        }
+
+        public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             Vector2 position = _body.Position;
             position.X -= CharacterWidth / 2;
             position.Y -= CharacterHeight / 2;
+            if ( _isRunning || _isDucking ) {
+                position -= new Vector2(.5f, 0);
+            }
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             spriteBatch.Draw(Image,
-                             new Rectangle((int) displayPosition.X, (int) displayPosition.Y, DisplayWidth, DisplayHeight),
+                             new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
                              null, Color.White, 0f, new Vector2(),
                              _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
             foreach ( Shot shot in _shots ) {
-                shot.Draw(spriteBatch, c);
+                shot.Draw(spriteBatch, camera);
             }
         }
 
@@ -165,13 +194,47 @@ namespace Arena {
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             Vector2 leftStick = gamePadState.ThumbSticks.Left;
 
-            Vector2 adjustedDelta = new Vector2(leftStick.X, 0);
-
             HandleJump(gameTime);
 
             HandleShot(gameTime);
 
-            HandleMovement(adjustedDelta, gameTime);
+            HandleMovement(leftStick, gameTime);
+
+            UpdateImage(gameTime);
+
+            foreach ( Shot shot in _shots ) {
+                shot.Update();
+            }
+            _shots.RemoveAll(shot => shot.Disposed);
+        }
+
+        private void UpdateImage(GameTime gameTime) {
+            if ( !IsStanding() || _body.LinearVelocity.X == 0 ) {
+                if (_isDucking) {
+                    Image = DuckAnimation[1];
+                } else {
+                    Image = StandImage;   
+                }
+                _animationFrame = 0;
+                _timeSinceLastAnimationUpdate = 0;
+                _isRunning = false;
+            } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs] ) {
+                _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
+                if ( _timeSinceLastAnimationUpdate > 1000f / 8 ) {
+                    _isRunning = false;
+                    Image = WalkAnimation[_animationFrame];
+                    _animationFrame = (_animationFrame + 1) % WalkAnimation.Length;
+                    _timeSinceLastAnimationUpdate = 0;
+                }
+            } else {
+                _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
+                if ( _timeSinceLastAnimationUpdate > 1000f / 8 ) {
+                    _isRunning = true;
+                    Image = RunAnimation[_animationFrame];
+                    _animationFrame = (_animationFrame + 1) % RunAnimation.Length;
+                    _timeSinceLastAnimationUpdate = 0;
+                }
+            }
         }
 
         private void HandleShot(GameTime gameTime) {
@@ -185,13 +248,11 @@ namespace Arena {
                         position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
                         break;
                 }
+                if ( _isDucking ) {
+                    position += new Vector2(0, CharacterHeight / 2);
+                }
                 _shots.Add(new Shot(position, _world, _direction));
             }
-
-            foreach ( Shot shot in _shots ) {
-                shot.Update();
-            }
-            _shots.RemoveAll(shot => shot.Disposed);
         }
 
         /// <summary>
@@ -248,6 +309,16 @@ namespace Arena {
                         _direction = Direction.Right;
                     }
                 } 
+            }
+
+            // handle ducking
+            if (movementInput.Y < -.9) {
+                _isDucking = true;
+                if ( IsStanding() ) {
+                    _body.LinearVelocity = new Vector2(0, 0);
+                }
+            } else {
+                _isDucking = false;
             }
         }
 
