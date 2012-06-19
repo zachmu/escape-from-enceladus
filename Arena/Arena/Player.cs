@@ -179,10 +179,10 @@ namespace Arena {
                 Vector2 position = _body.Position;
                 switch ( _direction ) {
                     case Direction.Right:
-                        position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 3f);
+                        position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 4.5f);
                         break;
                     case Direction.Left:
-                        position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 3f);
+                        position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
                         break;
                 }
                 _shots.Add(new Shot(position, _world, _direction));
@@ -195,29 +195,31 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Handles movement input, both on the ground and in the air.  Velocity is manipulated directly in the X axis, 
-        /// but only if the player isn't touching a wall on that side.  Even with zero friction on the body, pressing 
-        /// into the surface of a static body repeatedly will cause a friction effect.
+        /// Handles movement input, both on the ground and in the air.
         /// </summary>
         private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
             if ( IsStanding() ) {
-                if ( movementInput.X < 0) {
+                if ( movementInput.X < 0 ) {
                     _direction = Direction.Left;
                     if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
-                        _body.LinearVelocity -= new Vector2(Constants[PlayerInitSpeedMs], 0);
+                        _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
                     } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                        _body.LinearVelocity -= new Vector2(
-                            GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                        if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                            _body.LinearVelocity -= new Vector2(
+                                GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                        }
                     } else {
                         _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
                     }
-                } else if ( movementInput.X > 0) {
+                } else if ( movementInput.X > 0 ) {
                     _direction = Direction.Right;
                     if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
-                        _body.LinearVelocity += new Vector2(Constants[PlayerInitSpeedMs], 0);
+                        _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
                     } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                        _body.LinearVelocity += new Vector2(
-                            GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                        if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                            _body.LinearVelocity += new Vector2(
+                                GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                        }
                     } else {
                         _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
                     }
