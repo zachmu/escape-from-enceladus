@@ -112,6 +112,7 @@
     <Compile Include="Camera2D.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ConvertUnits.cs" />
+    <Compile Include="Enemy.cs" />
     <Compile Include="TileLevel.cs" />
     <Compile Include="InputHelper.cs" />
     <Compile Include="Shot.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Tiled.cs" />
+    <Compile Include="UserData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

@@ -193,7 +193,7 @@ namespace Arena {
                 }
             }
             watch.Stop();
-            Console.WriteLine("Creating edges object took {0} ticks", watch.ElapsedTicks);
+            //Console.WriteLine("Creating edges object took {0} ticks", watch.ElapsedTicks);
             watch.Reset();
 
             watch.Start();
@@ -233,12 +233,13 @@ namespace Arena {
                 Body loopShape = BodyFactory.CreateLoopShape(_world, chain);
                 loopShape.Friction = 0;
                 loopShape.IsStatic = true;
-                loopShape.CollidesWith = Arena.PlayerCategory | Arena.PlayerProjectileCategory;
+                loopShape.CollidesWith = Category.All;
                 loopShape.CollisionCategories = Arena.TerrainCategory;
+                loopShape.UserData = UserData.NewTerrain();
 
                 //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
-                Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
+                //Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
 
                 foreach ( Tile t in tile.Group ) {
                     t.Bodies.Add(loopShape);
@@ -247,7 +248,7 @@ namespace Arena {
                 edges.Remove(processedEdges);
             }
             watch.Stop();
-            Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
+            //Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
         }
 
         private static bool TileNullOrDisposed(Tile left) {

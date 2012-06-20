@@ -16,6 +16,7 @@ namespace Arena {
         private World _world;
         private DebugViewXNA _debugView;
         private Player _player;
+        private Enemy _enemy;
         private bool _manualCamera = false;
 
         private const string Gravity = "World gravity (m/s/s)";
@@ -23,6 +24,7 @@ namespace Arena {
         public const Category PlayerCategory = Category.Cat1;
         public const Category TerrainCategory = Category.Cat2;
         public const Category PlayerProjectileCategory = Category.Cat3;
+        public const Category EnemyCategory = Category.Cat4;
 
         public static Boolean Debug = true;
     
@@ -58,7 +60,8 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
-            _player = new Player(new Vector2(350, 250), _world);
+            _player = new Player(new Vector2(5,5), _world);
+            _enemy = new Enemy(new Vector2(10, 5), _world);
 
             Shot.Image = Content.Load<Texture2D>("star");
 
@@ -72,8 +75,9 @@ namespace Arena {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "big_square.tmx"), _world);
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world);
             _player.LoadContent(Content);
+            _enemy.LoadContent(Content);
 
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
@@ -173,6 +177,8 @@ namespace Arena {
 
             _player.Update(gameTime);
 
+            _enemy.Update(gameTime);
+
             Constants.Update(helper);
 
             TrackPlayer();
@@ -230,6 +236,7 @@ namespace Arena {
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
             _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
             _player.Draw(_spriteBatch, _camera);
+            _enemy.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 
             _spriteBatch.Begin();

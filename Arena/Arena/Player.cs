@@ -13,8 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Arena {
-
-    internal class Player {
+    public class Player {
 
         private static Player _instance;
 
@@ -45,6 +44,9 @@ namespace Arena {
         private const string PlayerAirAccelerationMss = "Player horizontal air acceleration (m/s/s)";
         private const string PlayerJumpSpeed = "Player jump speed (m/s)";
         private const string PlayerAirBoostTime = "Player max air boost time (s)";
+        private const string PlayerKnockbackTime = "Player knock back time (s)";
+        private const string PlayerKnockbackAmt = "Player knock back amount (scalar)";
+        
 
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 5.0f, Keys.I));
@@ -53,6 +55,8 @@ namespace Arena {
             Constants.Register(new Constant(PlayerAirAccelerationMss, 5.0f, Keys.D));
             Constants.Register(new Constant(PlayerJumpSpeed, 10f, Keys.J));
             Constants.Register(new Constant(PlayerAirBoostTime, .5f, Keys.Y));
+            Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
+            Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
         }
 
         public enum Direction {
@@ -68,6 +72,11 @@ namespace Arena {
         /// How long, in milliseconds, the player has been holding down the jump button.
         /// </summary>
         private long _airBoostTime = -1;
+
+        /// <summary>
+        /// How long, in ms, the player must wait before regaining control
+        /// </summary>
+        private long _timeUntilRegainControl;
 
         private readonly Body _body;
         private readonly Fixture _floorSensor;
@@ -101,8 +110,9 @@ namespace Arena {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
-            _body.CollidesWith = Arena.TerrainCategory;
+            _body.CollidesWith = Arena.TerrainCategory | Arena.EnemyCategory;
             _body.CollisionCategories = Arena.PlayerCategory;
+            _body.UserData = UserData.NewPlayer();
             _body.FixtureList.First().UserData = "body";
 
             var rectangle = PolygonTools.CreateRectangle(CharacterWidth / 2f - .1f, .05f);
@@ -148,12 +158,12 @@ namespace Arena {
             _world = world;
         }
 
-        public Texture2D Image { get; private set; }
+        private Texture2D Image { get; set; }
 
-        private readonly Texture2D[] WalkAnimation = new Texture2D[8];
-        private readonly Texture2D[] RunAnimation = new Texture2D[8];
-        private readonly Texture2D[] DuckAnimation = new Texture2D[2];
-        private Texture2D StandImage;
+        private readonly Texture2D[] _walkAnimation = new Texture2D[8];
+        private readonly Texture2D[] _runAnimation = new Texture2D[8];
+        private readonly Texture2D[] _duckAnimation = new Texture2D[2];
+        private Texture2D _standImage;
 
         private int _animationFrame = 0;
         private long _timeSinceLastAnimationUpdate;
@@ -162,14 +172,14 @@ namespace Arena {
 
         public void LoadContent(ContentManager content) {
             for ( int i = 1; i <= 8; i++ ) {
-                WalkAnimation[i - 1] = content.Load<Texture2D>("Character/walk" + i);
-                RunAnimation[i - 1] = content.Load<Texture2D>("Character/run000" + i);
+                _walkAnimation[i - 1] = content.Load<Texture2D>("Character/walk" + i);
+                _runAnimation[i - 1] = content.Load<Texture2D>("Character/run000" + i);
             }
-            DuckAnimation[0] = content.Load<Texture2D>("Character/duck1");
-            DuckAnimation[1] = content.Load<Texture2D>("Character/duck2");
-            StandImage = content.Load<Texture2D>("Character/stand");
+            _duckAnimation[0] = content.Load<Texture2D>("Character/duck1");
+            _duckAnimation[1] = content.Load<Texture2D>("Character/duck2");
+            _standImage = content.Load<Texture2D>("Character/stand");
 
-            Image = StandImage;
+            Image = _standImage;
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -194,6 +204,10 @@ namespace Arena {
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             Vector2 leftStick = gamePadState.ThumbSticks.Left;
 
+            if ( _timeUntilRegainControl > 0 ) {
+                _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
+            }
+
             HandleJump(gameTime);
 
             HandleShot(gameTime);
@@ -211,9 +225,9 @@ namespace Arena {
         private void UpdateImage(GameTime gameTime) {
             if ( !IsStanding() || _body.LinearVelocity.X == 0 ) {
                 if (_isDucking) {
-                    Image = DuckAnimation[1];
+                    Image = _duckAnimation[1];
                 } else {
-                    Image = StandImage;   
+                    Image = _standImage;   
                 }
                 _animationFrame = 0;
                 _timeSinceLastAnimationUpdate = 0;
@@ -222,16 +236,16 @@ namespace Arena {
                 _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
                 if ( _timeSinceLastAnimationUpdate > 1000f / 8 ) {
                     _isRunning = false;
-                    Image = WalkAnimation[_animationFrame];
-                    _animationFrame = (_animationFrame + 1) % WalkAnimation.Length;
+                    Image = _walkAnimation[_animationFrame];
+                    _animationFrame = (_animationFrame + 1) % _walkAnimation.Length;
                     _timeSinceLastAnimationUpdate = 0;
                 }
             } else {
                 _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
                 if ( _timeSinceLastAnimationUpdate > 1000f / 8 ) {
                     _isRunning = true;
-                    Image = RunAnimation[_animationFrame];
-                    _animationFrame = (_animationFrame + 1) % RunAnimation.Length;
+                    Image = _runAnimation[_animationFrame];
+                    _animationFrame = (_animationFrame + 1) % _runAnimation.Length;
                     _timeSinceLastAnimationUpdate = 0;
                 }
             }
@@ -259,66 +273,69 @@ namespace Arena {
         /// Handles movement input, both on the ground and in the air.
         /// </summary>
         private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
-            if ( IsStanding() ) {
-                if ( movementInput.X < 0 ) {
-                    _direction = Direction.Left;
-                    if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
-                        _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
-                    } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                        if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
-                            _body.LinearVelocity -= new Vector2(
-                                GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+            if ( _timeUntilRegainControl <= 0 ) {
+                if ( IsStanding() ) {
+                    if ( movementInput.X < 0 ) {
+                        _direction = Direction.Left;
+                        if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
+                            _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
+                        } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
+                            if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                                _body.LinearVelocity -= new Vector2(
+                                    GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                            }
+                        } else {
+                            _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
+                        }
+                    } else if ( movementInput.X > 0 ) {
+                        _direction = Direction.Right;
+                        if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
+                            _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
+                        } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
+                            if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                                _body.LinearVelocity += new Vector2(
+                                    GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                            }
+                        } else {
+                            _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
                         }
                     } else {
-                        _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                    }
-                } else if ( movementInput.X > 0 ) {
-                    _direction = Direction.Right;
-                    if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
-                        _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
-                    } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                        if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
-                            _body.LinearVelocity += new Vector2(
-                                GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
-                        }
-                    } else {
-                        _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
+                        _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                     }
                 } else {
-                    _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                    // in the air
+                    if ( movementInput.X < 0 ) {
+                        if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
+                            _body.LinearVelocity -= new Vector2(
+                                GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
+                        } else {
+                            _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
+                        }
+                        if ( _body.LinearVelocity.X <= 0 ) {
+                            _direction = Direction.Left;
+                        }
+                    } else if ( movementInput.X > 0 ) {
+                        if ( _body.LinearVelocity.X < Constants[PlayerMaxSpeedMs] ) {
+                            _body.LinearVelocity += new Vector2(
+                                GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
+                        } else {
+                            _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
+                        }
+                        if ( _body.LinearVelocity.X >= 0 ) {
+                            _direction = Direction.Right;
+                        }
+                    }
                 }
-            } else { // in the air
-                if ( movementInput.X < 0) {
-                    if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
-                        _body.LinearVelocity -= new Vector2(
-                            GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
-                    } else {
-                        _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                    }
-                    if ( _body.LinearVelocity.X <= 0 ) {
-                        _direction = Direction.Left;
-                    }
-                } else if ( movementInput.X > 0 ) {
-                    if ( _body.LinearVelocity.X < Constants[PlayerMaxSpeedMs] ) {
-                        _body.LinearVelocity += new Vector2(
-                            GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
-                    } else {
-                        _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                    }
-                    if ( _body.LinearVelocity.X >= 0 ) {
-                        _direction = Direction.Right;
-                    }
-                } 
-            }
 
-            // handle ducking
-            if (movementInput.Y < -.9) {
-                _isDucking = true;
-                if ( IsStanding() ) {
-                    _body.LinearVelocity = new Vector2(0, 0);
+                // handle ducking
+                if ( movementInput.Y < -.9 ) {
+                    _isDucking = true;
+                    if ( IsStanding() ) {
+                        _body.LinearVelocity = new Vector2(0, 0);
+                    }
+                } else {
+                    _isDucking = false;
                 }
-            } else {
-                _isDucking = false;
             }
         }
 
@@ -350,6 +367,13 @@ namespace Arena {
 
         private bool IsTouchingCeiling() {
             return _ceilingSensorContantCount > 0;
+        }
+
+        public void HitBy(Enemy enemy) {
+            Vector2 diff = Position - enemy.Position;
+            _body.LinearVelocity = new Vector2(0);
+            _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
+            _timeUntilRegainControl = (long) (Constants[PlayerKnockbackTime] * 1000);
         }
     }
 }

@@ -15,7 +15,7 @@ using Squared.Tiled;
 using Test;
 
 namespace Arena {
-    class Shot {
+    public class Shot {
 
         private readonly Body _body;
 
@@ -42,34 +42,22 @@ namespace Arena {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.IgnoreGravity = true;
-            _body.CollidesWith = Arena.TerrainCategory;
+            _body.CollidesWith = Arena.TerrainCategory | Arena.EnemyCategory;
             _body.CollisionCategories = Arena.PlayerProjectileCategory;
+            _body.UserData = UserData.NewProjectile(this);
 
             _body.OnCollision += (a, b, contact) => {
-                                     _body.IgnoreGravity = false;
-                                     _framesToLive = 1;
+                _body.IgnoreGravity = false;
+                _framesToLive = 1;
 
-                                     if ( _destroyedTile == null ) {
-                                         Stopwatch watch = new Stopwatch();
-                                         watch.Start();
-                                         FixedArray2<Vector2> points;
-                                         Vector2 normal;
-                                         contact.GetWorldManifold(out normal, out points);
-                                         _destroyedTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
-                                         if ( _destroyedTile != null ) {
-//                                             Console.WriteLine(String.Format("Hit tile at {0}", _destroyedTile.Position));
-                                         } else {
-                                             Console.WriteLine("Missed a tile.  Collision was {0},{1} with normal {2}",
-                                                               points[0], points[1], normal);
-                                         }
-                                         watch.Stop();
-//                                         Console.WriteLine("Took {0} ticks to evaluate hit", watch.ElapsedTicks);
-                                     } else {
-                                         Console.WriteLine(String.Format("Second collision at {0}", _destroyedTile.Position));
-                                     }
+                if (((UserData) b.Body.UserData).IsEnemy) {
+                    HitEnemy(((UserData) b.Body.UserData).Enemy);
+                } else if ( ((UserData) b.Body.UserData).IsTerrain ) {
+                    HitTerrain(contact);
+                }
 
-                                     return true;
-                                 };
+                return true;
+            };
 
             _direction = direction;
 
@@ -83,6 +71,27 @@ namespace Arena {
                     _body.LinearVelocity = new Vector2(20, 0);
                     break;
             }
+        }
+
+        private void HitTerrain(Contact contact) {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            FixedArray2<Vector2> points;
+            Vector2 normal;
+            contact.GetWorldManifold(out normal, out points);
+            _destroyedTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
+            if ( _destroyedTile != null ) {
+                // Console.WriteLine(String.Format("Hit tile at {0}", _destroyedTile.Position));
+            } else {
+                Console.WriteLine("Missed a tile.  Collision was {0},{1} with normal {2}",
+                                  points[0], points[1], normal);
+            }
+            watch.Stop();
+            // Console.WriteLine("Took {0} ticks to evaluate hit", watch.ElapsedTicks);                    
+        }
+
+        private void HitEnemy(Enemy enemy) {
+            enemy.HitBy(this);
         }
 
         public void Update() {
