@@ -1,27 +1,36 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
+using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
+using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena {
-    public class Shot {
+namespace Arena.Entity {
+    public class Shot : IGameEntity {
 
         private readonly Body _body;
 
-        public static Texture2D Image { get; set; }
+        public static Texture2D Image { get; private set; }
 
+        private bool _disposed;
         public bool Disposed {
-            get { return _body.IsDisposed; }
+            get { return _disposed; }
         }
 
         public Vector2 Position {
             get { return _body.Position; }
+        }
+
+        public PolygonShape Shape {
+            get { return (PolygonShape) _body.FixtureList.First().Shape; }
         }
 
         private readonly Direction _direction;
@@ -85,19 +94,28 @@ namespace Arena {
             enemy.HitBy(this);
         }
 
-        public void Update() {
-            if ( _framesToLive-- <= 0 ) {
-                _body.Dispose();
+        public void Update(GameTime gameTime) {
+            if ( _framesToLive-- <= 0 ) { 
+                Dispose();
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Camera2D c) {
+        public static void LoadContent(ContentManager content) {
+            Image = content.Load<Texture2D>("star");
+        }
+
+        public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             if ( !_body.IsDisposed ) {
                 Vector2 position = _body.Position;
                 Vector2 displayUnits = new Vector2();
                 ConvertUnits.ToDisplayUnits(ref position, out displayUnits);
                 spriteBatch.Draw(Image, displayUnits, Color.White);
             }
+        }
+
+        public void Dispose() {
+            _disposed = true;
+            _body.Dispose();
         }
     }
 }

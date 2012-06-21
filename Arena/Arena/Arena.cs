@@ -1,16 +1,20 @@
 using System;
-using System.IO;
+using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics;
+using FarseerPhysics.Collision;
+using FarseerPhysics.Collision.Shapes;
+using FarseerPhysics.Common;
 using FarseerPhysics.DebugViews;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Path = System.IO.Path;
 
 namespace Arena {
-    public class Arena : Microsoft.Xna.Framework.Game {
+    public class Arena : Game {
         private GraphicsDeviceManager graphics;
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
@@ -65,8 +69,6 @@ namespace Arena {
             _player = new Player(new Vector2(5,5), _world);
             _enemy = new Enemy(new Vector2(10, 5), _world);
 
-            Shot.Image = Content.Load<Texture2D>("star");
-
             base.Initialize();
         }
 
@@ -80,6 +82,8 @@ namespace Arena {
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world);
             _player.LoadContent(Content);
             _enemy.LoadContent(Content);
+
+            Shot.LoadContent(Content);
 
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
@@ -233,7 +237,7 @@ namespace Arena {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
+            graphics.GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
             _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
@@ -259,6 +263,33 @@ namespace Arena {
             } else {
                 _debugView.AppendFlags(flag);
             }
+        }
+
+        /// <summary>
+        /// The identity transform (no rotation) at the location given.
+        /// </summary>
+        /// <returns></returns>
+        public static Transform IdentityTransform(Vector2 centerOfMass) {
+            Mat22 m = new Mat22();
+            m.SetIdentity();
+            Vector2 position = centerOfMass;
+            Transform transform = new Transform(ref position, ref m);
+            return transform;
+        }
+
+        /// <summary>
+        /// Determines if any entities are overlapping the region identified by the shape and transform given.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static bool EntitiesOverlapping(PolygonShape shape, Transform transform) {
+            Transform playerTransform = Player.Instance.Transform;
+            PolygonShape playerShape = Player.Instance.Shape;
+            Manifold manifold = new Manifold();
+            Collision.CollidePolygons(ref manifold, shape, ref transform, playerShape, ref playerTransform);
+
+            return manifold.PointCount > 0;
         }
     }
 }

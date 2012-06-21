@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Arena.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -12,9 +10,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena {
+namespace Arena.Entity {
     
-    public class Enemy : IDisposable {
+    public class Enemy : IGameEntity {
 
         private readonly Body _body;
 
@@ -37,7 +35,15 @@ namespace Arena {
             Constants.Register(new Constant(EnemySpeed, 3f, Keys.E));
         }
 
+        public bool Disposed {
+            get { return _disposed; }
+        }
+
         public Vector2 Position { get { return _body.Position; } }
+
+        public PolygonShape Shape {
+            get { return (PolygonShape) _body.FixtureList.First().Shape; }
+        }
 
         public Enemy(Vector2 position, World world) {
             _body = BodyFactory.CreateRectangle(world, 1f, 1f, 10f);
@@ -138,8 +144,8 @@ namespace Arena {
         }
 
         public void Dispose() {
-            _body.Dispose();
             _disposed = true;
+            _body.Dispose();
         }
     }
 }

@@ -45,6 +45,7 @@ Copyright (C) 2009 Kevin Gadd
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arena.Entity;
 using Arena.Farseer;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
@@ -410,16 +411,7 @@ namespace Arena.Map {
             Vertices vertices = PolygonTools.CreateRectangle(.5f, .5f);
             PolygonShape shape = new PolygonShape(vertices, 0f);
 
-            Mat22 m = new Mat22();
-            m.SetIdentity();
-            Vector2 position = Position;
-            Transform transform = new Transform(ref position, ref m);
-            Transform playerTransform = Player.Instance.Transform;
-            PolygonShape playerShape = Player.Instance.Shape;
-            Manifold manifold = new Manifold();
-            Collision.CollidePolygons(ref manifold, shape, ref transform, playerShape, ref playerTransform);
-            
-            return manifold.PointCount > 0;
+            return Arena.EntitiesOverlapping(shape, Arena.IdentityTransform(Position));
         }
 
         private const int BlockTimeUntilReappear = 2000;

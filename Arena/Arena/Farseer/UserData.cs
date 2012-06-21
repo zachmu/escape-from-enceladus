@@ -1,4 +1,6 @@
-﻿namespace Arena.Farseer {
+﻿using Arena.Entity;
+
+namespace Arena.Farseer {
 
     /// <summary>
     /// Place to store data about bodies in the game world
