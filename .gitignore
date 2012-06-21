@@ -1,4 +1,6 @@
 _Resharper.*/
+*/obj/
+*/bin/
 */*/obj/
 */*/*/obj/
 */*/*/*/obj/
