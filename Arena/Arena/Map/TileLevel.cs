@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Arena.Farseer;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Squared.Tiled;
 
-namespace Arena {
+namespace Arena.Map {
 
     public class TileLevel {
         private SpriteFont _debugFont;
@@ -20,8 +19,8 @@ namespace Arena {
         private readonly Layer _collisionLayer;
         private readonly Map _levelMap;
         private readonly World _world;
-        private ISet<Tile> _tilesToRemove = new HashSet<Tile>();
-        private ISet<Tile> _tilesToAdd = new HashSet<Tile>();
+        private readonly ISet<Tile> _tilesToRemove = new HashSet<Tile>();
+        private readonly ISet<Tile> _tilesToAdd = new HashSet<Tile>();
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -98,20 +97,6 @@ namespace Arena {
 
             int x = (int) location.X;
             int y = (int) location.Y;
-
-            // Assume that this tile, or the one of its neighbors, 
-            // is the cause of the collision
-//            IList<Tile> candidates = new List<Tile> {
-//                _collisionLayer.GetTile(x, y),
-//                _collisionLayer.GetTile(x, y - 1),
-//                _collisionLayer.GetTile(x, y + 1),
-//                _collisionLayer.GetTile(x + 1, y),
-//                _collisionLayer.GetTile(x - 1, y),
-//                _collisionLayer.GetTile(x + 1, y + 1),
-//                _collisionLayer.GetTile(x - 1, y - 1),
-//                _collisionLayer.GetTile(x + 1, y - 1),
-//                _collisionLayer.GetTile(x - 1, y + 1),
-//            };
 
             List<Vector2> positions = new List<Vector2> {
                 new Vector2(x, y),

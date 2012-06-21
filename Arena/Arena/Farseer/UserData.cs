@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Arena {
+﻿namespace Arena.Farseer {
 
     /// <summary>
     /// Place to store data about bodies in the game world

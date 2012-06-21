@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -25,7 +26,7 @@ namespace Arena {
         private const float CharacterWidth = 1;
         private const float CharacterHeight = 1;
 
-        private Player.Direction _direction;
+        private Direction _direction;
 
         private readonly Fixture _floorSensor;
         private int _floorSensorContactCount = 0;
@@ -50,19 +51,19 @@ namespace Arena {
             _body.UserData = UserData.NewEnemy(this);
 
             _hitPoints = 5;
-            _direction = Player.Direction.Left;
+            _direction = Direction.Left;
 
             _body.OnCollision += (a, b, contact) => {
 
-                if ( ((UserData) b.Body.UserData).IsPlayer || ((UserData) b.Body.UserData).IsTerrain ) {
+                if ( b.Body.GetUserData().IsPlayer || b.Body.GetUserData().IsTerrain ) {
                     if ( contact.Manifold.LocalNormal.X > .9 ) {
-                        _direction = Player.Direction.Right;
+                        _direction = Direction.Right;
                     } else if ( contact.Manifold.LocalNormal.X < -.9 ) {
-                        _direction = Player.Direction.Left;
+                        _direction = Direction.Left;
                     }
                 }
 
-                if (((UserData)b.Body.UserData).IsPlayer) {
+                if ( b.Body.GetUserData().IsPlayer ) {
                     Player.Instance.HitBy(this);
                 }
 
@@ -107,7 +108,7 @@ namespace Arena {
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, _image.Width,
                                                _image.Height),
                                  null, Color.White, 0f, new Vector2(),
-                                 _direction == Player.Direction.Right
+                                 _direction == Direction.Right
                                      ? SpriteEffects.None
                                      : SpriteEffects.FlipHorizontally, 0);
             }
@@ -120,7 +121,7 @@ namespace Arena {
             }
 
             if ( IsStanding() ) {
-                if ( _direction == Player.Direction.Left ) {
+                if ( _direction == Direction.Left ) {
                     _body.LinearVelocity = new Vector2(-Constants.Get(EnemySpeed), 0);
                 } else {
                     _body.LinearVelocity = new Vector2(Constants.Get(EnemySpeed), 0);

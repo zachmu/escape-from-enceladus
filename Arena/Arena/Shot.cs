@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using FarseerPhysics.Collision;
+using Arena.Farseer;
+using Arena.Map;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
-using FarseerPhysics.SamplesFramework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Squared.Tiled;
-using Test;
 
 namespace Arena {
     public class Shot {
@@ -29,12 +24,10 @@ namespace Arena {
             get { return _body.Position; }
         }
 
-        private readonly Player.Direction _direction;
+        private readonly Direction _direction;
         private int _framesToLive = 200;
-        private Tile _destroyedTile = null;
-        private readonly World _world;
 
-        public Shot(Vector2 position, World world, Player.Direction direction) {
+        public Shot(Vector2 position, World world, Direction direction) {
             _body = BodyFactory.CreateRectangle(world, .01f, .01f, 1000f);
             _body.IsStatic = false;
             _body.Restitution = .2f;
@@ -50,9 +43,9 @@ namespace Arena {
                 _body.IgnoreGravity = false;
                 _framesToLive = 1;
 
-                if (((UserData) b.Body.UserData).IsEnemy) {
-                    HitEnemy(((UserData) b.Body.UserData).Enemy);
-                } else if ( ((UserData) b.Body.UserData).IsTerrain ) {
+                if (b.Body.GetUserData().IsEnemy) {
+                    HitEnemy(b.Body.GetUserData().Enemy);
+                } else if ( b.Body.GetUserData().IsTerrain ) {
                     HitTerrain(contact);
                 }
 
@@ -61,13 +54,11 @@ namespace Arena {
 
             _direction = direction;
 
-            _world = world;
-
             switch ( direction ) {
-                case Player.Direction.Left:
+                case Direction.Left:
                     _body.LinearVelocity = new Vector2(-20, 0);
                     break;
-                case Player.Direction.Right:
+                case Direction.Right:
                     _body.LinearVelocity = new Vector2(20, 0);
                     break;
             }
@@ -79,15 +70,15 @@ namespace Arena {
             FixedArray2<Vector2> points;
             Vector2 normal;
             contact.GetWorldManifold(out normal, out points);
-            _destroyedTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
-            if ( _destroyedTile != null ) {
-                // Console.WriteLine(String.Format("Hit tile at {0}", _destroyedTile.Position));
+            var destroyedTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
+            if ( destroyedTile != null ) {
+                TileLevel.CurrentLevel.DestroyTile(destroyedTile);
             } else {
                 Console.WriteLine("Missed a tile.  Collision was {0},{1} with normal {2}",
                                   points[0], points[1], normal);
             }
             watch.Stop();
-            // Console.WriteLine("Took {0} ticks to evaluate hit", watch.ElapsedTicks);                    
+            // Console.WriteLine("Took {0} ticks to evaluate hit", watch.ElapsedTicks);            
         }
 
         private void HitEnemy(Enemy enemy) {
@@ -95,12 +86,8 @@ namespace Arena {
         }
 
         public void Update() {
-            if ( _framesToLive-- == 0 ) {
+            if ( _framesToLive-- <= 0 ) {
                 _body.Dispose();
-            }
-            if (_destroyedTile != null) {
-                TileLevel.CurrentLevel.DestroyTile(_destroyedTile);
-                _destroyedTile = null;
             }
         }
 

@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ * Stolen from Farseer Physics Samples.
+ */
+
+using System;
+using Arena.Farseer;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

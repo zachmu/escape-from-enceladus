@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using Arena.Farseer;
+using Arena.Map;
 using FarseerPhysics;
 using FarseerPhysics.DebugViews;
 using FarseerPhysics.Dynamics;

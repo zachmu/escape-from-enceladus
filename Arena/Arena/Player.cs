@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arena.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -11,6 +12,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ConvertUnits = Arena.Farseer.ConvertUnits;
 
 namespace Arena {
     public class Player {
@@ -58,11 +60,6 @@ namespace Arena {
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
         }
-
-        public enum Direction {
-            Left,
-            Right
-        };
 
         private readonly List<Shot> _shots = new List<Shot>();
 
@@ -376,4 +373,9 @@ namespace Arena {
             _timeUntilRegainControl = (long) (Constants[PlayerKnockbackTime] * 1000);
         }
     }
+
+    public enum Direction {
+        Left,
+        Right
+    };
 }
