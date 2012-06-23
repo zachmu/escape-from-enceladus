@@ -18,7 +18,7 @@ namespace Arena.Entity {
 
         private int _hitPoints;
 
-        private Texture2D _image;
+        private static Texture2D _image;
         private bool _disposed;
 
         private const float CharacterWidth = 1;
@@ -99,7 +99,7 @@ namespace Arena.Entity {
 
         }
 
-        public void LoadContent(ContentManager content) {
+        public static void LoadContent(ContentManager content) {
             _image = content.Load<Texture2D>("enemy");
         }
 

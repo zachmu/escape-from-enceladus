@@ -194,8 +194,8 @@ namespace Arena.Map {
                             case "object": {
                                 using ( var st = reader.ReadSubtree() ) {
                                     st.Read();
-                                    var objects = Object.Load(st);
-                                    result.Objects.Add(objects.Name, objects);
+                                    var obj = Object.Load(st);
+                                    result.Objects.Add(obj);
                                 }
                             }
                                 break;
@@ -243,8 +243,15 @@ namespace Arena.Map {
             result.Name = reader.GetAttribute("name");
             result.X = int.Parse(reader.GetAttribute("x"));
             result.Y = int.Parse(reader.GetAttribute("y"));
-            result.Width = int.Parse(reader.GetAttribute("width"));
-            result.Height = int.Parse(reader.GetAttribute("height"));
+
+            int width;
+            if ( int.TryParse(reader.GetAttribute("width"), out width) ) {
+                result.Width = width;
+            }
+            int height;
+            if ( int.TryParse(reader.GetAttribute("height"), out height) ) {
+                result.Height = height;
+            }
 
             while ( !reader.EOF ) {
                 switch ( reader.NodeType ) {
@@ -378,7 +385,7 @@ namespace Arena.Map {
             }
 
             foreach ( var objects in result.ObjectGroups.Values ) {
-                foreach ( var item in objects.Objects.Values ) {
+                foreach ( var item in objects.Objects ) {
                     if ( item.Image != null ) {
                         item.Texture = content.Load<Texture2D>
                             (

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
@@ -23,7 +24,16 @@ namespace Arena {
         private DebugViewXNA _debugView;
         private Player _player;
         private Enemy _enemy;
+
+        private readonly List<IGameEntity> _entities = new List<IGameEntity>();
+
         private bool _manualCamera = false;
+
+        private static Arena _instance;
+
+        public static Arena Instance {
+            get { return _instance; }
+        }
 
         private const string Gravity = "World gravity (m/s/s)";
 
@@ -62,14 +72,24 @@ namespace Arena {
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize() {
+            _instance = this;
+
             Constants.Register(new Constant(Gravity, 25f, Keys.G));
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
             _player = new Player(new Vector2(5,5), _world);
-            _enemy = new Enemy(new Vector2(10, 5), _world);
+            //_enemy = new Enemy(new Vector2(10, 5), _world)
 
             base.Initialize();
+        }
+
+        /// <summary>
+        /// Registers an entity to receive update and draw calls.
+        /// Entity will be removed when it is disposed.
+        /// </summary>
+        public void Register(params IGameEntity[] entity) {
+            _entities.AddRange(entity);
         }
 
         /// <summary>
@@ -81,10 +101,9 @@ namespace Arena {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world);
             _player.LoadContent(Content);
-            _enemy.LoadContent(Content);
-
+                        
+            Enemy.LoadContent(Content);
             Shot.LoadContent(Content);
-
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
             if ( _debugView == null ) {
@@ -183,13 +202,18 @@ namespace Arena {
 
             _player.Update(gameTime);
 
-            _enemy.Update(gameTime);
+            foreach ( IGameEntity ent in _entities ) {
+                ent.Update(gameTime);
+            }
+            //_enemy.Update(gameTime);
 
             Constants.Update(helper);
 
             TrackPlayer();
 
             _camera.Update(gameTime);
+
+            _entities.RemoveAll(entity => entity.Disposed);
 
             base.Update(gameTime);
         }
@@ -242,7 +266,12 @@ namespace Arena {
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
             _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
             _player.Draw(_spriteBatch, _camera);
-            _enemy.Draw(_spriteBatch, _camera);
+
+            foreach ( IGameEntity ent in _entities ) {
+                ent.Draw(_spriteBatch, _camera);
+            }
+
+            //_enemy.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 
             _spriteBatch.Begin();
@@ -278,7 +307,7 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Determines if any entities are overlapping the region identified by the shape and transform given.
+        /// Determines if any _entities are overlapping the region identified by the shape and transform given.
         /// </summary>
         /// <param name="shape"></param>
         /// <param name="transform"></param>

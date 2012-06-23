@@ -102,7 +102,8 @@ namespace Arena.Entity {
         public Player(Vector2 position, World world) {
             _instance = this;
 
-            _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
+//            _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
+            _body = BodyFactory.CreateRoundedRectangle(world, CharacterWidth, CharacterHeight, .02f, .02f, 0, 10);
             _body.IsStatic = false;
             _body.Restitution = 0.0f;
             _body.Friction = 0f;

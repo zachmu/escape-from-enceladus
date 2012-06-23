@@ -16,4 +16,12 @@
    H4sIAAAAAAAAC+3WQVIDMRBDUVhx/xuzR5Aaie9MeyxXzU48ddIkzsdHz7Tz9dnnnU/3Meu5ug/yuDOcZFO5pLu22lQu6a6tNpVLumur7c5A3FUr78Hd7e5jln11H+T5a6baXC7prq02lUu6a6tN5ZLu2mq7ud3vy+l29zHLdvdBHHeGk2wql3TXVpvKJd211aZySXdttd0ZiHtq1b36BLv7mGVf3Qd5Xs11uk3lku7aalO5pLu22lQu6a6tNpVLumur7ebo3xi1vR3v+rp2td19EMed4SSbyiXdtdWmckl3bbWpXNJdW20ql3TXVvu/M6z8bbHq98qqeQn76fv4zSZd2nb38fPv6Ne20t5h5u5jln11H+RxZzjJpnJJd221qVzSXVttKpd011bbnWHCnfdku/uYZV/dB3n+mqk2l0u6a6tN5ZLu2mpTuaS7ttpubvf7crrdfcyy3X0Qx53hJJvKJd211aZySXdttalc0l1bbXcG4p5ada8+we4+ZtlX90GeV3OdblO5pLu22lQu6a6tNpVLumurTeWS7tpquzn6N0Ztb8e7vq5dbXcfxHFnOMmmckl3bbWpXNJdW20ql3TXVpvKJd211XZn6LP26T5mPdTnyDnuDCfZVC7prq22m1v5Ga3dfUyz3X0Qx53hJJvKJd211aZySXdttalc0l1bbXcG4p5ada8+we4+ZtlX90GeV3OdblO5pLu22lQu6a6tNpVLumurTeWS7tpquzn6N0Ztb8e7vq5dbXcfxHFnOMmmckl3bbWpXNL9zu+UlXOTNpVLunf9jp+wD3L2O/6Hu48+K3Z893ynPdTnyDnuDNPsO8873jPyf6r7yM137GOFfefZ9TvllH3Qr3fHXd95ug+17zy7vmdP3Mc3JJ0xE0CcAAA=
   </data>
  </layer>
+ <objectgroup name="Enemies" width="100" height="100">
+  <object name="1" type="enemy1" x="496" y="358"/>
+  <object name="1" type="enemy1" x="640" y="384" width="117" height="50"/>
+  <object name="1" type="enemy1" x="876" y="367"/>
+  <object name="1" type="enemy1" x="1128" y="406"/>
+  <object name="1" type="enemy1" x="1044" y="787"/>
+  <object gid="84" x="983" y="410"/>
+ </objectgroup>
 </map>

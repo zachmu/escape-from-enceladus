@@ -38,7 +38,9 @@ Copyright (C) 2009 Kevin Gadd
  * Modifications by Zach Musgrave - 10 June 2012.
  * 
  * - Added Tile class
- * - Fixed tile info caching bugs (e.g. GetTile(x,y))
+ * - Fixed bug with tile info caching (e.g. GetTile(x,y))
+ * - Fixed bug when loading objects with the same name
+ * - Fixed bug when loading an object without a height or width attribute
  * - Fixed layer properties loading bugs
  * - Moved load logic into its own file
  */
@@ -419,17 +421,17 @@ namespace Arena.Map {
     }
 
     public partial class ObjectGroup {
-        public SortedList<string, Object> Objects = new SortedList<string, Object>();
+        public List<Object> Objects = new List<Object>();        
         public SortedList<string, string> Properties = new SortedList<string, string>();
 
         public string Name;
         public int Width, Height, X, Y;
         float Opacity = 1;
 
-        public void Draw(Map result, SpriteBatch batch, Rectangle rectangle, Vector2 viewportPosition) {
-            foreach ( var objects in Objects.Values ) {
-                if ( objects.Texture != null ) {
-                    objects.Draw(batch, rectangle, new Vector2(this.X * result.TileWidth, this.Y * result.TileHeight), viewportPosition, this.Opacity);
+        public void Draw(Map result, SpriteBatch batch, Rectangle rectangle) {
+            foreach ( var obj in Objects ) {
+                if ( obj.Texture != null ) {
+                    obj.Draw(batch, rectangle);
                 }
             }
         }
@@ -456,19 +458,21 @@ namespace Arena.Map {
         }
 
 
-        public void Draw(SpriteBatch batch, Rectangle rectangle, Vector2 offset, Vector2 viewportPosition, float opacity) {
-            Vector2 viewPos = viewportPosition;
+        public void Draw(SpriteBatch batch, Rectangle visibleWorld) {
+            var tileCorner = new Vector2(X - 1f / 2f,
+                                         Y - 1f / 2f);
+            Vector2 displayPosition = new Vector2();
+            ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
 
-            int minX = (int) Math.Floor(viewportPosition.X);
-            int minY = (int) Math.Floor(viewportPosition.Y);
-            int maxX = (int) Math.Ceiling((rectangle.Width + viewportPosition.X));
-            int maxY = (int) Math.Ceiling((rectangle.Height + viewportPosition.Y));
+            int minx = Math.Max(visibleWorld.Left - 1, 0);
+            int miny = Math.Max(visibleWorld.Top - 1, 0);
+            int maxx = Math.Min(visibleWorld.Right + 2, Width);
+            int maxy = Math.Min(visibleWorld.Bottom + 2, Height);
 
-            if ( this.X + offset.X + this.Width > minX && this.X + offset.X < maxX )
-                if ( this.Y + offset.Y + this.Height > minY && this.Y + offset.Y < maxY ) {
-                    int x = (int) (this.X + offset.X - viewportPosition.X);
-                    int y = (int) (this.Y + offset.Y - viewportPosition.Y);
-                    //batch.Draw(_Texture, new Rectangle(x, y, this.Width, this.Height), new Rectangle(0, 0, _Texture.Width, _Texture.Height), new Color(Color.White, opacity));
+
+            if ( this.X + this.Width > minx && this.X < maxx )
+                if ( this.Y + this.Height > miny && this.Y < maxy ) {
+                    batch.Draw(_Texture, displayPosition, new Rectangle(0, 0, _Texture.Width, _Texture.Height), Color.White);
                 }
         }
     }
@@ -515,9 +519,9 @@ namespace Arena.Map {
                 layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
 
-//            foreach ( var objectGroup in ObjectGroups.Values ) {
-//                objectGroup.Draw(this, batch, visibleWorld, viewportPosition);
-//            }
+            foreach ( var objectGroup in ObjectGroups.Values ) {
+                objectGroup.Draw(this, batch, visibleWorld);
+            }
         }
 
         public void Update(GameTime gameTime) {

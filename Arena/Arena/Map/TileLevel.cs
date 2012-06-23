@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Arena.Entity;
 using Arena.Farseer;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -33,6 +34,20 @@ namespace Arena.Map {
             _world = world;
 
             InitializeEdges();
+
+            CreateEnemies();
+        }
+
+        private void CreateEnemies() {
+            SortedList<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
+            if (objectGroups.ContainsKey("Enemies")) {
+                ObjectGroup enemies = objectGroups["Enemies"];
+                foreach ( Object obj in enemies.Objects ) {
+                    Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
+                    Enemy enemy = new Enemy(pos, _world);
+                    Arena.Instance.Register(enemy);
+                }
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
