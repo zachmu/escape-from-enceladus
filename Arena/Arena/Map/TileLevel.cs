@@ -18,6 +18,8 @@ namespace Arena.Map {
 
         private const float TileSize = 1f;
         private readonly Layer _collisionLayer;
+        private readonly ObjectGroup _doors;
+        private readonly List<Room> _rooms = new List<Room>();
         private readonly Map _levelMap;
         private readonly World _world;
         private readonly ISet<Tile> _tilesToRemove = new HashSet<Tile>();
@@ -25,17 +27,41 @@ namespace Arena.Map {
 
         public static TileLevel CurrentLevel { get; private set; }
 
-        public TileLevel(ContentManager cm, String mapFile, World world) {
+        public static Room CurrentRoom { get; private set; }
+
+        public TileLevel(ContentManager cm, String mapFile, World world, Vector2 startPosition) {
             CurrentLevel = this;
 
             _debugFont = cm.Load<SpriteFont>("debugFont");
             _levelMap = Map.Load(mapFile, cm);
             _collisionLayer = _levelMap.Layers["Collision"];
+            _doors = _levelMap.ObjectGroups["Doors"];
+            
+            InitializeRooms(_levelMap.ObjectGroups["Rooms"]);
+            
+            DetermineCurrentRoom(startPosition);
+
             _world = world;
 
             InitializeEdges();
 
             CreateEnemies();
+        }
+
+        private void InitializeRooms(ObjectGroup rooms) {
+            foreach ( Object room in rooms.Objects ) {
+                Vector2 topLeft = new Vector2(room.X, room.Y);
+                Vector2 bottomRight = new Vector2(room.X + room.Width, room.Y + room.Height);
+                Vector2 simTopLeft;
+                Vector2 simBottomRight;
+                ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
+                ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
+                _rooms.Add(new Room(simTopLeft, simBottomRight));
+            }
+        }
+
+        public void DetermineCurrentRoom(Vector2 position) {
+            CurrentRoom = _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position));
         }
 
         private void CreateEnemies() {

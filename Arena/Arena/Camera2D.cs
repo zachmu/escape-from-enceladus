@@ -72,7 +72,8 @@ namespace Arena {
         /// </summary>
         public Vector2 MinPosition {
             get { return ConvertUnits.ToDisplayUnits(_minPosition); }
-            set { _minPosition = ConvertUnits.ToSimUnits(value); }
+//            set { _minPosition = ConvertUnits.ToSimUnits(value); }
+            set { _minPosition = value; }
         }
 
         /// <summary>
@@ -82,7 +83,8 @@ namespace Arena {
         /// </summary>
         public Vector2 MaxPosition {
             get { return ConvertUnits.ToDisplayUnits(_maxPosition); }
-            set { _maxPosition = ConvertUnits.ToSimUnits(value); }
+//            set { _maxPosition = ConvertUnits.ToSimUnits(value); }
+            set { _maxPosition = value; }
         }
 
         /// <summary>

@@ -15,6 +15,12 @@ using Microsoft.Xna.Framework.Input;
 using Path = System.IO.Path;
 
 namespace Arena {
+
+    enum Mode {
+        Control,
+        RoomTransition,
+    }
+
     public class Arena : Game {
         private GraphicsDeviceManager graphics;
         private SpriteBatch _spriteBatch;
@@ -23,7 +29,7 @@ namespace Arena {
         private World _world;
         private DebugViewXNA _debugView;
         private Player _player;
-        private Enemy _enemy;
+        private Mode _mode;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
 
@@ -99,9 +105,10 @@ namespace Arena {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world);
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world,
+                                       _player.Position);
             _player.LoadContent(Content);
-                        
+
             Enemy.LoadContent(Content);
             Shot.LoadContent(Content);
             Constants.font = Content.Load<SpriteFont>("DebugFont");
@@ -114,6 +121,18 @@ namespace Arena {
                 _debugView.SleepingShapeColor = Color.LightGray;
                 _debugView.LoadContent(GraphicsDevice, Content);
             }
+
+            ClampCameraToRoom();
+        }
+
+        /// <summary>
+        /// Constrains the camera position to the current room in the level.
+        /// </summary>
+        private void ClampCameraToRoom() {
+            Vector2 viewportCenter = ConvertUnits.ToSimUnits(GraphicsDevice.Viewport.Width / 2f,
+                                                             GraphicsDevice.Viewport.Height / 2f);
+            _camera.MinPosition = TileLevel.CurrentRoom.TopLeft + viewportCenter;
+            _camera.MaxPosition = TileLevel.CurrentRoom.BottomRight - viewportCenter;
         }
 
         /// <summary>
@@ -205,7 +224,6 @@ namespace Arena {
             foreach ( IGameEntity ent in _entities ) {
                 ent.Update(gameTime);
             }
-            //_enemy.Update(gameTime);
 
             Constants.Update(helper);
 
@@ -230,11 +248,11 @@ namespace Arena {
                                                          graphics.GraphicsDevice.Viewport.Width - 2 * margin,
                                                          graphics.GraphicsDevice.Viewport.Height - 2 * margin);
                 Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
+
                 int maxx =
                     viewportMargin.Right - Player.ImageWidth;
                 int minx = viewportMargin.Left;
-                int maxy =
-                    viewportMargin.Bottom - Player.ImageHeight;
+                int maxy = viewportMargin.Bottom - Player.ImageHeight;
                 int miny = viewportMargin.Top;
 
                 // Move the camera just enough to position the sprite at the edge of the margin
@@ -254,6 +272,11 @@ namespace Arena {
                     _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
                 }
             }
+
+            if ( !TileLevel.CurrentRoom.Contains(_player.Position) ) {
+                _tileLevel.DetermineCurrentRoom(_player.Position);
+                ClampCameraToRoom();
+            }
         }
 
         /// <summary>
@@ -271,7 +294,6 @@ namespace Arena {
                 ent.Draw(_spriteBatch, _camera);
             }
 
-            //_enemy.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 
             _spriteBatch.Begin();
