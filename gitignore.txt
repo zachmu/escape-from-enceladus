@@ -9,6 +9,7 @@ _Resharper.*/
 */*/*/*/bin/
 
 # Compiled source #
+# Another comment
 ###################
 *.com
 *.class
