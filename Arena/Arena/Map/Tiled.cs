@@ -274,6 +274,10 @@ namespace Arena.Map {
     }
 
     public class Tile : IEquatable<Tile> {
+
+        /// <summary>
+        /// Returns the simulation position of this tile's upper-left corner.
+        /// </summary>
         public Vector2 Position { get; private set; }
 
         // TODO: share this data
@@ -384,8 +388,7 @@ namespace Arena.Map {
         public void Draw(SpriteBatch batch) {
             if ( Disposed )
                 return;
-            var tileCorner = new Vector2(Position.X - 1f / 2f,
-                                         Position.Y - 1f / 2f);
+            var tileCorner = new Vector2(Position.X, Position.Y);
             Vector2 displayPosition = new Vector2();
             ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
             TileInfo tileInfo = Layer._map.GetTileInfoCache()[_tileInfoIndex];

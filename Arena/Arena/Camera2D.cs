@@ -7,11 +7,13 @@ using Arena.Farseer;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Arena {
     public class Camera2D {
         private const float MinZoom = 0.02f;
         private const float MaxZoom = 20f;
+        private const string RoomTransitionSpeed = "Room Transition speed";
         private static GraphicsDevice _graphics;
 
         private Vector2 _currentPosition;
@@ -33,6 +35,10 @@ namespace Arena {
         public Matrix DisplayView { get; private set; }
         public Matrix SimView { get; private set; }
         public Matrix SimProjection { get; private set; }
+
+        static Camera2D() {
+            Constants.Register(new Constant(RoomTransitionSpeed, 200f, Keys.R));
+        }
 
         /// <summary>
         /// The constructor for the Camera2D class.
@@ -300,7 +306,7 @@ namespace Arena {
                 _currentPosition += normal / 10f;
             } else {
                 _currentPosition += normal *
-                                    Math.Min(100f * inertia * (float) gameTime.ElapsedGameTime.TotalSeconds, .25f);
+                                    Math.Min(Constants.Get(RoomTransitionSpeed) * inertia * (float) gameTime.ElapsedGameTime.TotalSeconds, .25f);
             }
 
             //            _currentRotation += 80f * rotDelta * rotInertia * (float) gameTime.ElapsedGameTime.TotalSeconds;

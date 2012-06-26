@@ -38,14 +38,9 @@ namespace Arena.Map {
             _doors = _levelMap.ObjectGroups["Doors"];
             
             InitializeRooms(_levelMap.ObjectGroups["Rooms"]);
-            
-            DetermineCurrentRoom(startPosition);
-
             _world = world;
-
-            InitializeEdges();
-
-            CreateEnemies();
+            
+            SetCurrentRoom(startPosition);
         }
 
         private void InitializeRooms(ObjectGroup rooms) {
@@ -60,8 +55,24 @@ namespace Arena.Map {
             }
         }
 
-        public void DetermineCurrentRoom(Vector2 position) {
-            CurrentRoom = _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position));
+        /// <summary>
+        /// Sets and returns the current room based on the point given.
+        /// Tears down any managed resources associated with the old room and creates them for this one.
+        /// </summary>
+        public Room SetCurrentRoom(Vector2 position) {
+            CurrentRoom = _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position, TileSize / 4f));
+
+            TearDownEdges();
+            InitializeEdges();
+            CreateEnemies();
+
+            return CurrentRoom;
+        }
+
+        private void TearDownEdges() {
+            foreach ( Tile t in _collisionLayer.GetTiles().Where(tile => tile != null) ) {
+                t.DestroyAttachedBodies();
+            }
         }
 
         private void CreateEnemies() {
@@ -70,8 +81,10 @@ namespace Arena.Map {
                 ObjectGroup enemies = objectGroups["Enemies"];
                 foreach ( Object obj in enemies.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
-                    Enemy enemy = new Enemy(pos, _world);
-                    Arena.Instance.Register(enemy);
+                    if ( CurrentRoom.Contains(pos) ) {
+                        Enemy enemy = new Enemy(pos, _world);
+                        Arena.Instance.Register(enemy);
+                    }
                 }
             }
         }
@@ -153,9 +166,9 @@ namespace Arena.Map {
 
             foreach ( Vector2 v in positions ) {
                 Tile t = _collisionLayer.GetTile(v);
-                if ( t != null && !t.Disposed ) {
-                    Vector2 upperleft = t.Position - new Vector2(TileSize / 2);
-                    Vector2 lowerRight = t.Position + new Vector2(TileSize / 2);
+                if ( !TileNullOrDisposed(t) ) {
+                    Vector2 upperleft = t.Position;
+                    Vector2 lowerRight = t.Position + new Vector2(TileSize);
 //                    Console.WriteLine("Evaluating tile with bounds {0},{1}", upperleft, lowerRight);
                     if ( location.X >= upperleft.X && location.X <= lowerRight.X && location.Y >= upperleft.Y &&
                          location.Y <= lowerRight.Y ) {
@@ -180,7 +193,7 @@ namespace Arena.Map {
 
             HashSet<Tile> seen = new HashSet<Tile>();
 
-            foreach ( Tile tile in _collisionLayer.GetTiles().Where(tile => tile != null && !tile.Disposed) ) {
+            foreach ( Tile tile in _collisionLayer.GetTiles().Where(IsLiveTileInCurrentRoom()) ) {
                 if ( !seen.Contains(tile) ) {
                     seen.UnionWith(tile.Group);
                     CreateEdges(tile);
@@ -231,7 +244,6 @@ namespace Arena.Map {
                 Edge prevEdge = null;
                 Vertices chain = new Vertices();
                 Edges processedEdges = new Edges();
-                Vector2 offset = new Vector2(-TileSize / 2); // offset to account for different in position v. edge
 
                 int i = 0;
                 // work our way through the vertices, linking them together into a chain
@@ -240,7 +252,7 @@ namespace Arena.Map {
 
                     // only add vertices that aren't colinear with our current edge
                     if ( prevEdge == null || !AreEdgesColinear(prevEdge, currentEdge) ) {
-                        chain.Add(currentVertex + offset);
+                        chain.Add(currentVertex);
                     }
                     Edge edge = edges.GetNextEdge(currentEdge, currentVertex);
                     currentVertex = currentEdge.GetOtherVertex(currentVertex);
@@ -277,8 +289,8 @@ namespace Arena.Map {
             //Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
         }
 
-        private static bool TileNullOrDisposed(Tile left) {
-            return left == null || left.Disposed;
+        private bool TileNullOrDisposed(Tile tile) {
+            return !IsLiveTileInCurrentRoom().Invoke(tile);
         }
 
         private bool AreEdgesColinear(Edge prevEdge, Edge currentEdge) {
@@ -322,13 +334,14 @@ namespace Arena.Map {
 
         private void RecreateEdges(IEnumerable<Tile> tiles) {
             ISet<Tile> tilesToConsider = new HashSet<Tile>();
-            foreach (Tile t in tiles) {
+            foreach ( Tile t in tiles ) {
                 tilesToConsider.Add(t);
                 FindAdjacentSolidTiles(t).ForEach(tile => tilesToConsider.Add(tile));
             }
             var seenTiles = new HashSet<Tile>();
 
-            foreach ( Tile tile in tilesToConsider.Where(n => n != null && !n.Disposed) ) {
+            foreach (
+                Tile tile in tilesToConsider.Where(IsLiveTileInCurrentRoom()) ) {
                 if ( !seenTiles.Contains(tile) ) {
                     HashSet<Tile> group = new HashSet<Tile>();
 
@@ -488,9 +501,9 @@ namespace Arena.Map {
         /// Establishes connectedness groups for all tiles in the level.
         /// </summary>
         private void FindGroups() {
-            var seenTiles = new HashSet<Tile>();            
+            var seenTiles = new HashSet<Tile>();
 
-            foreach ( Tile tile in _collisionLayer.GetTiles().Where(tile => tile != null && !tile.Disposed) ) {
+            foreach ( Tile tile in _collisionLayer.GetTiles().Where(IsLiveTileInCurrentRoom()) ) {
                 if ( !seenTiles.Contains(tile) ) {
                     HashSet<Tile> group = new HashSet<Tile>();
                     FindConnectedTiles(tile, group, seenTiles);
@@ -520,7 +533,15 @@ namespace Arena.Map {
         private List<Tile> FindAdjacentSolidTiles(Tile tile) {
             return
                 new[] { tile.GetLeftTile(), tile.GetUpTile(), tile.GetRightTile(), tile.GetDownTile() }.Where(
-                    adj => adj != null && !adj.Disposed).ToList();
+                    IsLiveTileInCurrentRoom()).ToList();
+        }
+
+        /// <summary>
+        /// Returns a function to tell whether a given tile is active and in the current room
+        /// </summary>
+        /// <returns></returns>
+        private Func<Tile, bool> IsLiveTileInCurrentRoom() {
+            return adj => adj != null && !adj.Disposed && CurrentRoom.Contains(adj.Position, TileSize);
         }
     }
 

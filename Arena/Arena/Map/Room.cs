@@ -32,8 +32,17 @@ namespace Arena.Map {
         /// Returns whether the given point is in this room.
         /// </summary>
         public bool Contains(Vector2 position) {
-            return (position.X >= TopLeft.X && position.X <= BottomRight.X 
-                && position.Y >= TopLeft.Y && position.Y <= BottomRight.Y);
+            return Contains(position, 0f);
+        }
+
+        /// <summary>
+        /// Same as Contains, but includes a buffer of the given thickness around the rectangle.
+        /// </summary>
+        public bool Contains(Vector2 position, float buffer) {
+            return (position.X >= TopLeft.X - buffer 
+                && position.X <= BottomRight.X + buffer
+                && position.Y >= TopLeft.Y - buffer
+                && position.Y <= BottomRight.Y + buffer);
         }
 
         /// <summary>
@@ -54,5 +63,6 @@ namespace Arena.Map {
                 throw new Exception("Couldn't determine relative position");
             }
         }
+
     }
 }

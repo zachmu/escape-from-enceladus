@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
@@ -198,23 +199,24 @@ namespace Arena {
                 foreach ( var pressedKey in helper.KeyboardState.GetPressedKeys() ) {
                     switch ( pressedKey ) {
                         case Keys.Up:
-                            _manualCamera = true;
+                            SetManualCamera();
                             _camera.MoveCamera(new Vector2(0, -1));
                             break;
                         case Keys.Down:
-                            _manualCamera = true;
+                            SetManualCamera();
                             _camera.MoveCamera(new Vector2(0, 1));
                             break;
                         case Keys.Left:
-                            _manualCamera = true;
+                            SetManualCamera();
                             _camera.MoveCamera(new Vector2(-1, 0));
                             break;
                         case Keys.Right:
-                            _manualCamera = true;
+                            SetManualCamera();
                             _camera.MoveCamera(new Vector2(1, 0));
                             break;
                         case Keys.LeftAlt:
                             _manualCamera = false;
+                            ClampCameraToRoom();
                             break;
                     }
                 }
@@ -247,6 +249,11 @@ namespace Arena {
 
             _entities.RemoveAll(entity => entity.Disposed);
             base.Update(gameTime);
+        }
+
+        private void SetManualCamera() {
+            _manualCamera = true;
+            UnclampCamera();
         }
 
         /// <summary>
@@ -292,9 +299,11 @@ namespace Arena {
 
                 _mode = Mode.RoomTransition;
                 UnclampCamera();
+                foreach ( IGameEntity gameEntity in _entities.Where(entity => !currentRoom.Contains(entity.Position)) ) {
+                    gameEntity.Dispose();
+                }
 
-                _tileLevel.DetermineCurrentRoom(_player.Position);
-                currentRoom = TileLevel.CurrentRoom;
+                currentRoom = _tileLevel.SetCurrentRoom(_player.Position);
                 switch ( directionOfTravel ) {
                     case Direction.Left:
                         _camera.Position =
