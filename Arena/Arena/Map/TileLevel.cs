@@ -18,7 +18,6 @@ namespace Arena.Map {
 
         private const float TileSize = 1f;
         private readonly Layer _collisionLayer;
-        private readonly ObjectGroup _doors;
         private readonly List<Room> _rooms = new List<Room>();
         private readonly Map _levelMap;
         private readonly World _world;
@@ -35,15 +34,23 @@ namespace Arena.Map {
             _debugFont = cm.Load<SpriteFont>("debugFont");
             _levelMap = Map.Load(mapFile, cm);
             _collisionLayer = _levelMap.Layers["Collision"];
-            _doors = _levelMap.ObjectGroups["Doors"];
-            
-            InitializeRooms(_levelMap.ObjectGroups["Rooms"]);
+//            _doors = _levelMap.ObjectGroups["Doors"];
+
+            try {
+                ObjectGroup objectGroup = _levelMap.ObjectGroups["Rooms"];
+                InitializeRooms(objectGroup);
+            } catch {
+                // No rooms layer is fine, we'll just create a room for them
+                _rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height)));
+            }
             _world = world;
             
             SetCurrentRoom(startPosition);
         }
 
         private void InitializeRooms(ObjectGroup rooms) {
+            
+
             foreach ( Object room in rooms.Objects ) {
                 Vector2 topLeft = new Vector2(room.X, room.Y);
                 Vector2 bottomRight = new Vector2(room.X + room.Width, room.Y + room.Height);
@@ -60,7 +67,7 @@ namespace Arena.Map {
         /// Tears down any managed resources associated with the old room and creates them for this one.
         /// </summary>
         public Room SetCurrentRoom(Vector2 position) {
-            CurrentRoom = _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position, TileSize / 4f));
+            CurrentRoom = _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position, TileSize / 2f));
 
             TearDownEdges();
             InitializeEdges();

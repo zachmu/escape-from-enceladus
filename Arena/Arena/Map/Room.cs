@@ -16,8 +16,12 @@ namespace Arena.Map {
         private Vector2 _bottomRight;
 
         public Room(Vector2 topLeft, Vector2 bottomRight) {
-            _topLeft = topLeft;
-            _bottomRight = bottomRight;
+            _topLeft = AdjustToTileBoundary(topLeft);
+            _bottomRight = AdjustToTileBoundary(bottomRight);
+        }
+
+        private Vector2 AdjustToTileBoundary(Vector2 pos) {
+            return new Vector2((float) Math.Round(pos.X), (float) Math.Round(pos.Y));
         }
 
         public Vector2 BottomRight {

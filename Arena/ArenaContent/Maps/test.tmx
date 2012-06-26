@@ -16,7 +16,7 @@
    H4sIAAAAAAAAC+2WQW7DMBAD21P//+PeyyYwiVG8sriAbtPhOmwif311ps3Pd88nT/uYda72QY67w0luikuy61Y3xSXZdaub4pLsutXt7kDcVSvvwd3d7WOW+2of5LzaqW6OS7LrVjfFJdl1q5vikuy61e1yu9+X093tY5bb7YMYd4eT3BSXZNetbopLsutWN8Ul2XWr292BuKdW3atPcLePWe6rfZDzbq/T3RSXZNetbopLsutWN8Ul2XWrm+KS7LrV7XL0O0bdXse7PteubrcPYtwdTnJTXJJdt7op7oRpH7OmfcyaSX284le+W6x6X1n5LrTC+aQ+/nOTXtrt9vH37+hnW+neYef2Mct9tQ9y3B1OclNckl23uikuya5b3RSXZNetbneHCXfek93tY5b7ah/kvNqpbo5LsutWN8Ul2XWrm+KS7LrV7XK735fT3e1jltvtgxh3h5PcFJdk161uikuy61Y3xSXZdavb3YG4p1bdq09wt49Z7qt9kPNur9PdFJdk161uikuy61Y3xSXZdaub4pLsutXtcvQ7Rt1ex7s+165utw9i3B1OclNckl23uikuya5b3RSXZNetbopLsutWt7tDz9rTPmYd6nvkjLvDSW6KS7LrVrfLrfyO1t0+prndPohxdzjJTXFJdt3qprgku251U1ySXbe63R2Ie2rVvfoEd/uY5b7aBznv9jrdTXFJdt3qprgku251U1ySXbe6KS7JrlvdLke/Y9Ttdbzrc+3qdvsgxt3hJDfFJdl1q5vikuxP/qas3Jt0U1ySvetv/IQ+yN3v+B9uHz0rOr57v9MO9T1yxt1hmvvO+cRnRv5PtY/c+Yk+VrjvnF1/U07pg37eHbu+c9qHuu+cXT+zJ/bxC6yJcu9AnAAA
   </data>
  </layer>
- <objectgroup name="Enemies" width="100" height="100">
+ <objectgroup name="Enemies" width="100" height="100" visible="0">
   <object name="1" type="enemy1" x="496" y="358"/>
   <object name="1" type="enemy1" x="640" y="384" width="117" height="50"/>
   <object name="1" type="enemy1" x="876" y="367"/>
@@ -24,12 +24,19 @@
   <object name="1" type="enemy1" x="1044" y="787"/>
  </objectgroup>
  <objectgroup name="Rooms" width="100" height="100">
-  <object x="128" y="128" width="1402" height="4250"/>
-  <object x="1534" y="121" width="1469" height="4255"/>
-  <object x="3008" y="120" width="1470" height="4254"/>
+  <object x="134" y="131" width="1395" height="2116"/>
+  <object x="1534" y="121" width="1461" height="2111"/>
+  <object x="3008" y="120" width="1454" height="2110"/>
+  <object x="129" y="2240" width="1392" height="2107"/>
+  <object x="1535" y="2233" width="1461" height="2111"/>
+  <object x="3009" y="2232" width="1454" height="2110"/>
+  <object x="129" y="4355" width="1386" height="2098"/>
+  <object x="1535" y="4369" width="1461" height="2111"/>
+  <object x="3009" y="4368" width="1454" height="2110"/>
  </objectgroup>
  <objectgroup name="Doors" width="100" height="100" visible="0">
   <object x="1476" y="1921" width="118" height="191"/>
   <object x="2947" y="1923" width="118" height="191"/>
  </objectgroup>
+ <objectgroup name="Destruction" width="100" height="100"/>
 </map>

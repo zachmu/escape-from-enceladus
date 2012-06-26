@@ -263,18 +263,33 @@ namespace Arena.Entity {
         private void HandleShot(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.X) ) {
                 Vector2 position = _body.Position;
-                switch ( _direction ) {
+                Direction shotDirection;
+                if ( InputHelper.Instance.GamePadState.ThumbSticks.Left.Y > .8 ) {
+                    shotDirection = Direction.Up;
+                } else if ( !IsStanding() && InputHelper.Instance.GamePadState.ThumbSticks.Left.Y < -.8 ) {
+                    shotDirection = Direction.Down;
+                } else {
+                    shotDirection = _direction;
+                }
+                
+                switch ( shotDirection ) {
                     case Direction.Right:
                         position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 4.5f);
                         break;
                     case Direction.Left:
                         position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
                         break;
+                    case Direction.Down:
+                        position += new Vector2(0, CharacterHeight / 2 - .1f);
+                        break;
+                    case Direction.Up:
+                        position += new Vector2(0, -CharacterHeight / 2 + .1f);
+                        break;
                 }
                 if ( _isDucking ) {
                     position += new Vector2(0, CharacterHeight / 2);
                 }
-                _shots.Add(new Shot(position, _world, _direction));
+                _shots.Add(new Shot(position, _world, shotDirection));
             }
         }
 

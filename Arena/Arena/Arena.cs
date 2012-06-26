@@ -85,7 +85,7 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
-            _player = new Player(new Vector2(5,5), _world);
+            _player = new Player(new Vector2(8,6), _world);
 
             _mode = Mode.NormalControl;
 
@@ -321,7 +321,7 @@ namespace Arena {
                     case Direction.Up:
                         _camera.Position =
                             new Vector2(
-                                _camera.Position.X, currentRoom.TopLeft.Y -
+                                _camera.Position.X, currentRoom.BottomRight.Y -
                                 ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Height / 2f));
                         break;
                     case Direction.Down:
@@ -384,15 +384,27 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Determines if any _entities are overlapping the region identified by the shape and transform given.
+        /// Determines if any entities are overlapping the region identified by the shape and transform given.
         /// </summary>
         /// <param name="shape"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
         public static bool EntitiesOverlapping(PolygonShape shape, Transform transform) {
+
+            Manifold manifold = new Manifold();
+
+            foreach ( IGameEntity ent in Instance._entities ) {
+                Transform entTransform = IdentityTransform(ent.Position);
+                PolygonShape entShape = ent.Shape;
+                Collision.CollidePolygons(ref manifold, shape, ref transform, entShape, ref entTransform);
+
+                if ( manifold.PointCount > 0 ) {
+                    return true;
+                }
+            }
+
             Transform playerTransform = Player.Instance.Transform;
             PolygonShape playerShape = Player.Instance.Shape;
-            Manifold manifold = new Manifold();
             Collision.CollidePolygons(ref manifold, shape, ref transform, playerShape, ref playerTransform);
 
             return manifold.PointCount > 0;

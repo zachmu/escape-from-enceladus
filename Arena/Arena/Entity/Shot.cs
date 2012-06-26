@@ -52,7 +52,7 @@ namespace Arena.Entity {
                 _body.IgnoreGravity = false;
                 _framesToLive = 1;
 
-                if (b.Body.GetUserData().IsEnemy) {
+                if ( b.Body.GetUserData().IsEnemy ) {
                     HitEnemy(b.Body.GetUserData().Enemy);
                 } else if ( b.Body.GetUserData().IsTerrain ) {
                     HitTerrain(contact);
@@ -69,6 +69,12 @@ namespace Arena.Entity {
                     break;
                 case Direction.Right:
                     _body.LinearVelocity = new Vector2(20, 0);
+                    break;
+                case Direction.Down:
+                    _body.LinearVelocity = new Vector2(0, 20);
+                    break;
+                case Direction.Up:
+                    _body.LinearVelocity = new Vector2(0, -20);
                     break;
             }
         }
