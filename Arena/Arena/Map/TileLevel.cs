@@ -16,9 +16,10 @@ namespace Arena.Map {
     public class TileLevel {
         private SpriteFont _debugFont;
 
-        private const float TileSize = 1f;
+        public const float TileSize = 1f;
         private readonly Layer _collisionLayer;
         private readonly List<Room> _rooms = new List<Room>();
+        private readonly List<DestructionRegion> _destructionRegions = new List<DestructionRegion>(); 
         private readonly Map _levelMap;
         private readonly World _world;
         private readonly ISet<Tile> _tilesToRemove = new HashSet<Tile>();
@@ -43,14 +44,33 @@ namespace Arena.Map {
                 // No rooms layer is fine, we'll just create a room for them
                 _rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height)));
             }
+
+            try {
+                ObjectGroup objectGroup = _levelMap.ObjectGroups["Destruction"];
+                InitializeDestructionRegions(objectGroup);
+            } catch {
+                // Ignore missing destruction layer
+            }
+
             _world = world;
             
             SetCurrentRoom(startPosition);
         }
 
+        private void InitializeDestructionRegions(ObjectGroup regions) {
+            foreach ( Object region in regions.Objects ) {
+                Vector2 topLeft = new Vector2(region.X, region.Y);
+                Vector2 bottomRight = new Vector2(region.X + region.Width, region.Y + region.Height);
+                Vector2 simTopLeft;
+                Vector2 simBottomRight;
+                ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
+                ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
+                _destructionRegions.Add(new DestructionRegion(simTopLeft, simBottomRight, "any"));
+            }
+        }
+
         private void InitializeRooms(ObjectGroup rooms) {
             
-
             foreach ( Object room in rooms.Objects ) {
                 Vector2 topLeft = new Vector2(room.X, room.Y);
                 Vector2 bottomRight = new Vector2(room.X + room.Width, room.Y + room.Height);
@@ -127,7 +147,6 @@ namespace Arena.Map {
         /// <summary>
         /// Analyzes and stores the edges of the tiles, to be used by the physics engine.
         /// </summary>
-        /// <param name="world"> </param>
         private void InitializeEdges() {
             // First we break the tiles down into connected groups.
             FindGroups();
@@ -323,6 +342,22 @@ namespace Arena.Map {
 
         private static Edge GetLeftEdge(Tile tile) {
             return new Edge(tile.Position, tile.Position + new Vector2(0, 1));
+        }
+
+        /// <summary>
+        /// Notify the level that a tile was hit by a shot
+        /// </summary>
+        public void TileHitBy(Tile hitTile, Shot shot) {
+            if ( IsTileDestroyedBy(hitTile, shot) ) {
+                DestroyTile(hitTile);
+            }
+        }
+
+        /// <summary>
+        /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
+        /// </summary>
+        private bool IsTileDestroyedBy(Tile hitTile, Shot shot) {
+            return _destructionRegions.Any(region => region.Contains(hitTile));
         }
 
         /// <summary>

@@ -85,9 +85,9 @@ namespace Arena.Entity {
             FixedArray2<Vector2> points;
             Vector2 normal;
             contact.GetWorldManifold(out normal, out points);
-            var destroyedTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
-            if ( destroyedTile != null ) {
-                TileLevel.CurrentLevel.DestroyTile(destroyedTile);
+            var hitTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
+            if ( hitTile != null ) {
+                TileLevel.CurrentLevel.TileHitBy(hitTile, this);
             } else {
                 Console.WriteLine("Missed a tile.  Collision was {0},{1} with normal {2}",
                                   points[0], points[1], normal);
