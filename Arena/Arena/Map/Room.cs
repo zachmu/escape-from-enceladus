@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Entity;
 using Microsoft.Xna.Framework;
 
 namespace Arena.Map {
@@ -33,6 +34,25 @@ namespace Arena.Map {
         public bool Contains(Vector2 position) {
             return (position.X >= TopLeft.X && position.X <= BottomRight.X 
                 && position.Y >= TopLeft.Y && position.Y <= BottomRight.Y);
+        }
+
+        /// <summary>
+        /// Returns the relative direction of the point given to this room.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public Direction GetRelativeDirection(Vector2 position) {
+            if (position.X < TopLeft.X) {
+                return Direction.Left;
+            } else if (position.X > BottomRight.X) {
+                return Direction.Right;
+            } else if (position.Y < TopLeft.Y) {
+                return Direction.Up;
+            } else if (position.Y > BottomRight.Y) {
+                return Direction.Down;
+            } else {
+                throw new Exception("Couldn't determine relative position");
+            }
         }
     }
 }

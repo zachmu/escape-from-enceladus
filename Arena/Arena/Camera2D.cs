@@ -56,13 +56,23 @@ namespace Arena {
         /// The current position of the camera.
         /// </summary>
         public Vector2 Position {
-            get { return ConvertUnits.ToDisplayUnits(_currentPosition); }
+//            get { return ConvertUnits.ToDisplayUnits(_currentPosition); }
+            get { return _currentPosition; }
             set {
-                _targetPosition = ConvertUnits.ToSimUnits(value);
+//                _targetPosition = ConvertUnits.ToSimUnits(value);
+                _targetPosition = value;
                 if ( _minPosition != _maxPosition ) {
                     Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns whether the camera is at its target destination.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsAtTarget() {
+            return (_targetPosition - _currentPosition).Length() < .1;
         }
 
         /// <summary>
@@ -71,8 +81,9 @@ namespace Arena {
         /// applied (unless you override that function).
         /// </summary>
         public Vector2 MinPosition {
-            get { return ConvertUnits.ToDisplayUnits(_minPosition); }
-//            set { _minPosition = ConvertUnits.ToSimUnits(value); }
+            //            get { return ConvertUnits.ToDisplayUnits(_minPosition); }
+            get { return _minPosition; }
+            //            set { _minPosition = ConvertUnits.ToSimUnits(value); }
             set { _minPosition = value; }
         }
 
@@ -82,7 +93,8 @@ namespace Arena {
         /// applied (unless you override that function).
         /// </summary>
         public Vector2 MaxPosition {
-            get { return ConvertUnits.ToDisplayUnits(_maxPosition); }
+            get { return _maxPosition; }
+//            get { return ConvertUnits.ToDisplayUnits(_maxPosition); }
 //            set { _maxPosition = ConvertUnits.ToSimUnits(value); }
             set { _maxPosition = value; }
         }
@@ -260,8 +272,9 @@ namespace Arena {
             }
             Vector2 delta = _targetPosition - _currentPosition;
             float distance = delta.Length();
+            Vector2 normal = delta;
             if ( distance > 0f ) {
-                delta /= distance;
+                normal /= distance;
             }
             float inertia;
             if ( distance < 10f ) {
@@ -270,20 +283,27 @@ namespace Arena {
                 inertia = 1f;
             }
 
-            float rotDelta = _targetRotation - _currentRotation;
+            //            float rotDelta = _targetRotation - _currentRotation;
+            //
+            //            float rotInertia;
+            //            if ( Math.Abs(rotDelta) < 5f ) {
+            //                rotInertia = (float) Math.Pow(rotDelta / 5.0, 2.0);
+            //            } else {
+            //                rotInertia = 1f;
+            //            }
+            //            if ( Math.Abs(rotDelta) > 0f ) {
+            //                rotDelta /= Math.Abs(rotDelta);
+            //            }
 
-            float rotInertia;
-            if ( Math.Abs(rotDelta) < 5f ) {
-                rotInertia = (float) Math.Pow(rotDelta / 5.0, 2.0);
+            //            _currentPosition += delta * .1f * (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if ( distance < 2.0f ) {
+                _currentPosition += normal / 10f;
             } else {
-                rotInertia = 1f;
-            }
-            if ( Math.Abs(rotDelta) > 0f ) {
-                rotDelta /= Math.Abs(rotDelta);
+                _currentPosition += normal *
+                                    Math.Min(100f * inertia * (float) gameTime.ElapsedGameTime.TotalSeconds, .25f);
             }
 
-            //_currentPosition += 100f * delta * inertia * (float) gameTime.ElapsedGameTime.TotalSeconds;
-            _currentRotation += 80f * rotDelta * rotInertia * (float) gameTime.ElapsedGameTime.TotalSeconds;
+            //            _currentRotation += 80f * rotDelta * rotInertia * (float) gameTime.ElapsedGameTime.TotalSeconds;
 
             SetView();
         }

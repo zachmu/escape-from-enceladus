@@ -17,12 +17,12 @@ using Path = System.IO.Path;
 namespace Arena {
 
     enum Mode {
-        Control,
+        NormalControl,
         RoomTransition,
     }
 
     public class Arena : Game {
-        private GraphicsDeviceManager graphics;
+        private readonly GraphicsDeviceManager graphics;
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
         private Camera2D _camera;
@@ -85,7 +85,8 @@ namespace Arena {
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
             _player = new Player(new Vector2(5,5), _world);
-            //_enemy = new Enemy(new Vector2(10, 5), _world)
+
+            _mode = Mode.NormalControl;
 
             base.Initialize();
         }
@@ -135,6 +136,10 @@ namespace Arena {
             _camera.MaxPosition = TileLevel.CurrentRoom.BottomRight - viewportCenter;
         }
 
+        private void UnclampCamera() {
+            _camera.MinPosition = _camera.MaxPosition;
+        }
+
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
         /// all content.
@@ -159,80 +164,88 @@ namespace Arena {
             InputHelper helper = InputHelper.Instance;
             helper.Update(gameTime);
 
-            foreach ( var pressedKey in helper.GetNewKeyPresses() ) {
-                switch ( pressedKey ) {
-                    case Keys.F1:
-                        EnableOrDisableFlag(DebugViewFlags.Shape);
-                        break;
-                    case Keys.F2:
-                        EnableOrDisableFlag(DebugViewFlags.DebugPanel);
-                        EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
-                        break;
-                    case Keys.F3:
-                        EnableOrDisableFlag(DebugViewFlags.Joint);
-                        break;
-                    case Keys.F4:
-                        EnableOrDisableFlag(DebugViewFlags.ContactPoints);
-                        EnableOrDisableFlag(DebugViewFlags.ContactNormals);
-                        break;
-                    case Keys.F5:
-                        EnableOrDisableFlag(DebugViewFlags.PolygonPoints);
-                        break;
-                    case Keys.F6:
-                        EnableOrDisableFlag(DebugViewFlags.Controllers);
-                        break;
-                    case Keys.F7:
-                        EnableOrDisableFlag(DebugViewFlags.CenterOfMass);
-                        break;
-                    case Keys.F8:
-                        EnableOrDisableFlag(DebugViewFlags.AABB);
-                        break;
+            if ( _mode == Mode.NormalControl ) {
+                foreach ( var pressedKey in helper.GetNewKeyPresses() ) {
+                    switch ( pressedKey ) {
+                        case Keys.F1:
+                            EnableOrDisableFlag(DebugViewFlags.Shape);
+                            break;
+                        case Keys.F2:
+                            EnableOrDisableFlag(DebugViewFlags.DebugPanel);
+                            EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
+                            break;
+                        case Keys.F3:
+                            EnableOrDisableFlag(DebugViewFlags.Joint);
+                            break;
+                        case Keys.F4:
+                            EnableOrDisableFlag(DebugViewFlags.ContactPoints);
+                            EnableOrDisableFlag(DebugViewFlags.ContactNormals);
+                            break;
+                        case Keys.F5:
+                            EnableOrDisableFlag(DebugViewFlags.PolygonPoints);
+                            break;
+                        case Keys.F6:
+                            EnableOrDisableFlag(DebugViewFlags.Controllers);
+                            break;
+                        case Keys.F7:
+                            EnableOrDisableFlag(DebugViewFlags.CenterOfMass);
+                            break;
+                        case Keys.F8:
+                            EnableOrDisableFlag(DebugViewFlags.AABB);
+                            break;
+                    }
                 }
-            }
-            foreach ( var pressedKey in helper.KeyboardState.GetPressedKeys() ) {
-                switch ( pressedKey ) {
-                    case Keys.Up:
-                        _manualCamera = true;
-                        _camera.MoveCamera(new Vector2(0, -1));
-                        break;
-                    case Keys.Down:
-                        _manualCamera = true;
-                        _camera.MoveCamera(new Vector2(0, 1));
-                        break;
-                    case Keys.Left:
-                        _manualCamera = true;
-                        _camera.MoveCamera(new Vector2(-1, 0));
-                        break;
-                    case Keys.Right:
-                        _manualCamera = true;
-                        _camera.MoveCamera(new Vector2(1, 0));
-                        break;
-                    case Keys.LeftAlt:
-                        _manualCamera = false;
-                        break;
+                foreach ( var pressedKey in helper.KeyboardState.GetPressedKeys() ) {
+                    switch ( pressedKey ) {
+                        case Keys.Up:
+                            _manualCamera = true;
+                            _camera.MoveCamera(new Vector2(0, -1));
+                            break;
+                        case Keys.Down:
+                            _manualCamera = true;
+                            _camera.MoveCamera(new Vector2(0, 1));
+                            break;
+                        case Keys.Left:
+                            _manualCamera = true;
+                            _camera.MoveCamera(new Vector2(-1, 0));
+                            break;
+                        case Keys.Right:
+                            _manualCamera = true;
+                            _camera.MoveCamera(new Vector2(1, 0));
+                            break;
+                        case Keys.LeftAlt:
+                            _manualCamera = false;
+                            break;
+                    }
                 }
-            }
 
-            _tileLevel.Update(gameTime);
+                _tileLevel.Update(gameTime);
 
-            _world.Gravity = new Vector2(0, Constants.Get(Gravity));
+                _world.Gravity = new Vector2(0, Constants.Get(Gravity));
 
-            _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
+                _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
 
-            _player.Update(gameTime);
+                _player.Update(gameTime);
 
-            foreach ( IGameEntity ent in _entities ) {
-                ent.Update(gameTime);
-            }
+                foreach ( IGameEntity ent in _entities ) {
+                    ent.Update(gameTime);
+                }
 
-            Constants.Update(helper);
+                Constants.Update(helper);
 
-            TrackPlayer();
+                TrackPlayer();
+            } 
 
             _camera.Update(gameTime);
 
-            _entities.RemoveAll(entity => entity.Disposed);
+            if ( _mode == Mode.RoomTransition ) {
+                if (_camera.IsAtTarget()) {
+                    _mode = Mode.NormalControl;
+                    ClampCameraToRoom();
+                }
+            }
 
+            _entities.RemoveAll(entity => entity.Disposed);
             base.Update(gameTime);
         }
 
@@ -273,9 +286,42 @@ namespace Arena {
                 }
             }
 
-            if ( !TileLevel.CurrentRoom.Contains(_player.Position) ) {
+            Room currentRoom = TileLevel.CurrentRoom;
+            if ( !currentRoom.Contains(_player.Position) ) {
+                Direction directionOfTravel = currentRoom.GetRelativeDirection(_player.Position);
+
+                _mode = Mode.RoomTransition;
+                UnclampCamera();
+
                 _tileLevel.DetermineCurrentRoom(_player.Position);
-                ClampCameraToRoom();
+                currentRoom = TileLevel.CurrentRoom;
+                switch ( directionOfTravel ) {
+                    case Direction.Left:
+                        _camera.Position =
+                            new Vector2(
+                                currentRoom.BottomRight.X -
+                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
+
+                        break;
+                    case Direction.Right:
+                        _camera.Position =
+                            new Vector2(
+                                currentRoom.TopLeft.X +
+                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
+                        break;
+                    case Direction.Up:
+                        _camera.Position =
+                            new Vector2(
+                                _camera.Position.X, currentRoom.TopLeft.Y -
+                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Height / 2f));
+                        break;
+                    case Direction.Down:
+                        _camera.Position =
+                            new Vector2(
+                                _camera.Position.X, currentRoom.TopLeft.Y +
+                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Height / 2f));
+                        break;
+                }
             }
         }
 

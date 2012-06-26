@@ -395,6 +395,8 @@ namespace Arena.Entity {
 
     public enum Direction {
         Left,
-        Right
+        Right,
+        Up,
+        Down,
     };
 }
