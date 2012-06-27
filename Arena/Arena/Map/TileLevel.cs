@@ -17,9 +17,11 @@ namespace Arena.Map {
         private SpriteFont _debugFont;
 
         public const float TileSize = 1f;
+        public static int TileDisplaySize;
         private readonly Layer _collisionLayer;
         private readonly List<Room> _rooms = new List<Room>();
-        private readonly List<DestructionRegion> _destructionRegions = new List<DestructionRegion>(); 
+        private readonly List<DestructionRegion> _destructionRegions = new List<DestructionRegion>();
+        private readonly List<Door> _doors = new List<Door>(); 
         private readonly Map _levelMap;
         private readonly World _world;
         private readonly ISet<Tile> _tilesToRemove = new HashSet<Tile>();
@@ -32,11 +34,16 @@ namespace Arena.Map {
         public TileLevel(ContentManager cm, String mapFile, World world, Vector2 startPosition) {
             CurrentLevel = this;
 
+            _world = world;
+            
+             TileDisplaySize = (int) ConvertUnits.ToDisplayUnits(TileSize);
+
             _debugFont = cm.Load<SpriteFont>("debugFont");
             _levelMap = Map.Load(mapFile, cm);
+            Door.LoadContent(cm);
+            
             _collisionLayer = _levelMap.Layers["Collision"];
-//            _doors = _levelMap.ObjectGroups["Doors"];
-
+            
             try {
                 ObjectGroup objectGroup = _levelMap.ObjectGroups["Rooms"];
                 InitializeRooms(objectGroup);
@@ -52,9 +59,26 @@ namespace Arena.Map {
                 // Ignore missing destruction layer
             }
 
-            _world = world;
-            
+            try {
+                ObjectGroup doorGroup = _levelMap.ObjectGroups["Doors"];
+                InitializeDoors(doorGroup);
+            } catch {
+                // no doors on this level (tests, mostly)
+            }
+
             SetCurrentRoom(startPosition);
+        }
+
+        private void InitializeDoors(ObjectGroup doorGroup) {
+            foreach ( Object region in doorGroup.Objects ) {
+                Vector2 topLeft = new Vector2(region.X, region.Y);
+                Vector2 bottomRight = new Vector2(region.X + region.Width, region.Y + region.Height);
+                Vector2 simTopLeft;
+                Vector2 simBottomRight;
+                ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
+                ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
+                _doors.Add(new Door(_world, simTopLeft, simBottomRight));
+            }
         }
 
         private void InitializeDestructionRegions(ObjectGroup regions) {
@@ -121,6 +145,7 @@ namespace Arena.Map {
             var bottomRight = camera.ConvertScreenToWorld(new Vector2(viewportSize.Width, viewportSize.Height));
             var diff = bottomRight - topLeft;
             _levelMap.Draw(spriteBatch, new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) diff.X, (int) diff.Y));
+            _doors.ForEach(door => door.Draw(spriteBatch, camera));
         }
 
         public void Update(GameTime gameTime) {
@@ -140,8 +165,10 @@ namespace Arena.Map {
                 RecreateEdges(affectedTiles);
 
                 _tilesToRemove.Clear();
-                _tilesToAdd.Clear();                
+                _tilesToAdd.Clear();           
             }
+
+            _doors.ForEach(door => door.Update(gameTime));
         }
 
         /// <summary>

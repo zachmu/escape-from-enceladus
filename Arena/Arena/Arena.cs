@@ -384,11 +384,15 @@ namespace Arena {
         }
 
         /// <summary>
+        /// Determines if any entities are overlapping the region identified by the shape at the transformation given.
+        /// /summary>
+        public static bool EntitiesOverlapping(PolygonShape shape, Vector2 centerOfShape) {
+            return EntitiesOverlapping(shape, IdentityTransform(centerOfShape));
+        }
+
+        /// <summary>
         /// Determines if any entities are overlapping the region identified by the shape and transform given.
         /// </summary>
-        /// <param name="shape"></param>
-        /// <param name="transform"></param>
-        /// <returns></returns>
         public static bool EntitiesOverlapping(PolygonShape shape, Transform transform) {
 
             Manifold manifold = new Manifold();

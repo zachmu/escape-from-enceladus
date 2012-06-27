@@ -61,7 +61,7 @@ namespace Arena.Entity {
 
             _body.OnCollision += (a, b, contact) => {
 
-                if ( b.Body.GetUserData().IsPlayer || b.Body.GetUserData().IsTerrain ) {
+                if ( b.Body.GetUserData().IsPlayer || b.Body.GetUserData().IsTerrain || b.Body.GetUserData().IsDoor ) {
                     if ( contact.Manifold.LocalNormal.X > .9 ) {
                         _direction = Direction.Right;
                     } else if ( contact.Manifold.LocalNormal.X < -.9 ) {

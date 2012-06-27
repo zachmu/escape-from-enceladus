@@ -56,6 +56,8 @@ namespace Arena.Entity {
                     HitEnemy(b.Body.GetUserData().Enemy);
                 } else if ( b.Body.GetUserData().IsTerrain ) {
                     HitTerrain(contact);
+                } else if ( b.Body.GetUserData().IsDoor ) {
+                    HitDoor(b.Body.GetUserData().Door);
                 }
 
                 return true;
@@ -77,6 +79,10 @@ namespace Arena.Entity {
                     _body.LinearVelocity = new Vector2(0, -20);
                     break;
             }
+        }
+
+        private void HitDoor(Door door) {
+            door.HitBy(this);
         }
 
         private void HitTerrain(Contact contact) {

@@ -9,7 +9,7 @@ namespace Arena.Map {
     /// <summary>
     /// A region of destructible tiles.
     /// </summary>
-    public class DestructionRegion :Region {
+    public class DestructionRegion : Region {
 
         public string WeaponName { get; private set; }
 

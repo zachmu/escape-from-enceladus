@@ -1,4 +1,5 @@
 ﻿using Arena.Entity;
+using Arena.Map;
 
 namespace Arena.Farseer {
 
@@ -11,9 +12,11 @@ namespace Arena.Farseer {
         public bool IsEnemy { get; private set; }
         public bool IsPlayer { get; private set; }
         public bool IsProjectile { get; private set; }
+        public bool IsDoor { get; private set; }
 
         public Enemy Enemy { get; private set; }
         public Shot Projectile { get; private set; }
+        public Door Door { get; private set; }
 
         public static UserData NewTerrain() {
             return new UserData() { IsTerrain = true };
@@ -29,6 +32,10 @@ namespace Arena.Farseer {
 
         public static UserData NewPlayer() {
             return new UserData() { IsPlayer = true };
+        }
+
+        public static UserData NewDoor(Door door) {
+            return new UserData() { IsDoor = true, Door = door };
         }
     }
 }

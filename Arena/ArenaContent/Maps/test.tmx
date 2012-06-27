@@ -5,7 +5,7 @@
  </tileset>
  <layer name="Blocks" width="100" height="100">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+2WQW7EMAwD85f2/2/suSB2JRJ0YsUkEKCH6VBetetc13X9XP/zQ/6cePOb59Yn+9jr6e7DGXaGk9wuTumOG90uTumOG90uTumOG93sDI67auU9ON1dZeq5prqrdDkmn2aK28cp3XGj28Up3XGj28Up3XGjm+Wm35e7u6tMPddUd5Uux4Sd4SS3i1O640a3i1O640a3i1O640Y3O4Pjnlp1r77BXWXquaa6q3Q5Jt/mOt3t4pTuuNHt4pTuuNHt4pTuuNHt4pTuuNHNcu53jLi5HU8911R3lS7HhJ3hJLeLU7rjRreLOyHZx17JPvbKTvv4xK98t1j1vrLyXWiF85t/1dnudDu9bneV6vfcZ1vpnjBzlclnmzhzlS7HhJ3hJLeLU7rjRreLU7rjRreLU7rjRjc7ww533pvdVaaea6q7Spdj8mmmuH2c0h03ul2c0h03ul2c0h03ullu+n25u7vK1HNNdVfpckzYGU5yuzilO250uzilO250uzilO250szM47qlV9+ob3FWmnmuqu0qXY/JtrtPdLk7pjhvdLk7pjhvdLk7pjhvdLk7pjhvdLOd+x4ib2/HUc011V+lyTNgZTnK7OKU7bnS7OKU7bnS7OKU7bnS7OKU7bnSzM+RZ+2Qfez3dfTjDznCS28Up3XGjm+VW/o/GXWfquaa6q3Q5JuwMJ7ldnNIdN7pdnNIdN7pdnNIdN7rZGRz31Kp79Q3uKlPPNdVdpcsx+TbX6W4Xp3THjW4Xp3THjW4Xp3THjW4Xp3THjW6Wc79jxM3teOq5prqrdDkm7AwnuV2c0h03ul2c0n3nd8rKuZ1uF6d0T/2O32Efztmf+BvOPvKs2PHT8532dPfhDDvDbu4nc8dn5vybyj505x37WOF+MlO/U07Zh/u8E3f9ZLIPdD+ZqZ/ZG/fxBwXejXBAnAAA
+   H4sIAAAAAAAAC+2WQW7EMAwD85f2/2/suSB2ZRJ0YkUkEKCH6VBetetc13X9XP/zQ/6cePOb59Yn+zjrWd2HM+wMk9wuTumOG90uTumOG90uTumOG93sDI67auc92N1dpeu5urqrrHJMPs0Ut487JdnHWck+zsq0fXS/L093V+l6rq7uKqscE3aGSW4Xp3THjW4Xp3THjW4Xp3THjW52Bsc9tetefYO7StdzdXVXWeWYfJtrutvFKd1xo9vFKd1xo9vFKd1xo9vFKd1xo5vl3O8YcXM77nquru4qqxwTdoZJbhendMeNbhc3IdnHWck+zspJ+/jE73y32PW+svNdaIfzm3/X2e50O71ud5Xq99xn2+nuMHOVzmfrOHOVVY4JO8Mkt4tTuuNGt4tTuuNGt4tTuuNGNzvDCXfem91Vup6rq7vKKsfk00xx+zilO250uzilO250uzilO250s1z3+/J0d5Wu5+rqrrLKMWFnmOR2cUp33Oh2cUp33Oh2cUp33OhmZ3DcU7vu1Te4q3Q9V1d3lVWOybe5prtdnNIdN7pdnNIdN7pdnNIdN7pdnNIdN7pZzv2OETe3467n6uqussoxYWeY5HZxSnfc6HZxSnfc6HZxSnfc6HZxSnfc6GZnyLP3yT7Oelb34Qw7wyS3i1O640Y3y+38H427TtdzdXVXWeWYsDNMcrs4pTtudLs4pTtudLs4pTtudLMzOO6pXffqG9xVup6rq7vKKsfk21zT3S5O6Y4b3S5O6Y4b3S5O6Y4b3S5O6Y4b3SznfseIm9tx13N1dVdZ5ZiwM0xyuzilO250uzil+87vlJ1zO90uTunu+h1/wj6csz/xN5x95Nmx46fnm/as7sMZdobT3E/mjs/M+TeVfejOO/axw/1kun6nTNmH+7wdd/1ksg90P5mun9kb9/EHcC+wPkCcAAA=
   </data>
  </layer>
  <layer name="Collision" width="100" height="100" visible="0">
@@ -13,14 +13,10 @@
    <property name="invisible" value=""/>
   </properties>
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+2WQW7DMBAD21P//+PeyyYwiVG8sriAbtPhOmwif311ps3Pd88nT/uYda72QY67w0luikuy61Y3xSXZdaub4pLsutXt7kDcVSvvwd3d7WOW+2of5LzaqW6OS7LrVjfFJdl1q5vikuy61e1yu9+X093tY5bb7YMYd4eT3BSXZNetbopLsutWN8Ul2XWr292BuKdW3atPcLePWe6rfZDzbq/T3RSXZNetbopLsutWN8Ul2XWrm+KS7LrV7XL0O0bdXse7PteubrcPYtwdTnJTXJJdt7op7oRpH7OmfcyaSX284le+W6x6X1n5LrTC+aQ+/nOTXtrt9vH37+hnW+neYef2Mct9tQ9y3B1OclNckl23uikuya5b3RSXZNetbneHCXfek93tY5b7ah/kvNqpbo5LsutWN8Ul2XWrm+KS7LrV7XK735fT3e1jltvtgxh3h5PcFJdk161uikuy61Y3xSXZdavb3YG4p1bdq09wt49Z7qt9kPNur9PdFJdk161uikuy61Y3xSXZdaub4pLsutXtcvQ7Rt1ex7s+165utw9i3B1OclNckl23uikuya5b3RSXZNetbopLsutWt7tDz9rTPmYd6nvkjLvDSW6KS7LrVrfLrfyO1t0+prndPohxdzjJTXFJdt3qprgku251U1ySXbe63R2Ie2rVvfoEd/uY5b7aBznv9jrdTXFJdt3qprgku251U1ySXbe6KS7JrlvdLke/Y9Ttdbzrc+3qdvsgxt3hJDfFJdl1q5vikuxP/qas3Jt0U1ySvetv/IQ+yN3v+B9uHz0rOr57v9MO9T1yxt1hmvvO+cRnRv5PtY/c+Yk+VrjvnF1/U07pg37eHbu+c9qHuu+cXT+zJ/bxC6yJcu9AnAAA
+   H4sIAAAAAAAAC+2WwXLDMBQC21P//497L03GMKv4yYIZ3eiCQxP566uapp/vnk+e7jHrXN2DlNvhJDblS7LLVjblS7LLVjblS7LLVrbbgbirVt6Du7O7xyz21T1IvepUNuebou4xS91jlk7bY/f7cjq7e8xiu3sQcjucxKZ8SXbZyqZ8SXbZyqZ8SXbZynY7EPfUqnv1CezuMYt9dQ9S73qdzqZ8SXbZyqZ8SXbZyqZ8SXbZyqZ8SXbZynZ99DtG2d7Guz7Xrmx3D0Juh5PYlC/JLlvZlO8EdY9Z6h6zNGmPV/6V7xar3ldWvgutYD5pj//YJJdmu3v8/Tv62Vayd+jcPWaxr+5Byu1wEpvyJdllK5vyJdllK5vyJdllK9vtMOHOezK7e8xiX92D1KtOZXO+JLtsZVO+JLtsZVO+JLtsZbu+3e/L6ezuMYvt7kHI7XASm/Il2WUrm/Il2WUrm/Il2WUr2+1A3FOr7tUnsLvHLPbVPUi963U6m/Il2WUrm/Il2WUrm/Il2WUrm/Il2WUr2/XR7xhlexvv+ly7st09CLkdTmJTviS7bGVTviS7bGVTviS7bGVTviS7bGW7HXrWnu4x61DfI0duh5PYlC/JLlvZrm/ld7Ts7jGN7e5ByO1wEpvyJdllK5vyJdllK5vyJdllK9vtQNxTq+7VJ7C7xyz21T1Ivet1OpvyJdllK5vyJdllK5vyJdllK5vyJdllK9v10e8YZXsb7/pcu7LdPQi5HU5iU74ku2xlU74k+5O/KSt7k2zKl2Tv+hs/YQ+y+x3/w92jZ8XGd/c77VDfI0duh2nsO/WJz4z8n+oeOfMTe6xg36ldf1NO2YN+3h23vlPdQ9l3atfP7Il7/AKGnD7vQJwAAA==
   </data>
  </layer>
- <objectgroup name="Enemies" width="100" height="100" visible="0">
-  <object name="1" type="enemy1" x="496" y="358"/>
-  <object name="1" type="enemy1" x="640" y="384" width="117" height="50"/>
-  <object name="1" type="enemy1" x="876" y="367"/>
-  <object name="1" type="enemy1" x="1128" y="406"/>
+ <objectgroup name="Enemies" width="100" height="100">
   <object name="1" type="enemy1" x="1044" y="787"/>
  </objectgroup>
  <objectgroup name="Rooms" width="100" height="100" visible="0">
@@ -34,11 +30,12 @@
   <object x="1535" y="4369" width="1461" height="2111"/>
   <object x="3009" y="4368" width="1454" height="2110"/>
  </objectgroup>
- <objectgroup name="Doors" width="100" height="100" visible="0">
+ <objectgroup name="Doors" width="100" height="100">
   <object x="1476" y="1921" width="118" height="191"/>
   <object x="2947" y="1923" width="118" height="191"/>
+  <object x="1480" y="641" width="114" height="186"/>
  </objectgroup>
  <objectgroup name="Destruction" width="100" height="100">
-  <object name="any" x="1421" y="710" width="228" height="112"/>
+  <object name="any" x="1420" y="326" width="228" height="112"/>
  </objectgroup>
 </map>
