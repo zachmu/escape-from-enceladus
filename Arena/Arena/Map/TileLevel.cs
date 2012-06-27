@@ -89,7 +89,7 @@ namespace Arena.Map {
                 Vector2 simBottomRight;
                 ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
                 ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
-                _destructionRegions.Add(new DestructionRegion(simTopLeft, simBottomRight, "any"));
+                _destructionRegions.Add(new DestructionRegion(_world, simTopLeft, simBottomRight, "any"));
             }
         }
 

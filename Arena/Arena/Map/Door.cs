@@ -44,24 +44,12 @@ namespace Arena.Map {
             CreateBody();
         }
 
-        private float Width {
-            get { return BottomRight.X - TopLeft.X; }
-        }
-
-        private float Height {
-            get { return BottomRight.Y - TopLeft.Y; }
-        }
-
         public void Dispose() {
             _body.Dispose();
         }
 
         public bool Disposed {
             get { return _body.IsDisposed; }
-        }
-
-        public Vector2 Position {
-            get { return TopLeft + new Vector2(Width / 2, Height / 2); }
         }
 
         public PolygonShape Shape {

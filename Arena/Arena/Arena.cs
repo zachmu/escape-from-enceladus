@@ -299,11 +299,11 @@ namespace Arena {
 
                 _mode = Mode.RoomTransition;
                 UnclampCamera();
+
+                currentRoom = _tileLevel.SetCurrentRoom(_player.Position);
                 foreach ( IGameEntity gameEntity in _entities.Where(entity => !currentRoom.Contains(entity.Position)) ) {
                     gameEntity.Dispose();
                 }
-
-                currentRoom = _tileLevel.SetCurrentRoom(_player.Position);
                 switch ( directionOfTravel ) {
                     case Direction.Left:
                         _camera.Position =

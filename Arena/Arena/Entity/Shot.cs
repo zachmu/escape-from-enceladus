@@ -10,6 +10,7 @@ using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -18,7 +19,8 @@ namespace Arena.Entity {
 
         private readonly Body _body;
 
-        public static Texture2D Image { get; private set; }
+        private static Texture2D Image { get; set; }
+        private static SoundEffect Sfx { get; set; }
 
         private bool _disposed;
         public bool Disposed {
@@ -79,6 +81,8 @@ namespace Arena.Entity {
                     _body.LinearVelocity = new Vector2(0, -20);
                     break;
             }
+
+            Sfx.Play();
         }
 
         private void HitDoor(Door door) {
@@ -114,6 +118,7 @@ namespace Arena.Entity {
 
         public static void LoadContent(ContentManager content) {
             Image = content.Load<Texture2D>("star");
+            Sfx = content.Load<SoundEffect>("laser");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {

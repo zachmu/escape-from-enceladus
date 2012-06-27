@@ -5,15 +5,17 @@ using Arena.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ConvertUnits = Arena.Farseer.ConvertUnits;
 
 namespace Arena.Entity {
-    public class Player : IGameEntity {
+    public class Player : Entity, IGameEntity {
 
         private static Player _instance;
 
@@ -35,8 +37,6 @@ namespace Arena.Entity {
         private static readonly int DisplayHeight = (int) ConvertUnits.ToDisplayUnits(CharacterHeight + ImageBuffer);
         private static readonly int DisplayWidth = (int) ConvertUnits.ToDisplayUnits(CharacterWidth + ImageBuffer);
 
-        private readonly World _world;
-
         private static readonly Constants Constants = Constants.Instance;
         private const string PlayerInitSpeedMs = "Player initial run speed (m/s)";
         private const string PlayerMaxSpeedMs = "Player max run speed (m/s)";
@@ -47,7 +47,6 @@ namespace Arena.Entity {
         private const string PlayerKnockbackTime = "Player knock back time (s)";
         private const string PlayerKnockbackAmt = "Player knock back amount (scalar)";
         
-
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 5.0f, Keys.I));
             Constants.Register(new Constant(PlayerAccelerationMss, 5.0f, Keys.A));
@@ -73,8 +72,6 @@ namespace Arena.Entity {
         /// </summary>
         private long _timeUntilRegainControl;
 
-        private readonly Body _body;
-        private readonly Fixture _floorSensor;
         private int _floorSensorContactCount = 0;
         private readonly Fixture _ceilingSensor;
         private int _ceilingSensorContantCount = 0;
@@ -115,27 +112,14 @@ namespace Arena.Entity {
             _body.UserData = UserData.NewPlayer();
             _body.FixtureList.First().UserData = "body";
 
-            var rectangle = PolygonTools.CreateRectangle(CharacterWidth / 2f - .1f, .05f);
-            Vertices translated = new Vertices(rectangle.Count);
-            translated.AddRange(rectangle.Select(v => v + new Vector2(0, CharacterHeight / 2f)));
-
-            Shape footSensorShape = new PolygonShape(translated, 0f);
-            _floorSensor = _body.CreateFixture(footSensorShape);
-            _floorSensor.IsSensor = true;
-            _floorSensor.UserData = "floor";
-            _floorSensor.OnCollision += (a, b, contact) => {
-                _floorSensorContactCount++;
-                Console.WriteLine("Hit floor");
+            _body.OnCollision += (a, b, contact) => {
+                UpdateStanding();
                 return true;
             };
-            _floorSensor.OnSeparation += (a, b) => {
-                // For some reason we sometimes get "duplicate" leaving events due to body / fixture destruction
-                if ( _floorSensorContactCount > 0 ) {
-                    _floorSensorContactCount--;
-                    Console.WriteLine("Left floor");
-                }
-            };
+            _body.OnSeparation += (a, b) => UpdateStanding();
 
+            var rectangle = PolygonTools.CreateRectangle(CharacterWidth / 2f - .1f, .01f);
+            Vertices translated = new Vertices(rectangle.Count);
             translated = new Vertices(rectangle.Count);
             translated.AddRange(rectangle.Select(v => v - new Vector2(0, CharacterHeight / 2f)));
             Shape ceilingSensorShape = new PolygonShape(translated, 0);
@@ -143,15 +127,14 @@ namespace Arena.Entity {
             _ceilingSensor.IsSensor = true;
             _ceilingSensor.UserData = "ceiling";
             _ceilingSensor.OnCollision += (a, b, contact) => {
-                _ceilingSensorContantCount++;
-                Console.WriteLine("Hit ceiling");
+                if ( !b.IsSensor ) {
+                    _ceilingSensorContantCount++;
+                }
                 return true;
             };
             _ceilingSensor.OnSeparation += (a, b) => {
-                // For some reason we sometimes get "duplicate" leaving events due to body / fixture destruction
                 if ( _ceilingSensorContantCount > 0 ) {
                     _ceilingSensorContantCount--;
-                    Console.WriteLine("Left ceiling");
                 }
             };
 
@@ -159,6 +142,7 @@ namespace Arena.Entity {
         }
 
         private Texture2D Image { get; set; }
+        private SoundEffect LandSound { get; set; }
 
         private readonly Texture2D[] _walkAnimation = new Texture2D[8];
         private readonly Texture2D[] _runAnimation = new Texture2D[8];
@@ -170,6 +154,20 @@ namespace Arena.Entity {
         private bool _isDucking;
         private bool _isRunning;
 
+        protected override bool IsStanding {
+            get { return _isStanding; }
+            set {
+                if ( value && !_isStanding ) {
+                    LandSound.Play();
+                }
+                _isStanding = value;
+            }
+        }
+
+        protected bool IsTouchingCeiling() {
+            return _ceilingSensorContantCount > 0;
+        }
+
         public void LoadContent(ContentManager content) {
             for ( int i = 1; i <= 8; i++ ) {
                 _walkAnimation[i - 1] = content.Load<Texture2D>("Character/walk" + i);
@@ -180,6 +178,8 @@ namespace Arena.Entity {
             _standImage = content.Load<Texture2D>("Character/stand");
 
             Image = _standImage;
+
+            LandSound = content.Load<SoundEffect>("land");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -229,7 +229,7 @@ namespace Arena.Entity {
         /// Updates the current image for the next frame
         /// </summary>
         private void UpdateImage(GameTime gameTime) {
-            if ( !IsStanding() || _body.LinearVelocity.X == 0 ) {
+            if ( !IsStanding || _body.LinearVelocity.X == 0 ) {
                 if (_isDucking) {
                     Image = _duckAnimation[1];
                 } else {
@@ -266,7 +266,7 @@ namespace Arena.Entity {
                 Direction shotDirection;
                 if ( InputHelper.Instance.GamePadState.ThumbSticks.Left.Y > .8 ) {
                     shotDirection = Direction.Up;
-                } else if ( !IsStanding() && InputHelper.Instance.GamePadState.ThumbSticks.Left.Y < -.8 ) {
+                } else if ( !IsStanding && InputHelper.Instance.GamePadState.ThumbSticks.Left.Y < -.8 ) {
                     shotDirection = Direction.Down;
                 } else {
                     shotDirection = _direction;
@@ -298,7 +298,7 @@ namespace Arena.Entity {
         /// </summary>
         private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
             if ( _timeUntilRegainControl <= 0 ) {
-                if ( IsStanding() ) {
+                if ( IsStanding ) {
                     if ( movementInput.X < 0 ) {
                         _direction = Direction.Left;
                         if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
@@ -354,7 +354,7 @@ namespace Arena.Entity {
                 // handle ducking
                 if ( movementInput.Y < -.9 ) {
                     _isDucking = true;
-                    if ( IsStanding() ) {
+                    if ( IsStanding ) {
                         _body.LinearVelocity = new Vector2(0, 0);
                     }
                 } else {
@@ -372,7 +372,7 @@ namespace Arena.Entity {
         /// </summary>
         private void HandleJump(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.A) ) {
-                if ( IsStanding() ) {
+                if ( IsStanding ) {
                     _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
                     _airBoostTime = 0;
                 }
@@ -386,14 +386,6 @@ namespace Arena.Entity {
             } else {
                 _airBoostTime = -1;
             }
-        }
-
-        private bool IsStanding() {
-            return _floorSensorContactCount > 0;
-        }
-
-        private bool IsTouchingCeiling() {
-            return _ceilingSensorContantCount > 0;
         }
 
         public void HitBy(Enemy enemy) {

@@ -12,9 +12,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Arena.Entity {
     
-    public class Enemy : IGameEntity {
-
-        private readonly Body _body;
+    public class Enemy : Entity, IGameEntity {
 
         private int _hitPoints;
 
@@ -69,6 +67,10 @@ namespace Arena.Entity {
                     }
                 }
 
+                if (b.Body.GetUserData().IsTerrain) {
+                    UpdateStanding();
+                }
+
                 if ( b.Body.GetUserData().IsPlayer ) {
                     Player.Instance.HitBy(this);
                 }
@@ -76,27 +78,7 @@ namespace Arena.Entity {
                 return true;
             };
 
-            var rectangle = PolygonTools.CreateRectangle(CharacterWidth / 2f - .1f, .05f);
-            Vertices translated = new Vertices(rectangle.Count);
-            translated.AddRange(rectangle.Select(v => v + new Vector2(0, CharacterHeight / 2f)));
-
-            Shape footSensorShape = new PolygonShape(translated, 0f);
-            _floorSensor = _body.CreateFixture(footSensorShape);
-            _floorSensor.IsSensor = true;
-            _floorSensor.UserData = "floor";
-            _floorSensor.OnCollision += (a, b, contact) => {
-                _floorSensorContactCount++;
-                Console.WriteLine("Hit floor");
-                return true;
-            };
-            _floorSensor.OnSeparation += (a, b) => {
-                // For some reason we sometimes get "duplicate" leaving events due to body / fixture destruction
-                if ( _floorSensorContactCount > 0 ) {
-                    _floorSensorContactCount--;
-                    Console.WriteLine("Left floor");
-                }
-            };
-
+            _body.OnSeparation += (a, b) => UpdateStanding();
         }
 
         public static void LoadContent(ContentManager content) {
@@ -126,17 +108,13 @@ namespace Arena.Entity {
                 return;
             }
 
-            if ( IsStanding() ) {
+            if ( IsStanding ) {
                 if ( _direction == Direction.Left ) {
                     _body.LinearVelocity = new Vector2(-Constants.Get(EnemySpeed), 0);
                 } else {
                     _body.LinearVelocity = new Vector2(Constants.Get(EnemySpeed), 0);
                 }
             }
-        }
-
-        private bool IsStanding() {
-            return _floorSensorContactCount > 0;
         }
 
         public void HitBy(Shot shot) {

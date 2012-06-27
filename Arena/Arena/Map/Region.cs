@@ -14,6 +14,18 @@ namespace Arena.Map {
             get { return _topLeft; }
         }
 
+        protected float Width {
+            get { return BottomRight.X - TopLeft.X; }
+        }
+
+        protected float Height {
+            get { return BottomRight.Y - TopLeft.Y; }
+        }
+
+        public Vector2 Position {
+            get { return TopLeft + new Vector2(Width / 2, Height / 2); }
+        }
+
         protected Vector2 AdjustToTileBoundary(Vector2 pos) {
             return new Vector2((float) Math.Round(pos.X), (float) Math.Round(pos.Y));
         }

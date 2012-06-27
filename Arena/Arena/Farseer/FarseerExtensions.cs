@@ -9,7 +9,7 @@ namespace Arena.Farseer {
     public static class FarseerExtensions {
         
         public static UserData GetUserData(this Body body) {
-            return (UserData) body.UserData;
+            return (UserData) body.UserData ?? new UserData();
         }
 
     }
