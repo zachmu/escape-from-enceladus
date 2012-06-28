@@ -46,6 +46,7 @@ namespace Arena {
         private const string ShaderVar1 = "Shader Var 1";
         private const String ShaderVar2 = "Shader Var 2";
         private const String ShaderVar3 = "Shader Var 3";
+        private const String WaveTime = "Wave effect travel time";
 
         public const Category PlayerCategory = Category.Cat1;
         public const Category TerrainCategory = Category.Cat2;
@@ -54,8 +55,9 @@ namespace Arena {
 
         public static Boolean Debug = true;
 
-        // The object that will contain our shader
-        Effect _effect;
+        private Effect _effect;
+        private Effect _waveEffect;
+        private int _waveTimeMs = -1;
     
         public Arena() {
             graphics = new GraphicsDeviceManager(this);
@@ -91,6 +93,7 @@ namespace Arena {
             Constants.Register(new Constant(ShaderVar1, .5f, Keys.D1));
             Constants.Register(new Constant(ShaderVar2, .5f, Keys.D2));
             Constants.Register(new Constant(ShaderVar3, .6f, Keys.D3));
+            Constants.Register(new Constant(WaveTime, 2, Keys.W));
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
@@ -136,6 +139,7 @@ namespace Arena {
             ClampCameraToRoom();
 
             _effect = Content.Load<Effect>("Effect1");
+            _waveEffect = Content.Load<Effect>("Wave");
         }
 
         /// <summary>
@@ -229,7 +233,17 @@ namespace Arena {
                             _manualCamera = false;
                             ClampCameraToRoom();
                             break;
+                        case Keys.Enter:
+                            _waveTimeMs = 0;
+                            break;
                     }
+                }
+
+                if ( _waveTimeMs >= 0 ) {
+                    _waveTimeMs += gameTime.ElapsedGameTime.Milliseconds;
+                }
+                if (_waveTimeMs > Constants.Get(WaveTime) * 1000) {
+                    _waveTimeMs = -1;
                 }
 
                 _tileLevel.Update(gameTime);
@@ -350,31 +364,61 @@ namespace Arena {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            graphics.GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-            _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
-            foreach ( IGameEntity ent in _entities ) {
-                ent.Draw(_spriteBatch, _camera);
+            // Render first to a new back buffer
+            using ( RenderTarget2D renderTarget = new RenderTarget2D(graphics.GraphicsDevice, graphics.PreferredBackBufferWidth,
+                                                             graphics.PreferredBackBufferHeight) ) {
+                graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+
+                graphics.GraphicsDevice.Clear(Color.Black);
+                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
+                _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds);
+                foreach ( IGameEntity ent in _entities ) {
+                    ent.Draw(_spriteBatch, _camera);
+                }
+                _spriteBatch.End();
+
+                _effect.Parameters["Radius"].SetValue(Constants.Get(ShaderVar3));
+                _effect.Parameters["Center"].SetValue(new Vector2(Constants.Get(ShaderVar1), Constants.Get(ShaderVar2)));
+                _spriteBatch.Begin(0, null, null, null, null, _effect, _camera.DisplayView);
+                _player.Draw(_spriteBatch, _camera);
+                _spriteBatch.End();
+
+                // Now apply post-processing to the scene
+                graphics.GraphicsDevice.SetRenderTarget(null);
+                graphics.GraphicsDevice.Clear(Color.Black);
+
+                if ( _waveTimeMs >= 0 ) {
+                    _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);
+                    _waveEffect.Parameters["Direction"].SetValue((int) _player.Direction);
+                    Vector2 screenPos = _camera.ConvertWorldToScreen(_player.Position);
+                    Vector2 center = new Vector2(screenPos.X / graphics.PreferredBackBufferWidth,
+                                                 screenPos.Y / graphics.PreferredBackBufferHeight);
+                    //                _effect.Parameters["Center"].SetValue(new Vector2(Constants.Get(ShaderVar1), Constants.Get(ShaderVar2)));
+                    _waveEffect.Parameters["Center"].SetValue(center);
+                    _spriteBatch.Begin(0, null, null, null, null, _waveEffect);
+                } else {
+                    _spriteBatch.Begin();
+                }
+
+                _spriteBatch.Draw(renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
+                                  Color.White);
+                _spriteBatch.End();
             }
-            _spriteBatch.End();
 
-            _effect.Parameters["Radius"].SetValue(Constants.Get(ShaderVar3));
-            _effect.Parameters["Center"].SetValue(new Vector2(Constants.Get(ShaderVar1), Constants.Get(ShaderVar2)));
-            _spriteBatch.Begin(0, null, null, null, null, _effect, _camera.DisplayView);
-            _player.Draw(_spriteBatch, _camera);
-            _spriteBatch.End();
+            DebugDraw();
 
+            base.Draw(gameTime);
+        }
+
+        private void DebugDraw() {
             _spriteBatch.Begin();
             Constants.Draw(_spriteBatch);
             _spriteBatch.End();
 
             Matrix projection = _camera.SimProjection;
             Matrix view = _camera.SimView;
-
             _debugView.RenderDebugData(ref projection, ref view);
-
-            base.Draw(gameTime);
         }
 
         private void EnableOrDisableFlag(DebugViewFlags flag) {

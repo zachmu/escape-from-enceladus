@@ -61,6 +61,9 @@ namespace Arena.Entity {
         private readonly List<Shot> _shots = new List<Shot>();
 
         private Direction _direction = Direction.Right;
+        public Direction Direction {
+            get { return _direction; }
+        }
 
         /// <summary>
         /// How long, in milliseconds, the player has been holding down the jump button.
