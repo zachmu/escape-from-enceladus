@@ -43,6 +43,9 @@ namespace Arena {
         }
 
         private const string Gravity = "World gravity (m/s/s)";
+        private const string ShaderVar1 = "Shader Var 1";
+        private const String ShaderVar2 = "Shader Var 2";
+        private const String ShaderVar3 = "Shader Var 3";
 
         public const Category PlayerCategory = Category.Cat1;
         public const Category TerrainCategory = Category.Cat2;
@@ -85,6 +88,9 @@ namespace Arena {
             _instance = this;
 
             Constants.Register(new Constant(Gravity, 25f, Keys.G));
+            Constants.Register(new Constant(ShaderVar1, .5f, Keys.D1));
+            Constants.Register(new Constant(ShaderVar2, .5f, Keys.D2));
+            Constants.Register(new Constant(ShaderVar3, .6f, Keys.D3));
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
@@ -353,6 +359,8 @@ namespace Arena {
             }
             _spriteBatch.End();
 
+            _effect.Parameters["Radius"].SetValue(Constants.Get(ShaderVar3));
+            _effect.Parameters["Center"].SetValue(new Vector2(Constants.Get(ShaderVar1), Constants.Get(ShaderVar2)));
             _spriteBatch.Begin(0, null, null, null, null, _effect, _camera.DisplayView);
             _player.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
