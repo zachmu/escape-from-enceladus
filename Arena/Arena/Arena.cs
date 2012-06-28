@@ -50,6 +50,9 @@ namespace Arena {
         public const Category EnemyCategory = Category.Cat4;
 
         public static Boolean Debug = true;
+
+        // The object that will contain our shader
+        Effect _effect;
     
         public Arena() {
             graphics = new GraphicsDeviceManager(this);
@@ -125,6 +128,8 @@ namespace Arena {
             }
 
             ClampCameraToRoom();
+
+            _effect = Content.Load<Effect>("Effect1");
         }
 
         /// <summary>
@@ -343,12 +348,13 @@ namespace Arena {
 
             _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
             _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds );
-            _player.Draw(_spriteBatch, _camera);
-
             foreach ( IGameEntity ent in _entities ) {
                 ent.Draw(_spriteBatch, _camera);
             }
+            _spriteBatch.End();
 
+            _spriteBatch.Begin(0, null, null, null, null, _effect, _camera.DisplayView);
+            _player.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 
             _spriteBatch.Begin();

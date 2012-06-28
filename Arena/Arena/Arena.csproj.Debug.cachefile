@@ -6,7 +6,6 @@ Content\star.xnb
 Content\welcome16.xnb
 Content\levelTest2.xnb
 Content\Maps\metroidTiles_64.xnb
-Content\DebugFont.xnb
 Content\Character\duck1.xnb
 Content\Character\duck2.xnb
 Content\Character\run1.xnb
@@ -15,6 +14,7 @@ Content\Character\run3.xnb
 Content\Character\run4.xnb
 Content\Character\run5.xnb
 Content\Character\run6.xnb
+Content\Character\run7.xnb
 Content\Character\run8.xnb
 Content\Character\stand.xnb
 Content\Character\walk1.xnb
@@ -26,7 +26,6 @@ Content\Character\walk6.xnb
 Content\Character\walk7.xnb
 Content\Character\walk8.xnb
 Content\Character\walk_all.xnb
-Content\Character\run7.xnb
 Content\Character\run0001.xnb
 Content\Character\run0002.xnb
 Content\Character\run0003.xnb
@@ -37,6 +36,8 @@ Content\Character\run0007.xnb
 Content\Character\run0008.xnb
 Content\enemy.xnb
 Content\door.xnb
+Content\DebugFont.xnb
+Content\Effect1.xnb
 Content\laser.xnb
 Content\land.xnb
 Content\Maps\big_square.tmx
