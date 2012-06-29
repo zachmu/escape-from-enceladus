@@ -46,6 +46,7 @@ namespace Arena.Entity {
         private const string PlayerAirBoostTime = "Player max air boost time (s)";
         private const string PlayerKnockbackTime = "Player knock back time (s)";
         private const string PlayerKnockbackAmt = "Player knock back amount (scalar)";
+        private const string WaveTime = "Wave effect travel time";
         
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 5.0f, Keys.I));
@@ -56,6 +57,7 @@ namespace Arena.Entity {
             Constants.Register(new Constant(PlayerAirBoostTime, .5f, Keys.Y));
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
+            Constants.Register(new Constant(WaveTime, 1f, Keys.W));
         }
 
         private readonly List<Shot> _shots = new List<Shot>();
@@ -157,6 +159,10 @@ namespace Arena.Entity {
         private bool _isDucking;
         private bool _isRunning;
 
+        private int _waveTimeMs = -1;
+        private Effect _waveEffect;
+        private Vector2 _waveEffectCenter;
+
         protected override bool IsStanding {
             get { return _isStanding; }
             set {
@@ -183,6 +189,7 @@ namespace Arena.Entity {
             Image = _standImage;
 
             LandSound = content.Load<SoundEffect>("land");
+            _waveEffect = content.Load<Effect>("wave");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -200,6 +207,15 @@ namespace Arena.Entity {
             foreach ( Shot shot in _shots ) {
                 shot.Draw(spriteBatch, camera);
             }
+
+            if ( _waveTimeMs > 0 ) {
+                // TODO: make center stick when camera moves 
+                Vector2 screenPos = camera.ConvertWorldToScreen(_waveEffectCenter);
+                Vector2 center = new Vector2(screenPos.X / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth,
+                                             screenPos.Y / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
+                _waveEffect.Parameters["Center"].SetValue(center);
+            }
+
         }
 
         /// <summary>
@@ -222,10 +238,31 @@ namespace Arena.Entity {
 
             UpdateImage(gameTime);
 
+            HandleWave(gameTime);
+
             foreach ( Shot shot in _shots ) {
                 shot.Update(gameTime);
             }
             _shots.RemoveAll(shot => shot.Disposed);
+        }
+
+        private void HandleWave(GameTime gameTime) {
+            if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) ) {
+                _waveTimeMs = 0;
+                _waveEffectCenter = Position;
+                _waveEffect.Parameters["Direction"].SetValue((int) Direction);
+                Arena.Instance.Register(_waveEffect);
+            }
+
+            if ( _waveTimeMs >= 0 ) {
+                _waveTimeMs += gameTime.ElapsedGameTime.Milliseconds;
+                _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);
+            }
+
+            if ( _waveTimeMs > Constants.Get(WaveTime) * 1000 ) {
+                _waveTimeMs = -1;
+                Arena.Instance.ClearEffects();
+            }
         }
 
         /// <summary>
