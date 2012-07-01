@@ -23,19 +23,13 @@ namespace Arena.Entity {
             get { return _instance; }
         }
 
-        /// <summary>
-        /// How much bigger the image of the character should be than his hit box
-        /// </summary>
-        private const float ImageBuffer = .1f;
+        #region Constants
 
-        private const float CharacterHeight = 2f - ImageBuffer;
-        private const float CharacterWidth = 1f - ImageBuffer;
+        private const float CharacterHeight = 1.9f;
+        private const float CharacterWidth = .6f;
 
         public const int ImageWidth = 64;
         public const int ImageHeight = 128;
-
-        private static readonly int DisplayHeight = (int) ConvertUnits.ToDisplayUnits(CharacterHeight + ImageBuffer);
-        private static readonly int DisplayWidth = (int) ConvertUnits.ToDisplayUnits(CharacterWidth + ImageBuffer);
 
         private static readonly Constants Constants = Constants.Instance;
         private const string PlayerInitSpeedMs = "Player initial run speed (m/s)";
@@ -46,10 +40,12 @@ namespace Arena.Entity {
         private const string PlayerAirBoostTime = "Player max air boost time (s)";
         private const string PlayerKnockbackTime = "Player knock back time (s)";
         private const string PlayerKnockbackAmt = "Player knock back amount (scalar)";
+        private const string PlayerRunSpeedMultiplier = "Player jog speed multiplier";
+        private const string PlayerWalkSpeedMultiplier = "Player walk speed multiplier";
         private const string WaveTime = "Wave effect travel time";
-        
+
         static Player() {
-            Constants.Register(new Constant(PlayerInitSpeedMs, 5.0f, Keys.I));
+            Constants.Register(new Constant(PlayerInitSpeedMs, 2.5f, Keys.I));
             Constants.Register(new Constant(PlayerAccelerationMss, 5.0f, Keys.A));
             Constants.Register(new Constant(PlayerMaxSpeedMs, 20, Keys.S));
             Constants.Register(new Constant(PlayerAirAccelerationMss, 5.0f, Keys.D));
@@ -58,9 +54,11 @@ namespace Arena.Entity {
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
             Constants.Register(new Constant(WaveTime, 1f, Keys.W));
+            Constants.Register(new Constant(PlayerRunSpeedMultiplier, .2f, Keys.B, .01f));
+            Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
         }
 
-        private readonly List<Shot> _shots = new List<Shot>();
+        #endregion
 
         private Direction _direction = Direction.Right;
         public Direction Direction {
@@ -149,16 +147,6 @@ namespace Arena.Entity {
         private Texture2D Image { get; set; }
         private SoundEffect LandSound { get; set; }
 
-        private readonly Texture2D[] _walkAnimation = new Texture2D[8];
-        private readonly Texture2D[] _runAnimation = new Texture2D[8];
-        private readonly Texture2D[] _duckAnimation = new Texture2D[2];
-        private Texture2D _standImage;
-
-        private int _animationFrame = 0;
-        private long _timeSinceLastAnimationUpdate;
-        private bool _isDucking;
-        private bool _isRunning;
-
         private int _waveTimeMs = -1;
         private Effect _waveEffect;
         private Vector2 _waveEffectCenter;
@@ -178,13 +166,19 @@ namespace Arena.Entity {
         }
 
         public void LoadContent(ContentManager content) {
-            for ( int i = 1; i <= 8; i++ ) {
-                _walkAnimation[i - 1] = content.Load<Texture2D>("Character/walk" + i);
-                _runAnimation[i - 1] = content.Load<Texture2D>("Character/run000" + i);
+            for ( int i = 0; i < NumWalkFrames; i++ ) {
+                _walkAnimation[i] = content.Load<Texture2D>(String.Format("Character/WalkRight/walk_right{0:0000}", i));
             }
+            for ( int i = 0; i < NumJogFrames; i++ ) {
+                _jogAnimation[i] = content.Load<Texture2D>(String.Format("Character/JogRight/jog_right{0:0000}", i));
+            }
+            for ( int i = 0; i < NumJumpFrames; i++ ) {
+                _jumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", i));
+            }
+
             _duckAnimation[0] = content.Load<Texture2D>("Character/duck1");
             _duckAnimation[1] = content.Load<Texture2D>("Character/duck2");
-            _standImage = content.Load<Texture2D>("Character/stand");
+            _standImage = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", 11));
 
             Image = _standImage;
 
@@ -193,23 +187,20 @@ namespace Arena.Entity {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            // Draw origin is character's feet
             Vector2 position = _body.Position;
-            position.X -= CharacterWidth / 2;
-            position.Y -= CharacterHeight / 2;
-            if ( _isRunning || _isDucking ) {
-                position -= new Vector2(.5f, 0);
-            }
+            position.Y += CharacterHeight / 2;
+                        
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             spriteBatch.Draw(Image,
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null, Color.White, 0f, new Vector2(),
+                             null, Color.White, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
                              _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
             foreach ( Shot shot in _shots ) {
                 shot.Draw(spriteBatch, camera);
             }
 
             if ( _waveTimeMs > 0 ) {
-                // TODO: make center stick when camera moves 
                 Vector2 screenPos = camera.ConvertWorldToScreen(_waveEffectCenter);
                 Vector2 center = new Vector2(screenPos.X / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth,
                                              screenPos.Y / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
@@ -265,38 +256,80 @@ namespace Arena.Entity {
             }
         }
 
+
+        #region Animation
+
+        private const int NumWalkFrames = 28;
+        private const int NumJogFrames = 17;
+        private const int NumJumpFrames = 12;
+        private readonly Texture2D[] _walkAnimation = new Texture2D[NumWalkFrames];
+        private readonly Texture2D[] _jogAnimation = new Texture2D[NumJogFrames];
+        private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];        
+        private readonly Texture2D[] _duckAnimation = new Texture2D[2];
+        private Texture2D _standImage;
+
+        private int _animationFrame = 0;
+        private int _jumpAnimationFrame = 0;
+        private const int JumpDelayMs = 50;
+        private long _timeSinceLastAnimationUpdate;
+        private long _timeSinceJump = -1;
+        private bool _isDucking;
+        private bool _jumpInitiated;
+
         /// <summary>
         /// Updates the current image for the next frame
         /// </summary>
         private void UpdateImage(GameTime gameTime) {
-            if ( !IsStanding || _body.LinearVelocity.X == 0 ) {
-                if (_isDucking) {
-                    Image = _duckAnimation[1];
-                } else {
-                    Image = _standImage;   
-                }
-                _animationFrame = 0;
-                _timeSinceLastAnimationUpdate = 0;
-                _isRunning = false;
-            } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs] ) {
-                _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
-                if ( _timeSinceLastAnimationUpdate > 1000f / 8 ) {
-                    _isRunning = false;
-                    Image = _walkAnimation[_animationFrame];
-                    _animationFrame = (_animationFrame + 1) % _walkAnimation.Length;
+
+            if ( IsStanding ) {
+                if ( _jumpInitiated ) {
+                    if ( _timeSinceJump == 0 ) {
+                        _jumpAnimationFrame = 0;
+                    }
+                    Image = _jumpAnimation[_jumpAnimationFrame];
+                    _jumpAnimationFrame++;
+                } else if (_body.LinearVelocity.X == 0) {
+                    if ( _isDucking ) {
+                        Image = _duckAnimation[1];
+                    } else {
+                        Image = _standImage;
+                    }
+                    _animationFrame = 0;
                     _timeSinceLastAnimationUpdate = 0;
+                } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs] ) {
+                    float walkSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerWalkSpeedMultiplier]);
+                    _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
+                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkFrames / walkSpeed) {
+                        _animationFrame %= _walkAnimation.Length;
+                        Image = _walkAnimation[_animationFrame];
+                        _animationFrame = (_animationFrame + 1) % _walkAnimation.Length;
+                        _timeSinceLastAnimationUpdate = 0;
+                    }
+                } else {
+                    float jogSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerRunSpeedMultiplier]);
+                    _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
+                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed ) {
+                        _animationFrame %= _jogAnimation.Length;
+                        Image = _jogAnimation[_animationFrame];
+                        _animationFrame = (_animationFrame + 1) % _jogAnimation.Length;
+                        _timeSinceLastAnimationUpdate = 0;
+                    }
                 }
             } else {
-                _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
-                if ( _timeSinceLastAnimationUpdate > 1000f / 8 ) {
-                    _isRunning = true;
-                    Image = _runAnimation[_animationFrame];
-                    _animationFrame = (_animationFrame + 1) % _runAnimation.Length;
-                    _timeSinceLastAnimationUpdate = 0;
-                }
+                Image = _jumpAnimation[_jumpAnimationFrame];
+                if ( _jumpAnimationFrame < 5 ) {
+                    _jumpAnimationFrame++;
+                } 
+//                else if ( _jumpAnimationFrame <  && _body.LinearVelocity.Y > 0 ) {
+//                    _jumpAnimationFrame++;
+//                }
             }
         }
-        
+
+        #endregion
+
+        private readonly List<Shot> _shots = new List<Shot>();
+
         /// <summary>
         /// Handles firing any weapons
         /// </summary>
@@ -411,20 +444,35 @@ namespace Arena.Entity {
         /// Handles jump input 
         /// </summary>
         private void HandleJump(GameTime gameTime) {
+
+            if ( _timeSinceJump >= 0 ) {
+                _timeSinceJump += gameTime.ElapsedGameTime.Milliseconds;
+            }
+
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.A) ) {
                 if ( IsStanding ) {
-                    _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
-                    _airBoostTime = 0;
+                    _timeSinceJump = 0;
+                    _jumpInitiated = true;
                 }
             } else if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.A) ) {
                 if ( IsTouchingCeiling() ) {
                     _airBoostTime = -1;
-                } else if ( _airBoostTime >= 0 && _airBoostTime < Constants[PlayerAirBoostTime] * 1000 ) {
+                } else if ( _timeSinceJump >= JumpDelayMs 
+                    && _airBoostTime >= 0 
+                    && _airBoostTime < Constants[PlayerAirBoostTime] * 1000 + JumpDelayMs) {
                     _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
                     _airBoostTime += gameTime.ElapsedGameTime.Milliseconds;
                 }
             } else {
                 _airBoostTime = -1;
+                _timeSinceJump = -1;
+                _jumpInitiated = false;
+            }
+
+            if ( _jumpInitiated && _timeSinceJump >= JumpDelayMs ) {
+                _jumpInitiated = false;
+                _airBoostTime = 0;
+                _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
             }
         }
 

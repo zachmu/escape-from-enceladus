@@ -82,6 +82,7 @@ namespace Arena {
         internal string _name;
         internal float _value;
         internal Keys _key;
+        internal float _increment;
 
         public float Value {
             get { return _value; }
@@ -90,22 +91,23 @@ namespace Arena {
         internal bool Visible { get; set; }
         internal long LastDisplayTime { get; set; }
 
-        public Constant(string name, float value, Keys key) {
+        public Constant(string name, float value, Keys key, float increment = .1f) {
             _name = name;
             _value = value;
             _key = key;
+            _increment = increment;
         }
 
         internal static readonly long DisplayTime = 10000 * 2000; // 2 seconds in ticks
 
         public void Decrement() {
-            _value -= .1f;
+            _value -= _increment;
             LastDisplayTime = DateTime.Now.Ticks;
             Visible = true;
         }
 
         public void Increment() {
-            _value += .1f;
+            _value += _increment;
             LastDisplayTime = DateTime.Now.Ticks;
             Visible = true;
         }

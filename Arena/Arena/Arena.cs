@@ -130,7 +130,7 @@ namespace Arena {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world,
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "big_square.tmx"), _world,
                                        _player.Position);
             _player.LoadContent(Content);
 
