@@ -26,6 +26,7 @@ namespace Arena {
         private readonly GraphicsDeviceManager graphics;
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
+        private Texture2D _background;
         private Camera2D _camera;
         private World _world;
         private DebugViewXNA _debugView;
@@ -137,6 +138,8 @@ namespace Arena {
             Enemy.LoadContent(Content);
             Shot.LoadContent(Content);
             Constants.font = Content.Load<SpriteFont>("DebugFont");
+
+            _background = Content.Load<Texture2D>("Background/pineNeedles");
 
             if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
@@ -369,6 +372,17 @@ namespace Arena {
                 graphics.GraphicsDevice.SetRenderTarget(renderTarget);
 
                 graphics.GraphicsDevice.Clear(Color.Black);
+
+                _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.Opaque, SamplerState.LinearWrap,
+                                   DepthStencilState.None, RasterizerState.CullNone);
+                Vector2 origin = _camera.Position;
+                origin = ConvertUnits.ToDisplayUnits(origin) / 4;
+                _spriteBatch.Draw(_background, Vector2.Zero,
+                                  new Rectangle((int) origin.X, (int) origin.Y, GraphicsDevice.Viewport.Bounds.Width,
+                                                GraphicsDevice.Viewport.Bounds.Height), Color.White);
+                //_spriteBatch.Draw(_background, GraphicsDevice.Viewport.Bounds, sourceRect, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
+                _spriteBatch.End();
+
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds);
                 foreach ( IGameEntity ent in _entities ) {

@@ -54,7 +54,7 @@ namespace Arena.Entity {
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
             Constants.Register(new Constant(WaveTime, 1f, Keys.W));
-            Constants.Register(new Constant(PlayerRunSpeedMultiplier, .2f, Keys.B, .01f));
+            Constants.Register(new Constant(PlayerRunSpeedMultiplier, .37f, Keys.B, .01f));
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
         }
 
