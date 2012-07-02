@@ -166,21 +166,7 @@ namespace Arena.Entity {
         }
 
         public void LoadContent(ContentManager content) {
-            for ( int i = 0; i < NumWalkFrames; i++ ) {
-                _walkAnimation[i] = content.Load<Texture2D>(String.Format("Character/WalkRight/walk_right{0:0000}", i));
-            }
-            for ( int i = 0; i < NumJogFrames; i++ ) {
-                _jogAnimation[i] = content.Load<Texture2D>(String.Format("Character/JogRight/jog_right{0:0000}", i));
-            }
-            for ( int i = 0; i < NumJumpFrames; i++ ) {
-                _jumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", i));
-            }
-
-            _duckAnimation[0] = content.Load<Texture2D>("Character/duck1");
-            _duckAnimation[1] = content.Load<Texture2D>("Character/duck2");
-            _standImage = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", 11));
-
-            Image = _standImage;
+            LoadAnimations(content);
 
             LandSound = content.Load<SoundEffect>("land");
             _waveEffect = content.Load<Effect>("wave");
@@ -259,8 +245,8 @@ namespace Arena.Entity {
 
         #region Animation
 
-        private const int NumWalkFrames = 28;
-        private const int NumJogFrames = 17;
+        private const int NumWalkFrames = 30;
+        private const int NumJogFrames = 12;
         private const int NumJumpFrames = 12;
         private readonly Texture2D[] _walkAnimation = new Texture2D[NumWalkFrames];
         private readonly Texture2D[] _jogAnimation = new Texture2D[NumJogFrames];
@@ -275,6 +261,25 @@ namespace Arena.Entity {
         private long _timeSinceJump = -1;
         private bool _isDucking;
         private bool _jumpInitiated;
+
+
+        private void LoadAnimations(ContentManager content) {
+            for ( int i = 0; i < NumWalkFrames; i++ ) {
+                _walkAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalk{0:0000}", i));
+            }
+            for ( int i = 0; i < NumJogFrames; i++ ) {
+                _jogAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunJog/GunJog{0:0000}", i));
+            }
+            for ( int i = 0; i < NumJumpFrames; i++ ) {
+                _jumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", i));
+            }
+
+            _duckAnimation[0] = content.Load<Texture2D>("Character/duck1");
+            _duckAnimation[1] = content.Load<Texture2D>("Character/duck2");
+            _standImage = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", 11));
+
+            Image = _standImage;
+        }
 
         /// <summary>
         /// Updates the current image for the next frame
