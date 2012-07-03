@@ -4,6 +4,7 @@ using System.Linq;
 using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
+using Arena.Weapon;
 using FarseerPhysics;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
@@ -107,21 +108,13 @@ namespace Arena {
             _entities.AddRange(entity);
         }
 
-        private readonly List<Effect> _postProcessorEffects = new List<Effect>();
+        private readonly List<PostProcessingEffect> _postProcessorEffects = new List<PostProcessingEffect>();
 
         /// <summary>
         /// Registers a post processor effect and draws it every frame.
-        /// TODO: effect container object
         /// </summary>
-        public void Register(Effect postProcessorEffect) {
+        public void Register(PostProcessingEffect postProcessorEffect) {
             _postProcessorEffects.Add(postProcessorEffect);
-        }
-
-        /// <summary>
-        /// Registers a post processor effect and draws it every frame.
-        /// </summary>
-        public void ClearEffects() {
-            _postProcessorEffects.Clear();
         }
 
         /// <summary>
@@ -274,6 +267,7 @@ namespace Arena {
             }
 
             _entities.RemoveAll(entity => entity.Disposed);
+            _postProcessorEffects.RemoveAll(effect => effect.Disposed);
             base.Update(gameTime);
         }
 
@@ -367,10 +361,12 @@ namespace Arena {
         protected override void Draw(GameTime gameTime) {
 
             // Render first to a new back buffer
-            using ( RenderTarget2D renderTarget = new RenderTarget2D(graphics.GraphicsDevice, graphics.PreferredBackBufferWidth,
-                                                             graphics.PreferredBackBufferHeight) ) {
-                graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+            using (
+                RenderTarget2D renderTarget = new RenderTarget2D(graphics.GraphicsDevice,
+                                                                 graphics.PreferredBackBufferWidth,
+                                                                 graphics.PreferredBackBufferHeight) ) {
 
+                graphics.GraphicsDevice.SetRenderTarget(renderTarget);
                 graphics.GraphicsDevice.Clear(Color.Black);
 
                 _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.Opaque, SamplerState.LinearWrap,
@@ -380,7 +376,6 @@ namespace Arena {
                 _spriteBatch.Draw(_background, Vector2.Zero,
                                   new Rectangle((int) origin.X, (int) origin.Y, GraphicsDevice.Viewport.Bounds.Width,
                                                 GraphicsDevice.Viewport.Bounds.Height), Color.White);
-                //_spriteBatch.Draw(_background, GraphicsDevice.Viewport.Bounds, sourceRect, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
                 _spriteBatch.End();
 
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
@@ -390,21 +385,39 @@ namespace Arena {
                 }
                 _spriteBatch.End();
 
-                // TODO: draw any per-sprite shader effects here 
+                // TODO: draw any per-sprite shader effects here
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _player.Draw(_spriteBatch, _camera);
                 _spriteBatch.End();
 
                 // Now apply post-processing to the scene
-                graphics.GraphicsDevice.SetRenderTarget(null);
-                graphics.GraphicsDevice.Clear(Color.Black);
+                using (
+                    RenderTarget2D tempTarget = new RenderTarget2D(graphics.GraphicsDevice,
+                                                                   graphics.PreferredBackBufferWidth,
+                                                                   graphics.PreferredBackBufferHeight) ) {
+                    foreach ( PostProcessingEffect effect in _postProcessorEffects ) {
+                        // Draw the scene onto a temporary render target
+                        graphics.GraphicsDevice.SetRenderTarget(tempTarget);
+                        _spriteBatch.Begin();
+                        _spriteBatch.Draw(renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
+                                          Color.White);
+                        _spriteBatch.End();
 
-                if ( _postProcessorEffects.Count > 0 ) {
-                    _spriteBatch.Begin(0, null, null, null, null, _postProcessorEffects[0]);
-                } else {
-                    _spriteBatch.Begin();
+                        // Then draw this temp buffer back onto the original render 
+                        // target, adding this round of effect
+                        graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+                        effect.SetEffectParameters();
+                        _spriteBatch.Begin(0, null, null, null, null, effect.Effect);
+                        _spriteBatch.Draw(tempTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
+                                          Color.White);
+                        _spriteBatch.End();
+                    }
                 }
 
+                // Finally draw the final scene onto the screen
+                graphics.GraphicsDevice.SetRenderTarget(null);
+                graphics.GraphicsDevice.Clear(Color.Black);
+                _spriteBatch.Begin();
                 _spriteBatch.Draw(renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
                                   Color.White);
                 _spriteBatch.End();

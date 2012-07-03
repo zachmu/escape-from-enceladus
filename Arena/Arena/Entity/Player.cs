@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Arena.Farseer;
+using Arena.Weapon;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -18,7 +19,6 @@ namespace Arena.Entity {
     public class Player : Entity, IGameEntity {
 
         private static Player _instance;
-
         public static Player Instance {
             get { return _instance; }
         }
@@ -40,9 +40,8 @@ namespace Arena.Entity {
         private const string PlayerAirBoostTime = "Player max air boost time (s)";
         private const string PlayerKnockbackTime = "Player knock back time (s)";
         private const string PlayerKnockbackAmt = "Player knock back amount (scalar)";
-        private const string PlayerRunSpeedMultiplier = "Player jog speed multiplier";
+        private const string PlayerJogSpeedMultiplier = "Player jog speed multiplier";
         private const string PlayerWalkSpeedMultiplier = "Player walk speed multiplier";
-        private const string WaveTime = "Wave effect travel time";
 
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 2.5f, Keys.I));
@@ -53,8 +52,7 @@ namespace Arena.Entity {
             Constants.Register(new Constant(PlayerAirBoostTime, .5f, Keys.Y));
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
-            Constants.Register(new Constant(WaveTime, 1f, Keys.W));
-            Constants.Register(new Constant(PlayerRunSpeedMultiplier, .37f, Keys.B, .01f));
+            Constants.Register(new Constant(PlayerJogSpeedMultiplier, .37f, Keys.B, .01f));
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
         }
 
@@ -75,7 +73,6 @@ namespace Arena.Entity {
         /// </summary>
         private long _timeUntilRegainControl;
 
-        private int _floorSensorContactCount = 0;
         private readonly Fixture _ceilingSensor;
         private int _ceilingSensorContantCount = 0;
 
@@ -161,15 +158,14 @@ namespace Arena.Entity {
             }
         }
 
-        protected bool IsTouchingCeiling() {
+        private bool IsTouchingCeiling() {
             return _ceilingSensorContantCount > 0;
         }
 
         public void LoadContent(ContentManager content) {
             LoadAnimations(content);
-
             LandSound = content.Load<SoundEffect>("land");
-            _waveEffect = content.Load<Effect>("wave");
+            Sonar.LoadContent(content);
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -182,17 +178,9 @@ namespace Arena.Entity {
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
                              null, Color.White, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
                              _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-            foreach ( Shot shot in _shots ) {
+            foreach ( IGameEntity shot in _shots ) {
                 shot.Draw(spriteBatch, camera);
             }
-
-            if ( _waveTimeMs > 0 ) {
-                Vector2 screenPos = camera.ConvertWorldToScreen(_waveEffectCenter);
-                Vector2 center = new Vector2(screenPos.X / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                                             screenPos.Y / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
-                _waveEffect.Parameters["Center"].SetValue(center);
-            }
-
         }
 
         /// <summary>
@@ -217,7 +205,7 @@ namespace Arena.Entity {
 
             HandleWave(gameTime);
 
-            foreach ( Shot shot in _shots ) {
+            foreach ( IGameEntity shot in _shots ) {
                 shot.Update(gameTime);
             }
             _shots.RemoveAll(shot => shot.Disposed);
@@ -225,50 +213,58 @@ namespace Arena.Entity {
 
         private void HandleWave(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) ) {
-                _waveTimeMs = 0;
-                _waveEffectCenter = Position;
-                _waveEffect.Parameters["Direction"].SetValue((int) Direction);
-                Arena.Instance.Register(_waveEffect);
-            }
-
-            if ( _waveTimeMs >= 0 ) {
-                _waveTimeMs += gameTime.ElapsedGameTime.Milliseconds;
-                _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);
-            }
-
-            if ( _waveTimeMs > Constants.Get(WaveTime) * 1000 ) {
-                _waveTimeMs = -1;
-                Arena.Instance.ClearEffects();
+                Direction shotDirection;
+                var position = GetShotPosition(out shotDirection);
+                _shots.Add(new Sonar(position, shotDirection));
             }
         }
 
-
         #region Animation
 
+        private const int NumStandFrames = 2;
         private const int NumWalkFrames = 30;
-        private const int NumJogFrames = 12;
+        private const int NumJogFrames = 13;
+        private const int NumRunFrames = 22;
         private const int NumJumpFrames = 12;
+
+        private enum Animation {
+            Stand,
+            Walk,
+            Jog,
+            Run,
+            Duck,
+            Jump,
+        };
+
+        private Animation _currentAnimation = Animation.Stand;
+        private Animation _prevAnimation = Animation.Stand;
+
+        private readonly Texture2D[] _standAnimation = new Texture2D[NumStandFrames];
         private readonly Texture2D[] _walkAnimation = new Texture2D[NumWalkFrames];
         private readonly Texture2D[] _jogAnimation = new Texture2D[NumJogFrames];
-        private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];        
+        private readonly Texture2D[] _runAnimation = new Texture2D[NumRunFrames];
+        private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];
         private readonly Texture2D[] _duckAnimation = new Texture2D[2];
-        private Texture2D _standImage;
 
         private int _animationFrame = 0;
-        private int _jumpAnimationFrame = 0;
         private const int JumpDelayMs = 50;
         private long _timeSinceLastAnimationUpdate;
         private long _timeSinceJump = -1;
         private bool _isDucking;
         private bool _jumpInitiated;
 
-
         private void LoadAnimations(ContentManager content) {
+            for ( int i = 0; i < NumStandFrames; i++ ) {
+                _standAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunStance/GunStance{0:0000}", i));
+            }
             for ( int i = 0; i < NumWalkFrames; i++ ) {
                 _walkAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalk{0:0000}", i));
             }
             for ( int i = 0; i < NumJogFrames; i++ ) {
                 _jogAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunJog/GunJog{0:0000}", i));
+            }
+            for ( int i = 0; i < NumRunFrames; i++ ) {
+                _runAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRun{0:0000}", i));
             }
             for ( int i = 0; i < NumJumpFrames; i++ ) {
                 _jumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", i));
@@ -276,9 +272,8 @@ namespace Arena.Entity {
 
             _duckAnimation[0] = content.Load<Texture2D>("Character/duck1");
             _duckAnimation[1] = content.Load<Texture2D>("Character/duck2");
-            _standImage = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", 11));
 
-            Image = _standImage;
+            Image = _standAnimation[0];
         }
 
         /// <summary>
@@ -286,89 +281,120 @@ namespace Arena.Entity {
         /// </summary>
         private void UpdateImage(GameTime gameTime) {
 
+            _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
+
             if ( IsStanding ) {
                 if ( _jumpInitiated ) {
+                    _currentAnimation = Animation.Jump;
                     if ( _timeSinceJump == 0 ) {
-                        _jumpAnimationFrame = 0;
+                        _animationFrame = 0;
                     }
-                    Image = _jumpAnimation[_jumpAnimationFrame];
-                    _jumpAnimationFrame++;
-                } else if (_body.LinearVelocity.X == 0) {
+                    Image = _jumpAnimation[_animationFrame];
+                    _animationFrame++;
+                } else if ( _body.LinearVelocity.X == 0 ) {
                     if ( _isDucking ) {
+                        _currentAnimation = Animation.Duck;
                         Image = _duckAnimation[1];
                     } else {
-                        Image = _standImage;
+                        if ( _prevAnimation != Animation.Stand ) {
+                            _currentAnimation = Animation.Stand;
+                            _animationFrame = 0;
+                            Image = _standAnimation[_animationFrame];
+                        }
+
+                        if ( _timeSinceLastAnimationUpdate > 1000f / NumStandFrames ) {
+                            _animationFrame %= NumStandFrames;
+                            _currentAnimation = Animation.Stand;
+                            Image = _standAnimation[_animationFrame++];
+                            _timeSinceLastAnimationUpdate = 0;
+                        }
                     }
-                    _animationFrame = 0;
-                    _timeSinceLastAnimationUpdate = 0;
                 } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs] ) {
+                    _currentAnimation = Animation.Walk;
                     float walkSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerWalkSpeedMultiplier]);
-                    _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkFrames / walkSpeed) {
+                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkFrames / walkSpeed ) {
                         _animationFrame %= _walkAnimation.Length;
-                        Image = _walkAnimation[_animationFrame];
-                        _animationFrame = (_animationFrame + 1) % _walkAnimation.Length;
+                        Image = _walkAnimation[_animationFrame++];
+                        _timeSinceLastAnimationUpdate = 0;
+                    }
+                } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerMaxSpeedMs] * .75f ) {
+                    _currentAnimation = Animation.Jog;
+                    float jogSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerJogSpeedMultiplier]);
+                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed ) {
+                        _animationFrame %= _jogAnimation.Length;
+                        Image = _jogAnimation[_animationFrame++];
                         _timeSinceLastAnimationUpdate = 0;
                     }
                 } else {
-                    float jogSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerRunSpeedMultiplier]);
-                    _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed ) {
-                        _animationFrame %= _jogAnimation.Length;
-                        Image = _jogAnimation[_animationFrame];
-                        _animationFrame = (_animationFrame + 1) % _jogAnimation.Length;
+                    _currentAnimation = Animation.Run;
+                    float runSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerJogSpeedMultiplier]);
+                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunFrames / runSpeed ) {
+                        _animationFrame %= _runAnimation.Length;
+                        Image = _runAnimation[_animationFrame++];
                         _timeSinceLastAnimationUpdate = 0;
                     }
                 }
             } else {
-                Image = _jumpAnimation[_jumpAnimationFrame];
-                if ( _jumpAnimationFrame < 5 ) {
-                    _jumpAnimationFrame++;
-                } 
-//                else if ( _jumpAnimationFrame <  && _body.LinearVelocity.Y > 0 ) {
-//                    _jumpAnimationFrame++;
-//                }
+                _currentAnimation = Animation.Jump;
+                if ( _prevAnimation != Animation.Jump ) {
+                    _animationFrame = 5;
+                }
+                _animationFrame %= _jumpAnimation.Length;
+                Image = _jumpAnimation[_animationFrame];
+                if ( _animationFrame < 5 ) {
+                    _animationFrame++;
+                }
             }
+
+            _prevAnimation = _currentAnimation;
         }
 
         #endregion
 
-        private readonly List<Shot> _shots = new List<Shot>();
+        private readonly List<IGameEntity> _shots = new List<IGameEntity>();
 
         /// <summary>
         /// Handles firing any weapons
         /// </summary>
         private void HandleShot(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.X) ) {
-                Vector2 position = _body.Position;
                 Direction shotDirection;
-                if ( InputHelper.Instance.GamePadState.ThumbSticks.Left.Y > .8 ) {
-                    shotDirection = Direction.Up;
-                } else if ( !IsStanding && InputHelper.Instance.GamePadState.ThumbSticks.Left.Y < -.8 ) {
-                    shotDirection = Direction.Down;
-                } else {
-                    shotDirection = _direction;
-                }
-                
-                switch ( shotDirection ) {
-                    case Direction.Right:
-                        position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 4.5f);
-                        break;
-                    case Direction.Left:
-                        position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
-                        break;
-                    case Direction.Down:
-                        position += new Vector2(0, CharacterHeight / 2 - .1f);
-                        break;
-                    case Direction.Up:
-                        position += new Vector2(0, -CharacterHeight / 2 + .1f);
-                        break;
-                }
-                if ( _isDucking ) {
-                    position += new Vector2(0, CharacterHeight / 2);
-                }
+                var position = GetShotPosition(out shotDirection);
                 _shots.Add(new Shot(position, _world, shotDirection));
             }
+        }
+
+        /// <summary>
+        /// Returns the original location and direction to place a new shot in the game world.
+        /// </summary>
+        private Vector2 GetShotPosition(out Direction shotDirection) {
+            Vector2 position = _body.Position;
+            if ( InputHelper.Instance.GamePadState.ThumbSticks.Left.Y > .8 ) {
+                shotDirection = Direction.Up;
+            } else if ( !IsStanding && InputHelper.Instance.GamePadState.ThumbSticks.Left.Y < -.8 ) {
+                shotDirection = Direction.Down;
+            } else {
+                shotDirection = _direction;
+            }
+
+            switch ( shotDirection ) {
+                case Direction.Right:
+                    position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 4.5f);
+                    break;
+                case Direction.Left:
+                    position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
+                    break;
+                case Direction.Down:
+                    position += new Vector2(0, CharacterHeight / 2 - .1f);
+                    break;
+                case Direction.Up:
+                    position += new Vector2(0, -CharacterHeight / 2 + .1f);
+                    break;
+            }
+            if ( _isDucking ) {
+                position += new Vector2(0, CharacterHeight / 2);
+            }
+            return position;
         }
 
         /// <summary>
