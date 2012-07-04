@@ -87,6 +87,13 @@ float BeginAngle <string UIName = "BeginAngle";
     float UIMax = 3.0f;
     float UIStep = 0.01f;
 	> = -0.25;
+	
+float OffsetAngle <string UIName = "OffsetAngle";
+    string UIWidget = "slider";
+    float UIMin = -3.14159f;
+    float UIMax = 3.14159f;
+    float UIStep = 0.1f;
+	> = 0.0f;
 float SmearMultiplier <string UIName = "SmearMultiplier";
     string UIWidget = "slider";
     float UIMin = -10.0f;
@@ -172,6 +179,7 @@ technique Main <
     >
     {
     //VertexShader = compile vs_3_0 VertexShaderFunction();
+	//PixelShader = compile ps_3_0 PS_wave();
 	PixelShader = compile ps_2_0 PS_wave();
     }
 }

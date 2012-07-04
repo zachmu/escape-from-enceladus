@@ -42,10 +42,7 @@ namespace Arena.Weapon {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            Vector2 screenPos = camera.ConvertWorldToScreen(_waveEffectCenter);
-            Vector2 center = new Vector2(screenPos.X / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                                         screenPos.Y / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            _waveEffect.Parameters["Center"].SetValue(center);
+            // nothing to draw, just a post-processing effect
         }
 
         private static Effect _waveEffect;
@@ -69,7 +66,12 @@ namespace Arena.Weapon {
             }
         }
 
-        private void TunEffect() {
+        private void TuneEffect(Camera2D camera, SpriteBatch spriteBatch) {
+            Vector2 screenPos = camera.ConvertWorldToScreen(_waveEffectCenter);
+            Vector2 center = new Vector2(screenPos.X / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth,
+                                         screenPos.Y / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
+
+            _waveEffect.Parameters["Center"].SetValue(center);
             _waveEffect.Parameters["Direction"].SetValue((int) _direction);
             _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);            
         }
@@ -89,8 +91,8 @@ namespace Arena.Weapon {
                 get { return _waveEffect; }
             }
 
-            public override void SetEffectParameters() {
-                _sonar.TunEffect();
+            public override void SetEffectParameters(Camera2D camera, SpriteBatch spriteBatch) {
+                _sonar.TuneEffect(camera, spriteBatch);
             }
         }
     }

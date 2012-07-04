@@ -18,6 +18,6 @@ namespace Arena.Weapon {
         /// Sets effect parameters for this pass.
         /// This enables a single Effect to be shared by multiple instances.
         /// </summary>
-        public abstract void SetEffectParameters();
+        public abstract void SetEffectParameters(Camera2D camera, SpriteBatch spriteBatch);
     }
 }

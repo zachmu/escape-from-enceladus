@@ -406,7 +406,7 @@ namespace Arena {
                         // Then draw this temp buffer back onto the original render 
                         // target, adding this round of effect
                         graphics.GraphicsDevice.SetRenderTarget(renderTarget);
-                        effect.SetEffectParameters();
+                        effect.SetEffectParameters(_camera, _spriteBatch);
                         _spriteBatch.Begin(0, null, null, null, null, effect.Effect);
                         _spriteBatch.Draw(tempTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
                                           Color.White);

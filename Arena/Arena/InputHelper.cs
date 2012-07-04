@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Arena.Entity;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -111,6 +113,71 @@ namespace Arena {
         public bool IsNewButtonRelease(Buttons button) {
             return (_lastGamePadState.IsButtonDown(button) &&
                     _currentGamePadState.IsButtonUp(button));
+        }
+
+        // Important angles in our aiming system (sorry, tau)
+        private static float PiOverTwo = (float) (Math.PI / 2);
+        private static float PiOverEight = (float) (Math.PI / 8f);
+        private static float ThreePiOverEight = (float) (3f * (Math.PI / 8f));
+        private static float FivePiOverEight = (float) (5f * (Math.PI / 8f));
+        private static float SevenPiOverEight = (float) (7f * (Math.PI / 8f));
+
+        /// <summary>
+        /// Returns the octant being aimed in by the left stick, 
+        /// or null if there is no aimed direction.
+        /// </summary>
+        /// <returns></returns>
+        public Direction? GetLeftStickDirection() {
+            Vector2 stick = GamePadState.ThumbSticks.Left;
+            float length = stick.Length();
+            if ( length < .6f ) {
+                return null;
+            }
+            float angle = (float) Math.Atan2(stick.Y, stick.X);
+
+            // doing it by quadrant is easier
+            // QI
+            if ( angle >= 0 && angle <= PiOverTwo ) {
+                if ( angle <= PiOverEight ) {
+                    return Direction.Right;
+                } else if ( angle <= ThreePiOverEight ) {
+                    return Direction.UpRight;
+                } else {
+                    return Direction.Up;
+                }
+            }
+            // QII
+            if ( angle >= 0 && angle >= PiOverTwo ) {
+                if ( angle <= FivePiOverEight ) {
+                    return Direction.Up;
+                } else if ( angle <= SevenPiOverEight ) {
+                    return Direction.UpLeft;
+                } else {
+                    return Direction.Left;
+                }
+            }
+            // QIII
+            if ( angle <= 0 && angle <= -PiOverTwo ) {
+                if ( angle >= -FivePiOverEight ) {
+                    return Direction.Down;
+                } else if ( angle >= -SevenPiOverEight ) {
+                    return Direction.DownLeft;
+                } else {
+                    return Direction.Left;
+                }
+            }
+            // QIV
+            if ( angle <= 0 && angle >= -PiOverTwo ) {
+                if ( angle >= -PiOverEight ) {
+                    return Direction.Right;
+                } else if ( angle >= -ThreePiOverEight ) {
+                    return Direction.DownRight;
+                } else {
+                    return Direction.Down;
+                }
+            }
+
+            throw new Exception("Couldn't determine quadrant of atan2");
         }
 
         /// <summary>
