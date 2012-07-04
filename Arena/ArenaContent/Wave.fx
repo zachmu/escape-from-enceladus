@@ -71,8 +71,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 /////////////////////////////////////// Tweakables ////////
 ///////////////////////////////////////////////////////////
 
-int Direction = 1;
-
 float Radius <string UIName = "Radius";
     string UIWidget = "slider";
     float UIMin = 0.0f;
@@ -81,14 +79,8 @@ float Radius <string UIName = "Radius";
 	> = .5;
 	
 float2 Center = {.5, .5};
-float BeginAngle <string UIName = "BeginAngle";
-    string UIWidget = "slider";
-    float UIMin = -3.0f;
-    float UIMax = 3.0f;
-    float UIStep = 0.01f;
-	> = -0.25;
 	
-float OffsetAngle <string UIName = "OffsetAngle";
+float DirectionAngle <string UIName = "DirectionAngle";
     string UIWidget = "slider";
     float UIMin = -3.14159f;
     float UIMax = 3.14159f;
@@ -106,40 +98,60 @@ float WaveWidth <string UIName = "WaveWidth";
     float UIMax = 0.2;
     float UIStep = 0.001f;
 	> = .02;
+float WaveAngleWidth <string UIName = "WaveAngleWidth";
+    string UIWidget = "slider";
+    float UIMin = 0.01f;
+    float UIMax = 3.14159;
+    float UIStep = 0.01f;
+	> = .39269908169;  // pi/8
 	
 ///////////////////////////////////////////////////////////
 /////////////////////////////////// Pixel shaders  ////////
 ///////////////////////////////////////////////////////////
 
+float reflect(float angle) {
+	if (angle >= 0) {
+		return 3.14159 - angle;
+	} else {
+		return -3.14159 - angle;
+	}
+}
+
 float4 PS_wave(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : COLOR
 {       
-	float EndAngle = -BeginAngle;
+	float beginAngle = -WaveAngleWidth / 2;
+	float endAngle = beginAngle + WaveAngleWidth;
 	
     float x = Center.x;
     float y = Center.y;
     float x1 = texCoord.x;
     float y1 = texCoord.y;
-    bool facingRightDirection = 1;
-    if (Direction == 1) {
-       facingRightDirection = (x1 >= x);
-    } else if (Direction == 0) {
-       facingRightDirection = (x1 <= x);
+
+	float angle = atan2(y - y1, x1 - x);
+	angle += DirectionAngle;
+
+	if (angle > 3.14159) {
+		angle -= 3.14159 * 2;
+	} if (angle < -3.14159) {
+		angle += 3.14159 * 2;		
 	}
-
-    if (facingRightDirection) {
-        float tan = (y1 - y) / (x1 - x);
-        float angle = atan(tan);
-
-		if (angle >= BeginAngle && angle <= EndAngle) {
-            float dist = distance(Center, texCoord);
-			float distFromRadius = Radius - dist;
-            if ( distFromRadius > - WaveWidth && distFromRadius < WaveWidth ) {
-				float xdistort = sin((WaveWidth - abs(distFromRadius)) * SmearMultiplier);			
-				float2 texPrime = { x1 + xdistort, y1};
-				return tex2D(ScnSamp, texPrime);
-            }
-        }
-    }
+	
+	if (x1 - x < 0) {
+//		beginAngle = reflect(beginAngle);
+//		endAngle = reflect(endAngle);
+//		angle = reflect(angle);
+	}
+	
+	if (angle >= beginAngle && angle <= endAngle) {
+		float dist = distance(Center, texCoord);
+		float distFromRadius = Radius - dist;
+		if ( distFromRadius > - WaveWidth && distFromRadius < WaveWidth ) {
+			return float4(1,0,0,1);
+			float xdistort = sin((WaveWidth - abs(distFromRadius)) * SmearMultiplier);
+			float2 texPrime = { x1 + xdistort, y1 };
+			return tex2D(ScnSamp, texPrime);
+		}
+	}
 
     return tex2D(ScnSamp, texCoord);	
 }  
@@ -178,9 +190,9 @@ technique Main <
 			"Draw=Buffer;";
     >
     {
-    //VertexShader = compile vs_3_0 VertexShaderFunction();
-	//PixelShader = compile ps_3_0 PS_wave();
-	PixelShader = compile ps_2_0 PS_wave();
+    VertexShader = compile vs_3_0 VertexShaderFunction();
+	PixelShader = compile ps_3_0 PS_wave();
+	//PixelShader = compile ps_2_0 PS_wave();
     }
 }
 
