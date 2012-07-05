@@ -47,13 +47,40 @@ namespace Arena.Weapon {
 
         private static Effect _waveEffect;
         private int _waveTimeMs = -1;
-        private Direction _direction;
+        private readonly double _angle;
         private readonly Vector2 _waveEffectCenter;
         private const string WaveTime = "Wave effect travel time";
 
         public Sonar(Vector2 waveEffectCenter, Direction direction) {
             _waveEffectCenter = waveEffectCenter;
-            _direction = direction;
+            switch (direction) {
+                case Direction.Left:
+                    _angle = Math.PI;
+                    break;
+                case Direction.Right:
+                    _angle = 0;
+                    break;
+                case Direction.Up:
+                    _angle = Math.PI / 2;
+                    break;
+                case Direction.Down:
+                    _angle = -Math.PI / 2;
+                    break;
+                case Direction.UpLeft:
+                    _angle = 3f * Math.PI / 4f;
+                    break;
+                case Direction.UpRight:
+                    _angle = Math.PI / 4f;
+                    break;
+                case Direction.DownLeft:
+                    _angle = -3f * Math.PI / 4f;
+                    break;
+                case Direction.DownRight:
+                    _angle = -Math.PI / 4f;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("direction");
+            }
             Arena.Instance.Register(new WaveEffect(this));
         }
 
@@ -72,8 +99,13 @@ namespace Arena.Weapon {
                                          screenPos.Y / spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             _waveEffect.Parameters["Center"].SetValue(center);
-            _waveEffect.Parameters["Direction"].SetValue((int) _direction);
-            _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);            
+            _waveEffect.Parameters["DirectionAngle"].SetValue((float) _angle);
+            _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);
+
+            // TODO: move this into initialization
+            Matrix projection = Matrix.CreateOrthographicOffCenter(0, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height, 0, 0, 1);
+            Matrix halfPixelOffset = Matrix.CreateTranslation(-0.5f, -0.5f, 0);
+            _waveEffect.Parameters["MatrixTransform"].SetValue(halfPixelOffset * projection);
         }
 
         private class WaveEffect : PostProcessingEffect {

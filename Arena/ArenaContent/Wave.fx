@@ -44,26 +44,32 @@ sampler2D ScnSamp = sampler_state {
 ///////////////////////////////////////////////////////////
 /////////////////////////////////// Vertex Shaders ////////
 ///////////////////////////////////////////////////////////
+ 
+float4x4 MatrixTransform; 
+
+void SpriteVertexShader(inout float4 vColor : COLOR0, inout float2 texCoord : TEXCOORD0, inout float4 position : POSITION0) 
+{ 
+    position = mul(position, MatrixTransform); 
+} 
+
 
 struct VertexShaderInput
 {
-    float4 Position : POSITION0;
-	float2 Txr1: TEXCOORD0;
-};
- 
-struct VertexShaderOutput
-{
-    float4 Position : POSITION0;
-	float2 Txr1: TEXCOORD0;
+    float4 Position : POSITION0;	
+	float2 Trx1 : TEXCOORD0;
 };
 
+struct VertexShaderOutput
+{
+    float4 Position : POSITION0;	
+	float2 Trx1 : TEXCOORD0;
+};
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
-  
     output.Position = input.Position;
-	output.Txr1 = input.Txr1;
+	output.Trx1 = input.Trx1;
     return output;
 }
 
@@ -117,6 +123,8 @@ float reflect(float angle) {
 	}
 }
 
+float ScreenRatio = 16.0f / 9.0f;
+
 float4 PS_wave(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : COLOR
 {       
 	float beginAngle = -WaveAngleWidth / 2;
@@ -127,26 +135,23 @@ float4 PS_wave(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : COLOR
     float x1 = texCoord.x;
     float y1 = texCoord.y;
 
-	float angle = atan2(y - y1, x1 - x);
+	float angle = atan2(y1 - y, (x1 - x) * ScreenRatio);
 	angle += DirectionAngle;
 
+	// normalize the angle
 	if (angle > 3.14159) {
 		angle -= 3.14159 * 2;
 	} if (angle < -3.14159) {
 		angle += 3.14159 * 2;		
 	}
-	
-	if (x1 - x < 0) {
-//		beginAngle = reflect(beginAngle);
-//		endAngle = reflect(endAngle);
-//		angle = reflect(angle);
-	}
-	
+		
 	if (angle >= beginAngle && angle <= endAngle) {
-		float dist = distance(Center, texCoord);
+		float2 screenCoord = float2(texCoord.x * ScreenRatio, texCoord.y);
+		float2 screenCenter = float2(Center.x * ScreenRatio, Center.y);
+		float dist = distance(screenCenter, screenCoord);
 		float distFromRadius = Radius - dist;
 		if ( distFromRadius > - WaveWidth && distFromRadius < WaveWidth ) {
-			return float4(1,0,0,1);
+			//return float4(1,0,0,1); // debug -- a plain red line
 			float xdistort = sin((WaveWidth - abs(distFromRadius)) * SmearMultiplier);
 			float2 texPrime = { x1 + xdistort, y1 };
 			return tex2D(ScnSamp, texPrime);
@@ -190,9 +195,9 @@ technique Main <
 			"Draw=Buffer;";
     >
     {
-    VertexShader = compile vs_3_0 VertexShaderFunction();
+    //VertexShader = compile vs_3_0 VertexShaderFunction();
+    VertexShader = compile vs_3_0 SpriteVertexShader(); 
 	PixelShader = compile ps_3_0 PS_wave();
-	//PixelShader = compile ps_2_0 PS_wave();
     }
 }
 

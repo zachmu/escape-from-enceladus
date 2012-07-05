@@ -67,7 +67,7 @@ namespace Arena.Entity {
 
             _direction = direction;
 
-            switch ( direction ) {
+            switch (direction) {
                 case Direction.Left:
                     _body.LinearVelocity = new Vector2(-20, 0);
                     break;
@@ -80,6 +80,20 @@ namespace Arena.Entity {
                 case Direction.Up:
                     _body.LinearVelocity = new Vector2(0, -20);
                     break;
+                case Direction.UpLeft:
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -20), (float) (Math.Sqrt(2) * -20));
+                    break;
+                case Direction.UpRight:
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * 20), (float) (Math.Sqrt(2) * -20));
+                    break;
+                case Direction.DownLeft:
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -20), (float) (Math.Sqrt(2) * 20));
+                    break;
+                case Direction.DownRight:
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * 20), (float) (Math.Sqrt(2) * 20));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("direction");
             }
 
             Sfx.Play();

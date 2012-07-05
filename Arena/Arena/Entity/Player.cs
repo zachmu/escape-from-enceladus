@@ -220,7 +220,7 @@ namespace Arena.Entity {
         private void HandleWave(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) ) {
                 Direction shotDirection;
-                var position = GetShotPosition(out shotDirection);
+                var position = GetShotParameters(out shotDirection);
                 _shots.Add(new Sonar(position, shotDirection));
             }
         }
@@ -422,7 +422,7 @@ namespace Arena.Entity {
         private void HandleShot(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.X) ) {
                 Direction shotDirection;
-                var position = GetShotPosition(out shotDirection);
+                var position = GetShotParameters(out shotDirection);
                 _shots.Add(new Shot(position, _world, shotDirection));
             }
         }
@@ -430,16 +430,16 @@ namespace Arena.Entity {
         /// <summary>
         /// Returns the original location and direction to place a new shot in the game world.
         /// </summary>
-        private Vector2 GetShotPosition(out Direction shotDirection) {
-            Vector2 position = _body.Position;
-            if ( InputHelper.Instance.GamePadState.ThumbSticks.Left.Y > .8 ) {
-                shotDirection = Direction.Up;
-            } else if ( !IsStanding && InputHelper.Instance.GamePadState.ThumbSticks.Left.Y < -.8 ) {
-                shotDirection = Direction.Down;
+        private Vector2 GetShotParameters(out Direction shotDirection) {
+
+            Direction? leftStickDirection = InputHelper.Instance.GetLeftStickDirection();
+            if (leftStickDirection != null) {
+                shotDirection = leftStickDirection.Value;
             } else {
                 shotDirection = _facingDirection;
             }
 
+            Vector2 position = _body.Position;
             switch ( shotDirection ) {
                 case Direction.Right:
                     position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 4.5f);
@@ -453,6 +453,20 @@ namespace Arena.Entity {
                 case Direction.Up:
                     position += new Vector2(0, -CharacterHeight / 2 + .1f);
                     break;
+                case Direction.UpLeft:
+                    position += new Vector2(-CharacterWidth / 2 + .1f, -CharacterHeight / 2 + .1f);
+                    break;
+                case Direction.UpRight:
+                    position += new Vector2(CharacterWidth / 2 - .1f, -CharacterHeight / 2 + .1f);
+                    break;
+                case Direction.DownLeft:
+                    position += new Vector2(-CharacterWidth / 2 + .1f, -CharacterHeight / 4 + -.1f);
+                    break;
+                case Direction.DownRight:
+                    position += new Vector2(CharacterWidth / 2 - .1f, -CharacterHeight / 4 + -.1f);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("shotDirection");
             }
             if ( _isDucking ) {
                 position += new Vector2(0, CharacterHeight / 2);
@@ -467,7 +481,6 @@ namespace Arena.Entity {
             if ( _timeUntilRegainControl <= 0 ) {
                 if ( IsStanding ) {
                     if ( movementInput.X < -.8 ) {
-                        _facingDirection = Direction.Left;
                         if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
                             _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
                         } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
@@ -479,7 +492,6 @@ namespace Arena.Entity {
                             _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
                         }
                     } else if ( movementInput.X > .8 ) {
-                        _facingDirection = Direction.Right;
                         if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
                             _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
                         } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
@@ -493,6 +505,28 @@ namespace Arena.Entity {
                     } else {
                         _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                     }
+
+                    Direction? leftStickDirection = InputHelper.Instance.GetLeftStickDirection();
+                    if ( leftStickDirection != null ) {
+                        switch ( leftStickDirection.Value ) {
+                            case Direction.DownLeft:
+                            case Direction.UpLeft:
+                            case Direction.Left:
+                                _facingDirection = Direction.Left;
+                                break;
+                            case Direction.UpRight:
+                            case Direction.DownRight:
+                            case Direction.Right:
+                                _facingDirection = Direction.Right;
+                                break;
+                            case Direction.Up:
+                            case Direction.Down:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+
                 } else {
                     // in the air
                     if ( movementInput.X < 0 ) {
