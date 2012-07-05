@@ -130,7 +130,7 @@ namespace Arena {
         public Direction? GetLeftStickDirection() {
             Vector2 stick = GamePadState.ThumbSticks.Left;
             float length = stick.Length();
-            if ( length < .6f ) {
+            if ( length < .5f ) {
                 return null;
             }
             float angle = (float) Math.Atan2(stick.Y, stick.X);

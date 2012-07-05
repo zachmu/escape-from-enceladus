@@ -480,51 +480,56 @@ namespace Arena.Entity {
         private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
             if ( _timeUntilRegainControl <= 0 ) {
                 if ( IsStanding ) {
-                    if ( movementInput.X < -.8 ) {
-                        if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
-                            _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
-                        } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                            if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
-                                _body.LinearVelocity -= new Vector2(
-                                    GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
-                            }
-                        } else {
-                            _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                        }
-                    } else if ( movementInput.X > .8 ) {
-                        if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
-                            _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs], _body.LinearVelocity.Y);
-                        } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                            if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
-                                _body.LinearVelocity += new Vector2(
-                                    GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
-                            }
-                        } else {
-                            _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                        }
-                    } else {
-                        _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
-                    }
 
                     Direction? leftStickDirection = InputHelper.Instance.GetLeftStickDirection();
                     if ( leftStickDirection != null ) {
                         switch ( leftStickDirection.Value ) {
-                            case Direction.DownLeft:
-                            case Direction.UpLeft:
                             case Direction.Left:
                                 _facingDirection = Direction.Left;
+                                if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
+                                    _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs],
+                                                                       _body.LinearVelocity.Y);
+                                } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
+                                    if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                                        _body.LinearVelocity -= new Vector2(
+                                            GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                                    }
+                                } else {
+                                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs],
+                                                                       _body.LinearVelocity.Y);
+                                }
+                                break;
+                            case Direction.DownLeft:
+                            case Direction.UpLeft:
+                                _facingDirection = Direction.Left;
+                                _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                break;
+                            case Direction.Right:
+                                _facingDirection = Direction.Right;
+                                if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
+                                    _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs],
+                                                                       _body.LinearVelocity.Y);
+                                } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
+                                    if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                                        _body.LinearVelocity += new Vector2(
+                                            GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
+                                    }
+                                } else {
+                                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs],
+                                                                       _body.LinearVelocity.Y);
+                                }
                                 break;
                             case Direction.UpRight:
                             case Direction.DownRight:
-                            case Direction.Right:
                                 _facingDirection = Direction.Right;
-                                break;
-                            case Direction.Up:
-                            case Direction.Down:
+                                _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                                 break;
                             default:
-                                throw new ArgumentOutOfRangeException();
+                                _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                break;
                         }
+                    } else {
+                        _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                     }
 
                 } else {

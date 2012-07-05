@@ -16,6 +16,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Arena.Entity {
     public class Shot : IGameEntity {
+        private const int Speed = 25;
 
         private readonly Body _body;
 
@@ -69,28 +70,28 @@ namespace Arena.Entity {
 
             switch (direction) {
                 case Direction.Left:
-                    _body.LinearVelocity = new Vector2(-20, 0);
+                    _body.LinearVelocity = new Vector2(-Speed, 0);
                     break;
                 case Direction.Right:
-                    _body.LinearVelocity = new Vector2(20, 0);
+                    _body.LinearVelocity = new Vector2(Speed, 0);
                     break;
                 case Direction.Down:
-                    _body.LinearVelocity = new Vector2(0, 20);
+                    _body.LinearVelocity = new Vector2(0, Speed);
                     break;
                 case Direction.Up:
-                    _body.LinearVelocity = new Vector2(0, -20);
+                    _body.LinearVelocity = new Vector2(0, -Speed);
                     break;
                 case Direction.UpLeft:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -20), (float) (Math.Sqrt(2) * -20));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -Speed), (float) (Math.Sqrt(2) * -Speed));
                     break;
                 case Direction.UpRight:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * 20), (float) (Math.Sqrt(2) * -20));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * Speed), (float) (Math.Sqrt(2) * -Speed));
                     break;
                 case Direction.DownLeft:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -20), (float) (Math.Sqrt(2) * 20));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -Speed), (float) (Math.Sqrt(2) * Speed));
                     break;
                 case Direction.DownRight:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * 20), (float) (Math.Sqrt(2) * 20));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * Speed), (float) (Math.Sqrt(2) * Speed));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("direction");
