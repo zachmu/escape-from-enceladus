@@ -16,8 +16,11 @@ namespace Arena.Weapon {
     /// </summary>
     internal class Sonar : IGameEntity {
 
+        private const string WaveTime = "Wave effect travel time";
+        private const string WaveSpeed = "Wave speed multiplier";
         static Sonar() {
-            Constants.Register(new Constant(WaveTime, 1f, Keys.W));
+            Constants.Register(new Constant(WaveTime, 1.5f, Keys.W));
+            Constants.Register(new Constant(WaveSpeed, 1.0f, Keys.Q));
         }
 
         private bool _disposed;
@@ -49,7 +52,6 @@ namespace Arena.Weapon {
         private int _waveTimeMs = -1;
         private readonly double _angle;
         private readonly Vector2 _waveEffectCenter;
-        private const string WaveTime = "Wave effect travel time";
 
         public Sonar(Vector2 waveEffectCenter, Direction direction) {
             _waveEffectCenter = waveEffectCenter;
@@ -100,7 +102,7 @@ namespace Arena.Weapon {
 
             _waveEffect.Parameters["Center"].SetValue(center);
             _waveEffect.Parameters["DirectionAngle"].SetValue((float) _angle);
-            _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f);
+            _waveEffect.Parameters["Radius"].SetValue(_waveTimeMs / Constants.Get(WaveTime) / 1000f * Constants.Get(WaveSpeed));
 
             // TODO: move this into initialization
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height, 0, 0, 1);

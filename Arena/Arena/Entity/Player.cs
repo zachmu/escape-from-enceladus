@@ -227,12 +227,6 @@ namespace Arena.Entity {
 
         #region Animation
 
-        private const int NumWalkFrames = 30;
-        private const int NumJogFrames = 13;
-        private const int NumRunFrames = 22;
-        private const int NumJumpFrames = 12;
-        private const int NumStandAimFrames = 14;
-
         private enum Animation {
             AimStraight,
             AimUp,
@@ -242,31 +236,39 @@ namespace Arena.Entity {
             Walk,
             Jog,
             Run,
-            Duck,
+            Crouch,
             Jump,
         };
 
         private Animation _currentAnimation = Animation.AimStraight;
         private Animation _prevAnimation = Animation.AimStraight;
 
-        private readonly Texture2D[] _standAimAnimation = new Texture2D[NumStandAimFrames];
+        private const int NumWalkFrames = 30;
+        private const int NumJogFrames = 13;
+        private const int NumRunFrames = 22;
+        private const int NumJumpFrames = 12;
+        
+        private const int NumCrouchFrames = 3;
+        private const int CrouchFrame = 1;
+
+        private const int NumStandAimFrames = 14;
         private const int AimUpFrame = 0;
         private const int AimUpRightFrame = 3;
         private const int AimRightFrame = 6;
         private const int AimDownRightFrame = 9;
         private const int AimDownFrame = 12;
 
+        private readonly Texture2D[] _standAimAnimation = new Texture2D[NumStandAimFrames];
         private readonly Texture2D[] _walkAnimation = new Texture2D[NumWalkFrames];
         private readonly Texture2D[] _jogAnimation = new Texture2D[NumJogFrames];
         private readonly Texture2D[] _runAnimation = new Texture2D[NumRunFrames];
         private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];
-        private readonly Texture2D[] _duckAnimation = new Texture2D[2];
+        private readonly Texture2D[] _crouchAnimation = new Texture2D[NumCrouchFrames];
 
         private int _animationFrame = 0;
         private const int JumpDelayMs = 50;
         private long _timeSinceLastAnimationUpdate;
         private long _timeSinceJump = -1;
-        private bool _isDucking;
         private bool _jumpInitiated;
 
         private void LoadAnimations(ContentManager content) {
@@ -285,11 +287,11 @@ namespace Arena.Entity {
             for ( int i = 0; i < NumJumpFrames; i++ ) {
                 _jumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/Jump/jump{0:0000}", i));
             }
+            for ( int i = 0; i < NumCrouchFrames; i++ ) {
+                _crouchAnimation[i] = content.Load<Texture2D>(String.Format("Character/Crouch/Crouch{0:0000}", i));
+            }
 
-            _duckAnimation[0] = content.Load<Texture2D>("Character/duck1");
-            _duckAnimation[1] = content.Load<Texture2D>("Character/duck2");
-
-            Image = _standAimAnimation[7];
+            Image = _standAimAnimation[AimRightFrame];
         }
 
         /// <summary>
@@ -337,13 +339,13 @@ namespace Arena.Entity {
                             }
                             break;
                         case Direction.Down:
-                            _currentAnimation = Animation.AimDown;
+                            _currentAnimation = Animation.Crouch;
                             if ( _timeSinceLastAnimationUpdate > 500f 
                                 || _prevAnimation != _currentAnimation ) {
-                                if ( _animationFrame < AimDownFrame 
-                                    || _animationFrame > AimDownFrame + 1 )
-                                    _animationFrame = AimDownFrame;
-                                Image = _standAimAnimation[_animationFrame++];
+                                if ( _animationFrame < CrouchFrame
+                                    || _animationFrame > CrouchFrame + 1 )
+                                    _animationFrame = CrouchFrame;
+                                Image = _crouchAnimation[_animationFrame++];
                             }
                             break;
                         case Direction.UpLeft:
@@ -448,7 +450,17 @@ namespace Arena.Entity {
                     position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
                     break;
                 case Direction.Down:
-                    position += new Vector2(0, CharacterHeight / 2 - .1f);
+                    position += new Vector2(0, CharacterHeight / 6f);
+                    if (_facingDirection == Direction.Left) {
+                        position += new Vector2(-(CharacterWidth / 2f), 0);
+                    } else {
+                        position += new Vector2(CharacterWidth / 2f, 0);
+                    }
+                    if ( IsStanding ) {
+                        shotDirection = _facingDirection;
+                    } else {
+                        shotDirection = Direction.Down;
+                    }
                     break;
                 case Direction.Up:
                     position += new Vector2(0, -CharacterHeight / 2 + .1f);
@@ -467,9 +479,6 @@ namespace Arena.Entity {
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("shotDirection");
-            }
-            if ( _isDucking ) {
-                position += new Vector2(0, CharacterHeight / 2);
             }
             return position;
         }
@@ -499,11 +508,6 @@ namespace Arena.Entity {
                                                                        _body.LinearVelocity.Y);
                                 }
                                 break;
-                            case Direction.DownLeft:
-                            case Direction.UpLeft:
-                                _facingDirection = Direction.Left;
-                                _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
-                                break;
                             case Direction.Right:
                                 _facingDirection = Direction.Right;
                                 if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
@@ -519,9 +523,17 @@ namespace Arena.Entity {
                                                                        _body.LinearVelocity.Y);
                                 }
                                 break;
+                            case Direction.DownLeft:
+                            case Direction.UpLeft:
+                                _facingDirection = Direction.Left;
+                                _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                break;
                             case Direction.UpRight:
                             case Direction.DownRight:
                                 _facingDirection = Direction.Right;
+                                _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                break;
+                            case Direction.Down:
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                                 break;
                             default:
@@ -555,16 +567,6 @@ namespace Arena.Entity {
                             _facingDirection = Direction.Right;
                         }
                     }
-                }
-
-                // handle ducking
-                if ( movementInput.Y < -.9 ) {
-                    _isDucking = true;
-                    if ( IsStanding ) {
-                        _body.LinearVelocity = new Vector2(0, 0);
-                    }
-                } else {
-                    _isDucking = false;
                 }
             }
         }
