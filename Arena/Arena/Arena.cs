@@ -93,7 +93,7 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
-            _player = new Player(new Vector2(8,6), _world);
+            _player = new Player(new Vector2(10,10), _world);
 
             _mode = Mode.NormalControl;
 
@@ -124,7 +124,7 @@ namespace Arena {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "big_square.tmx"), _world,
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test_simple.tmx"), _world,
                                        _player.Position);
             _player.LoadContent(Content);
 

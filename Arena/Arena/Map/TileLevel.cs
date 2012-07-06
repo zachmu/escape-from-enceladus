@@ -17,6 +17,10 @@ namespace Arena.Map {
         private SpriteFont _debugFont;
 
         public const float TileSize = 1f;
+        private const string RoomLayerName = "Rooms";
+        private const string CollisionLayerName = "Collision";
+        private const string DestructionLayerName = "Destruction";
+        private const string DoorLayerName = "Doors";
         public static int TileDisplaySize;
         private readonly Layer _collisionLayer;
         private readonly List<Room> _rooms = new List<Room>();
@@ -42,10 +46,10 @@ namespace Arena.Map {
             _levelMap = Map.Load(mapFile, cm);
             Door.LoadContent(cm);
             
-            _collisionLayer = _levelMap.Layers["Collision"];
+            _collisionLayer = _levelMap.Layers[CollisionLayerName];
             
             try {
-                ObjectGroup objectGroup = _levelMap.ObjectGroups["Rooms"];
+                ObjectGroup objectGroup = _levelMap.ObjectGroups[RoomLayerName];
                 InitializeRooms(objectGroup);
             } catch {
                 // No rooms layer is fine, we'll just create a room for them
@@ -53,14 +57,14 @@ namespace Arena.Map {
             }
 
             try {
-                ObjectGroup objectGroup = _levelMap.ObjectGroups["Destruction"];
+                ObjectGroup objectGroup = _levelMap.ObjectGroups[DestructionLayerName];
                 InitializeDestructionRegions(objectGroup);
             } catch {
                 // Ignore missing destruction layer
             }
 
             try {
-                ObjectGroup doorGroup = _levelMap.ObjectGroups["Doors"];
+                ObjectGroup doorGroup = _levelMap.ObjectGroups[DoorLayerName];
                 InitializeDoors(doorGroup);
             } catch {
                 // no doors on this level (tests, mostly)

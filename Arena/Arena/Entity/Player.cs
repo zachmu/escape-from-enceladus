@@ -221,7 +221,7 @@ namespace Arena.Entity {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
-                _shots.Add(new Sonar(position, shotDirection));
+                _shots.Add(new Sonar(_world, position, shotDirection));
             }
         }
 

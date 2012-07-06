@@ -8,7 +8,7 @@
    H4sIAAAAAAAAC+3Z0a6CMBBFUf/E///L+2TibTqKLbSzh70SI2+c04FI5fGQJGncs/PRPu369+bjvNYZWV/ndZ0r1s8ZjVu1Vt5Px2RYE2f131m/IWe763xm5tEeX+0O8xmdR+97tYpzGe2T6VrNkOEslXpU6PJsjsnPO5Scn/yS/8j/KbvXY/f5Z9HztzJcEzPI2SPkTuTsEXIncvYIuRM5+yfUXtTc31B70Z9HIuRO5OwRcqeV2Y/uKWf3mM4jF3IncvYIuRM5e4TciZw9Qu5Ezh4hdyJnj1A7VdwPkvt8y75qv3Cm3eefQc4eIXciZ4+QO5Gz99D70PO3yH3I2SPkTuTsEXIncvYeeh96/ha9z478V+4tnccaR+dD6ROh52/R+9Dzv8vwv9ksev53FbpU6PBSoUuFe/zFHnlUu67oXej5e7K82xtBzPyL7O9jW9nyrJbpnfrdZzFjdI6ke1WSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSdF9/LWgaAkCcAAA=
   </data>
  </layer>
- <layer name="Collision" width="100" height="100">
+ <layer name="Collision" width="100" height="100" visible="0">
   <properties>
    <property name="invisible" value="true"/>
   </properties>
@@ -16,4 +16,10 @@
    H4sIAAAAAAAAC+3ZQY7DIBBE0cx95v7nm1UkD6ETBwz0x/9JUbxzFW0rwX48JElq9/vz+tE65frX5uO85mlZX+c1zoj1c0btZq2V99M5GdbEWf131W/IiFx3nE/PPMrj0e4wn9Z51L5n23EurX0yXasZMlxlpx47dDl2oO/1KDnf+Sb/mecpq9dj9fl70fOXMlwTPcjZI+RO5OwRcidy9gi5Ezn7O9Re1NyfUHvR/49EyJ3I2SPkTjOzn91T9u4xnUcu5E7k7BFyJ3L2CLkTOXuE3ImcPULuRM4eoXbacT9I7vMp+6z9wpVWn78HOXuE3ImcPULuRM5eQ+9Dz18i9yFnj5A7kbNHyJ3I2Wvofej5S/Q+K/KP3Fs6jznOzofSJ0LPX6L3oec/yvDcrBc9/9EOXXbo8LRDlx3u8Sd75LHbdUXvQs9fk+XdXgti5m9kfx9bypZntkzv1O8+ix6tcyTdq5IkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZKk+/oD4nG1wkCcAAA=
   </data>
  </layer>
+ <objectgroup name="Destruction" width="100" height="100">
+  <object x="1035" y="711" width="41" height="39"/>
+  <object x="1038" y="773" width="36" height="43"/>
+  <object x="1159" y="843" width="44" height="38"/>
+  <object x="524" y="974" width="32" height="32"/>
+ </objectgroup>
 </map>

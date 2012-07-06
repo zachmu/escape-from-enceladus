@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Farseer;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
@@ -23,6 +24,7 @@ namespace Arena.Map {
             rectangle.IsStatic = true;
             rectangle.IsSensor = true;
             rectangle.Position = Position;
+            rectangle.UserData = UserData.NewDestructionRegion(this);
         }
 
         public bool Contains(Tile t) {
