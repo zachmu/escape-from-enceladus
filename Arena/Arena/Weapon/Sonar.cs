@@ -48,11 +48,13 @@ namespace Arena.Weapon {
 
         private static Texture2D _debugLocation;
         private static SoundEffect _ping;
+        private static SoundEffect _pong;
 
         public static void LoadContent(ContentManager cm) {
             _waveEffect = cm.Load<Effect>("wave");
             _debugLocation = cm.Load<Texture2D>("welcome16");
-            _ping = cm.Load<SoundEffect>("SonarHit");
+            _pong = cm.Load<SoundEffect>("SonarHit");
+            _ping = cm.Load<SoundEffect>("SonarPing");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -80,6 +82,7 @@ namespace Arena.Weapon {
             DetermineAngle(direction);
             DetermineIntersectedRegions(world, waveEffectCenter);
             Arena.Instance.Register(new WaveEffect(this));
+            _ping.Play();
         }
 
         private void DetermineIntersectedRegions(World world, Vector2 waveEffectCenter) {
@@ -149,7 +152,7 @@ namespace Arena.Weapon {
             foreach (
                 DestructibleRegion region in
                     _foundDestructionRegions.Values.Where(region => region._radius <= currentRadius).ToList() ) {
-                _ping.Play();
+                _pong.Play();
                 _foundDestructionRegions.Remove(region);
             }
 

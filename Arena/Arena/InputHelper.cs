@@ -123,12 +123,12 @@ namespace Arena {
         private static float SevenPiOverEight = (float) (7f * (Math.PI / 8f));
 
         /// <summary>
-        /// Returns the octant being aimed in by the left stick, 
+        /// Returns the octant being aimed in by the stick given, 
         /// or null if there is no aimed direction.
         /// </summary>
+        /// <param name="stick"> </param>
         /// <returns></returns>
-        public Direction? GetLeftStickDirection() {
-            Vector2 stick = GamePadState.ThumbSticks.Left;
+        public Direction? GetStickDirection(Vector2 stick) {
             float length = stick.Length();
             if ( length < .5f ) {
                 return null;
@@ -181,7 +181,7 @@ namespace Arena {
         }
 
         /// <summary>
-        ///   Helper for checking if a mouse button was newly pressed during this update.
+        /// Helper for checking if a mouse button was newly pressed during this update.
         /// </summary>
         public bool IsNewMouseButtonPress(MouseButtons button) {
             switch ( button ) {
