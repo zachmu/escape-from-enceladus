@@ -1613,6 +1613,335 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0000.png">
+      <Name>GunJogDiagonalDown0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0001.png">
+      <Name>GunJogDiagonalDown0001</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0002.png">
+      <Name>GunJogDiagonalDown0002</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0003.png">
+      <Name>GunJogDiagonalDown0003</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0004.png">
+      <Name>GunJogDiagonalDown0004</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0005.png">
+      <Name>GunJogDiagonalDown0005</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0006.png">
+      <Name>GunJogDiagonalDown0006</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0007.png">
+      <Name>GunJogDiagonalDown0007</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0008.png">
+      <Name>GunJogDiagonalDown0008</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0009.png">
+      <Name>GunJogDiagonalDown0009</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0010.png">
+      <Name>GunJogDiagonalDown0010</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0011.png">
+      <Name>GunJogDiagonalDown0011</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalDown\GunJogDiagonalDown0012.png">
+      <Name>GunJogDiagonalDown0012</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0000.png">
+      <Name>GunJogDiagonalUp0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0001.png">
+      <Name>GunJogDiagonalUp0001</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0002.png">
+      <Name>GunJogDiagonalUp0002</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0003.png">
+      <Name>GunJogDiagonalUp0003</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0004.png">
+      <Name>GunJogDiagonalUp0004</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0005.png">
+      <Name>GunJogDiagonalUp0005</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0006.png">
+      <Name>GunJogDiagonalUp0006</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0007.png">
+      <Name>GunJogDiagonalUp0007</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0008.png">
+      <Name>GunJogDiagonalUp0008</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0009.png">
+      <Name>GunJogDiagonalUp0009</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0010.png">
+      <Name>GunJogDiagonalUp0010</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0011.png">
+      <Name>GunJogDiagonalUp0011</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDiagonalUp\GunJogDiagonalUp0012.png">
+      <Name>GunJogDiagonalUp0012</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0000.png">
+      <Name>GunJogDown0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0001.png">
+      <Name>GunJogDown0001</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0002.png">
+      <Name>GunJogDown0002</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0003.png">
+      <Name>GunJogDown0003</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0004.png">
+      <Name>GunJogDown0004</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0005.png">
+      <Name>GunJogDown0005</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0006.png">
+      <Name>GunJogDown0006</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0007.png">
+      <Name>GunJogDown0007</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0008.png">
+      <Name>GunJogDown0008</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0009.png">
+      <Name>GunJogDown0009</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0010.png">
+      <Name>GunJogDown0010</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0011.png">
+      <Name>GunJogDown0011</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogDown\GunJogDown0012.png">
+      <Name>GunJogDown0012</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0000.png">
+      <Name>GunJogUp0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0001.png">
+      <Name>GunJogUp0001</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0002.png">
+      <Name>GunJogUp0002</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0003.png">
+      <Name>GunJogUp0003</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0004.png">
+      <Name>GunJogUp0004</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0005.png">
+      <Name>GunJogUp0005</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0006.png">
+      <Name>GunJogUp0006</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0007.png">
+      <Name>GunJogUp0007</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0008.png">
+      <Name>GunJogUp0008</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0009.png">
+      <Name>GunJogUp0009</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0010.png">
+      <Name>GunJogUp0010</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0011.png">
+      <Name>GunJogUp0011</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogUp\GunJogUp0012.png">
+      <Name>GunJogUp0012</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0000.png">
+      <Name>GunJogStraight0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0001.png">
+      <Name>GunJogStraight0001</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0002.png">
+      <Name>GunJogStraight0002</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0003.png">
+      <Name>GunJogStraight0003</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0004.png">
+      <Name>GunJogStraight0004</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0005.png">
+      <Name>GunJogStraight0005</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0006.png">
+      <Name>GunJogStraight0006</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0007.png">
+      <Name>GunJogStraight0007</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0008.png">
+      <Name>GunJogStraight0008</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0009.png">
+      <Name>GunJogStraight0009</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0010.png">
+      <Name>GunJogStraight0010</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0011.png">
+      <Name>GunJogStraight0011</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Character\GunJog\GunJogStraight\GunJogStraight0012.png">
+      <Name>GunJogStraight0012</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -33,7 +33,7 @@ namespace Arena {
         }
 
         /// <summary>
-        ///   Constructs a new input state.
+        /// Constructs a new input state.
         /// </summary>
         private InputHelper() {
             _currentKeyboardState = new KeyboardState();
