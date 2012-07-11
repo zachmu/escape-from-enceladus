@@ -234,7 +234,11 @@ namespace Arena.Entity {
             AimDiagonalUp,
             AimDiagonalDown,
             AimDown,
-            Walk,
+            WalkAimStraight,
+            WalkAimUp,
+            WalkAimDiagonalUp,
+            WalkAimDiagonalDown,
+            WalkAimDown,
             Jog,
             Run,
             CrouchAimStraight,
@@ -254,7 +258,8 @@ namespace Arena.Entity {
         private Animation _prevAnimation = Animation.AimStraight;
         private bool _isDucking = false;
 
-        private const int NumWalkFrames = 30;
+        private const int NumAimWalkStraightFrames = 30;
+        private const int NumAimWalkFrames = 16;
         private const int NumJogFrames = 13;
         private const int NumRunFrames = 22;
         
@@ -281,7 +286,11 @@ namespace Arena.Entity {
 
 
         private readonly Texture2D[] _standAimAnimation = new Texture2D[NumStandAimFrames];
-        private readonly Texture2D[] _walkAnimation = new Texture2D[NumWalkFrames];
+        private readonly Texture2D[] _walkAimUpAnimation = new Texture2D[NumAimWalkFrames];
+        private readonly Texture2D[] _walkAimDiagonalUpAnimation = new Texture2D[NumAimWalkFrames];
+        private readonly Texture2D[] _walkAimStraightAnimation = new Texture2D[NumAimWalkStraightFrames];
+        private readonly Texture2D[] _walkAimDiagonalDownAnimation = new Texture2D[NumAimWalkFrames];
+        private readonly Texture2D[] _walkAimDownAnimation = new Texture2D[NumAimWalkFrames];
         private readonly Texture2D[] _jogAnimation = new Texture2D[NumJogFrames];
         private readonly Texture2D[] _runAnimation = new Texture2D[NumRunFrames];
         private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];
@@ -297,15 +306,29 @@ namespace Arena.Entity {
             for ( int i = 0; i < NumStandAimFrames; i++ ) {
                 _standAimAnimation[i] = content.Load<Texture2D>(String.Format("Character/StandAim/StandAim{0:0000}", i));
             }
-            for ( int i = 0; i < NumWalkFrames; i++ ) {
-                _walkAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalk{0:0000}", i));
+            for ( int i = 0; i < NumAimWalkStraightFrames; i++ ) {
+                _walkAimStraightAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkStraight/GunWalkStraight{0:0000}", i));
             }
+            for ( int i = 0; i < NumAimWalkFrames; i++ ) {
+                _walkAimUpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkUp/GunWalkUp{0:0000}", i));
+            }
+            for ( int i = 0; i < NumAimWalkFrames; i++ ) {
+                _walkAimDiagonalUpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkDiagonalUp/GunWalkDiagonalUp{0:0000}", i));
+            }
+            for ( int i = 0; i < NumAimWalkFrames; i++ ) {
+                _walkAimDiagonalDownAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkDiagonalDown/GunWalkDiagonalDown{0:0000}", i));
+            }
+            for ( int i = 0; i < NumAimWalkFrames; i++ ) {
+                _walkAimDownAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkDown/GunWalkDown{0:0000}", i));
+            }
+
             for ( int i = 0; i < NumJogFrames; i++ ) {
                 _jogAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunJog/GunJog{0:0000}", i));
             }
             for ( int i = 0; i < NumRunFrames; i++ ) {
                 _runAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRun{0:0000}", i));
             }
+
             for ( int i = 0; i < NumJumpFrames; i++ ) {
                 _jumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunJump/GunJump{0:0000}", i));
             }
@@ -332,7 +355,7 @@ namespace Arena.Entity {
                         _animationFrame = 0;
                     }
                     Image = _jumpAnimation[_animationFrame++];
-                } else if ( _body.LinearVelocity.X == 0 ) {
+                } else if ( IsStandingStill() ) {
 
                     if ( !_isDucking ) {
                         switch ( aimDirection ) {
@@ -451,15 +474,57 @@ namespace Arena.Entity {
                                 throw new ArgumentOutOfRangeException();
                         }
                     }
-                } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs] ) {
-                    _currentAnimation = Animation.Walk;
+                } else if ( IsWalkingSpeed() ) {
                     float walkSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerWalkSpeedMultiplier]);
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkFrames / walkSpeed
-                         || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= _walkAnimation.Length;
-                        Image = _walkAnimation[_animationFrame++];
+
+                    switch ( aimDirection ) {
+                        case Direction.Left:
+                        case Direction.Right:
+                            _currentAnimation = Animation.WalkAimStraight;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumAimWalkStraightFrames;
+                                Image = _walkAimStraightAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.Up:
+                            _currentAnimation = Animation.WalkAimUp;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumAimWalkFrames;
+                                Image = _walkAimUpAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.Down:
+                            _currentAnimation = Animation.WalkAimDown;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumAimWalkFrames;
+                                Image = _walkAimDownAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.UpLeft:
+                        case Direction.UpRight:
+                            _currentAnimation = Animation.WalkAimDiagonalUp;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumAimWalkFrames;
+                                Image = _walkAimDiagonalUpAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.DownLeft:
+                        case Direction.DownRight:
+                            _currentAnimation = Animation.WalkAimDiagonalDown;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumAimWalkFrames;
+                                Image = _walkAimDiagonalDownAnimation[_animationFrame++];
+                            }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
-                } else if ( Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerMaxSpeedMs] * .75f ) {
+                } else if ( IsJoggingSpeed() ) {
                     _currentAnimation = Animation.Jog;
                     float jogSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerJogSpeedMultiplier]);
                     if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
@@ -524,6 +589,18 @@ namespace Arena.Entity {
             }
 
             _prevAnimation = _currentAnimation;
+        }
+
+        private bool IsStandingStill() {
+            return _body.LinearVelocity.X == 0;
+        }
+
+        private bool IsJoggingSpeed() {
+            return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerMaxSpeedMs] * .75f;
+        }
+
+        private bool IsWalkingSpeed() {
+            return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs];
         }
 
         private Direction GetAimDirection() {
