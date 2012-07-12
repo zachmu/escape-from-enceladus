@@ -244,7 +244,11 @@ namespace Arena.Entity {
             JogAimDiagonalUp,
             JogAimDiagonalDown,
             JogAimDown,
-            Run,
+            RunAimStraight,
+            RunAimUp,
+            RunAimDiagonalUp,
+            RunAimDiagonalDown,
+            RunAimDown,
             CrouchAimStraight,
             CrouchAimUp,
             CrouchAimDiagonalUp,
@@ -262,10 +266,12 @@ namespace Arena.Entity {
         private Animation _prevAnimation = Animation.AimStraight;
         private bool _isDucking = false;
 
-        private const int NumAimWalkStraightFrames = 30;
-        private const int NumAimWalkFrames = 16;
+        private const int NumWalkAimStraightFrames = 30;
+        private const int NumWalkAimFrames = 16;
         private const int NumJogFrames = 13;
-        private const int NumRunFrames = 22;
+
+        private const int NumRunAimStraightFrames = 22;
+        private const int NumRunAimFrames = 11;
         
         private const int NumCrouchFrames = 11;
         private const int CrouchAimUpFrame = 1;
@@ -291,11 +297,11 @@ namespace Arena.Entity {
 
         private readonly Texture2D[] _standAimAnimation = new Texture2D[NumStandAimFrames];
 
-        private readonly Texture2D[] _walkAimUpAnimation = new Texture2D[NumAimWalkFrames];
-        private readonly Texture2D[] _walkAimDiagonalUpAnimation = new Texture2D[NumAimWalkFrames];
-        private readonly Texture2D[] _walkAimStraightAnimation = new Texture2D[NumAimWalkStraightFrames];
-        private readonly Texture2D[] _walkAimDiagonalDownAnimation = new Texture2D[NumAimWalkFrames];
-        private readonly Texture2D[] _walkAimDownAnimation = new Texture2D[NumAimWalkFrames];
+        private readonly Texture2D[] _walkAimUpAnimation = new Texture2D[NumWalkAimFrames];
+        private readonly Texture2D[] _walkAimDiagonalUpAnimation = new Texture2D[NumWalkAimFrames];
+        private readonly Texture2D[] _walkAimStraightAnimation = new Texture2D[NumWalkAimStraightFrames];
+        private readonly Texture2D[] _walkAimDiagonalDownAnimation = new Texture2D[NumWalkAimFrames];
+        private readonly Texture2D[] _walkAimDownAnimation = new Texture2D[NumWalkAimFrames];
 
         private readonly Texture2D[] _jogAimUpAnimation = new Texture2D[NumJogFrames];
         private readonly Texture2D[] _jogAimDiagonalUpAnimation = new Texture2D[NumJogFrames];
@@ -303,7 +309,12 @@ namespace Arena.Entity {
         private readonly Texture2D[] _jogAimDiagonalDownAnimation = new Texture2D[NumJogFrames];
         private readonly Texture2D[] _jogAimDownAnimation = new Texture2D[NumJogFrames];
 
-        private readonly Texture2D[] _runAnimation = new Texture2D[NumRunFrames];
+        private readonly Texture2D[] _runAimUpAnimation = new Texture2D[NumRunAimFrames];
+        private readonly Texture2D[] _runAimDiagonalUpAnimation = new Texture2D[NumRunAimFrames];
+        private readonly Texture2D[] _runAimStraightAnimation = new Texture2D[NumRunAimStraightFrames];
+        private readonly Texture2D[] _runAimDiagonalDownAnimation = new Texture2D[NumRunAimFrames];
+        private readonly Texture2D[] _runAimDownAnimation = new Texture2D[NumRunAimFrames];
+
         private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];
         private readonly Texture2D[] _crouchAnimation = new Texture2D[NumCrouchFrames];
 
@@ -318,10 +329,10 @@ namespace Arena.Entity {
                 _standAimAnimation[i] = content.Load<Texture2D>(String.Format("Character/StandAim/StandAim{0:0000}", i));
             }
 
-            for ( int i = 0; i < NumAimWalkStraightFrames; i++ ) {
+            for ( int i = 0; i < NumWalkAimStraightFrames; i++ ) {
                 _walkAimStraightAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkStraight/GunWalkStraight{0:0000}", i));
             }
-            for ( int i = 0; i < NumAimWalkFrames; i++ ) {
+            for ( int i = 0; i < NumWalkAimFrames; i++ ) {
                 _walkAimUpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkUp/GunWalkUp{0:0000}", i));
                 _walkAimDiagonalUpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkDiagonalUp/GunWalkDiagonalUp{0:0000}", i));
                 _walkAimDiagonalDownAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunWalk/GunWalkDiagonalDown/GunWalkDiagonalDown{0:0000}", i));
@@ -337,8 +348,14 @@ namespace Arena.Entity {
             }
 
             
-            for ( int i = 0; i < NumRunFrames; i++ ) {
-                _runAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRun{0:0000}", i));
+            for ( int i = 0; i < NumRunAimStraightFrames; i++ ) {
+                _runAimStraightAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRunStraight/GunRunStraight{0:0000}", i));
+            }
+            for ( int i = 0; i < NumRunAimFrames; i++ ) {
+                _runAimUpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRunUp/GunRunUp{0:0000}", i));
+                _runAimDiagonalUpAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRunDiagonalUp/GunRunDiagonalUp{0:0000}", i));
+                _runAimDiagonalDownAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRunDiagonalDown/GunRunDiagonalDown{0:0000}", i));
+                _runAimDownAnimation[i] = content.Load<Texture2D>(String.Format("Character/GunRun/GunRunDown/GunRunDown{0:0000}", i));
             }
 
             for ( int i = 0; i < NumJumpFrames; i++ ) {
@@ -493,43 +510,43 @@ namespace Arena.Entity {
                         case Direction.Left:
                         case Direction.Right:
                             _currentAnimation = Animation.WalkAimStraight;
-                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
                                  || _prevAnimation != _currentAnimation ) {
-                                _animationFrame %= NumAimWalkStraightFrames;
+                                _animationFrame %= NumWalkAimStraightFrames;
                                 Image = _walkAimStraightAnimation[_animationFrame++];
                             }
                             break;
                         case Direction.Up:
                             _currentAnimation = Animation.WalkAimUp;
-                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
                                  || _prevAnimation != _currentAnimation ) {
-                                _animationFrame %= NumAimWalkFrames;
+                                _animationFrame %= NumWalkAimFrames;
                                 Image = _walkAimUpAnimation[_animationFrame++];
                             }
                             break;
                         case Direction.Down:
                             _currentAnimation = Animation.WalkAimDown;
-                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
                                  || _prevAnimation != _currentAnimation ) {
-                                _animationFrame %= NumAimWalkFrames;
+                                _animationFrame %= NumWalkAimFrames;
                                 Image = _walkAimDownAnimation[_animationFrame++];
                             }
                             break;
                         case Direction.UpLeft:
                         case Direction.UpRight:
                             _currentAnimation = Animation.WalkAimDiagonalUp;
-                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
                                  || _prevAnimation != _currentAnimation ) {
-                                _animationFrame %= NumAimWalkFrames;
+                                _animationFrame %= NumWalkAimFrames;
                                 Image = _walkAimDiagonalUpAnimation[_animationFrame++];
                             }
                             break;
                         case Direction.DownLeft:
                         case Direction.DownRight:
                             _currentAnimation = Animation.WalkAimDiagonalDown;
-                            if ( _timeSinceLastAnimationUpdate > 1000f / NumAimWalkStraightFrames / walkSpeed
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
                                  || _prevAnimation != _currentAnimation ) {
-                                _animationFrame %= NumAimWalkFrames;
+                                _animationFrame %= NumWalkAimFrames;
                                 Image = _walkAimDiagonalDownAnimation[_animationFrame++];
                             }
                             break;
@@ -551,7 +568,7 @@ namespace Arena.Entity {
                             }
                             break;
                         case Direction.Up:
-                            _currentAnimation = Animation.WalkAimUp;
+                            _currentAnimation = Animation.JogAimUp;
                             if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
                                  || _prevAnimation != _currentAnimation ) {
                                 _animationFrame %= NumJogFrames;
@@ -559,7 +576,7 @@ namespace Arena.Entity {
                             }
                             break;
                         case Direction.Down:
-                            _currentAnimation = Animation.WalkAimDown;
+                            _currentAnimation = Animation.JogAimDown;
                             if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
                                  || _prevAnimation != _currentAnimation ) {
                                 _animationFrame %= NumJogFrames;
@@ -568,7 +585,7 @@ namespace Arena.Entity {
                             break;
                         case Direction.UpLeft:
                         case Direction.UpRight:
-                            _currentAnimation = Animation.WalkAimDiagonalUp;
+                            _currentAnimation = Animation.JogAimDiagonalUp;
                             if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
                                  || _prevAnimation != _currentAnimation ) {
                                 _animationFrame %= NumJogFrames;
@@ -577,7 +594,7 @@ namespace Arena.Entity {
                             break;
                         case Direction.DownLeft:
                         case Direction.DownRight:
-                            _currentAnimation = Animation.WalkAimDiagonalDown;
+                            _currentAnimation = Animation.JogAimDiagonalDown;
                             if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
                                  || _prevAnimation != _currentAnimation ) {
                                 _animationFrame %= NumJogFrames;
@@ -588,12 +605,55 @@ namespace Arena.Entity {
                             throw new ArgumentOutOfRangeException();
                     }
                 } else {
-                    _currentAnimation = Animation.Run;
+
                     float runSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerJogSpeedMultiplier]);
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunFrames / runSpeed
-                         || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= _runAnimation.Length;
-                        Image = _runAnimation[_animationFrame++];
+
+                    switch ( aimDirection ) {
+                        case Direction.Left:
+                        case Direction.Right:
+                            _currentAnimation = Animation.RunAimStraight;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumRunAimStraightFrames;
+                                Image = _runAimStraightAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.Up:
+                            _currentAnimation = Animation.RunAimUp;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumRunAimFrames;
+                                Image = _runAimUpAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.Down:
+                            _currentAnimation = Animation.RunAimDown;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumRunAimFrames;
+                                Image = _runAimDownAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.UpLeft:
+                        case Direction.UpRight:
+                            _currentAnimation = Animation.RunAimDiagonalUp;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumRunAimFrames;
+                                Image = _runAimDiagonalUpAnimation[_animationFrame++];
+                            }
+                            break;
+                        case Direction.DownLeft:
+                        case Direction.DownRight:
+                            _currentAnimation = Animation.RunAimDiagonalDown;
+                            if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                                 || _prevAnimation != _currentAnimation ) {
+                                _animationFrame %= NumRunAimFrames;
+                                Image = _runAimDiagonalDownAnimation[_animationFrame++];
+                            }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             } else {
@@ -658,47 +718,6 @@ namespace Arena.Entity {
             return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs];
         }
 
-        private Direction GetAimDirection() {
-            Direction? aimDirection =
-                InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Right);
-            if ( aimDirection == null ) {
-                aimDirection = _facingDirection;
-            }
-
-            // Left stick always overrides right stick, unless just running or ducking
-            if ( !_isDucking && (!IsStanding || _body.LinearVelocity.X == 0) ) {
-                Direction? leftStickDirection =
-                    InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
-                if ( leftStickDirection != null && leftStickDirection != Direction.Left &&
-                     leftStickDirection != Direction.Right ) {
-                    aimDirection = leftStickDirection.Value;
-                }
-            }
-
-            // cull out aiming directions that aren't possible
-            switch ( _facingDirection ) {
-                case Direction.Left:
-                    switch ( aimDirection.Value ) {
-                        case Direction.Right:
-                        case Direction.UpRight:
-                        case Direction.DownRight:
-                            aimDirection = _facingDirection;
-                            break;
-                    }
-                    break;
-                case Direction.Right:
-                    switch ( aimDirection.Value ) {
-                        case Direction.Left:
-                        case Direction.UpLeft:
-                        case Direction.DownLeft:
-                            aimDirection = _facingDirection;
-                            break;
-                    }
-                    break;
-            }
-            return aimDirection.Value;
-        }
-
         #endregion
 
         private readonly List<IGameEntity> _shots = new List<IGameEntity>();
@@ -713,6 +732,55 @@ namespace Arena.Entity {
                 var position = GetShotParameters(out shotDirection);
                 _shots.Add(new Shot(position, _world, shotDirection));
             }
+        }
+
+        private Direction GetAimDirection() {
+            Direction? aimDirection =
+                InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Right);
+            if ( aimDirection == null ) {
+                aimDirection = _facingDirection;
+            }
+
+            // Left stick always overrides right stick, unless just running or ducking
+            if ( !_isDucking && (!IsStanding || IsStandingStill()) ) {
+                Direction? leftStickDirection =
+                    InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
+                if ( leftStickDirection != null && leftStickDirection != Direction.Left &&
+                     leftStickDirection != Direction.Right ) {
+                    aimDirection = leftStickDirection.Value;
+                }
+            }
+
+            // cull out aiming directions that aren't possible
+            switch ( _facingDirection ) {
+                case Direction.Left:
+                    switch ( aimDirection.Value ) {
+                        case Direction.Right:
+                            aimDirection = _facingDirection;
+                            break;
+                        case Direction.UpRight:
+                            aimDirection = Direction.Up;
+                            break;
+                        case Direction.DownRight:
+                            aimDirection = Direction.Down;
+                            break;
+                    }
+                    break;
+                case Direction.Right:
+                    switch ( aimDirection.Value ) {
+                        case Direction.Left:
+                            aimDirection = _facingDirection;
+                            break;
+                        case Direction.UpLeft:
+                            aimDirection = Direction.Up;
+                            break;
+                        case Direction.DownLeft:
+                            aimDirection = Direction.Down;
+                            break;
+                    }
+                    break;
+            }
+            return aimDirection.Value;
         }
 
         /// <summary>
