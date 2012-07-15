@@ -4,6 +4,7 @@ using System.Linq;
 using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
+using Arena.Overlay;
 using Arena.Weapon;
 using FarseerPhysics;
 using FarseerPhysics.Collision;
@@ -34,7 +35,10 @@ namespace Arena {
         private Player _player;
         private Mode _mode;
 
+        private HealthStatus _healthStatus;
+
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
+        private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>(); 
 
         private bool _manualCamera = false;
 
@@ -94,6 +98,7 @@ namespace Arena {
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(graphics.GraphicsDevice);
             _player = new Player(new Vector2(10,10), _world);
+            _healthStatus = new HealthStatus();
 
             _mode = Mode.NormalControl;
 
@@ -105,7 +110,7 @@ namespace Arena {
         /// Entity will be removed when it is disposed.
         /// </summary>
         public void Register(params IGameEntity[] entity) {
-            _entities.AddRange(entity);
+            _entitiesToAdd.AddRange(entity);
         }
 
         private readonly List<PostProcessingEffect> _postProcessorEffects = new List<PostProcessingEffect>();
@@ -124,12 +129,15 @@ namespace Arena {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "big_square.tmx"), _world,
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world,
                                        _player.Position);
             _player.LoadContent(Content);
+            _healthStatus.LoadContent(Content);
 
             Enemy.LoadContent(Content);
             Shot.LoadContent(Content);
+            HealthPickup.LoadContent(Content);
+            
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
             _background = Content.Load<Texture2D>("Background/pineNeedles");
@@ -176,6 +184,9 @@ namespace Arena {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
+
+            _entities.AddRange(_entitiesToAdd);
+            _entitiesToAdd.Clear();
             
             KeyboardState keyboardState = Keyboard.GetState();
             if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) )
@@ -248,14 +259,14 @@ namespace Arena {
 
                 _player.Update(gameTime);
 
-                foreach ( IGameEntity ent in _entities ) {
-                    ent.Update(gameTime);
-                }
-
                 Constants.Update(helper);
 
                 TrackPlayer();
-            } 
+
+                foreach ( IGameEntity ent in _entities ) {
+                    ent.Update(gameTime);
+                }
+            }
 
             _camera.Update(gameTime);
 
@@ -423,6 +434,10 @@ namespace Arena {
                 _spriteBatch.End();
             }
 
+            _spriteBatch.Begin();
+            _healthStatus.Draw(_spriteBatch, _camera);
+            _spriteBatch.End();
+
             DebugDraw();
 
             base.Draw(gameTime);
@@ -475,10 +490,11 @@ namespace Arena {
             foreach ( IGameEntity ent in Instance._entities ) {
                 Transform entTransform = IdentityTransform(ent.Position);
                 PolygonShape entShape = ent.Shape;
-                Collision.CollidePolygons(ref manifold, shape, ref transform, entShape, ref entTransform);
-
-                if ( manifold.PointCount > 0 ) {
-                    return true;
+                if ( entShape != null ) {
+                    Collision.CollidePolygons(ref manifold, shape, ref transform, entShape, ref entTransform);
+                    if ( manifold.PointCount > 0 ) {
+                        return true;
+                    }
                 }
             }
 

@@ -138,8 +138,14 @@ namespace Arena.Entity {
                 }
             };
 
+            HealthCapacity = 650;
+            Health = HealthCapacity;
+
             _world = world;
         }
+
+        public int Health { get; private set; }
+        public int HealthCapacity { get; private set; }
 
         private Texture2D _image;
         private Texture2D Image {
@@ -956,10 +962,15 @@ namespace Arena.Entity {
             _body.LinearVelocity = new Vector2(0);
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
             _timeUntilRegainControl = (long) (Constants[PlayerKnockbackTime] * 1000);
+            Health -= 10;
         }
 
         public void Dispose() {
             throw new NotImplementedException();
+        }
+
+        public void Pickup(HealthPickup healthPickup) {
+            Health += 10;
         }
     }
 

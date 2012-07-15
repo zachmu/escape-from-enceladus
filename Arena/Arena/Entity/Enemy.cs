@@ -79,6 +79,8 @@ namespace Arena.Entity {
             };
 
             _body.OnSeparation += (a, b) => UpdateStanding();
+
+            _world = world;
         }
 
         public static void LoadContent(ContentManager content) {
@@ -123,6 +125,7 @@ namespace Arena.Entity {
 
         public void Dispose() {
             _disposed = true;
+            Arena.Instance.Register(new HealthPickup(_body.Position, _world));
             _body.Dispose();
         }
     }
