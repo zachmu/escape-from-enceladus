@@ -737,6 +737,10 @@ namespace Arena.Entity {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
                 _shots.Add(new Shot(position, _world, shotDirection));
+            } else if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder)) {
+                Direction shotDirection;
+                var position = GetShotParameters(out shotDirection);
+                _shots.Add(new Missile(position, _world, shotDirection));
             }
         }
 

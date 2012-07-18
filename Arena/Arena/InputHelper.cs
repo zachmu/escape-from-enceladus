@@ -115,13 +115,6 @@ namespace Arena {
                     _currentGamePadState.IsButtonUp(button));
         }
 
-        // Important angles in our aiming system (sorry, tau)
-        private static float PiOverTwo = (float) (Math.PI / 2);
-        private static float PiOverEight = (float) (Math.PI / 8f);
-        private static float ThreePiOverEight = (float) (3f * (Math.PI / 8f));
-        private static float FivePiOverEight = (float) (5f * (Math.PI / 8f));
-        private static float SevenPiOverEight = (float) (7f * (Math.PI / 8f));
-
         /// <summary>
         /// Returns the octant being aimed in by the stick given, 
         /// or null if there is no aimed direction.
@@ -137,40 +130,40 @@ namespace Arena {
 
             // doing it by quadrant is easier
             // QI
-            if ( angle >= 0 && angle <= PiOverTwo ) {
-                if ( angle <= PiOverEight ) {
+            if ( angle >= 0 && angle <= Entity.Projectile.PiOverTwo ) {
+                if ( angle <= Entity.Projectile.PiOverEight ) {
                     return Direction.Right;
-                } else if ( angle <= ThreePiOverEight ) {
+                } else if ( angle <= Entity.Projectile.ThreePiOverEight ) {
                     return Direction.UpRight;
                 } else {
                     return Direction.Up;
                 }
             }
             // QII
-            if ( angle >= 0 && angle >= PiOverTwo ) {
-                if ( angle <= FivePiOverEight ) {
+            if ( angle >= 0 && angle >= Entity.Projectile.PiOverTwo ) {
+                if ( angle <= Entity.Projectile.FivePiOverEight ) {
                     return Direction.Up;
-                } else if ( angle <= SevenPiOverEight ) {
+                } else if ( angle <= Entity.Projectile.SevenPiOverEight ) {
                     return Direction.UpLeft;
                 } else {
                     return Direction.Left;
                 }
             }
             // QIII
-            if ( angle <= 0 && angle <= -PiOverTwo ) {
-                if ( angle >= -FivePiOverEight ) {
+            if ( angle <= 0 && angle <= -Entity.Projectile.PiOverTwo ) {
+                if ( angle >= -Entity.Projectile.FivePiOverEight ) {
                     return Direction.Down;
-                } else if ( angle >= -SevenPiOverEight ) {
+                } else if ( angle >= -Entity.Projectile.SevenPiOverEight ) {
                     return Direction.DownLeft;
                 } else {
                     return Direction.Left;
                 }
             }
             // QIV
-            if ( angle <= 0 && angle >= -PiOverTwo ) {
-                if ( angle >= -PiOverEight ) {
+            if ( angle <= 0 && angle >= -Entity.Projectile.PiOverTwo ) {
+                if ( angle >= -Entity.Projectile.PiOverEight ) {
                     return Direction.Right;
-                } else if ( angle >= -ThreePiOverEight ) {
+                } else if ( angle >= -Entity.Projectile.ThreePiOverEight ) {
                     return Direction.DownRight;
                 } else {
                     return Direction.Down;

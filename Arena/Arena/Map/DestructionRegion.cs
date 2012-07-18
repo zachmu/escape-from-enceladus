@@ -14,6 +14,7 @@ namespace Arena.Map {
     /// </summary>
     public class DestructionRegion : Region {
 
+        public class Weapon ; 
         public string WeaponName { get; private set; }
 
         public DestructionRegion(World world, Vector2 topLeft, Vector2 bottomRight, string weaponName) {
@@ -30,6 +31,5 @@ namespace Arena.Map {
         public bool Contains(Tile t) {
             return Contains(t.Position + new Vector2(TileLevel.TileSize / 2f));
         }
-
     }
 }

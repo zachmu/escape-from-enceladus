@@ -143,7 +143,7 @@ namespace Arena.Map {
             _body.Dispose();
         }
 
-        public void HitBy(Shot shot) {
+        public void HitBy(Projectile shot) {
             switch (_state) {
                 case State.Closed:
                     _state = State.Opening;

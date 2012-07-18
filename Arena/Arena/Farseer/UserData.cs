@@ -16,7 +16,7 @@ namespace Arena.Farseer {
         public bool IsDestructibleRegion { get; private set; }
 
         public Enemy Enemy { get; private set; }
-        public Shot Projectile { get; private set; }
+        public Projectile Projectile { get; private set; }
         public Door Door { get; private set; }
         public DestructionRegion Destruction { get; private set; }
 
@@ -28,8 +28,8 @@ namespace Arena.Farseer {
             return new UserData() { IsEnemy = true, Enemy = enemy };
         }
 
-        public static UserData NewProjectile(Shot shot) {
-            return new UserData() { IsProjectile = true, Projectile = shot };
+        public static UserData NewProjectile(Projectile projectile) {
+            return new UserData() { IsProjectile = true, Projectile = projectile };
         }
 
         public static UserData NewPlayer() {

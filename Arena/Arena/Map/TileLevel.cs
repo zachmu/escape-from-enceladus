@@ -378,7 +378,7 @@ namespace Arena.Map {
         /// <summary>
         /// Notify the level that a tile was hit by a shot
         /// </summary>
-        public void TileHitBy(Tile hitTile, Shot shot) {
+        public void TileHitBy(Tile hitTile, Projectile shot) {
             if ( IsTileDestroyedBy(hitTile, shot) ) {
                 DestroyTile(hitTile);
             }
@@ -387,7 +387,7 @@ namespace Arena.Map {
         /// <summary>
         /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
         /// </summary>
-        private bool IsTileDestroyedBy(Tile hitTile, Shot shot) {
+        private bool IsTileDestroyedBy(Tile hitTile, Projectile shot) {
             return _destructionRegions.Any(region => region.Contains(hitTile));
         }
 

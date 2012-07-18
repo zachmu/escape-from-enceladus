@@ -136,6 +136,7 @@ namespace Arena {
 
             Enemy.LoadContent(Content);
             Shot.LoadContent(Content);
+            Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);
             
             Constants.font = Content.Load<SpriteFont>("DebugFont");
@@ -279,6 +280,7 @@ namespace Arena {
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
+
             base.Update(gameTime);
         }
 

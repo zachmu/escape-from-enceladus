@@ -113,6 +113,8 @@
     <Compile Include="Entity\Entity.cs" />
     <Compile Include="Entity\GameEntity.cs" />
     <Compile Include="Entity\HealthPickup.cs" />
+    <Compile Include="Entity\Missile.cs" />
+    <Compile Include="Entity\Projectile.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />
     <Compile Include="Entity\Enemy.cs" />
     <Compile Include="Farseer\FarseerExtensions.cs" />

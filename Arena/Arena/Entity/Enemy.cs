@@ -119,7 +119,7 @@ namespace Arena.Entity {
             }
         }
 
-        public void HitBy(Shot shot) {
+        public void HitBy(Projectile shot) {
             _hitPoints--;
         }
 
