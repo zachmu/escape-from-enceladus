@@ -18,8 +18,12 @@ namespace Arena.Entity {
         private const float Height = .25f;
         private static Texture2D Image { get; set; }
 
+        // Destruction flags
+        public const int Flags = 2;
+
         public Missile(Vector2 position, World world, Direction direction)
             : base(position, world, direction, Speed, Width, Height) {
+            _body.Rotation = GetSpriteRotation();
         }
 
         public static void LoadContent(ContentManager content) {
@@ -37,5 +41,12 @@ namespace Arena.Entity {
             }
         }
 
+        public override int DestructionFlags {
+            get { return Flags; }
+        }
+
+        public override int BaseDamage {
+            get { return 5; }
+        }
     }
 }

@@ -25,6 +25,9 @@ namespace Arena.Entity {
         private static Texture2D Image { get; set; }
         private static SoundEffect Sfx { get; set; }
 
+        // Destruction flags
+        public const int Flags = 1;
+
         public Shot(Vector2 position, World world, Direction direction)
             : base(position, world, direction, Speed, .01f, .01f) {
             Sfx.Play();
@@ -42,6 +45,14 @@ namespace Arena.Entity {
                 ConvertUnits.ToDisplayUnits(ref position, out displayUnits);
                 spriteBatch.Draw(Image, displayUnits, Color.White);
             }
+        }
+
+        public override int DestructionFlags {
+            get { return Flags; }
+        }
+
+        public override int BaseDamage {
+            get { return 1; }
         }
     }
 }

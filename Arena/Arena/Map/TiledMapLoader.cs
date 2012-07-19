@@ -262,7 +262,6 @@ namespace Arena.Map {
                                     switch ( st.NodeType ) {
                                         case XmlNodeType.Element:
                                             if ( st.Name == "property" ) {
-                                                st.Read();
                                                 if ( st.GetAttribute("name") != null ) {
                                                     result.Properties.Add(st.GetAttribute("name"),
                                                                           st.GetAttribute("value"));

@@ -36,7 +36,11 @@
   <object x="1480" y="641" width="114" height="186"/>
  </objectgroup>
  <objectgroup name="Destruction" width="100" height="100">
-  <object name="any" x="1420" y="326" width="228" height="112"/>
+  <object x="1420" y="326" width="228" height="112">
+   <properties>
+    <property name="missile" value=""/>
+   </properties>
+  </object>
   <object x="668" y="469" width="592" height="85"/>
  </objectgroup>
 </map>

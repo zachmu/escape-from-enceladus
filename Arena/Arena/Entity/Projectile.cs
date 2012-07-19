@@ -168,5 +168,15 @@ namespace Arena.Entity {
             _disposed = true;
             _body.Dispose();
         }
+
+        /// <summary>
+        /// Returns the destruction flags for this projectile.
+        /// </summary>
+        public abstract int DestructionFlags { get; }
+
+        /// <summary>
+        /// Returns the base damage for this projectile.
+        /// </summary>
+        public abstract int BaseDamage { get; }
     }
 }

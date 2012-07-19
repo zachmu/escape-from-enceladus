@@ -34,9 +34,13 @@ Content\Character\run0005.xnb
 Content\Character\run0006.xnb
 Content\Character\run0007.xnb
 Content\Character\run0008.xnb
-Content\DebugFont.xnb
 Content\enemy.xnb
 Content\door.xnb
+Content\DebugFont.xnb
+Content\Effect1.xnb
+Content\laser.xnb
+Content\land.xnb
+Content\Wave.xnb
 Content\Character\WalkRight\walk_right0000.xnb
 Content\Character\WalkRight\walk_right0001.xnb
 Content\Character\WalkRight\walk_right0002.xnb
@@ -179,6 +183,8 @@ Content\Character\StandAim\StandAim0013.xnb
 Content\Character\Crouch\Crouch0000.xnb
 Content\Character\Crouch\Crouch0001.xnb
 Content\Character\Crouch\Crouch0002.xnb
+Content\SonarHit.xnb
+Content\SonarPing.xnb
 Content\Character\Crouch\Crouch0003.xnb
 Content\Character\Crouch\Crouch0004.xnb
 Content\Character\Crouch\Crouch0005.xnb
@@ -421,12 +427,6 @@ Content\Character\GunRun\GunRunUp\GunRunUp0007.xnb
 Content\Character\GunRun\GunRunUp\GunRunUp0008.xnb
 Content\Character\GunRun\GunRunUp\GunRunUp0009.xnb
 Content\Character\GunRun\GunRunUp\GunRunUp0010.xnb
-Content\Effect1.xnb
-Content\Wave.xnb
-Content\laser.xnb
-Content\land.xnb
-Content\SonarHit.xnb
-Content\SonarPing.xnb
 Content\Overlay\HealthBar\Bar0000.xnb
 Content\Overlay\HealthBar\EmptyContainer0000.xnb
 Content\Overlay\HealthBar\FullContainer0000.xnb

@@ -89,11 +89,24 @@ namespace Arena.Map {
             foreach ( Object region in regions.Objects ) {
                 Vector2 topLeft = new Vector2(region.X, region.Y);
                 Vector2 bottomRight = new Vector2(region.X + region.Width, region.Y + region.Height);
-                Vector2 simTopLeft;
-                Vector2 simBottomRight;
-                ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
-                ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
-                _destructionRegions.Add(new DestructionRegion(_world, simTopLeft, simBottomRight, "any"));
+                Vector2 simTopLeft = ConvertUnits.ToSimUnits(topLeft);
+                Vector2 simBottomRight = ConvertUnits.ToSimUnits(bottomRight);
+
+                int flags = 0;
+                foreach ( String weaponName in region.Properties.Keys ) {
+                    switch ( weaponName ) {
+                        case "shot":
+                            flags |= Shot.Flags;
+                            break;
+                        case "missile":
+                            flags |= Missile.Flags;
+                            break;
+                    }
+                }
+                if ( flags == 0 ) {
+                    flags = 0xFFFF;
+                }
+                _destructionRegions.Add(new DestructionRegion(_world, simTopLeft, simBottomRight, flags));
             }
         }
 
@@ -387,8 +400,8 @@ namespace Arena.Map {
         /// <summary>
         /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
         /// </summary>
-        private bool IsTileDestroyedBy(Tile hitTile, Projectile shot) {
-            return _destructionRegions.Any(region => region.Contains(hitTile));
+        private bool IsTileDestroyedBy(Tile hitTile, Projectile projectile) {
+            return _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(projectile));
         }
 
         /// <summary>
