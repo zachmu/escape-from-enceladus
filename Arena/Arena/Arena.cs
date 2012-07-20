@@ -252,6 +252,8 @@ namespace Arena {
                     }
                 }
 
+                Constants.Update(helper);
+
                 _tileLevel.Update(gameTime);
 
                 _world.Gravity = new Vector2(0, Constants.Get(Gravity));
@@ -259,8 +261,6 @@ namespace Arena {
                 _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
 
                 _player.Update(gameTime);
-
-                Constants.Update(helper);
 
                 TrackPlayer();
 

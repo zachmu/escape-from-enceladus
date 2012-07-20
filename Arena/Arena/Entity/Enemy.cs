@@ -67,7 +67,7 @@ namespace Arena.Entity {
                     }
                 }
 
-                if (b.Body.GetUserData().IsTerrain) {
+                if ( b.Body.GetUserData().IsTerrain ) {
                     UpdateStanding();
                 }
 
@@ -105,7 +105,7 @@ namespace Arena.Entity {
         }
 
         public void Update(GameTime gameTime) {
-            if (_hitPoints <= 0) {
+            if ( _hitPoints <= 0 ) {
                 Dispose();
                 return;
             }
@@ -120,13 +120,13 @@ namespace Arena.Entity {
         }
 
         public void HitBy(Projectile shot) {
-            _hitPoints--;
+            _hitPoints -= shot.BaseDamage;
         }
 
         public void Dispose() {
             _disposed = true;
             Arena.Instance.Register(new HealthPickup(_body.Position, _world));
-            Arena.Instance.Register(new ShatterAnimation(_world, _image, _body.Position, 8));
+            Arena.Instance.Register(new ShatterAnimation(_world, _image, null, _body.Position, 8));
             _body.Dispose();
         }
     }

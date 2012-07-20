@@ -185,7 +185,7 @@ namespace Arena.Map {
             if ( blockLayerTile != null ) {
                 blockLayerTile.Disposed = true;
                 blockLayerTile.TimeUntilReappear = tile.TimeUntilReappear;
-                blockLayerTile.Age = 0;
+                blockLayerTile.Age = 1;
             }
 
             _destroyedTiles.Add(tile);
@@ -280,6 +280,8 @@ namespace Arena.Map {
         /// </summary>
         public Vector2 Position { get; private set; }
 
+        const float HalfTileSize = TileLevel.TileSize / 2;
+
         // TODO: share this data
         public readonly IList<Body> Bodies = new List<Body>();
         public ISet<Tile> Group;
@@ -354,7 +356,7 @@ namespace Arena.Map {
             if ( Disposed )
                 return;
 
-            Age = 0;
+            Age = 1;
             TimeUntilReappear = BlockTimeUntilReappear;
             DestroyAttachedBodies();
             Disposed = true;
@@ -380,14 +382,13 @@ namespace Arena.Map {
 
             Console.WriteLine("Reviving tile at {0}", Position);
             Disposed = false;
-            TileLevel.CurrentLevel.ReviveTile(this);
-            
             Layer.ReviveTile(this);
         }
 
         public void Draw(SpriteBatch batch) {
             if ( Disposed )
                 return;
+
             var tileCorner = new Vector2(Position.X, Position.Y);
             Vector2 displayPosition = new Vector2();
             ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
@@ -400,26 +401,34 @@ namespace Arena.Map {
             batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White * alpha);
         }
 
+        /// <summary>
+        /// Intended for external callers only, this returns the tile info 
+        /// for the block layer corresponding to this tile.
+        /// </summary>
+        public TileInfo GetBlockTextureInfo() {
+            int tileInfoIndex = Layer._map.Layers["Blocks"].GetTile(this.Position)._tileInfoIndex;
+            return Layer._map.GetTileInfoCache()[tileInfoIndex];
+        }
+
         public void Update(GameTime gameTime) {
             if ( Disposed ) {
                 TimeUntilReappear -= gameTime.ElapsedGameTime.Milliseconds;
-                if ( TimeUntilReappear <= 0 && !EntitiesOverlapping()) {
-                    Age = 1;
-                    Revive();
+                if ( TimeUntilReappear <= 0 ) {                    
+                    TileLevel.CurrentLevel.ReviveTile(this);
                 }
             } else {
                 Age += gameTime.ElapsedGameTime.Milliseconds;
             }
         }
 
-        private bool EntitiesOverlapping() {
-            Vertices vertices = PolygonTools.CreateRectangle(.5f, .5f);
+        public bool EntitiesOverlapping() {
+            Vertices vertices = PolygonTools.CreateRectangle(HalfTileSize, HalfTileSize);
             PolygonShape shape = new PolygonShape(vertices, 0f);
 
-            return Arena.EntitiesOverlapping(shape, Arena.IdentityTransform(Position));
+            return Arena.EntitiesOverlapping(shape, Position + new Vector2(HalfTileSize, HalfTileSize));
         }
 
-        private const int BlockTimeUntilReappear = 2000;
+        private const int BlockTimeUntilReappear = 5000;
         public const int FadeInTime = 1000;        
     }
 
@@ -471,7 +480,6 @@ namespace Arena.Map {
             int miny = Math.Max(visibleWorld.Top - 1, 0);
             int maxx = Math.Min(visibleWorld.Right + 2, Width);
             int maxy = Math.Min(visibleWorld.Bottom + 2, Height);
-
 
             if ( this.X + this.Width > minx && this.X < maxx )
                 if ( this.Y + this.Height > miny && this.Y < maxy ) {

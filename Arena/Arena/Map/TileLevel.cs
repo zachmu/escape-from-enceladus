@@ -173,8 +173,16 @@ namespace Arena.Map {
                 foreach ( Tile t in _tilesToRemove ) {
                     t.Dispose();
                     affectedTiles.Add(t);
+                    TileInfo tileInfo = t.GetBlockTextureInfo();
+                    Arena.Instance.Register(new ShatterAnimation(_world, tileInfo.Texture, tileInfo.Rectangle,
+                                                                 t.Position + new Vector2(TileSize / 2, TileSize / 2),
+                                                                 4, 20f));
                 }
-                foreach ( Tile t in _tilesToAdd ) {
+
+                // When recreating tiles, we need to be careful not to recreate 
+                // any on top of the player or any other entities.
+                List<Tile> safeToAdd = _tilesToAdd.Where(tile => !tile.EntitiesOverlapping()).ToList();
+                foreach ( Tile t in safeToAdd ) {
                     t.Revive();
                     FindAdjacentSolidTiles(t).ForEach(tile => tile.DestroyAttachedBodies());
                     affectedTiles.Add(t);
@@ -182,7 +190,7 @@ namespace Arena.Map {
                 RecreateEdges(affectedTiles);
 
                 _tilesToRemove.Clear();
-                _tilesToAdd.Clear();           
+                safeToAdd.ForEach(tile => _tilesToAdd.Remove(tile));
             }
 
             _doors.ForEach(door => door.Update(gameTime));
@@ -444,6 +452,8 @@ namespace Arena.Map {
                     Console.WriteLine("Creating edges took {0} ticks", watch.ElapsedTicks);
                 }
             }
+
+            Player.Instance.NotifyTerrainChange();
         }
 
         /// <summary>

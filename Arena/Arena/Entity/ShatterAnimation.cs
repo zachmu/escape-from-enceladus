@@ -18,6 +18,7 @@ namespace Arena.Entity {
 
         private bool _disposed;
         private readonly Texture2D _image;
+        private readonly Rectangle _originRectangle;
         private Piece[] _pieces;
 
         private readonly int _displayPieceWidth;
@@ -25,34 +26,45 @@ namespace Arena.Entity {
 
         private int _timeAlive = 0;
         private const int TimeToLiveMs = 2000;
+        private float _maxVelocity = 0;
+
+        private const float defaultMaxVelocity = 5;
 
         private static Random random = new Random();
 
         /// <summary>
         /// Begins a new destruction animation for the image given.
         /// </summary>
+        /// <param name="world"> </param>
         /// <param name="image">The image to destroy</param>
+        /// <param name="originRectangle">The rectangle on the texture to split up and draw</param>
         /// <param name="position">The center of the original image</param>
         /// <param name="numPieces">The number of horizontal and vertical pieces to split the image into</param>
-        public ShatterAnimation(World world, Texture2D image, Vector2 position, int numPieces) {
+        public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces, float maxVelocity = defaultMaxVelocity) {
             _image = image;
+            _originRectangle = originRectangle ?? new Rectangle(0, 0, 0, 0);
             _pieces = new Piece[numPieces * numPieces];
+            _maxVelocity = maxVelocity;
 
-            _displayPieceWidth = _image.Width / numPieces;
+            int width = originRectangle == null ? _image.Width : originRectangle.Value.Width;
+            int height = originRectangle == null ? _image.Height : originRectangle.Value.Height;
+
+            _displayPieceWidth = width / numPieces;
             float simPieceWidth = ConvertUnits.ToSimUnits(_displayPieceWidth);
-            _displayPieceHeight = _image.Height / numPieces;
+            _displayPieceHeight = height / numPieces;
             float simPieceHeight = ConvertUnits.ToSimUnits(_displayPieceHeight);
 
-            int displayWidthOffset = _image.Width / 2;
+            int displayWidthOffset = width / 2;
             float simWidthOffset = ConvertUnits.ToSimUnits(displayWidthOffset);
-            int displayHeightOffset = _image.Height / 2;
+            int displayHeightOffset = height / 2;
             float simHeightOffset = ConvertUnits.ToSimUnits(displayHeightOffset);
+
             int i = 0;
             for ( int x = 0; x < numPieces; x++ ) {
                 for ( int y = 0; y < numPieces; y++ ) {
                     float posx = position.X - simWidthOffset + (x * simPieceWidth + simPieceWidth / 2);
                     float posy = position.Y - simHeightOffset + (y * simPieceHeight + simPieceHeight / 2);
-                    Body body = BodyFactory.CreateRectangle(world, simPieceWidth, simPieceHeight, 1);
+                    Body body = BodyFactory.CreateRectangle(world, simPieceWidth - .01f, simPieceHeight - .01f, 1);
                     body.CollidesWith = Arena.TerrainCategory;
                     body.CollisionCategories = Arena.TerrainCategory;
 //                    body.CollidesWith = Category.All;
@@ -68,7 +80,7 @@ namespace Arena.Entity {
         }
 
         private void AssignRandomDirection(Body body) {
-            double linearVelocity = random.NextDouble() * 5;
+            double linearVelocity = random.NextDouble() * _maxVelocity;
             double direction = random.NextDouble() * Math.PI * 2;
             Vector2 velocity = new Vector2((float) (Math.Cos(direction) * linearVelocity), 
                 (float) (Math.Sin(direction) * linearVelocity));
@@ -108,6 +120,8 @@ namespace Arena.Entity {
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             float alpha = 1f - (float) _timeAlive / (float) TimeToLiveMs;
+            int xOffset = _originRectangle.X;
+            int yOffset = _originRectangle.Y;
             foreach ( Piece piece in _pieces ) {
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(piece.Body.Position);
                 Vector2 origin = new Vector2(_displayPieceWidth / 2, _displayPieceHeight / 2);
@@ -115,7 +129,7 @@ namespace Arena.Entity {
                 spriteBatch.Draw(_image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, _displayPieceWidth,
                                                _displayPieceHeight),
-                                 new Rectangle(_displayPieceWidth * piece.X, _displayPieceHeight * piece.Y, _displayPieceWidth,
+                                 new Rectangle(xOffset + _displayPieceWidth * piece.X, yOffset + _displayPieceHeight * piece.Y, _displayPieceWidth,
                                                _displayPieceHeight),
                                  Color.White * alpha, rotation, origin,
                                  SpriteEffects.None, 0);

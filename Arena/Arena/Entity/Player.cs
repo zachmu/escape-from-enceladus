@@ -73,9 +73,6 @@ namespace Arena.Entity {
         /// </summary>
         private long _timeUntilRegainControl;
 
-        private readonly Fixture _ceilingSensor;
-        private int _ceilingSensorContantCount = 0;
-
         public bool Disposed {
             get { return false; }
         }
@@ -99,8 +96,8 @@ namespace Arena.Entity {
         public Player(Vector2 position, World world) {
             _instance = this;
 
-//            _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
-            _body = BodyFactory.CreateRoundedRectangle(world, CharacterWidth, CharacterHeight, .02f, .02f, 0, 10);
+            _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
+//            _body = BodyFactory.CreateRoundedRectangle(world, CharacterWidth, CharacterHeight, .02f, .02f, 0, 10);
             _body.IsStatic = false;
             _body.Restitution = 0.0f;
             _body.Friction = 0f;
@@ -117,26 +114,6 @@ namespace Arena.Entity {
                 return true;
             };
             _body.OnSeparation += (a, b) => UpdateStanding();
-
-            var rectangle = PolygonTools.CreateRectangle(CharacterWidth / 2f - .1f, .01f);
-            Vertices translated = new Vertices(rectangle.Count);
-            translated = new Vertices(rectangle.Count);
-            translated.AddRange(rectangle.Select(v => v - new Vector2(0, CharacterHeight / 2f)));
-            Shape ceilingSensorShape = new PolygonShape(translated, 0);
-            _ceilingSensor = _body.CreateFixture(ceilingSensorShape);
-            _ceilingSensor.IsSensor = true;
-            _ceilingSensor.UserData = "ceiling";
-            _ceilingSensor.OnCollision += (a, b, contact) => {
-                if ( !b.IsSensor ) {
-                    _ceilingSensorContantCount++;
-                }
-                return true;
-            };
-            _ceilingSensor.OnSeparation += (a, b) => {
-                if ( _ceilingSensorContantCount > 0 ) {
-                    _ceilingSensorContantCount--;
-                }
-            };
 
             HealthCapacity = 650;
             Health = HealthCapacity;
@@ -170,10 +147,6 @@ namespace Arena.Entity {
             }
         }
 
-        private bool IsTouchingCeiling() {
-            return _ceilingSensorContantCount > 0;
-        }
-
         public void LoadContent(ContentManager content) {
             LoadAnimations(content);
             LandSound = content.Load<SoundEffect>("land");
@@ -205,6 +178,11 @@ namespace Arena.Entity {
 
             if ( _timeUntilRegainControl > 0 ) {
                 _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
+            }
+
+            if ( _terrainChanged ) {
+                UpdateStanding();
+                _terrainChanged = false;
             }
 
             HandleJump(gameTime);
@@ -940,7 +918,7 @@ namespace Arena.Entity {
                     _jumpInitiated = true;
                 }
             } else if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.A) ) {
-                if ( IsTouchingCeiling() ) {
+                if ( IsTouchingCeiling ) {
                     _airBoostTime = -1;
                 } else if ( _timeSinceJump >= JumpDelayMs 
                     && _airBoostTime >= 0 
@@ -975,6 +953,17 @@ namespace Arena.Entity {
 
         public void Pickup(HealthPickup healthPickup) {
             Health += 10;
+        }
+
+        private bool _terrainChanged;
+        /// <summary>
+        /// Unfortunately, we can't rely on Box2d to propertly notify us when we hit or 
+        /// leave the ground or ceiling when bodies are being created or destroyed.  
+        /// This method allows knowledgable callers to suggest updating the standing info 
+        /// on the next update cycle.
+        /// </summary>
+        public void NotifyTerrainChange() {
+            _terrainChanged = true;
         }
     }
 

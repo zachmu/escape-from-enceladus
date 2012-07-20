@@ -16,23 +16,33 @@ namespace Arena.Entity {
             set { _isStanding = value; }
         }
 
+        protected bool _isTouchingCeiling;
+        protected virtual bool IsTouchingCeiling {
+            get { return _isTouchingCeiling; }
+            set { _isTouchingCeiling = value; }
+        }
+
         protected void UpdateStanding() {
+            bool isStanding = false;
+            bool isTouchingCeiling = false;
+
             var contactEdge = _body.ContactList;
             while ( contactEdge != null ) {
-                if ( contactEdge.Contact.FixtureA.Body.GetUserData().IsTerrain
-                     || contactEdge.Contact.FixtureB.Body.GetUserData().IsTerrain ) {
+                if ( contactEdge.Contact.IsTouching() && contactEdge.Other.GetUserData().IsTerrain ) {
                     FixedArray2<Vector2> points;
                     Vector2 normal;
                     contactEdge.Contact.GetWorldManifold(out normal, out points);
                     if ( normal.Y < -.8 ) {
-                        IsStanding = true;
-                        return;
+                        isStanding = true;
+                    } else if (normal.Y > .8) {
+                        isTouchingCeiling = true;
                     }
                 }
                 contactEdge = contactEdge.Next;
             }
 
-            IsStanding = false;
+            IsStanding = isStanding;
+            IsTouchingCeiling = isTouchingCeiling;
         }
     }
 }
