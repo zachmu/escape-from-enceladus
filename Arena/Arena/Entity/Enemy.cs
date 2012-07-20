@@ -126,6 +126,7 @@ namespace Arena.Entity {
         public void Dispose() {
             _disposed = true;
             Arena.Instance.Register(new HealthPickup(_body.Position, _world));
+            Arena.Instance.Register(new ShatterAnimation(_world, _image, _body.Position, 8));
             _body.Dispose();
         }
     }

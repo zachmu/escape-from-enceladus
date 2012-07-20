@@ -339,7 +339,7 @@ namespace Arena.Map {
                 factoryWatch.Start();
                 //Console.WriteLine("Creating chain with vertices {0}", string.Join(",", chain));
                 Body loopShape = BodyFactory.CreateLoopShape(_world, chain);
-                loopShape.Friction = 0;
+                loopShape.Friction = .5f;
                 loopShape.IsStatic = true;
                 loopShape.CollidesWith = Category.All;
                 loopShape.CollisionCategories = Arena.TerrainCategory;

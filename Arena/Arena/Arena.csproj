@@ -110,6 +110,7 @@
     <Compile Include="Arena.cs" />
     <Compile Include="Camera2D.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Entity\ShatterAnimation.cs" />
     <Compile Include="Entity\Entity.cs" />
     <Compile Include="Entity\GameEntity.cs" />
     <Compile Include="Entity\HealthPickup.cs" />
