@@ -25,9 +25,18 @@ namespace Arena.Entity {
 
         #region Constants
 
-        private const float CharacterHeight = 1.9f;
-        private const float CharacterWidth = .6f;
+        private const float CharacterStandingHeight = 1.9f;
+        private const float CharacterStandingWidth = .6f;
+        private const float CharacterJumpingHeight = 1.7f;
+        private const float CharacterJumpingWidth = .6f;
+        private const float CharacterDuckingHeight = 1.3f;
+        private const float CharacterDuckingWidth = .6f;
+        private const float CharacterScootingHeight = .8f;
+        private const float CharacterScootingWidth = 1.7f;
 
+        private float Height { get; set; }
+        private float Width { get; set; }
+        
         public const int ImageWidth = 64;
         public const int ImageHeight = 128;
 
@@ -98,8 +107,20 @@ namespace Arena.Entity {
         public Player(Vector2 position, World world) {
             _instance = this;
 
-            _body = BodyFactory.CreateRectangle(world, CharacterWidth, CharacterHeight, 10f);
+            _body = BodyFactory.CreateRectangle(world, CharacterStandingWidth, CharacterStandingHeight, 10f);
+            Height = CharacterStandingHeight;
+            Width = CharacterStandingWidth;
 //            _body = BodyFactory.CreateRoundedRectangle(world, CharacterWidth, CharacterHeight, .02f, .02f, 0, 10);
+            ConfigureBody(position);
+            //ResizeBody();
+
+            HealthCapacity = 650;
+            Health = HealthCapacity;
+
+            _world = world;
+        }
+
+        private void ConfigureBody(Vector2 position) {
             _body.IsStatic = false;
             _body.Restitution = 0.0f;
             _body.Friction = 0f;
@@ -116,11 +137,6 @@ namespace Arena.Entity {
                 return true;
             };
             _body.OnSeparation += (a, b) => UpdateStanding();
-
-            HealthCapacity = 650;
-            Health = HealthCapacity;
-
-            _world = world;
         }
 
         public int Health { get; private set; }
@@ -144,6 +160,9 @@ namespace Arena.Entity {
             set {
                 if ( value && !_isStanding ) {
                     LandSound.Play();
+                    ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                } else if (!value && _isStanding) {
+                    ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
                 }
                 _isStanding = value;
             }
@@ -158,7 +177,7 @@ namespace Arena.Entity {
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             // Draw origin is character's feet
             Vector2 position = _body.Position;
-            position.Y += CharacterHeight / 2;
+            position.Y += Height / 2;
                         
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             spriteBatch.Draw(Image,
@@ -229,7 +248,7 @@ namespace Arena.Entity {
             }
 
             // Left stick always overrides right stick, unless just running or ducking
-            if ( !_isDucking && (!IsStanding || IsStandingStill()) ) {
+            if ( !IsDucking && (!IsStanding || IsStandingStill()) ) {
                 Direction? leftStickDirection =
                     InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
                 if ( leftStickDirection != null && leftStickDirection != Direction.Left &&
@@ -279,35 +298,35 @@ namespace Arena.Entity {
             Vector2 position = _body.Position;
             switch ( shotDirection ) {
                 case Direction.Right:
-                    position += new Vector2(CharacterWidth / 2f, -CharacterHeight / 4.5f);
+                    position += new Vector2(CharacterStandingWidth / 2f, -CharacterStandingHeight / 4.5f);
                     break;
                 case Direction.Left:
-                    position += new Vector2(-(CharacterWidth / 2f), -CharacterHeight / 4.5f);
+                    position += new Vector2(-(CharacterStandingWidth / 2f), -CharacterStandingHeight / 4.5f);
                     break;
                 case Direction.Down:
-                    position += new Vector2(0, CharacterHeight / 2 - .1f);
+                    position += new Vector2(0, CharacterStandingHeight / 2 - .1f);
                     break;
                 case Direction.Up:
-                    position += new Vector2(0, -CharacterHeight / 2 + .1f);
+                    position += new Vector2(0, -CharacterStandingHeight / 2 + .1f);
                     break;
                 case Direction.UpLeft:
-                    position += new Vector2(-CharacterWidth / 2 + .1f, -CharacterHeight / 2 + .1f);
+                    position += new Vector2(-CharacterStandingWidth / 2 + .1f, -CharacterStandingHeight / 2 + .1f);
                     break;
                 case Direction.UpRight:
-                    position += new Vector2(CharacterWidth / 2 - .1f, -CharacterHeight / 2 + .1f);
+                    position += new Vector2(CharacterStandingWidth / 2 - .1f, -CharacterStandingHeight / 2 + .1f);
                     break;
                 case Direction.DownLeft:
-                    position += new Vector2(-CharacterWidth / 2 + .1f, -CharacterHeight / 4 + -.1f);
+                    position += new Vector2(-CharacterStandingWidth / 2 + .1f, -CharacterStandingHeight / 4 + -.1f);
                     break;
                 case Direction.DownRight:
-                    position += new Vector2(CharacterWidth / 2 - .1f, -CharacterHeight / 4 + -.1f);
+                    position += new Vector2(CharacterStandingWidth / 2 - .1f, -CharacterStandingHeight / 4 + -.1f);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("shotDirection");
             }
 
-            if ( _isDucking && shotDirection != Direction.Down ) {
-                position += new Vector2(0, CharacterHeight / 3f);
+            if ( IsDucking && shotDirection != Direction.Down ) {
+                position += new Vector2(0, CharacterStandingHeight / 3f);
             }
             return position;
         }
@@ -316,7 +335,7 @@ namespace Arena.Entity {
         /// Handles movement input, both on the ground and in the air.
         /// </summary>
         private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
-            _isDucking = false;
+            IsDucking = false;
             if ( _timeUntilRegainControl <= 0 ) {
                 if ( IsStanding ) {
                     Direction? leftStickDirection = InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
@@ -357,7 +376,7 @@ namespace Arena.Entity {
                                 }
                                 break;
                             case Direction.Down:
-                                _isDucking = true;
+                                IsDucking = true;
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                                 break;
                             case Direction.Up:
@@ -372,6 +391,7 @@ namespace Arena.Entity {
                     }
 
                 } else {
+                    IsDucking = false;
                     // in the air
                     if ( movementInput.X < 0 ) {
                         if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
@@ -429,18 +449,37 @@ namespace Arena.Entity {
         }
 
         private void HandleScooter(GameTime gameTime) {
-            if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftTrigger) && _isDucking ) {
+            if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftTrigger) && IsDucking ) {
                 _scooterInitiated = true;
-            } else if ( _scooterInitiated || _isScooting
+                ResizeBody(CharacterStandingWidth, CharacterStandingWidth);
+            } else if ( _scooterInitiated || IsScooting
                 && InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftTrigger)) {
-                _isScooting = true;
+                IsScooting = true;
             } else {
-                if ( _isScooting || _isScooting ) {
+                if ( IsScooting || IsScooting ) {
                     _endScooterInitiated = true;
+                    ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
                 }
-                _isScooting = false;
+                IsScooting = false;
                 _scooterInitiated = false;
-            } 
+            }
+        }
+
+        /// <summary>
+        /// Resizes the body while keeping the lower edge in the same position and the X position constant.
+        /// </summary>
+        private void ResizeBody(float width, float height) {
+            Vector2 position = _body.Position;
+            PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
+//            _body.Dispose();
+//            _body = BodyFactory.CreateRectangle(_world, width, height, 1f);
+            float oldYPos = position.Y + Height / 2;
+            float newYPos = position.Y + height / 2;
+            shape.SetAsBox(width / 2, height / 2);
+            _body.Position = new Vector2(position.X, position.Y + (oldYPos - newYPos));
+            //ConfigureBody(new Vector2(position.X, position.Y - (oldYPos - newYPos)));
+            Height = height;
+            Width = width;
         }
 
         private void HandleSonar(GameTime gameTime) {
@@ -496,8 +535,44 @@ namespace Arena.Entity {
         private bool _jumpInitiated;
         private bool _scooterInitiated;
         private bool _endScooterInitiated;
+
         private bool _isDucking;
+        public bool IsDucking {
+            get { return _isDucking; }
+            private set {
+                if ( value && !_isDucking && !IsScooting ) {
+                    ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
+                } else if ( !value && _isDucking ) {
+                    if ( IsScooting ) {
+                        ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
+                    } else if ( IsStanding ) {
+                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                    } else {
+                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
+                    }
+                }
+                _isDucking = value;
+            }
+        }
+
         private bool _isScooting;
+        public bool IsScooting {
+            get { return _isScooting; }
+            set {
+                if ( value && !_isScooting ) {
+                    ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
+                } else if ( !value && _isScooting ) {
+                    if ( IsDucking ) {
+                        ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
+                    } else if ( IsStanding ) {
+                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                    } else {
+                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
+                    }
+                }
+                _isScooting = value;
+            }
+        }
 
         private Animation _currentAnimation = Animation.AimStraight;
         private Animation _prevAnimation = Animation.AimStraight;
@@ -636,7 +711,7 @@ namespace Arena.Entity {
         }
 
         private bool IsScooterAnimation() {
-            return _scooterInitiated || _endScooterInitiated || _isScooting;
+            return _scooterInitiated || _endScooterInitiated || IsScooting;
         }
 
         private void AnimateScooter() {
@@ -883,7 +958,7 @@ namespace Arena.Entity {
         }
 
         private void AnimateStandingStill(Direction aimDirection) {
-            if ( !_isDucking ) {
+            if ( !IsDucking ) {
                 switch ( aimDirection ) {
                     case Direction.Left:
                     case Direction.Right:
