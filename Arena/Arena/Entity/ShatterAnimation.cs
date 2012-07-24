@@ -67,8 +67,6 @@ namespace Arena.Entity {
                     Body body = BodyFactory.CreateRectangle(world, simPieceWidth - .01f, simPieceHeight - .01f, 1);
                     body.CollidesWith = Arena.TerrainCategory;
                     body.CollisionCategories = Arena.TerrainCategory;
-//                    body.CollidesWith = Category.All;
-//                    body.CollisionCategories = Category.All;
                     body.Position = new Vector2(posx, posy);
                     body.IsStatic = false;
                     body.FixedRotation = false;

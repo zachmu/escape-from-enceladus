@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Arena.Farseer;
 using Arena.Weapon;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -27,11 +28,11 @@ namespace Arena.Entity {
 
         private const float CharacterStandingHeight = 1.9f;
         private const float CharacterStandingWidth = .6f;
-        private const float CharacterJumpingHeight = 1.7f;
+        private const float CharacterJumpingHeight = 1.6f;
         private const float CharacterJumpingWidth = .6f;
         private const float CharacterDuckingHeight = 1.3f;
         private const float CharacterDuckingWidth = .6f;
-        private const float CharacterScootingHeight = .8f;
+        private const float CharacterScootingHeight = .5f;
         private const float CharacterScootingWidth = 1.7f;
 
         private float Height { get; set; }
@@ -52,6 +53,7 @@ namespace Arena.Entity {
         private const string PlayerJogSpeedMultiplier = "Player jog speed multiplier";
         private const string PlayerWalkSpeedMultiplier = "Player walk speed multiplier";
         private const string PlayerWheelSpinSpeedMultiplier = "Player wheel spin speed multipler";
+        private const string PlayerScooterOffset = "Player scooter offset";
 
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 2.5f, Keys.I));
@@ -65,6 +67,7 @@ namespace Arena.Entity {
             Constants.Register(new Constant(PlayerJogSpeedMultiplier, .37f, Keys.B, .01f));
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
             Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, 1.0f, Keys.M));
+            Constants.Register(new Constant(PlayerScooterOffset, 0f, Keys.P));            
         }
 
         #endregion
@@ -110,9 +113,7 @@ namespace Arena.Entity {
             _body = BodyFactory.CreateRectangle(world, CharacterStandingWidth, CharacterStandingHeight, 10f);
             Height = CharacterStandingHeight;
             Width = CharacterStandingWidth;
-//            _body = BodyFactory.CreateRoundedRectangle(world, CharacterWidth, CharacterHeight, .02f, .02f, 0, 10);
             ConfigureBody(position);
-            //ResizeBody();
 
             HealthCapacity = 650;
             Health = HealthCapacity;
@@ -155,19 +156,6 @@ namespace Arena.Entity {
 
         private SoundEffect LandSound { get; set; }
 
-        protected override bool IsStanding {
-            get { return _isStanding; }
-            set {
-                if ( value && !_isStanding ) {
-                    LandSound.Play();
-                    ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
-                } else if (!value && _isStanding) {
-                    ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
-                }
-                _isStanding = value;
-            }
-        }
-
         public void LoadContent(ContentManager content) {
             LoadAnimations(content);
             LandSound = content.Load<SoundEffect>("land");
@@ -190,6 +178,92 @@ namespace Arena.Entity {
         }
 
         /// <summary>
+        /// Whether or not the character is standing on solid ground.
+        /// </summary>
+        protected override bool IsStanding {
+            get { return _isStanding; }
+            set {
+                if ( value && !_isStanding ) {
+                    LandSound.Play();
+                    ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                } else if ( !value && _isStanding ) {
+                    ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
+                    _isDucking = false;
+                    _isScooting = false;
+                }
+                _isStanding = value;
+            }
+        }
+
+        /// <summary>
+        /// Whether or not the character is ducking, on the ground
+        /// </summary>
+        private bool _isDucking;
+        public bool IsDucking {
+            get { return _isDucking; }
+            private set {
+                if ( value && !_isDucking && !IsScooting ) {
+                    ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
+                } else if ( !value && _isDucking ) {
+                    if ( IsScooting ) {
+                        ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
+                    } else if ( IsStanding ) {
+                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                    } else {
+                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
+                    }
+                }
+                _isDucking = value;
+            }
+        }
+
+        /// <summary>
+        /// Whether or not the character is scooting
+        /// </summary>
+        private bool _isScooting;
+        public bool IsScooting {
+            get { return _isScooting; }
+            set {
+                if ( value && !_isScooting ) {
+                    // Make sure we're not touching a vertical wall
+                    var contactEdge = _body.ContactList;
+                    FixedArray2<Vector2> points;
+                    while ( contactEdge != null ) {
+                        if ( contactEdge.Contact.IsTouching() &&
+                             (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor) ) {
+                            Vector2 normal;
+                            contactEdge.Contact.GetWorldManifold(out normal, out points);
+                            Body bodyA = contactEdge.Contact.FixtureA.Body;
+                            if ( _facingDirection == Direction.Right
+                                 && ((bodyA == _body && normal.X > .8)
+                                     || (bodyA != _body && normal.X < -.8)) ) {
+                                _body.Position -= new Vector2(.03f, 0);
+                                break;
+                            } else if ( _facingDirection == Direction.Left
+                                        && ((bodyA == _body && normal.X < -.8)
+                                            || (bodyA != _body && normal.X > .8)) ) {
+                                _body.Position += new Vector2(.03f, 0);
+                                break;
+                            }
+                        }
+                        contactEdge = contactEdge.Next;
+                    }
+
+                    ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
+                } else if ( !value && _isScooting ) {
+                    if ( IsDucking ) {
+                        ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
+                    } else if ( IsStanding ) {
+                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                    } else {
+                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
+                    }
+                }
+                _isScooting = value;
+            }
+        }
+
+        /// <summary>
         /// Updates the player for elapsed game time.
         /// </summary>
         public void Update(GameTime gameTime) {
@@ -205,6 +279,8 @@ namespace Arena.Entity {
                 UpdateStanding();
                 _terrainChanged = false;
             }
+
+            ProcessResize();
 
             HandleJump(gameTime);
 
@@ -335,7 +411,8 @@ namespace Arena.Entity {
         /// Handles movement input, both on the ground and in the air.
         /// </summary>
         private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
-            IsDucking = false;
+            bool isDucking = false;
+
             if ( _timeUntilRegainControl <= 0 ) {
                 if ( IsStanding ) {
                     Direction? leftStickDirection = InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
@@ -376,7 +453,7 @@ namespace Arena.Entity {
                                 }
                                 break;
                             case Direction.Down:
-                                IsDucking = true;
+                                isDucking = true;
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
                                 break;
                             case Direction.Up:
@@ -391,7 +468,6 @@ namespace Arena.Entity {
                     }
 
                 } else {
-                    IsDucking = false;
                     // in the air
                     if ( movementInput.X < 0 ) {
                         if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
@@ -416,6 +492,8 @@ namespace Arena.Entity {
                     }
                 }
             }
+
+            IsDucking = isDucking;
         }
 
         private float GetVelocityDelta(float acceleration, GameTime gameTime) {
@@ -448,38 +526,90 @@ namespace Arena.Entity {
 
         }
 
+        /// <summary>
+        /// Handles the scooter device controls
+        /// </summary>
         private void HandleScooter(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftTrigger) && IsDucking ) {
                 _scooterInitiated = true;
-                ResizeBody(CharacterStandingWidth, CharacterStandingWidth);
-            } else if ( _scooterInitiated || IsScooting
-                && InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftTrigger)) {
                 IsScooting = true;
-            } else {
-                if ( IsScooting || IsScooting ) {
-                    _endScooterInitiated = true;
-                    ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
-                }
-                IsScooting = false;
-                _scooterInitiated = false;
+            } else if ( !InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftTrigger) ) {
+                EndScooter();
             }
         }
+
+        /// <summary>
+        /// Makes sure that the scooter isn't boxed in to the left and right, and forces a stand if so.
+        /// </summary>
+        private void EnsureRoomForScooter() {
+            var contactEdge = _body.ContactList;
+            bool boxedLeft = false;
+            bool boxedRight = false;
+            FixedArray2<Vector2> points;
+            while ( contactEdge != null ) {
+                if ( contactEdge.Contact.IsTouching() &&
+                     (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor) ) {
+                    Vector2 normal;
+                    contactEdge.Contact.GetWorldManifold(out normal, out points);
+                    if ( normal.X < -.8 ) {
+                        boxedRight = true;
+                    } else if ( normal.X > .8 ) {
+                        boxedLeft = true;
+                    }
+                }
+                contactEdge = contactEdge.Next;
+            }
+
+            if ( boxedLeft && boxedRight ) {
+                EndScooter();
+            }
+        }
+
+        /// <summary>
+        /// Ends the scooter session
+        /// </summary>
+        private void EndScooter() {
+            if ( IsScooting ) {
+                _endScooterInitiated = true;
+            }
+            IsScooting = false;
+            _scooterInitiated = false;
+        }
+
+
+        private bool _resizeRequested;
+        private float NextHeight;
+        private float NextWidth;
 
         /// <summary>
         /// Resizes the body while keeping the lower edge in the same position and the X position constant.
         /// </summary>
         private void ResizeBody(float width, float height) {
-            Vector2 position = _body.Position;
-            PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
-//            _body.Dispose();
-//            _body = BodyFactory.CreateRectangle(_world, width, height, 1f);
-            float oldYPos = position.Y + Height / 2;
-            float newYPos = position.Y + height / 2;
-            shape.SetAsBox(width / 2, height / 2);
-            _body.Position = new Vector2(position.X, position.Y + (oldYPos - newYPos));
-            //ConfigureBody(new Vector2(position.X, position.Y - (oldYPos - newYPos)));
-            Height = height;
-            Width = width;
+            NextHeight = height;
+            NextWidth = width;
+            _resizeRequested = true;
+            //ProcessResize();
+        }
+
+        /// <summary>
+        /// When we change the size of the body, we sometimes need to nudge it a bit first to prevent 
+        /// Box2D allowing it to pass through terrain edges, then allow a world step to take place 
+        /// before processing the resize.
+        /// </summary>
+        private void ProcessResize() {
+            if ( _resizeRequested ) {
+                Vector2 position = _body.Position;
+                PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
+//                _body.Dispose();
+                float oldYPos = position.Y + Height / 2;
+                float newYPos = position.Y + NextHeight / 2;
+//                _body = BodyFactory.CreateRectangle(_world, NextWidth, NextHeight, 1);
+                _body.Position = new Vector2(position.X, position.Y + (oldYPos - newYPos));
+                shape.SetAsBox(NextWidth / 2, NextHeight / 2);
+                Height = NextHeight;
+                Width = NextWidth;
+                _resizeRequested = false;
+            }
         }
 
         private void HandleSonar(GameTime gameTime) {
@@ -535,44 +665,6 @@ namespace Arena.Entity {
         private bool _jumpInitiated;
         private bool _scooterInitiated;
         private bool _endScooterInitiated;
-
-        private bool _isDucking;
-        public bool IsDucking {
-            get { return _isDucking; }
-            private set {
-                if ( value && !_isDucking && !IsScooting ) {
-                    ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
-                } else if ( !value && _isDucking ) {
-                    if ( IsScooting ) {
-                        ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
-                    } else if ( IsStanding ) {
-                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
-                    } else {
-                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
-                    }
-                }
-                _isDucking = value;
-            }
-        }
-
-        private bool _isScooting;
-        public bool IsScooting {
-            get { return _isScooting; }
-            set {
-                if ( value && !_isScooting ) {
-                    ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
-                } else if ( !value && _isScooting ) {
-                    if ( IsDucking ) {
-                        ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
-                    } else if ( IsStanding ) {
-                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
-                    } else {
-                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
-                    }
-                }
-                _isScooting = value;
-            }
-        }
 
         private Animation _currentAnimation = Animation.AimStraight;
         private Animation _prevAnimation = Animation.AimStraight;
@@ -714,30 +806,53 @@ namespace Arena.Entity {
             return _scooterInitiated || _endScooterInitiated || IsScooting;
         }
 
+        /// <summary>
+        /// Animating the scooter is a bit unusual since we nudge the 
+        /// player body in one direction or the other to make up for differences 
+        /// in x offsets of the animations.
+        /// </summary>
         private void AnimateScooter() {
             if ( _scooterInitiated ) {
+                float offset = Constants[PlayerScooterOffset];
                 _currentAnimation = Animation.LieDown;
                 if ( _currentAnimation != _prevAnimation ) {
                     _animationFrame = 0;
+//                    if ( _facingDirection == Direction.Right ) {
+//                        _body.Position += new Vector2(offset, 0);
+//                    } else if ( _facingDirection == Direction.Left ) {
+//                        _body.Position -= new Vector2(offset, 0);
+//                    }
                 }
-                Image = _scooterAnimation[_animationFrame++];
-                if ( _animationFrame >= ScootFrame ) {
-                    _scooterInitiated = false;
+
+                if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
+                    Image = _scooterAnimation[_animationFrame++];
+                    if ( _animationFrame >= ScootFrame ) {
+                        _scooterInitiated = false;
+                        EnsureRoomForScooter();
+                    }
                 }
             } else if ( _endScooterInitiated ) {
                 _currentAnimation = Animation.StandUp;
-                if ( _currentAnimation != _prevAnimation ) {
+                if ( _currentAnimation != _prevAnimation && _animationFrame > ScootFrame ) {
                     _animationFrame = ScootFrame;
                 }
-                Image = _scooterAnimation[_animationFrame--];
-                if ( _animationFrame < 0 ) {
-                    _animationFrame = 0;
-                    _endScooterInitiated = false;
+                if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
+                    float offset = Constants[PlayerScooterOffset];
+                    Image = _scooterAnimation[_animationFrame--];
+                    if ( _animationFrame < 0 ) {
+                        _animationFrame = 0;
+                        _endScooterInitiated = false;
+//                        if ( _facingDirection == Direction.Right ) {
+//                            _body.Position -= new Vector2(offset, 0);
+//                        } else if ( _facingDirection == Direction.Left ) {
+//                            _body.Position += new Vector2(offset, 0);
+//                        }
+                    }
                 }
             } else {
                 _currentAnimation = Animation.Scoot;
                 float speed = Math.Abs(_body.LinearVelocity.X) * Constants[PlayerWheelSpinSpeedMultiplier];
-                if ( _timeSinceLastAnimationUpdate > 1000 / NumScootFrames / speed 
+                if ( _timeSinceLastAnimationUpdate > 1000 / NumScootFrames / speed
                     || _prevAnimation != _currentAnimation ) {
                     _animationFrame %= NumScooterFrames;
                     if ( _animationFrame == 0 ) {
@@ -1120,6 +1235,7 @@ namespace Arena.Entity {
         }
 
         private bool _terrainChanged;
+
         /// <summary>
         /// Unfortunately, we can't rely on Box2d to propertly notify us when we hit or 
         /// leave the ground or ceiling when bodies are being created or destroyed.  
