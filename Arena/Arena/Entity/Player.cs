@@ -241,11 +241,17 @@ namespace Arena.Entity {
         /// Whether or not the character is scooting
         /// </summary>
         private bool _isScooting;
+        /// <summary>
+        /// Whether to abort the scooting attempt due to space.
+        /// </summary>
+        private bool _abortScooting;
 
         public bool IsScooting {
             get { return _isScooting && !_resizeRequested; }
             set {
                 if ( value && !_isScooting ) {
+
+                    _abortScooting = false;
 
                     // Make sure we're not too close to a vertical wall
                     float nudgeAmount = ScooterNudge;
@@ -254,7 +260,6 @@ namespace Arena.Entity {
                     if ( _facingDirection == Direction.Left ) {
                         nudgeAmount = -nudgeAmount;
                         forwardClearance = -forwardClearance;
-                        //positionCorrectionAmount = -positionCorrectionAmount;
                     }
 
                     Vector2 startRay = new Vector2(_body.Position.X,
@@ -262,6 +267,8 @@ namespace Arena.Entity {
                                                    CharacterScootingHeight / 2 - .02f);
                     Vector2 endRay = startRay + new Vector2(forwardClearance, 0);
                     bool roomAhead = true;
+                    bool roomBehind = true;
+
                     _world.RayCast((fixture, point, normal, fraction) => {
                         if ( fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain ) {
                             roomAhead = false;
@@ -273,8 +280,12 @@ namespace Arena.Entity {
                                    startRay, endRay);
 
                     if ( !roomAhead ) {
-                        endRay = startRay - new Vector2(nudgeAmount + .02f, 0);
-                        bool roomBehind = true;
+                        if ( _facingDirection == Direction.Right ) {
+                            endRay = startRay - new Vector2(Width / 2f + positionCorrectionAmount, 0);
+                        } else {
+                            endRay = startRay + new Vector2(Width / 2f + positionCorrectionAmount, 0);
+                        }
+
                         _world.RayCast((fixture, point, normal, fraction) => {
                             if ( fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain ) {
                                 roomBehind = false;
@@ -285,7 +296,7 @@ namespace Arena.Entity {
                                        startRay, endRay);
                     }
 
-                    if ( !roomAhead ) {
+                    if ( !roomAhead && roomBehind ) {
                         if ( _facingDirection == Direction.Right ) {
                             _body.Position += new Vector2(-positionCorrectionAmount, 0);
                         } else {
@@ -293,7 +304,12 @@ namespace Arena.Entity {
                         }
                     }
 
-                    ResizeBody(CharacterScootingWidth, CharacterScootingHeight, new Vector2(nudgeAmount, 0));
+                    if ( roomBehind ) {
+                        ResizeBody(CharacterScootingWidth, CharacterScootingHeight, new Vector2(nudgeAmount, 0));                        
+                    } else {
+                        _abortScooting = true;
+                    }
+
                 } else if ( !value && _isScooting ) {
                     if ( IsDucking ) {
                         ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
@@ -303,6 +319,7 @@ namespace Arena.Entity {
                         ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
                     }
                 }
+
                 _isScooting = value;
             }
         }
@@ -582,33 +599,6 @@ namespace Arena.Entity {
         }
 
         /// <summary>
-        /// Makes sure that the scooter isn't boxed in to the left and right, and forces a stand if so.
-        /// </summary>
-        private void EnsureRoomForScooter() {
-            var contactEdge = _body.ContactList;
-            bool boxedLeft = false;
-            bool boxedRight = false;
-            FixedArray2<Vector2> points;
-            while ( contactEdge != null ) {
-                if ( contactEdge.Contact.IsTouching() &&
-                     (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor) ) {
-                    Vector2 normal;
-                    contactEdge.Contact.GetWorldManifold(out normal, out points);
-                    if ( normal.X < -.8 ) {
-                        boxedRight = true;
-                    } else if ( normal.X > .8 ) {
-                        boxedLeft = true;
-                    }
-                }
-                contactEdge = contactEdge.Next;
-            }
-
-            if ( boxedLeft && boxedRight ) {
-                EndScooter();
-            }
-        }
-
-        /// <summary>
         /// Ends the scooter session
         /// </summary>
         private void EndScooter() {
@@ -879,7 +869,9 @@ namespace Arena.Entity {
                     Image = _scooterAnimation[_animationFrame++];
                     if ( _animationFrame >= ScootFrame ) {
                         _scooterInitiated = false;
-                        EnsureRoomForScooter();
+                        if ( _abortScooting ) {
+                            EndScooter();
+                        }
                     }
                 }
             } else if ( _endScooterInitiated ) {
@@ -893,10 +885,12 @@ namespace Arena.Entity {
                         _animationFrame = 0;
                         _endScooterInitiated = false;
 
-                        if ( _facingDirection == Direction.Right ) {
-                            ResizeBody(Width, Height, new Vector2(-ScooterNudge, 0));
-                        } else if ( _facingDirection == Direction.Left ) {
-                            ResizeBody(Width, Height, new Vector2(ScooterNudge, 0));
+                        if ( !_abortScooting ) {
+                            if ( _facingDirection == Direction.Right ) {
+                                ResizeBody(Width, Height, new Vector2(-ScooterNudge, 0));
+                            } else if ( _facingDirection == Direction.Left ) {
+                                ResizeBody(Width, Height, new Vector2(ScooterNudge, 0));
+                            }
                         }
                     }
                 }
