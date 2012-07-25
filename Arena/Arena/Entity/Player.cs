@@ -34,6 +34,9 @@ namespace Arena.Entity {
         private const float CharacterDuckingWidth = .6f;
         private const float CharacterScootingHeight = .5f;
         private const float CharacterScootingWidth = 1.7f;
+        private const float ScooterNudge = CharacterScootingWidth / 2 - CharacterDuckingWidth / 2;
+        // How far ahead of the standing / ducking position the world must be clear to scoot freely.
+        private const float ScooterForwardClearance = ScooterNudge + CharacterScootingWidth / 2;
 
         private float Height { get; set; }
         private float Width { get; set; }
@@ -107,14 +110,26 @@ namespace Arena.Entity {
             }
         }
 
+        //private Fixture _scooterSensor;
+
         public Player(Vector2 position, World world) {
             _instance = this;
 
             _body = BodyFactory.CreateRectangle(world, CharacterStandingWidth, CharacterStandingHeight, 10f);
+            _body.FixtureList.First().UserData = "body";
             Height = CharacterStandingHeight;
             Width = CharacterStandingWidth;
             ConfigureBody(position);
-
+//            _scooterSensor = FixtureFactory.AttachRectangle(CharacterScootingWidth, CharacterScootingHeight, 0f,
+//                                                            new Vector2(0,
+//                                                                //CharacterScootingWidth / 2 - CharacterStandingWidth / 2,
+//                                                                CharacterDuckingHeight / 2 -
+//                                                                CharacterScootingHeight / 2 - .02f), _body);
+//            _scooterSensor.IsSensor = true;
+//            _scooterSensor.CollidesWith = Arena.TerrainCategory;
+//            _scooterSensor.CollisionCategories = Category.All;
+//            _scooterSensor.UserData = "scooter";
+            
             HealthCapacity = 650;
             Health = HealthCapacity;
 
@@ -199,9 +214,14 @@ namespace Arena.Entity {
         /// Whether or not the character is ducking, on the ground
         /// </summary>
         private bool _isDucking;
-        public bool IsDucking {
+        public bool     IsDucking {
             get { return _isDucking; }
             private set {
+                if ( IsScooting ) {
+                    _isDucking = true;
+                    return;
+                }
+
                 if ( value && !_isDucking && !IsScooting ) {
                     ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
                 } else if ( !value && _isDucking ) {
@@ -221,35 +241,59 @@ namespace Arena.Entity {
         /// Whether or not the character is scooting
         /// </summary>
         private bool _isScooting;
+
         public bool IsScooting {
-            get { return _isScooting; }
+            get { return _isScooting && !_resizeRequested; }
             set {
                 if ( value && !_isScooting ) {
-                    // Make sure we're not touching a vertical wall
-                    var contactEdge = _body.ContactList;
-                    FixedArray2<Vector2> points;
-                    while ( contactEdge != null ) {
-                        if ( contactEdge.Contact.IsTouching() &&
-                             (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor) ) {
-                            Vector2 normal;
-                            contactEdge.Contact.GetWorldManifold(out normal, out points);
-                            Body bodyA = contactEdge.Contact.FixtureA.Body;
-                            if ( _facingDirection == Direction.Right
-                                 && ((bodyA == _body && normal.X > .8)
-                                     || (bodyA != _body && normal.X < -.8)) ) {
-                                _body.Position -= new Vector2(.03f, 0);
-                                break;
-                            } else if ( _facingDirection == Direction.Left
-                                        && ((bodyA == _body && normal.X < -.8)
-                                            || (bodyA != _body && normal.X > .8)) ) {
-                                _body.Position += new Vector2(.03f, 0);
-                                break;
-                            }
-                        }
-                        contactEdge = contactEdge.Next;
+
+                    // Make sure we're not too close to a vertical wall
+                    float nudgeAmount = ScooterNudge;
+                    float positionCorrectionAmount = 0;
+                    float forwardClearance = ScooterForwardClearance;
+                    if ( _facingDirection == Direction.Left ) {
+                        nudgeAmount = -nudgeAmount;
+                        forwardClearance = -forwardClearance;
+                        //positionCorrectionAmount = -positionCorrectionAmount;
                     }
 
-                    ResizeBody(CharacterScootingWidth, CharacterScootingHeight);
+                    Vector2 startRay = new Vector2(_body.Position.X,
+                                                   _body.Position.Y + CharacterDuckingHeight / 2 -
+                                                   CharacterScootingHeight / 2 - .02f);
+                    Vector2 endRay = startRay + new Vector2(forwardClearance, 0);
+                    bool roomAhead = true;
+                    _world.RayCast((fixture, point, normal, fraction) => {
+                        if ( fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain ) {
+                            roomAhead = false;
+                            positionCorrectionAmount = ScooterForwardClearance - Math.Abs(point.X - _body.Position.X) + .01f;
+                            return 0;
+                        }
+                        return -1;
+                    },
+                                   startRay, endRay);
+
+                    if ( !roomAhead ) {
+                        endRay = startRay - new Vector2(nudgeAmount + .02f, 0);
+                        bool roomBehind = true;
+                        _world.RayCast((fixture, point, normal, fraction) => {
+                            if ( fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain ) {
+                                roomBehind = false;
+                                return 0;
+                            }
+                            return -1;
+                        },
+                                       startRay, endRay);
+                    }
+
+                    if ( !roomAhead ) {
+                        if ( _facingDirection == Direction.Right ) {
+                            _body.Position += new Vector2(-positionCorrectionAmount, 0);
+                        } else {
+                            _body.Position += new Vector2(positionCorrectionAmount, 0);                            
+                        }
+                    }
+
+                    ResizeBody(CharacterScootingWidth, CharacterScootingHeight, new Vector2(nudgeAmount, 0));
                 } else if ( !value && _isScooting ) {
                     if ( IsDucking ) {
                         ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
@@ -523,7 +567,6 @@ namespace Arena.Entity {
                 _airBoostTime = -1;
                 _jumpInitiated = false;
             }
-
         }
 
         /// <summary>
@@ -578,38 +621,51 @@ namespace Arena.Entity {
 
 
         private bool _resizeRequested;
-        private float NextHeight;
-        private float NextWidth;
+        private float _nextHeight;
+        private float _nextWidth;
+        private Vector2 _positionCorrection;
 
         /// <summary>
         /// Resizes the body while keeping the lower edge in the same position and the X position constant.
         /// </summary>
-        private void ResizeBody(float width, float height) {
-            NextHeight = height;
-            NextWidth = width;
+        private void ResizeBody(float width, float height, Vector2 positionalCorrection = new Vector2()) {
+            _nextHeight = height;
+            _nextWidth = width;
+            _positionCorrection = positionalCorrection;
             _resizeRequested = true;
-            //ProcessResize();
         }
 
         /// <summary>
         /// When we change the size of the body, we sometimes need to nudge it a bit first to prevent 
         /// Box2D allowing it to pass through terrain edges, then allow a world step to take place 
-        /// before processing the resize.
+        /// before processing the resize.  This function gets called by Update() to change the shape of
+        /// the body one step *after* any corrections were performed.
         /// </summary>
         private void ProcessResize() {
             if ( _resizeRequested ) {
-                Vector2 position = _body.Position;
+
+                float halfHeight = _nextHeight / 2;
+                var newPosition = GetNewBodyPosition(halfHeight);
+                _body.Position = newPosition;
+
                 PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
-//                _body.Dispose();
-                float oldYPos = position.Y + Height / 2;
-                float newYPos = position.Y + NextHeight / 2;
-//                _body = BodyFactory.CreateRectangle(_world, NextWidth, NextHeight, 1);
-                _body.Position = new Vector2(position.X, position.Y + (oldYPos - newYPos));
-                shape.SetAsBox(NextWidth / 2, NextHeight / 2);
-                Height = NextHeight;
-                Width = NextWidth;
+                shape.SetAsBox(_nextWidth / 2, halfHeight);
+                Height = _nextHeight;
+                Width = _nextWidth;
                 _resizeRequested = false;
             }
+        }
+
+        /// <summary>
+        /// Returns the position of the body if the half-height is as indicated, 
+        /// holding the Y position of the bottom edge constant.
+        /// </summary>
+        private Vector2 GetNewBodyPosition(float halfHeight) {
+            Vector2 position = _body.Position;
+            float oldYPos = position.Y + Height / 2;
+            float newYPos = position.Y + halfHeight;
+            Vector2 newPosition = new Vector2(position.X, position.Y + (oldYPos - newYPos)) + _positionCorrection;
+            return newPosition;
         }
 
         private void HandleSonar(GameTime gameTime) {
@@ -784,7 +840,7 @@ namespace Arena.Entity {
             var aimDirection = GetAimDirection();
 
             if ( IsStanding && !_jumpInitiated ) {
-                if ( IsScooterAnimation() ) {
+                if ( IsScootingAnimation() ) {
                     AnimateScooter();
                 } else if ( IsStandingStill() ) {
                     AnimateStandingStill(aimDirection);
@@ -802,8 +858,8 @@ namespace Arena.Entity {
             _prevAnimation = _currentAnimation;
         }
 
-        private bool IsScooterAnimation() {
-            return _scooterInitiated || _endScooterInitiated || IsScooting;
+        private bool IsScootingAnimation() {
+            return IsScooting || _endScooterInitiated;
         }
 
         /// <summary>
@@ -813,15 +869,10 @@ namespace Arena.Entity {
         /// </summary>
         private void AnimateScooter() {
             if ( _scooterInitiated ) {
-                float offset = Constants[PlayerScooterOffset];
+                _endScooterInitiated = false;
                 _currentAnimation = Animation.LieDown;
                 if ( _currentAnimation != _prevAnimation ) {
                     _animationFrame = 0;
-//                    if ( _facingDirection == Direction.Right ) {
-//                        _body.Position += new Vector2(offset, 0);
-//                    } else if ( _facingDirection == Direction.Left ) {
-//                        _body.Position -= new Vector2(offset, 0);
-//                    }
                 }
 
                 if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
@@ -837,16 +888,16 @@ namespace Arena.Entity {
                     _animationFrame = ScootFrame;
                 }
                 if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
-                    float offset = Constants[PlayerScooterOffset];
                     Image = _scooterAnimation[_animationFrame--];
                     if ( _animationFrame < 0 ) {
                         _animationFrame = 0;
                         _endScooterInitiated = false;
-//                        if ( _facingDirection == Direction.Right ) {
-//                            _body.Position -= new Vector2(offset, 0);
-//                        } else if ( _facingDirection == Direction.Left ) {
-//                            _body.Position += new Vector2(offset, 0);
-//                        }
+
+                        if ( _facingDirection == Direction.Right ) {
+                            ResizeBody(Width, Height, new Vector2(-ScooterNudge, 0));
+                        } else if ( _facingDirection == Direction.Left ) {
+                            ResizeBody(Width, Height, new Vector2(ScooterNudge, 0));
+                        }
                     }
                 }
             } else {
