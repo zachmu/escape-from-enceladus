@@ -29,7 +29,7 @@ namespace Arena.Entity {
         public const int Flags = 1;
 
         public Shot(Vector2 position, World world, Direction direction)
-            : base(position, world, direction, Speed, .01f, .01f) {
+            : base(position, world, direction, Speed, .05f, .05f) {
             Sfx.Play();
         }
 

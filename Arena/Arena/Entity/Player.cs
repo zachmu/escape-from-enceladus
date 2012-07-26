@@ -34,7 +34,7 @@ namespace Arena.Entity {
         private const float CharacterDuckingWidth = .6f;
         private const float CharacterScootingHeight = .5f;
         private const float CharacterScootingWidth = 1.7f;
-        private const float ScooterNudge = CharacterScootingWidth / 2 - CharacterDuckingWidth / 2;
+        private const float ScooterNudge = CharacterScootingWidth / 2 - CharacterDuckingWidth / 2 + .03f;
         // How far ahead of the standing / ducking position the world must be clear to scoot freely.
         private const float ScooterForwardClearance = ScooterNudge + CharacterScootingWidth / 2;
 
@@ -104,7 +104,7 @@ namespace Arena.Entity {
 
         public Transform Transform {
             get {
-                Transform t = new Transform();
+                Transform t;
                 _body.GetTransform(out t);
                 return t;
             }
@@ -241,11 +241,15 @@ namespace Arena.Entity {
         /// Whether or not the character is scooting
         /// </summary>
         private bool _isScooting;
+
         /// <summary>
         /// Whether to abort the scooting attempt due to space.
         /// </summary>
         private bool _abortScooting;
 
+        /// <summary>
+        /// Whether or not the character is scooting
+        /// </summary>
         public bool IsScooting {
             get { return _isScooting && !_resizeRequested; }
             set {
@@ -272,7 +276,8 @@ namespace Arena.Entity {
                     _world.RayCast((fixture, point, normal, fraction) => {
                         if ( fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain ) {
                             roomAhead = false;
-                            positionCorrectionAmount = ScooterForwardClearance - Math.Abs(point.X - _body.Position.X) + .01f;
+                            positionCorrectionAmount = ScooterForwardClearance - Math.Abs(point.X - _body.Position.X) +
+                                                       .01f;
                             return 0;
                         }
                         return -1;
@@ -296,21 +301,49 @@ namespace Arena.Entity {
                                        startRay, endRay);
                     }
 
+                    Vector2 nudge = new Vector2(nudgeAmount, 0);
                     if ( !roomAhead && roomBehind ) {
                         if ( _facingDirection == Direction.Right ) {
-                            _body.Position += new Vector2(-positionCorrectionAmount, 0);
+                            nudge += new Vector2(-positionCorrectionAmount, 0);
                         } else {
-                            _body.Position += new Vector2(positionCorrectionAmount, 0);                            
+                            nudge += new Vector2(positionCorrectionAmount, 0);
                         }
                     }
 
                     if ( roomBehind ) {
-                        ResizeBody(CharacterScootingWidth, CharacterScootingHeight, new Vector2(nudgeAmount, 0));                        
+                        ResizeBody(CharacterScootingWidth, CharacterScootingHeight, nudge);
                     } else {
                         _abortScooting = true;
                     }
 
-                } else if ( !value && _isScooting ) {
+                } else if ( !value && _isScooting && !_abortScooting) {
+                    // Make sure that we have room overhead to stand back up.  Check both overhead corners.
+                    List<Vector2> startRays = new List<Vector2>();
+                    if ( _facingDirection == Direction.Right ) {
+                        startRays.Add(_body.Position + new Vector2(-ScooterNudge - CharacterDuckingWidth / 2f, 0));
+                        startRays.Add(_body.Position + new Vector2(-ScooterNudge + CharacterDuckingWidth / 2f, 0));
+                    } else {
+                        startRays.Add(_body.Position + new Vector2(ScooterNudge + CharacterDuckingWidth / 2f, 0));
+                        startRays.Add(_body.Position + new Vector2(ScooterNudge - CharacterDuckingWidth / 2f, 0));
+                    }
+
+                    bool roomToStand = true;
+                    foreach ( Vector2 startRay in startRays ) {
+                        Vector2 endRay = startRay + new Vector2(0, -CharacterStandingHeight);
+                        _world.RayCast((fixture, point, normal, fraction) => {
+                            if ( fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain ) {
+                                roomToStand = false;
+                                return 0;
+                            }
+                            return -1;
+                        },
+                                       startRay, endRay);
+                    }
+
+                    // If there's no room to stand up, simply disallow it and keep scooting.
+                    if ( !roomToStand )
+                        return;
+
                     if ( IsDucking ) {
                         ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
                     } else if ( IsStanding ) {
@@ -516,6 +549,7 @@ namespace Arena.Entity {
                             case Direction.Down:
                                 isDucking = true;
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                AdjustFacingDirectionForAim();
                                 break;
                             case Direction.Up:
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
@@ -526,8 +560,8 @@ namespace Arena.Entity {
                         }
                     } else {
                         _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                        AdjustFacingDirectionForAim();
                     }
-
                 } else {
                     // in the air
                     if ( movementInput.X < 0 ) {
@@ -555,6 +589,25 @@ namespace Arena.Entity {
             }
 
             IsDucking = isDucking;
+        }
+
+        private void AdjustFacingDirectionForAim() {
+// If we're standing still, the right stick can change the facing direction
+            Direction? aimDirection = InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Right);
+            if ( aimDirection != null && aimDirection != _facingDirection ) {
+                switch ( aimDirection ) {
+                    case Direction.Left:
+                    case Direction.UpLeft:
+                    case Direction.DownLeft:
+                        _facingDirection = Direction.Left;
+                        break;
+                    case Direction.Right:
+                    case Direction.UpRight:
+                    case Direction.DownRight:
+                        _facingDirection = Direction.Right;
+                        break;
+                }
+            }
         }
 
         private float GetVelocityDelta(float acceleration, GameTime gameTime) {
@@ -590,7 +643,7 @@ namespace Arena.Entity {
         /// Handles the scooter device controls
         /// </summary>
         private void HandleScooter(GameTime gameTime) {
-            if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftTrigger) && IsDucking ) {
+            if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftTrigger) && IsDucking && !IsScooting ) {
                 _scooterInitiated = true;
                 IsScooting = true;
             } else if ( !InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftTrigger) ) {
@@ -608,8 +661,7 @@ namespace Arena.Entity {
             IsScooting = false;
             _scooterInitiated = false;
         }
-
-
+        
         private bool _resizeRequested;
         private float _nextHeight;
         private float _nextWidth;
@@ -654,7 +706,7 @@ namespace Arena.Entity {
             Vector2 position = _body.Position;
             float oldYPos = position.Y + Height / 2;
             float newYPos = position.Y + halfHeight;
-            Vector2 newPosition = new Vector2(position.X, position.Y + (oldYPos - newYPos)) + _positionCorrection;
+            Vector2 newPosition = new Vector2(position.X, position.Y + (oldYPos - newYPos) + .03f) + _positionCorrection;
             return newPosition;
         }
 
@@ -874,7 +926,7 @@ namespace Arena.Entity {
                         }
                     }
                 }
-            } else if ( _endScooterInitiated ) {
+            } else if ( _endScooterInitiated && !IsScooting ) {
                 _currentAnimation = Animation.StandUp;
                 if ( _currentAnimation != _prevAnimation && _animationFrame > ScootFrame ) {
                     _animationFrame = ScootFrame;

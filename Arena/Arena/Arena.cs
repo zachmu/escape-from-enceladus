@@ -25,7 +25,7 @@ namespace Arena {
     }
 
     public class Arena : Game {
-        private readonly GraphicsDeviceManager graphics;
+        private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
         private Texture2D _background;
@@ -34,6 +34,7 @@ namespace Arena {
         private DebugViewXNA _debugView;
         private Player _player;
         private Mode _mode;
+        private InputHelper _inputHelper;
 
         private HealthStatus _healthStatus;
 
@@ -61,13 +62,13 @@ namespace Arena {
         public static Boolean Debug = true;
 
         public Arena() {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
             //            graphics.PreferMultiSampling = true;
 #if WINDOWS || XBOX
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            _graphics.PreferredBackBufferWidth = 1280;
+            _graphics.PreferredBackBufferHeight = 720;
             ConvertUnits.SetDisplayUnitToSimUnitRatio(64f);
             IsFixedTimeStep = true;
 #elif WINDOWS_PHONE
@@ -75,7 +76,7 @@ namespace Arena {
             IsFixedTimeStep = false;
 #endif
 #if WINDOWS
-            graphics.IsFullScreen = false;
+            _graphics.IsFullScreen = false;
 #elif XBOX || WINDOWS_PHONE
             graphics.IsFullScreen = true;
 #endif
@@ -96,11 +97,12 @@ namespace Arena {
             Constants.Register(new Constant(ShaderVar3, .6f, Keys.D3));
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
-            _camera = new Camera2D(graphics.GraphicsDevice);
+            _camera = new Camera2D(_graphics.GraphicsDevice);
             _player = new Player(new Vector2(10,10), _world);
             _healthStatus = new HealthStatus();
 
             _mode = Mode.NormalControl;
+            _inputHelper = new InputHelper();
 
             base.Initialize();
         }
@@ -177,7 +179,8 @@ namespace Arena {
             // TODO: Unload any non ContentManager content here
         }
 
-        private Vector2 _spriteSpeed = new Vector2(1.0f);
+        private bool _stepSimMode = false;
+        private bool _nextSimStep = false;
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -193,11 +196,9 @@ namespace Arena {
             if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
 
-            InputHelper helper = InputHelper.Instance;
-            helper.Update(gameTime);
-
+            _inputHelper.Update(gameTime);
             if ( _mode == Mode.NormalControl ) {
-                foreach ( var pressedKey in helper.GetNewKeyPresses() ) {
+                foreach ( var pressedKey in _inputHelper.GetNewKeyPresses() ) {
                     switch ( pressedKey ) {
                         case Keys.F1:
                             EnableOrDisableFlag(DebugViewFlags.Shape);
@@ -225,9 +226,16 @@ namespace Arena {
                         case Keys.F8:
                             EnableOrDisableFlag(DebugViewFlags.AABB);
                             break;
+                        case Keys.F10:
+                            _stepSimMode = !_stepSimMode;
+                            break;
+                        case Keys.Enter:
+                            _nextSimStep = true;
+                            break;
                     }
                 }
-                foreach ( var pressedKey in helper.KeyboardState.GetPressedKeys() ) {
+
+                foreach ( var pressedKey in _inputHelper.KeyboardState.GetPressedKeys() ) {
                     switch ( pressedKey ) {
                         case Keys.Up:
                             SetManualCamera();
@@ -252,21 +260,26 @@ namespace Arena {
                     }
                 }
 
-                Constants.Update(helper);
-
-                _tileLevel.Update(gameTime);
+                Constants.Update(_inputHelper);
 
                 _world.Gravity = new Vector2(0, Constants.Get(Gravity));
 
-                _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
+                // Step every simulation element
+                if ( !_stepSimMode || _nextSimStep ) {
+                    InputHelper.Instance.Update(gameTime);
 
-                _player.Update(gameTime);
+                    _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
+                    _player.Update(gameTime);
+
+                    foreach ( IGameEntity ent in _entities ) {
+                        ent.Update(gameTime);
+                    }
+
+                    _tileLevel.Update(gameTime);
+                    _nextSimStep = false;
+                }
 
                 TrackPlayer();
-
-                foreach ( IGameEntity ent in _entities ) {
-                    ent.Update(gameTime);
-                }
             }
 
             _camera.Update(gameTime);
@@ -296,10 +309,10 @@ namespace Arena {
             if ( !_manualCamera ) {
                 // If the sprite goes outside a margin area, move the camera
                 const int margin = 250;
-                Rectangle viewportMargin = new Rectangle(graphics.GraphicsDevice.Viewport.X + margin,
-                                                         graphics.GraphicsDevice.Viewport.Y + margin,
-                                                         graphics.GraphicsDevice.Viewport.Width - 2 * margin,
-                                                         graphics.GraphicsDevice.Viewport.Height - 2 * margin);
+                Rectangle viewportMargin = new Rectangle(_graphics.GraphicsDevice.Viewport.X + margin,
+                                                         _graphics.GraphicsDevice.Viewport.Y + margin,
+                                                         _graphics.GraphicsDevice.Viewport.Width - 2 * margin,
+                                                         _graphics.GraphicsDevice.Viewport.Height - 2 * margin);
                 Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
 
                 int maxx =
@@ -342,26 +355,26 @@ namespace Arena {
                         _camera.Position =
                             new Vector2(
                                 currentRoom.BottomRight.X -
-                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
+                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
 
                         break;
                     case Direction.Right:
                         _camera.Position =
                             new Vector2(
                                 currentRoom.TopLeft.X +
-                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
+                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
                         break;
                     case Direction.Up:
                         _camera.Position =
                             new Vector2(
                                 _camera.Position.X, currentRoom.BottomRight.Y -
-                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Height / 2f));
+                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Height / 2f));
                         break;
                     case Direction.Down:
                         _camera.Position =
                             new Vector2(
                                 _camera.Position.X, currentRoom.TopLeft.Y +
-                                ConvertUnits.ToSimUnits(graphics.GraphicsDevice.Viewport.Height / 2f));
+                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Height / 2f));
                         break;
                 }
             }
@@ -375,12 +388,12 @@ namespace Arena {
 
             // Render first to a new back buffer
             using (
-                RenderTarget2D renderTarget = new RenderTarget2D(graphics.GraphicsDevice,
-                                                                 graphics.PreferredBackBufferWidth,
-                                                                 graphics.PreferredBackBufferHeight) ) {
+                RenderTarget2D renderTarget = new RenderTarget2D(_graphics.GraphicsDevice,
+                                                                 _graphics.PreferredBackBufferWidth,
+                                                                 _graphics.PreferredBackBufferHeight) ) {
 
-                graphics.GraphicsDevice.SetRenderTarget(renderTarget);
-                graphics.GraphicsDevice.Clear(Color.Black);
+                _graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+                _graphics.GraphicsDevice.Clear(Color.Black);
 
                 _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.Opaque, SamplerState.LinearWrap,
                                    DepthStencilState.None, RasterizerState.CullNone);
@@ -392,7 +405,7 @@ namespace Arena {
                 _spriteBatch.End();
 
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-                _tileLevel.Draw(_spriteBatch, _camera, graphics.GraphicsDevice.Viewport.Bounds);
+                _tileLevel.Draw(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
                 foreach ( IGameEntity ent in _entities ) {
                     ent.Draw(_spriteBatch, _camera);
                 }
@@ -405,12 +418,12 @@ namespace Arena {
 
                 // Now apply post-processing to the scene
                 using (
-                    RenderTarget2D tempTarget = new RenderTarget2D(graphics.GraphicsDevice,
-                                                                   graphics.PreferredBackBufferWidth,
-                                                                   graphics.PreferredBackBufferHeight) ) {
+                    RenderTarget2D tempTarget = new RenderTarget2D(_graphics.GraphicsDevice,
+                                                                   _graphics.PreferredBackBufferWidth,
+                                                                   _graphics.PreferredBackBufferHeight) ) {
                     foreach ( PostProcessingEffect effect in _postProcessorEffects ) {
                         // Draw the scene onto a temporary render target
-                        graphics.GraphicsDevice.SetRenderTarget(tempTarget);
+                        _graphics.GraphicsDevice.SetRenderTarget(tempTarget);
                         _spriteBatch.Begin();
                         _spriteBatch.Draw(renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
                                           Color.White);
@@ -418,7 +431,7 @@ namespace Arena {
 
                         // Then draw this temp buffer back onto the original render 
                         // target, adding this round of effect
-                        graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+                        _graphics.GraphicsDevice.SetRenderTarget(renderTarget);
                         effect.SetEffectParameters(_camera, _spriteBatch);
                         _spriteBatch.Begin(0, null, null, null, null, effect.Effect);
                         _spriteBatch.Draw(tempTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
@@ -428,8 +441,8 @@ namespace Arena {
                 }
 
                 // Finally draw the final scene onto the screen
-                graphics.GraphicsDevice.SetRenderTarget(null);
-                graphics.GraphicsDevice.Clear(Color.Black);
+                _graphics.GraphicsDevice.SetRenderTarget(null);
+                _graphics.GraphicsDevice.Clear(Color.Black);
                 _spriteBatch.Begin();
                 _spriteBatch.Draw(renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
                                   Color.White);

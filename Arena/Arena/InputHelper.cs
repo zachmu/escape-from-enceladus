@@ -33,9 +33,10 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Constructs a new input state.
+        /// Constructs a new input state.  
+        /// Construct only if you need to use a separate input state than the global one.
         /// </summary>
-        private InputHelper() {
+        public InputHelper() {
             _currentKeyboardState = new KeyboardState();
             _currentGamePadState = new GamePadState();
             _currentMouseState = new MouseState();
