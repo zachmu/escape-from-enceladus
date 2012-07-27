@@ -420,10 +420,15 @@ namespace Arena.Entity {
         /// </summary>
         private void HandleShot(GameTime gameTime) {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.X)
-                || InputHelper.Instance.IsNewButtonPress(Buttons.RightTrigger) ) {
-                Direction shotDirection;
-                var position = GetShotParameters(out shotDirection);
-                _shots.Add(new Shot(position, _world, shotDirection));
+                 || InputHelper.Instance.IsNewButtonPress(Buttons.RightTrigger) ) {
+                if ( IsScooting ) {
+                    Vector2 pos = _body.Position + new Vector2(0, CharacterScootingHeight / 2 - Bomb.Height / 2);
+                    _shots.Add(new Bomb(pos, _world, _facingDirection));
+                } else {
+                    Direction shotDirection;
+                    var position = GetShotParameters(out shotDirection);
+                    _shots.Add(new Shot(position, _world, shotDirection));
+                }
             } else if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
@@ -613,7 +618,7 @@ namespace Arena.Entity {
         }
 
         private void AdjustFacingDirectionForAim() {
-// If we're standing still, the right stick can change the facing direction
+             // If we're standing still, the right stick can change the facing direction
             Direction? aimDirection = InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Right);
             if ( aimDirection != null && aimDirection != _facingDirection ) {
                 switch ( aimDirection ) {

@@ -43,7 +43,7 @@ namespace Arena.Entity {
             get { return (PolygonShape) _body.FixtureList.First().Shape; }
         }
 
-        protected Projectile(Vector2 position, World world, Direction direction, int Speed, float width, float height) {
+        protected Projectile(Vector2 position, World world, Direction direction, int speed, float width, float height) {
             _body = BodyFactory.CreateRectangle(world, width, height, 1000f);
             _body.IsStatic = false;
             _body.Restitution = .2f;
@@ -61,28 +61,28 @@ namespace Arena.Entity {
 
             switch (direction) {
                 case Direction.Left:
-                    _body.LinearVelocity = new Vector2(-Speed, 0);
+                    _body.LinearVelocity = new Vector2(-speed, 0);
                     break;
                 case Direction.Right:
-                    _body.LinearVelocity = new Vector2(Speed, 0);
+                    _body.LinearVelocity = new Vector2(speed, 0);
                     break;
                 case Direction.Down:
-                    _body.LinearVelocity = new Vector2(0, Speed);
+                    _body.LinearVelocity = new Vector2(0, speed);
                     break;
                 case Direction.Up:
-                    _body.LinearVelocity = new Vector2(0, -Speed);
+                    _body.LinearVelocity = new Vector2(0, -speed);
                     break;
                 case Direction.UpLeft:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -Speed), (float) (Math.Sqrt(2) * -Speed));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -speed), (float) (Math.Sqrt(2) * -speed));
                     break;
                 case Direction.UpRight:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * Speed), (float) (Math.Sqrt(2) * -Speed));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * speed), (float) (Math.Sqrt(2) * -speed));
                     break;
                 case Direction.DownLeft:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -Speed), (float) (Math.Sqrt(2) * Speed));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * -speed), (float) (Math.Sqrt(2) * speed));
                     break;
                 case Direction.DownRight:
-                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * Speed), (float) (Math.Sqrt(2) * Speed));
+                    _body.LinearVelocity = new Vector2((float) (Math.Sqrt(2) * speed), (float) (Math.Sqrt(2) * speed));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("direction");
@@ -157,7 +157,7 @@ namespace Arena.Entity {
             enemy.HitBy(this);
         }
 
-        public void Update(GameTime gameTime) {
+        public virtual void Update(GameTime gameTime) {
             _timeToLiveMs -= gameTime.ElapsedGameTime.Milliseconds;
             if ( _timeToLiveMs <= 0 ) {
                 Dispose();

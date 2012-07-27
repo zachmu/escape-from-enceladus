@@ -140,6 +140,7 @@ namespace Arena {
             Shot.LoadContent(Content);
             Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);
+            Bomb.LoadContent(Content);
             
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
