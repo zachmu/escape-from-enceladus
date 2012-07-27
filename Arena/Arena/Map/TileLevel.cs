@@ -87,10 +87,8 @@ namespace Arena.Map {
 
         private void InitializeDestructionRegions(ObjectGroup regions) {
             foreach ( Object region in regions.Objects ) {
-                Vector2 topLeft = new Vector2(region.X, region.Y);
-                Vector2 bottomRight = new Vector2(region.X + region.Width, region.Y + region.Height);
-                Vector2 simTopLeft = ConvertUnits.ToSimUnits(topLeft);
-                Vector2 simBottomRight = ConvertUnits.ToSimUnits(bottomRight);
+                Vector2 topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
+                Vector2 bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
 
                 int flags = 0;
                 foreach ( String weaponName in region.Properties.Keys ) {
@@ -106,7 +104,16 @@ namespace Arena.Map {
                 if ( flags == 0 ) {
                     flags = 0xFFFF;
                 }
-                _destructionRegions.Add(new DestructionRegion(_world, simTopLeft, simBottomRight, flags));
+
+                Vector2 currTopLeft = topLeft;
+                while ( currTopLeft.Y <= bottomRight.Y ) {
+                    currTopLeft.X = topLeft.X;
+                    while ( currTopLeft.X <= bottomRight.X ) {
+                        _destructionRegions.Add(new DestructionRegion(_world, currTopLeft, currTopLeft + new Vector2(TileSize / 2), flags));
+                        currTopLeft.X += TileSize;
+                    }
+                    currTopLeft.Y += TileSize;
+                }
             }
         }
 
@@ -638,6 +645,10 @@ namespace Arena.Map {
         /// <returns></returns>
         private Func<Tile, bool> IsLiveTileInCurrentRoom() {
             return adj => adj != null && !adj.Disposed && CurrentRoom.Contains(adj.Position, TileSize);
+        }
+
+        public Tile GetTile(Vector2 position) {
+            return _collisionLayer.GetTile(position);
         }
     }
 

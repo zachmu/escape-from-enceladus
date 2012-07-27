@@ -422,7 +422,12 @@ namespace Arena.Entity {
             if ( InputHelper.Instance.IsNewButtonPress(Buttons.X)
                  || InputHelper.Instance.IsNewButtonPress(Buttons.RightTrigger) ) {
                 if ( IsScooting ) {
-                    Vector2 pos = _body.Position + new Vector2(0, CharacterScootingHeight / 2 - Bomb.Height / 2);
+                    Vector2 pos = Vector2.Zero;
+                    if (_facingDirection == Direction.Right) {
+                        pos = _body.Position + new Vector2(CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
+                    } else {
+                        pos = _body.Position + new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);                                                
+                    }
                     _shots.Add(new Bomb(pos, _world, _facingDirection));
                 } else {
                     Direction shotDirection;

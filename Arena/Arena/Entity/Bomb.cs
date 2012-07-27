@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Arena.Farseer;
+using Arena.Map;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -16,11 +18,17 @@ namespace Arena.Entity {
     /// </summary>
     public class Bomb : Projectile, IGameEntity {
 
+        private World _world;
+
         public const float Width = .375f;
         public static readonly float Height = ConvertUnits.ToSimUnits(26f);
+        private const float ExplodeRadius = 1f;
+        private bool _exploded;
+
         private const int NumFrames = 12;
         private const int FrameTime = 150;
         private static readonly Texture2D[] Animation = new Texture2D[NumFrames];
+        private const int ExplodeFrame = 10;
 
         private int _animationFrame = 0;
         private long _timeSinceLastAnimationUpdate;
@@ -38,7 +46,9 @@ namespace Arena.Entity {
         public Bomb(Vector2 position, World world, Direction direction)
             : base(position, world, direction, 0, Width, Height) {
             Image = Animation[0];
-            _timeToLiveMs = FrameTime * (NumFrames + 2);
+            _timeToLiveMs = FrameTime * (NumFrames + 1);
+            _world = world;
+            _body.CollidesWith = Arena.TerrainCategory;
         }
 
         public static void LoadContent(ContentManager content) {
@@ -72,8 +82,19 @@ namespace Arena.Entity {
         }
 
         public override void Update(GameTime gameTime) {
+
             _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
-            if ( _timeSinceLastAnimationUpdate > FrameTime ) {
+
+            if ( _animationFrame >= ExplodeFrame && !_exploded ) {
+                Explode();
+            }
+
+            int frameTime = FrameTime;
+            if (_animationFrame >= ExplodeFrame) {
+                frameTime = 0;
+            }
+
+            if ( _timeSinceLastAnimationUpdate > frameTime ) {
                 if (_animationFrame >= NumFrames) {
                     _animationFrame = NumFrames - 1;
                 }
@@ -81,6 +102,22 @@ namespace Arena.Entity {
             }
 
             base.Update(gameTime);
+        }
+
+        private void Explode() {
+            AABB aabb = new AABB(_body.Position - new Vector2(0, TileLevel.TileSize / 2 - Height / 2), ExplodeRadius,
+                                 ExplodeRadius);
+            _world.QueryAABB(fixture => {
+                if ( fixture.GetUserData().IsDestructibleRegion ) {                    
+                    var hitTile = TileLevel.CurrentLevel.GetTile(fixture.GetUserData().Destruction.Position);
+                    TileLevel.CurrentLevel.TileHitBy(hitTile, this);
+                } else if ( fixture.GetUserData().IsEnemy ) {
+                    fixture.GetUserData().Enemy.HitBy(this);
+                }
+                return true;
+            }, ref aabb);
+
+            _exploded = true;
         }
 
         protected override OnCollisionEventHandler CollisionHandler() {
