@@ -181,6 +181,7 @@ namespace Arena.Entity {
             // Draw origin is character's feet
             Vector2 position = _body.Position;
             position.Y += Height / 2;
+            position += _imageDrawOffset;
                         
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             spriteBatch.Draw(Image,
@@ -214,7 +215,7 @@ namespace Arena.Entity {
         /// Whether or not the character is ducking, on the ground
         /// </summary>
         private bool _isDucking;
-        public bool     IsDucking {
+        public bool IsDucking {
             get { return _isDucking; }
             private set {
                 if ( IsScooting ) {
@@ -251,7 +252,7 @@ namespace Arena.Entity {
         /// Whether or not the character is scooting
         /// </summary>
         public bool IsScooting {
-            get { return _isScooting && !_resizeRequested; }
+            get { return _isScooting; }
             set {
                 if ( value && !_isScooting ) {
 
@@ -316,7 +317,7 @@ namespace Arena.Entity {
                         _abortScooting = true;
                     }
 
-                } else if ( !value && _isScooting && !_abortScooting) {
+                } else if ( !value && _isScooting && !_abortScooting ) {
                     // Make sure that we have room overhead to stand back up.  Check both overhead corners.
                     List<Vector2> startRays = new List<Vector2>();
                     if ( _facingDirection == Direction.Right ) {
@@ -344,12 +345,15 @@ namespace Arena.Entity {
                     if ( !roomToStand )
                         return;
 
+                    Vector2 nudge = _facingDirection == Direction.Right
+                                        ? new Vector2(-ScooterNudge, 0)
+                                        : new Vector2(ScooterNudge, 0);
                     if ( IsDucking ) {
-                        ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight);
+                        ResizeBody(CharacterDuckingWidth, CharacterDuckingHeight, nudge);
                     } else if ( IsStanding ) {
-                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
+                        ResizeBody(CharacterStandingWidth, CharacterStandingHeight, nudge);
                     } else {
-                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
+                        ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight, nudge);
                     }
                 }
 
@@ -365,16 +369,7 @@ namespace Arena.Entity {
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             Vector2 leftStick = gamePadState.ThumbSticks.Left;
 
-            if ( _timeUntilRegainControl > 0 ) {
-                _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
-            }
-
-            if ( _terrainChanged ) {
-                UpdateStanding();
-                _terrainChanged = false;
-            }
-
-            ProcessResize();
+            UpdateBookkeepingCounters(gameTime);
 
             HandleJump(gameTime);
 
@@ -388,10 +383,36 @@ namespace Arena.Entity {
 
             HandleSonar(gameTime);
 
+            UpdateShots(gameTime);
+        }
+
+        /// <summary>
+        /// Updates all the shots owned by the player
+        /// </summary>
+        /// <param name="gameTime"></param>
+        private void UpdateShots(GameTime gameTime) {
             foreach ( IGameEntity shot in _shots ) {
                 shot.Update(gameTime);
             }
             _shots.RemoveAll(shot => shot.Disposed);
+        }
+
+        /// <summary>
+        /// Updates the several book-keeping figures used in character control
+        /// </summary>
+        private void UpdateBookkeepingCounters(GameTime gameTime) {
+            if ( _timeUntilRegainControl > 0 ) {
+                _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
+            }
+
+            if ( _terrainChanged ) {
+                UpdateStanding();
+                _terrainChanged = false;
+            }
+
+            if ( _ignoreTerrainCollisionsNextNumFrames > 0 ) {
+                _ignoreTerrainCollisionsNextNumFrames--;
+            }
         }
 
         /// <summary>
@@ -662,51 +683,31 @@ namespace Arena.Entity {
             _scooterInitiated = false;
         }
         
-        private bool _resizeRequested;
-        private float _nextHeight;
-        private float _nextWidth;
-        private Vector2 _positionCorrection;
-
         /// <summary>
         /// Resizes the body while keeping the lower edge in the same position and the X position constant.
         /// </summary>
         private void ResizeBody(float width, float height, Vector2 positionalCorrection = new Vector2()) {
-            _nextHeight = height;
-            _nextWidth = width;
-            _positionCorrection = positionalCorrection;
-            _resizeRequested = true;
-        }
+            _ignoreTerrainCollisionsNextNumFrames = 2;
 
-        /// <summary>
-        /// When we change the size of the body, we sometimes need to nudge it a bit first to prevent 
-        /// Box2D allowing it to pass through terrain edges, then allow a world step to take place 
-        /// before processing the resize.  This function gets called by Update() to change the shape of
-        /// the body one step *after* any corrections were performed.
-        /// </summary>
-        private void ProcessResize() {
-            if ( _resizeRequested ) {
+            float halfHeight = height / 2;
+            var newPosition = GetNewBodyPosition(halfHeight, positionalCorrection);
+            _body.Position = newPosition;
 
-                float halfHeight = _nextHeight / 2;
-                var newPosition = GetNewBodyPosition(halfHeight);
-                _body.Position = newPosition;
-
-                PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
-                shape.SetAsBox(_nextWidth / 2, halfHeight);
-                Height = _nextHeight;
-                Width = _nextWidth;
-                _resizeRequested = false;
-            }
+            PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
+            shape.SetAsBox(width / 2, halfHeight);
+            Height = height;
+            Width = width;
         }
 
         /// <summary>
         /// Returns the position of the body if the half-height is as indicated, 
         /// holding the Y position of the bottom edge constant.
         /// </summary>
-        private Vector2 GetNewBodyPosition(float halfHeight) {
+        private Vector2 GetNewBodyPosition(float halfHeight, Vector2 positionCorrection) {
             Vector2 position = _body.Position;
             float oldYPos = position.Y + Height / 2;
             float newYPos = position.Y + halfHeight;
-            Vector2 newPosition = new Vector2(position.X, position.Y + (oldYPos - newYPos) + .03f) + _positionCorrection;
+            Vector2 newPosition = new Vector2(position.X, position.Y + (oldYPos - newYPos)) + positionCorrection;
             return newPosition;
         }
 
@@ -872,12 +873,15 @@ namespace Arena.Entity {
             Image = _standAimAnimation[AimRightFrame];
         }
 
+        private Vector2 _imageDrawOffset = Vector2.Zero;
+
         /// <summary>
         /// Updates the current image for the next frame
         /// </summary>
         private void UpdateImage(GameTime gameTime) {
 
             _timeSinceLastAnimationUpdate += gameTime.ElapsedGameTime.Milliseconds;
+            _imageDrawOffset = Vector2.Zero;
 
             var aimDirection = GetAimDirection();
 
@@ -933,17 +937,16 @@ namespace Arena.Entity {
                 }
                 if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
                     Image = _scooterAnimation[_animationFrame--];
+                    if ( !_abortScooting ) {
+                        if ( _facingDirection == Direction.Right ) {
+                            _imageDrawOffset = new Vector2(ScooterNudge, 0);
+                        } else if ( _facingDirection == Direction.Left ) {
+                            _imageDrawOffset = new Vector2(-ScooterNudge, 0);
+                        }
+                    }
                     if ( _animationFrame < 0 ) {
                         _animationFrame = 0;
                         _endScooterInitiated = false;
-
-                        if ( !_abortScooting ) {
-                            if ( _facingDirection == Direction.Right ) {
-                                ResizeBody(Width, Height, new Vector2(-ScooterNudge, 0));
-                            } else if ( _facingDirection == Direction.Left ) {
-                                ResizeBody(Width, Height, new Vector2(ScooterNudge, 0));
-                            }
-                        }
                     }
                 }
             } else {
@@ -1321,6 +1324,10 @@ namespace Arena.Entity {
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
             _timeUntilRegainControl = (long) (Constants[PlayerKnockbackTime] * 1000);
             Health -= 10;
+
+            // Make sure we're in the air or on the ground as necessary
+            _ignoreTerrainCollisionsNextNumFrames = 0;
+            UpdateStanding();
         }
 
         public void Dispose() {

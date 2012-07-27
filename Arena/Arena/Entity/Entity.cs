@@ -22,7 +22,12 @@ namespace Arena.Entity {
             set { _isTouchingCeiling = value; }
         }
 
+        protected int _ignoreTerrainCollisionsNextNumFrames = 0;
         protected void UpdateStanding() {
+            if ( _ignoreTerrainCollisionsNextNumFrames > 0 ) {
+                return;
+            }
+
             bool isStanding = false;
             bool isTouchingCeiling = false;
 
