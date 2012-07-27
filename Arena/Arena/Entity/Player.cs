@@ -321,11 +321,15 @@ namespace Arena.Entity {
                     // Make sure that we have room overhead to stand back up.  Check both overhead corners.
                     List<Vector2> startRays = new List<Vector2>();
                     if ( _facingDirection == Direction.Right ) {
-                        startRays.Add(_body.Position + new Vector2(-ScooterNudge - CharacterDuckingWidth / 2f, 0));
-                        startRays.Add(_body.Position + new Vector2(-ScooterNudge + CharacterDuckingWidth / 2f, 0));
+                        startRays.Add(_body.Position +
+                                      new Vector2(-ScooterNudge - CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
+                        startRays.Add(_body.Position +
+                                      new Vector2(-ScooterNudge + CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
                     } else {
-                        startRays.Add(_body.Position + new Vector2(ScooterNudge + CharacterDuckingWidth / 2f, 0));
-                        startRays.Add(_body.Position + new Vector2(ScooterNudge - CharacterDuckingWidth / 2f, 0));
+                        startRays.Add(_body.Position +
+                                      new Vector2(ScooterNudge + CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
+                        startRays.Add(_body.Position +
+                                      new Vector2(ScooterNudge - CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
                     }
 
                     bool roomToStand = true;

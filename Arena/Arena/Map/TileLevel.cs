@@ -407,7 +407,7 @@ namespace Arena.Map {
         /// Notify the level that a tile was hit by a shot
         /// </summary>
         public void TileHitBy(Tile hitTile, Projectile shot) {
-            if ( IsTileDestroyedBy(hitTile, shot) ) {
+            if ( hitTile != null && IsTileDestroyedBy(hitTile, shot) ) {
                 DestroyTile(hitTile);
             }
         }
@@ -416,7 +416,8 @@ namespace Arena.Map {
         /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
         /// </summary>
         private bool IsTileDestroyedBy(Tile hitTile, Projectile projectile) {
-            return _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(projectile));
+            return !hitTile.Disposed &&
+                   _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(projectile));
         }
 
         /// <summary>
@@ -647,8 +648,19 @@ namespace Arena.Map {
             return adj => adj != null && !adj.Disposed && CurrentRoom.Contains(adj.Position, TileSize);
         }
 
+        /// <summary>
+        /// Returns the collision-layer tile at the point given, or null if there isn't one.
+        /// </summary>
         public Tile GetTile(Vector2 position) {
             return _collisionLayer.GetTile(position);
+        }
+
+        /// <summary>
+        /// Returns whether there is a live (non-destroyed) collision layer tile at the point given.
+        /// </summary>
+        public bool IsLiveTile(Vector2 position) {
+            Tile t = GetTile(position);
+            return t != null && !t.Disposed;
         }
     }
 

@@ -7,6 +7,7 @@ using Arena.Map;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -41,6 +42,8 @@ namespace Arena.Entity {
             }
         }
 
+        private static SoundEffect _boom;
+
         public const int Flags = 4;
 
         public Bomb(Vector2 position, World world, Direction direction)
@@ -55,6 +58,7 @@ namespace Arena.Entity {
             for ( int i = 0; i < NumFrames; i++ ) {
                 Animation[i] = content.Load<Texture2D>(String.Format("Character/Bomb/Bomb{0:0000}", i));
             }
+            _boom = content.Load<SoundEffect>("Bomb");
         }
 
         public override int DestructionFlags {
@@ -117,9 +121,14 @@ namespace Arena.Entity {
                 return true;
             }, ref aabb);
 
+            _boom.Play();
+
             _exploded = true;
         }
 
+        /// <summary>
+        /// Don't collide with anything
+        /// </summary>
         protected override OnCollisionEventHandler CollisionHandler() {
             return (a, b, contact) =>
                    false;

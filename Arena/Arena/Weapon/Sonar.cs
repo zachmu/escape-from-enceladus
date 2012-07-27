@@ -59,7 +59,7 @@ namespace Arena.Weapon {
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             if ( Constants.Get(SonarLocationDebug) >= 1 ) {
-                foreach ( DestructibleRegion region in _foundDestructionRegions.Values ) {
+                foreach ( FoundDestructibleRegion region in _foundDestructionRegions.Values ) {
                     foreach ( Vector2 location in region._locations ) {
                         Vector2 displayPosition = ConvertUnits.ToDisplayUnits(location);
                         spriteBatch.Draw(_debugLocation, displayPosition, Color.White);
@@ -127,19 +127,19 @@ namespace Arena.Weapon {
             }
         }
 
-        private readonly Dictionary<DestructibleRegion, DestructibleRegion> _foundDestructionRegions =
-            new Dictionary<DestructibleRegion, DestructibleRegion>();
+        private readonly Dictionary<FoundDestructibleRegion, FoundDestructibleRegion> _foundDestructionRegions =
+            new Dictionary<FoundDestructibleRegion, FoundDestructibleRegion>();
 
         private float FindDestructibleSurfaces(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-            if ( fixture.IsSensor && fixture.Body.GetUserData().IsDestructibleRegion ) {
-                DestructibleRegion destructibleRegion = new DestructibleRegion(fraction * ScanRadius,
+            if ( fixture.GetUserData().IsDestructibleRegion && TileLevel.CurrentLevel.IsLiveTile(point) ) {
+                FoundDestructibleRegion foundDestructibleRegion = new FoundDestructibleRegion(fraction * ScanRadius,
                                                                                fixture.Body.GetUserData().Destruction);
-                if ( _foundDestructionRegions.ContainsKey(destructibleRegion) ) {
-                    destructibleRegion = _foundDestructionRegions[destructibleRegion];
+                if ( _foundDestructionRegions.ContainsKey(foundDestructibleRegion) ) {
+                    foundDestructibleRegion = _foundDestructionRegions[foundDestructibleRegion];
                 } else {
-                    _foundDestructionRegions.Add(destructibleRegion, destructibleRegion);
+                    _foundDestructionRegions.Add(foundDestructibleRegion, foundDestructibleRegion);
                 }
-                destructibleRegion._locations.Add(point);
+                foundDestructibleRegion._locations.Add(point);
             }
             return -1;
         }
@@ -148,9 +148,10 @@ namespace Arena.Weapon {
             _waveTimeMs += gameTime.ElapsedGameTime.Milliseconds;
 
             float currentRadius = GetCurrentRadius();
+
             // TODO: different sounds for different types of regions
             foreach (
-                DestructibleRegion region in
+                FoundDestructibleRegion region in
                     _foundDestructionRegions.Values.Where(region => region._radius <= currentRadius).ToList() ) {
                 _pong.Play();
                 _foundDestructionRegions.Remove(region);
@@ -184,17 +185,17 @@ namespace Arena.Weapon {
             _waveEffect.Parameters["MatrixTransform"].SetValue(halfPixelOffset * projection);
         }
 
-        internal class DestructibleRegion : IEquatable<DestructibleRegion> {
+        internal class FoundDestructibleRegion : IEquatable<FoundDestructibleRegion> {
             internal float _radius;
             internal readonly DestructionRegion _region;
             internal HashSet<Vector2> _locations = new HashSet<Vector2>();
 
-            public DestructibleRegion(float radius, DestructionRegion region) {
+            public FoundDestructibleRegion(float radius, DestructionRegion region) {
                 _radius = radius;
                 _region = region;
             }
 
-            public bool Equals(DestructibleRegion other) {
+            public bool Equals(FoundDestructibleRegion other) {
                 if ( ReferenceEquals(null, other) ) {
                     return false;
                 }
@@ -211,21 +212,21 @@ namespace Arena.Weapon {
                 if ( ReferenceEquals(this, obj) ) {
                     return true;
                 }
-                if ( obj.GetType() != typeof ( DestructibleRegion ) ) {
+                if ( obj.GetType() != typeof ( FoundDestructibleRegion ) ) {
                     return false;
                 }
-                return Equals((DestructibleRegion) obj);
+                return Equals((FoundDestructibleRegion) obj);
             }
 
             public override int GetHashCode() {
                 return (_region != null ? _region.GetHashCode() : 0);
             }
 
-            public static bool operator ==(DestructibleRegion left, DestructibleRegion right) {
+            public static bool operator ==(FoundDestructibleRegion left, FoundDestructibleRegion right) {
                 return Equals(left, right);
             }
 
-            public static bool operator !=(DestructibleRegion left, DestructibleRegion right) {
+            public static bool operator !=(FoundDestructibleRegion left, FoundDestructibleRegion right) {
                 return !Equals(left, right);
             }
         }
