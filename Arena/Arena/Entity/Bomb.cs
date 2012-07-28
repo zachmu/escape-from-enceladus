@@ -58,7 +58,7 @@ namespace Arena.Entity {
             for ( int i = 0; i < NumFrames; i++ ) {
                 Animation[i] = content.Load<Texture2D>(String.Format("Character/Bomb/Bomb{0:0000}", i));
             }
-            _boom = content.Load<SoundEffect>("Bomb");
+            _boom = content.Load<SoundEffect>("Sounds/Bomb");
         }
 
         public override int DestructionFlags {

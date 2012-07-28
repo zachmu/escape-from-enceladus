@@ -173,7 +173,7 @@ namespace Arena.Entity {
 
         public void LoadContent(ContentManager content) {
             LoadAnimations(content);
-            LandSound = content.Load<SoundEffect>("land");
+            LandSound = content.Load<SoundEffect>("Sounds/land");
             Sonar.LoadContent(content);
         }
 

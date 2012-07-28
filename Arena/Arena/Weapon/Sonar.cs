@@ -51,10 +51,10 @@ namespace Arena.Weapon {
         private static SoundEffect _pong;
 
         public static void LoadContent(ContentManager cm) {
-            _waveEffect = cm.Load<Effect>("wave");
+            _waveEffect = cm.Load<Effect>("Effects/wave");
             _debugLocation = cm.Load<Texture2D>("welcome16");
-            _pong = cm.Load<SoundEffect>("SonarHit");
-            _ping = cm.Load<SoundEffect>("SonarPing");
+            _pong = cm.Load<SoundEffect>("Sounds/SonarHit");
+            _ping = cm.Load<SoundEffect>("Sounds/SonarPing");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {

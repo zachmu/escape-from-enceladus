@@ -416,15 +416,16 @@ namespace Arena.Map {
         /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
         /// </summary>
         private bool IsTileDestroyedBy(Tile hitTile, Projectile projectile) {
-            return !hitTile.Disposed &&
-                   _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(projectile));
+            return _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(projectile));
         }
 
         /// <summary>
-        /// Destroys this tile
+        /// Destroys this tile, unless it's already been destroyed.
         /// </summary>
         public void DestroyTile(Tile t) {
-            _tilesToRemove.Add(t);
+            if ( !t.Disposed ) {
+                _tilesToRemove.Add(t);
+            }
         }
 
         /// <summary>

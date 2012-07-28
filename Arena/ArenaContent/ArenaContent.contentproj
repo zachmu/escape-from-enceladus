@@ -88,12 +88,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Effect1.fx">
+    <Compile Include="Effects\Effect1.fx">
       <Name>Effect1</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
-    <Compile Include="Wave.fx">
+    <Compile Include="Effects\Wave.fx">
       <Name>Wave</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
@@ -295,14 +295,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="laser.wav">
+    <Compile Include="Sounds\laser.wav">
       <Name>laser</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="land.wav">
+    <Compile Include="Sounds\land.wav">
       <Name>land</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
@@ -1039,14 +1039,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SonarHit.wav">
+    <Compile Include="Sounds\SonarHit.wav">
       <Name>SonarHit</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SonarPing.wav">
+    <Compile Include="Sounds\SonarPing.wav">
       <Name>SonarPing</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
@@ -2485,7 +2485,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bomb.wav">
+    <Compile Include="Sounds\Bomb.wav">
       <Name>Bomb</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>

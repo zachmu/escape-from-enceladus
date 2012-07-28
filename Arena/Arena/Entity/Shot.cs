@@ -35,7 +35,7 @@ namespace Arena.Entity {
 
         public static void LoadContent(ContentManager content) {
             Image = content.Load<Texture2D>("star");
-            Sfx = content.Load<SoundEffect>("laser");
+            Sfx = content.Load<SoundEffect>("Sounds/laser");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
