@@ -129,7 +129,7 @@ namespace Arena.Entity {
                                                _displayPieceHeight),
                                  new Rectangle(xOffset + _displayPieceWidth * piece.X, yOffset + _displayPieceHeight * piece.Y, _displayPieceWidth,
                                                _displayPieceHeight),
-                                 Color.White * alpha, rotation, origin,
+                                 Color.Black * alpha, rotation, origin,
                                  SpriteEffects.None, 0);
 
             }

@@ -1,6 +1,6 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
+using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics.Collision.Shapes;
@@ -10,7 +10,7 @@ using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Entity {
+namespace Arena.Weapon {
 
     /// <summary>
     /// Base class for projectiles

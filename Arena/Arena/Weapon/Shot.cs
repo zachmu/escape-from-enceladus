@@ -1,20 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using Arena.Entity;
+﻿using Arena.Entity;
 using Arena.Farseer;
-using Arena.Map;
-using FarseerPhysics.Collision.Shapes;
-using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
-using FarseerPhysics.Dynamics.Contacts;
-using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Arena.Weapon {
 
     /// <summary>
     /// Basic shot from base weapon
@@ -43,7 +35,7 @@ namespace Arena.Entity {
                 Vector2 position = _body.Position;
                 Vector2 displayUnits = new Vector2();
                 ConvertUnits.ToDisplayUnits(ref position, out displayUnits);
-                spriteBatch.Draw(Image, displayUnits, Color.White);
+                spriteBatch.Draw(Image, displayUnits, SolidColorEffect.DisabledColor);
             }
         }
 

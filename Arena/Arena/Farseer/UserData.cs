@@ -1,5 +1,6 @@
 ﻿using Arena.Entity;
 using Arena.Map;
+using Arena.Weapon;
 
 namespace Arena.Farseer {
 

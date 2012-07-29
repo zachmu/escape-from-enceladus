@@ -82,5 +82,9 @@ namespace Arena.Entity {
         public void Dispose() {
             Disposed = true;
         }
+
+        public void SetEffectParams(Effect effect) {
+            effect.Parameters["Enabled"].SetValue(0);
+        }
     }
 }

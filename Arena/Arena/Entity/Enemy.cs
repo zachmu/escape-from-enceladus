@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Arena.Farseer;
+using Arena.Weapon;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -23,9 +24,6 @@ namespace Arena.Entity {
         private const float CharacterHeight = 1;
 
         private Direction _direction;
-
-        private readonly Fixture _floorSensor;
-        private int _floorSensorContactCount = 0;
         
         private const string EnemySpeed = "Enemy speed (m/s)";
 
@@ -94,10 +92,11 @@ namespace Arena.Entity {
                 position.Y -= CharacterHeight / 2f;
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
                 spriteBatch.Draw(_image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, _image.Width,
                                                _image.Height),
-                                 null, Color.White, 0f, new Vector2(),
+                                 null, color, 0f, new Vector2(),
                                  _direction == Direction.Right
                                      ? SpriteEffects.None
                                      : SpriteEffects.FlipHorizontally, 0);
@@ -117,10 +116,13 @@ namespace Arena.Entity {
                     _body.LinearVelocity = new Vector2(Constants.Get(EnemySpeed), 0);
                 }
             }
+
+            UpdateFlash(gameTime);
         }
 
         public void HitBy(Projectile shot) {
             _hitPoints -= shot.BaseDamage;
+            _flashTime = 150;
         }
 
         public void Dispose() {

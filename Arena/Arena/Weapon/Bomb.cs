@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
+using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics.Collision;
@@ -11,7 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Arena.Weapon {
 
     /// <summary>
     /// The bomb isn't really a projectile since it just sits there, but it does
@@ -52,6 +50,9 @@ namespace Arena.Entity {
             _timeToLiveMs = FrameTime * (NumFrames + 1);
             _world = world;
             _body.CollidesWith = Arena.TerrainCategory;
+            _body.CollisionCategories = Arena.TerrainCategory;
+            _body.IsStatic = false;
+            _body.IgnoreGravity = false;
         }
 
         public static void LoadContent(ContentManager content) {
@@ -81,7 +82,7 @@ namespace Arena.Entity {
             }
             spriteBatch.Draw(Image,
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null, Color.White, 0f, new Vector2(Image.Width / 2, Image.Height / 2),
+                             null, SolidColorEffect.DisabledColor, 0f, new Vector2(Image.Width / 2, Image.Height / 2),
                              _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
         }
 
@@ -122,6 +123,7 @@ namespace Arena.Entity {
             }, ref aabb);
 
             _boom.Play();
+            _body.IgnoreGravity = true;
 
             _exploded = true;
         }
@@ -131,7 +133,7 @@ namespace Arena.Entity {
         /// </summary>
         protected override OnCollisionEventHandler CollisionHandler() {
             return (a, b, contact) =>
-                   false;
+                   true;
         }
     }
 }

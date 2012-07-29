@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Arena.Entity;
 using Arena.Farseer;
+using Arena.Weapon;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;

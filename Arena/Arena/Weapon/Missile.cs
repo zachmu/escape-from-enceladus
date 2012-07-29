@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Arena.Entity;
 using Arena.Farseer;
-using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
-    internal class Missile : Projectile, IGameEntity {
+namespace Arena.Weapon {
+
+    public class Missile : Projectile, IGameEntity {
 
         private const int Speed = 25;
         private const float Width = .5f;
@@ -36,7 +32,7 @@ namespace Arena.Entity {
                 spriteBatch.Draw(Image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
                                                Image.Height),
-                                 null, Color.White, GetSpriteRotation(), new Vector2(Image.Width / 2, Image.Height / 2),
+                                 null, SolidColorEffect.DisabledColor, GetSpriteRotation(), new Vector2(Image.Width / 2, Image.Height / 2),
                                  SpriteEffects.None, 0);
             }
         }

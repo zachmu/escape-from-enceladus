@@ -110,13 +110,11 @@
     <Compile Include="Arena.cs" />
     <Compile Include="Camera2D.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Entity\Bomb.cs" />
     <Compile Include="Entity\ShatterAnimation.cs" />
     <Compile Include="Entity\Entity.cs" />
     <Compile Include="Entity\GameEntity.cs" />
     <Compile Include="Entity\HealthPickup.cs" />
-    <Compile Include="Entity\Missile.cs" />
-    <Compile Include="Entity\Projectile.cs" />
+    <Compile Include="Entity\SolidColorEffect.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />
     <Compile Include="Entity\Enemy.cs" />
     <Compile Include="Farseer\FarseerExtensions.cs" />
@@ -127,7 +125,10 @@
     <Compile Include="Map\TiledMapLoader.cs" />
     <Compile Include="Map\TileLevel.cs" />
     <Compile Include="InputHelper.cs" />
-    <Compile Include="Entity\Shot.cs" />
+    <Compile Include="Weapon\Bomb.cs" />
+    <Compile Include="Weapon\Missile.cs" />
+    <Compile Include="Weapon\Projectile.cs" />
+    <Compile Include="Weapon\Shot.cs" />
     <Compile Include="Entity\Player.cs" />
     <Compile Include="Overlay\HealthStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

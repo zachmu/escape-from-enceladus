@@ -141,10 +141,12 @@ namespace Arena {
             Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);
             Bomb.LoadContent(Content);
+            Sonar.LoadContent(Content);
+            SolidColorEffect.LoadContent(Content);
             
             Constants.font = Content.Load<SpriteFont>("DebugFont");
 
-            _background = Content.Load<Texture2D>("Background/pineNeedles");
+            _background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
@@ -387,8 +389,8 @@ namespace Arena {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
 
-            // Render first to a new back buffer
             using (
+                // Render first to a new back buffer
                 RenderTarget2D renderTarget = new RenderTarget2D(_graphics.GraphicsDevice,
                                                                  _graphics.PreferredBackBufferWidth,
                                                                  _graphics.PreferredBackBufferHeight) ) {
@@ -396,6 +398,7 @@ namespace Arena {
                 _graphics.GraphicsDevice.SetRenderTarget(renderTarget);
                 _graphics.GraphicsDevice.Clear(Color.Black);
 
+                // Background image
                 _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.Opaque, SamplerState.LinearWrap,
                                    DepthStencilState.None, RasterizerState.CullNone);
                 Vector2 origin = _camera.Position;
@@ -405,15 +408,16 @@ namespace Arena {
                                                 GraphicsDevice.Viewport.Bounds.Height), Color.White);
                 _spriteBatch.End();
 
+                // Block layer
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _tileLevel.Draw(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
+                _spriteBatch.End();
+
+                // Dynamic elements (player, enemies, missiles, etc)
+                _spriteBatch.Begin(0, null, null, null, null, SolidColorEffect.Effect, _camera.DisplayView);
                 foreach ( IGameEntity ent in _entities ) {
                     ent.Draw(_spriteBatch, _camera);
                 }
-                _spriteBatch.End();
-
-                // TODO: draw any per-sprite shader effects here
-                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _player.Draw(_spriteBatch, _camera);
                 _spriteBatch.End();
 
@@ -450,10 +454,12 @@ namespace Arena {
                 _spriteBatch.End();
             }
 
+            // Draw overlays on top
             _spriteBatch.Begin();
             _healthStatus.Draw(_spriteBatch, _camera);
             _spriteBatch.End();
 
+            // And any debug info
             DebugDraw();
 
             base.Draw(gameTime);

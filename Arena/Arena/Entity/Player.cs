@@ -174,7 +174,6 @@ namespace Arena.Entity {
         public void LoadContent(ContentManager content) {
             LoadAnimations(content);
             LandSound = content.Load<SoundEffect>("Sounds/land");
-            Sonar.LoadContent(content);
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -184,10 +183,11 @@ namespace Arena.Entity {
             position += _imageDrawOffset;
                         
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+            Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
             spriteBatch.Draw(Image,
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null, Color.White, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
-                             _facingDirection == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
+                             null,  color, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
+                             _facingDirection == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);            
             foreach ( IGameEntity shot in _shots ) {
                 shot.Draw(spriteBatch, camera);
             }
@@ -388,6 +388,8 @@ namespace Arena.Entity {
             HandleSonar(gameTime);
 
             UpdateShots(gameTime);
+
+            UpdateFlash(gameTime);
         }
 
         /// <summary>
@@ -1338,6 +1340,7 @@ namespace Arena.Entity {
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
             _timeUntilRegainControl = (long) (Constants[PlayerKnockbackTime] * 1000);
             Health -= 10;
+            _flashTime = 150;
 
             // Make sure we're in the air or on the ground as necessary
             _ignoreTerrainCollisionsNextNumFrames = 0;

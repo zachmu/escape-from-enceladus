@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Arena.Entity;
 using Arena.Farseer;
+using Arena.Weapon;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
