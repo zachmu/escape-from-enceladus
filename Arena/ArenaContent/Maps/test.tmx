@@ -44,4 +44,7 @@
   <object x="668" y="469" width="592" height="85"/>
   <object x="273" y="280" width="151" height="75"/>
  </objectgroup>
+ <objectgroup name="NPC" width="100" height="100">
+  <object x="1165" y="714" width="42" height="112"/>
+ </objectgroup>
 </map>

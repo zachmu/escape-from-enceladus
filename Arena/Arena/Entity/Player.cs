@@ -110,8 +110,6 @@ namespace Arena.Entity {
             }
         }
 
-        //private Fixture _scooterSensor;
-
         public Player(Vector2 position, World world) {
             _instance = this;
 
@@ -120,15 +118,6 @@ namespace Arena.Entity {
             Height = CharacterStandingHeight;
             Width = CharacterStandingWidth;
             ConfigureBody(position);
-//            _scooterSensor = FixtureFactory.AttachRectangle(CharacterScootingWidth, CharacterScootingHeight, 0f,
-//                                                            new Vector2(0,
-//                                                                //CharacterScootingWidth / 2 - CharacterStandingWidth / 2,
-//                                                                CharacterDuckingHeight / 2 -
-//                                                                CharacterScootingHeight / 2 - .02f), _body);
-//            _scooterSensor.IsSensor = true;
-//            _scooterSensor.CollidesWith = Arena.TerrainCategory;
-//            _scooterSensor.CollisionCategories = Category.All;
-//            _scooterSensor.UserData = "scooter";
             
             HealthCapacity = 650;
             Health = HealthCapacity;
@@ -841,6 +830,19 @@ namespace Arena.Entity {
 
         private readonly Texture2D[] _scooterAnimation = new Texture2D[NumScooterFrames];
 
+        /*
+         * Unarmed animations
+         * 
+         * TODO: change to private access
+         */
+        public const int NumUnarmedJumpFrames = 12;
+        public const int NumUnarmedWalkFrames = 27;
+        public const int NumUnarmedJogFrames = 17;
+        public readonly Texture2D[] _unarmedJumpAnimation = new Texture2D[NumUnarmedJumpFrames];
+        public readonly Texture2D[] _unarmedWalkAnimation = new Texture2D[NumUnarmedWalkFrames];
+        public readonly Texture2D[] _unarmedJogAnimation = new Texture2D[NumUnarmedJogFrames];
+        public Texture2D _unarmedStandFrame;
+
         private void LoadAnimations(ContentManager content) {
             for ( int i = 0; i < NumStandAimFrames; i++ ) {
                 _standAimAnimation[i] = content.Load<Texture2D>(String.Format("Character/StandAim/StandAim{0:0000}", i));
@@ -887,6 +889,18 @@ namespace Arena.Entity {
             }
 
             Image = _standAimAnimation[AimRightFrame];
+
+            for ( int i = 0; i < NumUnarmedJogFrames; i++ ) {
+                _unarmedJogAnimation[i] = content.Load<Texture2D>(String.Format("Character/JogRight/jog_right{0:0000}", i));
+            }
+            for ( int i = 0; i < NumUnarmedJumpFrames; i++ ) {
+                _unarmedJumpAnimation[i] = content.Load<Texture2D>(String.Format("Character/Jump/Jump{0:0000}", i));
+            }
+            for ( int i = 0; i < NumUnarmedWalkFrames; i++ ) {
+                _unarmedWalkAnimation[i] = content.Load<Texture2D>(String.Format("Character/Walk/Walk{0:0000}", i));
+            }
+
+            _unarmedStandFrame = _unarmedJumpAnimation[NumUnarmedJumpFrames - 1];
         }
 
         private Vector2 _imageDrawOffset = Vector2.Zero;

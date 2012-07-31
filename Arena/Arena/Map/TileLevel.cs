@@ -76,13 +76,9 @@ namespace Arena.Map {
 
         private void InitializeDoors(ObjectGroup doorGroup) {
             foreach ( Object region in doorGroup.Objects ) {
-                Vector2 topLeft = new Vector2(region.X, region.Y);
-                Vector2 bottomRight = new Vector2(region.X + region.Width, region.Y + region.Height);
-                Vector2 simTopLeft;
-                Vector2 simBottomRight;
-                ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
-                ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
-                _doors.Add(new Door(_world, simTopLeft, simBottomRight));
+                var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
+                var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
+                _doors.Add(new Door(_world, topLeft, bottomRight));
             }
         }
 
@@ -120,14 +116,10 @@ namespace Arena.Map {
 
         private void InitializeRooms(ObjectGroup rooms) {
             
-            foreach ( Object room in rooms.Objects ) {
-                Vector2 topLeft = new Vector2(room.X, room.Y);
-                Vector2 bottomRight = new Vector2(room.X + room.Width, room.Y + room.Height);
-                Vector2 simTopLeft;
-                Vector2 simBottomRight;
-                ConvertUnits.ToSimUnits(ref topLeft, out simTopLeft);
-                ConvertUnits.ToSimUnits(ref bottomRight, out simBottomRight);
-                _rooms.Add(new Room(simTopLeft, simBottomRight));
+            foreach ( Object region in rooms.Objects ) {
+                var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
+                var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
+                _rooms.Add(new Room(topLeft, bottomRight));
             }
         }
 
@@ -141,6 +133,7 @@ namespace Arena.Map {
             TearDownEdges();
             InitializeEdges();
             CreateEnemies();
+            CreateNPCs();
 
             return CurrentRoom;
         }
@@ -148,6 +141,22 @@ namespace Arena.Map {
         private void TearDownEdges() {
             foreach ( Tile t in _collisionLayer.GetTiles().Where(tile => tile != null) ) {
                 t.DestroyAttachedBodies();
+            }
+        }
+
+        private void CreateNPCs() {
+            SortedList<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
+            if ( objectGroups.ContainsKey("NPC") ) {
+                ObjectGroup npcGroup = objectGroups["NPC"];
+                foreach ( Object region in npcGroup.Objects ) {
+                    Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
+                    if ( CurrentRoom.Contains(pos) ) {
+                        var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
+                        var bottomRight =
+                            ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
+                        Arena.Instance.Register(new NPC(Color.Turquoise, topLeft, bottomRight, _world));
+                    }
+                }
             }
         }
 

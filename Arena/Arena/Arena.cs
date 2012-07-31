@@ -58,6 +58,7 @@ namespace Arena {
         public const Category TerrainCategory = Category.Cat2;
         public const Category PlayerProjectileCategory = Category.Cat3;
         public const Category EnemyCategory = Category.Cat4;
+        public const Category NPCCategory = Category.Cat5;
 
         public static Boolean Debug = true;
 
@@ -129,23 +130,14 @@ namespace Arena {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            // There's a dependency here between the player's assets and the NPC's 
+            // -- this should go away once they stop sharing animations.
+            _player.LoadContent(Content);
+
+            LoadStaticContent();
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world,
                                        _player.Position);
-            _player.LoadContent(Content);
             _healthStatus.LoadContent(Content);
-
-            Enemy.LoadContent(Content);
-            Shot.LoadContent(Content);
-            Missile.LoadContent(Content);
-            HealthPickup.LoadContent(Content);
-            Bomb.LoadContent(Content);
-            Sonar.LoadContent(Content);
-            SolidColorEffect.LoadContent(Content);
-            
-            Constants.font = Content.Load<SpriteFont>("DebugFont");
-
             _background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
@@ -157,7 +149,22 @@ namespace Arena {
                 _debugView.LoadContent(GraphicsDevice, Content);
             }
 
+            // Create a new SpriteBatch, which can be used to draw textures.
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+
             ClampCameraToRoom();
+        }
+
+        private void LoadStaticContent() {
+            Enemy.LoadContent(Content);
+            Shot.LoadContent(Content);
+            Missile.LoadContent(Content);
+            HealthPickup.LoadContent(Content);
+            Bomb.LoadContent(Content);
+            Sonar.LoadContent(Content);
+            SolidColorEffect.LoadContent(Content);
+            NPC.LoadContent(Content);
+            Constants.font = Content.Load<SpriteFont>("DebugFont");
         }
 
         /// <summary>
