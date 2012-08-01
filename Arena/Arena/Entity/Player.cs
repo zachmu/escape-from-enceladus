@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Arena.Farseer;
 using Arena.Weapon;
+using Arena.Xbox;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -691,7 +692,14 @@ namespace Arena.Entity {
         /// <summary>
         /// Resizes the body while keeping the lower edge in the same position and the X position constant.
         /// </summary>
-        private void ResizeBody(float width, float height, Vector2 positionalCorrection = new Vector2()) {
+        private void ResizeBody(float width, float height) {
+            ResizeBody(width, height, Vector2.Zero);
+        }
+
+        /// <summary>
+        /// Resizes the body while keeping the lower edge in the same position and the X position constant.
+        /// </summary>
+        private void ResizeBody(float width, float height, Vector2 positionalCorrection) {
             _ignoreTerrainCollisionsNextNumFrames = 2;
 
             float halfHeight = height / 2;

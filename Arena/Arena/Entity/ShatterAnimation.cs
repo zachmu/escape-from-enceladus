@@ -40,7 +40,20 @@ namespace Arena.Entity {
         /// <param name="originRectangle">The rectangle on the texture to split up and draw</param>
         /// <param name="position">The center of the original image</param>
         /// <param name="numPieces">The number of horizontal and vertical pieces to split the image into</param>
-        public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces, float maxVelocity = defaultMaxVelocity) {
+        public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces) 
+            : this(world, image, originRectangle, position, numPieces, defaultMaxVelocity) {        
+        }
+
+        /// <summary>
+        /// Begins a new destruction animation for the image given.
+        /// </summary>
+        /// <param name="world"> </param>
+        /// <param name="image">The image to destroy</param>
+        /// <param name="originRectangle">The rectangle on the texture to split up and draw</param>
+        /// <param name="position">The center of the original image</param>
+        /// <param name="numPieces">The number of horizontal and vertical pieces to split the image into</param>
+        /// <param name="maxVelocity">The maximum velocity of any individual piece</param>
+        public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces, float maxVelocity) {
             _image = image;
             _originRectangle = originRectangle ?? new Rectangle(0, 0, 0, 0);
             _pieces = new Piece[numPieces * numPieces];
@@ -64,7 +77,7 @@ namespace Arena.Entity {
                 for ( int y = 0; y < numPieces; y++ ) {
                     float posx = position.X - simWidthOffset + (x * simPieceWidth + simPieceWidth / 2);
                     float posy = position.Y - simHeightOffset + (y * simPieceHeight + simPieceHeight / 2);
-                    Body body = BodyFactory.CreateRectangle(world, simPieceWidth - .01f, simPieceHeight - .01f, 1);
+                    Body body = BodyFactory.CreateRectangle(world, simPieceWidth / 2, simPieceHeight / 2, 1);
                     body.CollidesWith = Arena.TerrainCategory;
                     body.CollisionCategories = Arena.TerrainCategory;
                     body.Position = new Vector2(posx, posy);

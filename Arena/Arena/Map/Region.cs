@@ -33,7 +33,14 @@ namespace Arena.Map {
         /// <summary>
         /// Same as Contains, but includes a buffer of the given thickness around the rectangle.
         /// </summary>
-        public bool Contains(Vector2 position, float buffer = 0f) {
+        public bool Contains(Vector2 position) {
+            return Contains(position, 0f);
+        }
+
+        /// <summary>
+        /// Same as Contains, but includes a buffer of the given thickness around the rectangle.
+        /// </summary>
+        public bool Contains(Vector2 position, float buffer) {
             return (position.X >= TopLeft.X - buffer 
                     && position.X <= BottomRight.X + buffer
                     && position.Y >= TopLeft.Y - buffer

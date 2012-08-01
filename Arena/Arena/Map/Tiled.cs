@@ -49,6 +49,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Arena.Entity;
 using Arena.Farseer;
+using Arena.Xbox;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -117,7 +118,7 @@ namespace Arena.Map {
     }
 
     public partial class Layer {
-        public SortedList<string, string> Properties = new SortedList<string, string>();
+        public Dictionary<string, string> Properties = new Dictionary<string, string>();
         internal Map _map;
 
         public string Name;
@@ -235,7 +236,7 @@ namespace Arena.Map {
             return GetTile((int) tile.Position.X - 1, (int) tile.Position.Y);
         }
 
-        public void Draw(SpriteBatch batch, IList<Tileset> tilesets, Rectangle visibleWorld) {
+        public void Draw(SpriteBatch batch, ICollection<Tileset> tilesets, Rectangle visibleWorld) {
 
             int minx = Math.Max(visibleWorld.Left - 1, 0);
             int miny = Math.Max(visibleWorld.Top - 1, 0);
@@ -265,6 +266,7 @@ namespace Arena.Map {
             }
 
             _destroyedTiles.RemoveAll(tile => !tile.Disposed && tile.Age > Tile.FadeInTime);
+            //_destroyedTiles.Remove
         }
     }
 
@@ -284,7 +286,7 @@ namespace Arena.Map {
 
         // TODO: share this data
         public readonly IList<Body> Bodies = new List<Body>();
-        public ISet<Tile> Group;
+        public HashSet<Tile> Group;
         private readonly int _tileInfoIndex;
 
         private Layer Layer { get; set; }
@@ -433,8 +435,8 @@ namespace Arena.Map {
     }
 
     public partial class ObjectGroup {
-        public List<Object> Objects = new List<Object>();        
-        public SortedList<string, string> Properties = new SortedList<string, string>();
+        public List<Object> Objects = new List<Object>();
+        public Dictionary<string, string> Properties = new Dictionary<string, string>();
 
         public string Name;
         public int Width, Height, X, Y;
@@ -450,7 +452,7 @@ namespace Arena.Map {
     }
 
     public partial class Object {
-        public SortedList<string, string> Properties = new SortedList<string, string>();
+        public Dictionary<string, string> Properties = new Dictionary<string, string>();
 
         public string Name, Image;
         public int Width, Height, X, Y;
@@ -489,10 +491,10 @@ namespace Arena.Map {
     }
 
     public partial class Map {
-        public SortedList<string, Tileset> Tilesets = new SortedList<string, Tileset>();
-        public SortedList<string, Layer> Layers = new SortedList<string, Layer>();
-        public SortedList<string, ObjectGroup> ObjectGroups = new SortedList<string, ObjectGroup>();
-        public SortedList<string, string> Properties = new SortedList<string, string>();
+        public Dictionary<string, Tileset> Tilesets = new Dictionary<string, Tileset>();
+        public Dictionary<string, Layer> Layers = new Dictionary<string, Layer>();
+        public Dictionary<string, ObjectGroup> ObjectGroups = new Dictionary<string, ObjectGroup>();
+        public Dictionary<string, string> Properties = new Dictionary<string, string>();
         public int Width, Height;
         public int TileWidth, TileHeight;
         private TileInfo[] _tileInfoCache = null;
@@ -504,16 +506,16 @@ namespace Arena.Map {
             return _tileInfoCache;
         }
 
-        protected TileInfo[] BuildTileInfoCache(IList<Tileset> tilesets) {
+        protected TileInfo[] BuildTileInfoCache(ICollection<Tileset> tilesets) {
             Rectangle rect = new Rectangle();
             var cache = new List<TileInfo>();
             int i = 1;
 
         next:
-            for ( int t = 0; t < tilesets.Count; t++ ) {
-                if ( tilesets[t].MapTileToRect(i, ref rect) ) {
+            foreach (Tileset tileset in tilesets) {
+                if ( tileset.MapTileToRect(i, ref rect) ) {
                     cache.Add(new TileInfo {
-                        Texture = tilesets[t].Texture,
+                        Texture = tileset.Texture,
                         Rectangle = rect
                     });
                     i += 1;

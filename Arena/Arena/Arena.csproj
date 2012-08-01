@@ -138,10 +138,12 @@
     <Compile Include="Farseer\UserData.cs" />
     <Compile Include="Weapon\PostProcessingEffect.cs" />
     <Compile Include="Weapon\Sonar.cs" />
+    <Compile Include="Xbox\CompatibilityExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <Content Include="System.IO.Compression.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Farseer Physics Engine 3.3.1 Samples XNA\DebugView XNA\DebugView XNA.csproj">

@@ -6,6 +6,7 @@ using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics.Collision.Shapes;
+using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;

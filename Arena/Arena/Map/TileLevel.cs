@@ -5,6 +5,7 @@ using System.Linq;
 using Arena.Entity;
 using Arena.Farseer;
 using Arena.Weapon;
+using Arena.Xbox;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -29,8 +30,8 @@ namespace Arena.Map {
         private readonly List<Door> _doors = new List<Door>(); 
         private readonly Map _levelMap;
         private readonly World _world;
-        private readonly ISet<Tile> _tilesToRemove = new HashSet<Tile>();
-        private readonly ISet<Tile> _tilesToAdd = new HashSet<Tile>();
+        private readonly HashSet<Tile> _tilesToRemove = new HashSet<Tile>();
+        private readonly HashSet<Tile> _tilesToAdd = new HashSet<Tile>();
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -145,7 +146,7 @@ namespace Arena.Map {
         }
 
         private void CreateNPCs() {
-            SortedList<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
+            Dictionary<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
             if ( objectGroups.ContainsKey("NPC") ) {
                 ObjectGroup npcGroup = objectGroups["NPC"];
                 foreach ( Object region in npcGroup.Objects ) {
@@ -161,7 +162,7 @@ namespace Arena.Map {
         }
 
         private void CreateEnemies() {
-            SortedList<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
+            Dictionary<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
             if (objectGroups.ContainsKey("Enemies")) {
                 ObjectGroup enemies = objectGroups["Enemies"];
                 foreach ( Object obj in enemies.Objects ) {
@@ -186,14 +187,19 @@ namespace Arena.Map {
             _levelMap.Update(gameTime);
 
             if ( _tilesToRemove.Count > 0 || _tilesToAdd.Count > 0 ) {
-                ISet<Tile> affectedTiles = new HashSet<Tile>();
+                HashSet<Tile> affectedTiles = new HashSet<Tile>();
                 foreach ( Tile t in _tilesToRemove ) {
                     t.Dispose();
                     affectedTiles.Add(t);
                     TileInfo tileInfo = t.GetBlockTextureInfo();
+#if XBOX
+                    int numPieces = 2;
+#else
+                    int numPieces = 4;
+#endif
                     Arena.Instance.Register(new ShatterAnimation(_world, tileInfo.Texture, tileInfo.Rectangle,
                                                                  t.Position + new Vector2(TileSize / 2, TileSize / 2),
-                                                                 4, 20f));
+                                                                 numPieces, 20f));
                 }
 
                 // When recreating tiles, we need to be careful not to recreate 
@@ -446,7 +452,7 @@ namespace Arena.Map {
         }
 
         private void RecreateEdges(IEnumerable<Tile> tiles) {
-            ISet<Tile> tilesToConsider = new HashSet<Tile>();
+            HashSet<Tile> tilesToConsider = new HashSet<Tile>();
             foreach ( Tile t in tiles ) {
                 tilesToConsider.Add(t);
                 FindAdjacentSolidTiles(t).ForEach(tile => tilesToConsider.Add(tile));
@@ -629,7 +635,7 @@ namespace Arena.Map {
         /// <summary>
         /// Finds all tiles that are connected to this one, setting its membership to be the group given.
         /// </summary>
-        private void FindConnectedTiles(Tile tile, ISet<Tile> group, ISet<Tile> seenTiles) {
+        private void FindConnectedTiles(Tile tile, HashSet<Tile> group, HashSet<Tile> seenTiles) {
             //Console.WriteLine("Adding tile {0} to group {1}", tile.Position, group);
 
             group.Add(tile);

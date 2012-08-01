@@ -38,7 +38,7 @@ sampler2D ScnSamp = sampler_state {
     texture = <ScnMap>;
     AddressU  = CLAMP;
     AddressV = CLAMP;
-    FILTER = MIN_MAG_LINEAR_MIP_POINT;
+//    FILTER = MIN_MAG_LINEAR_MIP_POINT;
 };
 
 ///////////////////////////////////////////////////////////
@@ -164,21 +164,21 @@ float4 PS_wave(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : COLOR
 ////////////////////////////////////////////////////////////
 /////////////////////////////////////// techniques /////////
 ////////////////////////////////////////////////////////////
-RasterizerState DisableCulling
-{
-    CullMode = NONE;
-};
+//RasterizerState DisableCulling
+//{
+//    CullMode = NONE;
+//};
 
-DepthStencilState DepthEnabling
-{
-	DepthEnable = FALSE;
-	DepthWriteMask = ZERO;
-};
+//DepthStencilState DepthEnabling
+//{
+//	DepthEnable = FALSE;
+//	DepthWriteMask = ZERO;
+//};
 
-BlendState DisableBlend
-{
-	BlendEnable[0] = FALSE;
-};
+//BlendState DisableBlend
+//{
+//	BlendEnable[0] = FALSE;
+//};
 
 technique Main <
 	string Script =

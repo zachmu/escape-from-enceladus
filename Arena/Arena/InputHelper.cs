@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Arena.Entity;
 using Arena.Weapon;
 using Microsoft.Xna.Framework;
@@ -96,7 +97,7 @@ namespace Arena {
         }
 
         public IEnumerable<Keys> GetNewKeyPresses() {
-             return new List<Keys>(_currentKeyboardState.GetPressedKeys()).FindAll(IsNewKeyPress);
+             return new List<Keys>(_currentKeyboardState.GetPressedKeys()).Where(IsNewKeyPress);
         }
 
         public bool IsNewKeyRelease(Keys key) {

@@ -297,8 +297,10 @@ namespace Arena.Map {
     public partial class Map {
         public static Map Load(string filename, ContentManager content) {
             var result = new Map();
-            XmlReaderSettings settings = new XmlReaderSettings();
+            XmlReaderSettings settings = new XmlReaderSettings();            
+#if WINDOWS
             settings.ProhibitDtd = false;
+#endif
 
             using ( var stream = System.IO.File.OpenText(filename) )
             using ( var reader = XmlReader.Create(stream, settings) )
@@ -378,8 +380,8 @@ namespace Arena.Map {
             foreach ( var tileset in result.Tilesets.Values ) {
                 // TODO: fix this bug
                 tileset.Texture = content.Load<Texture2D>(
-                    Path.Combine("Maps", Path.GetDirectoryName(tileset.Image),
-                                 Path.GetFileNameWithoutExtension(tileset.Image))
+                    Path.Combine("Maps", Path.Combine(Path.GetDirectoryName(tileset.Image),
+                                 Path.GetFileNameWithoutExtension(tileset.Image)))
                     );
             }
 

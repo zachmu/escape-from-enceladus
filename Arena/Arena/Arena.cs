@@ -6,6 +6,7 @@ using Arena.Farseer;
 using Arena.Map;
 using Arena.Overlay;
 using Arena.Weapon;
+using Arena.Xbox;
 using FarseerPhysics;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
@@ -22,6 +23,7 @@ namespace Arena {
     enum Mode {
         NormalControl,
         RoomTransition,
+        Conversation,
     }
 
     public class Arena : Game {
@@ -34,12 +36,16 @@ namespace Arena {
         private DebugViewXNA _debugView;
         private Player _player;
         private Mode _mode;
+        private Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
 
         private HealthStatus _healthStatus;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
-        private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>(); 
+        private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
+        private readonly List<IGameEntity> _backGroundEffects = new List<IGameEntity>();
+        private readonly List<IGameEntity> _backGroundEffectsToAdd = new List<IGameEntity>();
+        private NPC _conversationNPC;
 
         private bool _manualCamera = false;
 
@@ -79,7 +85,7 @@ namespace Arena {
 #if WINDOWS
             _graphics.IsFullScreen = false;
 #elif XBOX || WINDOWS_PHONE
-            graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = true;
 #endif
         }
 
@@ -116,6 +122,14 @@ namespace Arena {
             _entitiesToAdd.AddRange(entity);
         }
 
+        /// <summary>
+        /// Registers an entity to receive update and draw calls.
+        /// Entity will be removed when it is disposed.
+        /// </summary>
+        public void RegisterBackgroundEffect(params IGameEntity[] entity) {
+            _entitiesToAdd.AddRange(entity);
+        }
+
         private readonly List<PostProcessingEffect> _postProcessorEffects = new List<PostProcessingEffect>();
 
         /// <summary>
@@ -123,6 +137,23 @@ namespace Arena {
         /// </summary>
         public void Register(PostProcessingEffect postProcessorEffect) {
             _postProcessorEffects.Add(postProcessorEffect);
+        }
+
+        /// <summary>
+        /// Registers this NPC as having a conversation, which freezes the action
+        /// </summary>
+        public void StartConversation(NPC actor) {
+            _modeStack.Push(_mode);
+            _mode = Mode.Conversation;
+            _conversationNPC = actor;
+        }
+
+        /// <summary>
+        /// End this conversation
+        /// </summary>
+        public void EndConversation() {
+            _mode = _modeStack.Pop();
+            _conversationNPC = null;
         }
 
         /// <summary>
@@ -135,7 +166,7 @@ namespace Arena {
             _player.LoadContent(Content);
 
             LoadStaticContent();
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, "Maps", "test.tmx"), _world,
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "test.tmx")), _world,
                                        _player.Position);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/rock02");
@@ -153,6 +184,9 @@ namespace Arena {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             ClampCameraToRoom();
+
+            EnableOrDisableFlag(DebugViewFlags.DebugPanel);
+            EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
         }
 
         private void LoadStaticContent() {
@@ -278,11 +312,19 @@ namespace Arena {
                 if ( !_stepSimMode || _nextSimStep ) {
                     InputHelper.Instance.Update(gameTime);
 
-                    _world.Step(Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
-                    _player.Update(gameTime);
+                    float step = 0f;
+                    while ( step < Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)) ) {
+                        _world.Step((1f / 60f));
+                        step += (1f / 59f);
+                    }
 
                     foreach ( IGameEntity ent in _entities ) {
                         ent.Update(gameTime);
+                    }
+
+                    // Make sure our game mode hasn't change before giving the player a chance to respond
+                    if ( _mode == Mode.NormalControl ) {
+                        _player.Update(gameTime);
                     }
 
                     _tileLevel.Update(gameTime);
@@ -290,6 +332,9 @@ namespace Arena {
                 }
 
                 TrackPlayer();
+            } else if (_mode == Mode.Conversation) {
+                InputHelper.Instance.Update(gameTime);
+                _conversationNPC.Update(gameTime);
             }
 
             _camera.Update(gameTime);

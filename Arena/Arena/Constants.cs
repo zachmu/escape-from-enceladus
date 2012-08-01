@@ -91,7 +91,10 @@ namespace Arena {
         internal bool Visible { get; set; }
         internal long LastDisplayTime { get; set; }
 
-        public Constant(string name, float value, Keys key, float increment = .1f) {
+        public Constant(string name, float value, Keys key) : this(name, value,  key, .1f) {
+        }
+
+        public Constant(string name, float value, Keys key, float increment) {
             _name = name;
             _value = value;
             _key = key;
