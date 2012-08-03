@@ -59,6 +59,18 @@ namespace Arena.Map {
     }
 
     public partial class Layer {
+
+        /*
+         * High-order bits in the tile data indicate tile flipping
+         */ 
+        private const uint FlippedHorizontallyFlag = 0x80000000;
+        private const uint FlippedVerticallyFlag = 0x40000000;
+        private const uint FlippedDiagonallyFlag = 0x20000000;
+
+        internal const byte HorizontalFlipDrawFlag = 1;
+        internal const byte VerticalFlipDrawFlag = 2;
+        internal const byte DiagonallyFlipDrawFlag = 4;
+        
         internal static Layer Load(Map map, XmlReader reader) {
             var result = new Layer();
             result._map = map;
@@ -73,6 +85,7 @@ namespace Arena.Map {
                 result.Opacity = float.Parse(reader.GetAttribute("opacity"));
 
             result.Tiles = new int[result.Width * result.Height];
+            result.FlipAndRotate = new byte[result.Width * result.Height];
 
             while ( !reader.EOF ) {
                 var name = reader.Name;
@@ -96,13 +109,31 @@ namespace Arena.Map {
 
                                             using ( stream )
                                             using ( var br = new BinaryReader(stream) ) {
-                                                for ( int i = 0; i < result.Tiles.Length; i++ )
-                                                    result.Tiles[i] = br.ReadInt32();
+                                                for ( int i = 0; i < result.Tiles.Length; i++ ) {
+                                                    uint tileData = br.ReadUInt32();
+
+                                                    byte flipAndRotateFlags = 0;
+                                                    if ( (tileData & FlippedHorizontallyFlag) != 0 ) {
+                                                        flipAndRotateFlags |= HorizontalFlipDrawFlag;
+                                                    }
+                                                    if ( (tileData & FlippedVerticallyFlag) != 0 ) {
+                                                        flipAndRotateFlags |= VerticalFlipDrawFlag;
+                                                    }
+                                                    if ( (tileData & FlippedDiagonallyFlag) != 0 ) {
+                                                        flipAndRotateFlags |= DiagonallyFlipDrawFlag;
+                                                    }
+                                                    result.FlipAndRotate[i] = flipAndRotateFlags;
+
+                                                    // Clear the flip bits before storing the tile data
+                                                    tileData &= ~(FlippedHorizontallyFlag |
+                                                                  FlippedVerticallyFlag |
+                                                                  FlippedDiagonallyFlag);
+                                                    result.Tiles[i] = (int) tileData;
+                                                }
                                             }
 
                                             continue;
                                         }
-                                            ;
 
                                         default:
                                             throw new Exception("Unrecognized encoding.");

@@ -125,6 +125,7 @@ namespace Arena.Map {
         public int Width, Height;
         public float Opacity = 1;
         public int[] Tiles;
+        public byte[] FlipAndRotate;
 
         /// <summary>
         /// Returns the tile at these coordinates, or null if no such tile exists.
@@ -289,31 +290,35 @@ namespace Arena.Map {
         public HashSet<Tile> Group;
         private readonly int _tileInfoIndex;
 
-        private Layer Layer { get; set; }
+        private Layer _layer;
+        private Layer GetLayer() {
+            return _layer;
+        }
+
         public bool Disposed { get; internal set; }
         public int TimeUntilReappear { get; internal set; }
         public int Age { get; internal set; }
 
         public Tile(Layer layer, Vector2 position, int tileInfoIndex) {
             Position = position;
-            Layer = layer;
+            _layer = layer;
             _tileInfoIndex = tileInfoIndex;
         }
 
         public Tile GetLeftTile() {
-            return Layer.GetLeftTile(this);
+            return GetLayer().GetLeftTile(this);
         }
 
         public Tile GetUpTile() {
-            return Layer.GetUpTile(this);
+            return GetLayer().GetUpTile(this);
         }
 
         public Tile GetRightTile() {
-            return Layer.GetRightTile(this);
+            return GetLayer().GetRightTile(this);
         }
 
         public Tile GetDownTile() {
-            return Layer.GetDownTile(this);
+            return GetLayer().GetDownTile(this);
         }
 
         public bool Equals(Tile other) {
@@ -363,7 +368,7 @@ namespace Arena.Map {
             DestroyAttachedBodies();
             Disposed = true;
 
-            Layer.DestroyTile(this);
+            GetLayer().DestroyTile(this);
         }
 
         /// <summary>
@@ -384,23 +389,38 @@ namespace Arena.Map {
 
             Console.WriteLine("Reviving tile at {0}", Position);
             Disposed = false;
-            Layer.ReviveTile(this);
+            GetLayer().ReviveTile(this);
         }
 
         public void Draw(SpriteBatch batch) {
             if ( Disposed )
                 return;
 
-            var tileCorner = new Vector2(Position.X, Position.Y);
-            Vector2 displayPosition = new Vector2();
-            ConvertUnits.ToDisplayUnits(ref tileCorner, out displayPosition);
-            TileInfo tileInfo = Layer._map.GetTileInfoCache()[_tileInfoIndex];
-
             float alpha = 1.0f;
             if ( Age > 0 && Age < FadeInTime ) {
                 alpha = (float) Age / (float) FadeInTime;
             }
-            batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle, Color.White * alpha);
+
+            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(Position + new Vector2(.5f));
+            TileInfo tileInfo = GetLayer()._map.GetTileInfoCache()[_tileInfoIndex];
+            int index = ((int) Position.Y * GetLayer().Width) + (int) Position.X;
+
+            byte flipAndRotate = GetLayer().FlipAndRotate[index];
+            SpriteEffects flipEffect = SpriteEffects.None;
+            float rotation = 0f;
+            if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 ) {
+                flipEffect |= SpriteEffects.FlipHorizontally;
+            }
+            if ( (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
+                flipEffect |= SpriteEffects.FlipVertically;
+            }
+            if ( (flipAndRotate & Layer.DiagonallyFlipDrawFlag) != 0 ) {
+                rotation = (float) (Math.PI / 2);
+                flipEffect ^= SpriteEffects.FlipHorizontally;
+            }
+
+            batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle,
+                       Color.White * alpha, rotation, new Vector2(32), 1f, flipEffect, 0);
         }
 
         /// <summary>
@@ -408,8 +428,8 @@ namespace Arena.Map {
         /// for the block layer corresponding to this tile.
         /// </summary>
         public TileInfo GetBlockTextureInfo() {
-            int tileInfoIndex = Layer._map.Layers["Blocks"].GetTile(this.Position)._tileInfoIndex;
-            return Layer._map.GetTileInfoCache()[tileInfoIndex];
+            int tileInfoIndex = GetLayer()._map.Layers["Blocks"].GetTile(this.Position)._tileInfoIndex;
+            return GetLayer()._map.GetTileInfoCache()[tileInfoIndex];
         }
 
         public void Update(GameTime gameTime) {

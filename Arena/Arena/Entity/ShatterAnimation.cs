@@ -77,7 +77,8 @@ namespace Arena.Entity {
                 for ( int y = 0; y < numPieces; y++ ) {
                     float posx = position.X - simWidthOffset + (x * simPieceWidth + simPieceWidth / 2);
                     float posy = position.Y - simHeightOffset + (y * simPieceHeight + simPieceHeight / 2);
-                    Body body = BodyFactory.CreateRectangle(world, simPieceWidth / 2, simPieceHeight / 2, 1);
+                    //Body body = BodyFactory.CreateCircle(world, simPieceWidth / 2 - .05f, 1);
+                    Body body = BodyFactory.CreateRectangle(world, simPieceWidth * 3f / 4f, simPieceHeight * 3f / 4f, 1);
                     body.CollidesWith = Arena.TerrainCategory;
                     body.CollisionCategories = Arena.TerrainCategory;
                     body.Position = new Vector2(posx, posy);
@@ -90,14 +91,6 @@ namespace Arena.Entity {
             }
         }
 
-        private void AssignRandomDirection(Body body) {
-            double linearVelocity = random.NextDouble() * _maxVelocity;
-            double direction = random.NextDouble() * Math.PI * 2;
-            Vector2 velocity = new Vector2((float) (Math.Cos(direction) * linearVelocity), 
-                (float) (Math.Sin(direction) * linearVelocity));
-            body.LinearVelocity = velocity;
-        }
-
         private class Piece {
             public Piece(Body body, int x, int y) {
                 Body = body;
@@ -108,6 +101,14 @@ namespace Arena.Entity {
             public Body Body { get; private set; }
             public int X { get; private set; }
             public int Y { get; private set; }
+        }
+
+        private void AssignRandomDirection(Body body) {
+            double linearVelocity = random.NextDouble() * _maxVelocity;
+            double direction = random.NextDouble() * Math.PI * 2;
+            Vector2 velocity = new Vector2((float) (Math.Cos(direction) * linearVelocity),
+                (float) (Math.Sin(direction) * linearVelocity));
+            body.LinearVelocity = velocity;
         }
 
         public void Dispose() {

@@ -23,6 +23,7 @@ namespace Arena.Entity {
 
         public void Dispose() {
             _disposed = true;
+            _body.Dispose();
         }
 
         private const int NumUnarmedWalkFrames = 27;
@@ -39,7 +40,7 @@ namespace Arena.Entity {
         private static SpriteFont Font;
         private Texture2D Image { get; set; }
 
-        private Body _body;
+        private readonly Body _body;
         private Direction _facingDirection = Direction.Left;
         private Color _color;
 
