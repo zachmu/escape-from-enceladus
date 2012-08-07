@@ -51,6 +51,8 @@ namespace Arena {
 
         private static Arena _instance;
 
+        public static SpriteFont DebugFont;
+
         public static Arena Instance {
             get { return _instance; }
         }
@@ -105,7 +107,7 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
-            _player = new Player(new Vector2(10,10), _world);
+            _player = new Player(new Vector2(90,5), _world);
             _healthStatus = new HealthStatus();
 
             _mode = Mode.NormalControl;
@@ -166,7 +168,7 @@ namespace Arena {
             _player.LoadContent(Content);
 
             LoadStaticContent();
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "test.tmx")), _world,
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world,
                                        _player.Position);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/rock02");
@@ -199,6 +201,7 @@ namespace Arena {
             SolidColorEffect.LoadContent(Content);
             NPC.LoadContent(Content);
             Constants.font = Content.Load<SpriteFont>("DebugFont");
+            DebugFont = Content.Load<SpriteFont>("DebugFont");
         }
 
         /// <summary>

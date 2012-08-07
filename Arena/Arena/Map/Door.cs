@@ -58,8 +58,7 @@ namespace Arena.Map {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            // TODO: assumes door height of 3
-            int fullDisplayHeight = TileLevel.TileDisplaySize * 3;
+            int fullDisplayHeight = (int) (TileLevel.TileDisplaySize * Height);
             Rectangle rect = new Rectangle(0, 0, TileLevel.TileDisplaySize, fullDisplayHeight);
 
             float offset = 0;
@@ -68,14 +67,14 @@ namespace Arena.Map {
                     break;
                 case State.Opening:
                     float percentOpen = _msSinceLastStateChange / Constants.Get(DoorOpenTime) / 1000;
-                    offset = 3f * percentOpen;
+                    offset = Height * percentOpen;
                     rect.Height = (int) (fullDisplayHeight * (1 - percentOpen));
                     break;
                 case State.Open:
                     return;
                 case State.Closing:
                     float percentClosed = _msSinceLastStateChange / Constants.Get(DoorOpenTime) / 1000;
-                    offset = 3f * (1 - percentClosed);
+                    offset = Height * (1 - percentClosed);
                     rect.Height = (int) (fullDisplayHeight * percentClosed);
                     break;
                 default:

@@ -16,8 +16,6 @@ using Microsoft.Xna.Framework.Content;
 namespace Arena.Map {
 
     public class TileLevel {
-        private SpriteFont _debugFont;
-
         public const float TileSize = 1f;
         private const string RoomLayerName = "Rooms";
         private const string CollisionLayerName = "Collision";
@@ -44,7 +42,6 @@ namespace Arena.Map {
             
              TileDisplaySize = (int) ConvertUnits.ToDisplayUnits(TileSize);
 
-            _debugFont = cm.Load<SpriteFont>("debugFont");
             _levelMap = Map.Load(mapFile, cm);
             Door.LoadContent(cm);
             
@@ -107,7 +104,7 @@ namespace Arena.Map {
                 while ( currTopLeft.Y <= bottomRight.Y ) {
                     currTopLeft.X = topLeft.X;
                     while ( currTopLeft.X <= bottomRight.X ) {
-                        _destructionRegions.Add(new DestructionRegion(_world, currTopLeft, currTopLeft + new Vector2(TileSize / 2), flags));
+                        _destructionRegions.Add(new DestructionRegion(_world, currTopLeft, currTopLeft + new Vector2(1f), flags));
                         currTopLeft.X += TileSize;
                     }
                     currTopLeft.Y += TileSize;

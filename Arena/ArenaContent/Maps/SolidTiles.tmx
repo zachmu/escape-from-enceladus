@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="64" tileheight="64">
+ <tileset firstgid="1" name="Metroid_64" tilewidth="64" tileheight="64">
+  <image source="metroidTiles_64.png" width="1024" height="2296"/>
+ </tileset>
+ <tileset firstgid="561" name="ShipInterior" tilewidth="64" tileheight="64">
+  <image source="ship.png" width="640" height="64"/>
+ </tileset>
+ <layer name="regions" width="100" height="100" visible="0">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3TsQnAMAADwZCNvP9ygfSqJfBd8xP8eZ/fGSksaf/gD5a1f/AHy9o/+INl7R/8wbL2D/5gmR8g8wdk/oDMH5D5AzJ/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAt/kAWoCFL0CcAAA=
+  </data>
+ </layer>
+ <layer name="input_Blocks" width="100" height="100">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3UwQ2CMACFYcMkrkAoBW6O4iiOwiiO4igKebEXz5iQ77u8/D310vbdZdd3l3XbIT2kS7qkx/SYrumahjP5vIt79rnt0HY/L+mSHtNjuqZrGs5k7r67brukl/SUnlq/srfDLgl/Muf/n/P/L2338yk9tX5kr0feEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgN/eFptRkECcAAA=
+  </data>
+ </layer>
+ <layer name="output_Collision" width="100" height="100" visible="0">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3TQQnAQADEwFJH599coSY2BzOfKMh5n9+JFErWP/iDsvUP/qBs/YM/KFv/4A/K1j/4g7L1D/6gbP2DPyhb/+APytY/+AMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAG3y3P+k5QJwAAA==
+  </data>
+ </layer>
+</map>

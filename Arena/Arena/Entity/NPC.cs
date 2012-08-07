@@ -27,7 +27,7 @@ namespace Arena.Entity {
         }
 
         private const int NumUnarmedWalkFrames = 27;
-        private const float Height = 1.9f;
+        private const float CharacterHeight = 1.9f;
 
         String[] conversation = new String[] {
                                                      "I hope this dialogue\nreferences a popular \nmeme.",
@@ -54,7 +54,7 @@ namespace Arena.Entity {
             _bottomRight = bottomRight;
             _color = color;
 
-            _body = BodyFactory.CreateRectangle(world, .6f, Height, 0f);
+            _body = BodyFactory.CreateRectangle(world, .6f, CharacterHeight, 0f);
             _body.IsStatic = false;
             _body.CollisionCategories = Arena.NPCCategory;
             _body.CollidesWith = Arena.TerrainCategory;
@@ -96,7 +96,7 @@ namespace Arena.Entity {
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             // Draw origin is character's feet
             Vector2 position = _body.Position;
-            position.Y += Height / 2;
+            position.Y += CharacterHeight / 2;
 
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
 
