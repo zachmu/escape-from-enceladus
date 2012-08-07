@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Arena.Entity;
+using Arena.Entity.NPC;
 using Arena.Farseer;
 using Arena.Map;
 using Arena.Overlay;
@@ -36,15 +37,13 @@ namespace Arena {
         private DebugViewXNA _debugView;
         private Player _player;
         private Mode _mode;
-        private Stack<Mode> _modeStack = new Stack<Mode>(); 
+        private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
 
         private HealthStatus _healthStatus;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
-        private readonly List<IGameEntity> _backGroundEffects = new List<IGameEntity>();
-        private readonly List<IGameEntity> _backGroundEffectsToAdd = new List<IGameEntity>();
         private NPC _conversationNPC;
 
         private bool _manualCamera = false;
@@ -107,7 +106,7 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
-            _player = new Player(new Vector2(90,5), _world);
+            _player = new Player(new Vector2(73, 28), _world);
             _healthStatus = new HealthStatus();
 
             _mode = Mode.NormalControl;
@@ -121,14 +120,6 @@ namespace Arena {
         /// Entity will be removed when it is disposed.
         /// </summary>
         public void Register(params IGameEntity[] entity) {
-            _entitiesToAdd.AddRange(entity);
-        }
-
-        /// <summary>
-        /// Registers an entity to receive update and draw calls.
-        /// Entity will be removed when it is disposed.
-        /// </summary>
-        public void RegisterBackgroundEffect(params IGameEntity[] entity) {
             _entitiesToAdd.AddRange(entity);
         }
 

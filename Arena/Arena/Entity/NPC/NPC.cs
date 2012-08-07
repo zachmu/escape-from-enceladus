@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Arena.Farseer;
@@ -12,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Entity {
+namespace Arena.Entity.NPC {
 
     /// <summary>
     /// NPC character that you can talk to.
@@ -28,11 +27,14 @@ namespace Arena.Entity {
 
         private const int NumUnarmedWalkFrames = 27;
         private const float CharacterHeight = 1.9f;
+        private const int HorizontalMargin = 40;
 
         String[] conversation = new String[] {
-                                                     "I hope this dialogue\nreferences a popular \nmeme.",
-                                                     "There is no way I'm \nbuying this game \notherwise."
+                                                     "I hope this dialogue references a popular meme.",
+                                                     "There is no way I'm buying this game otherwise."
                                                  };
+
+        protected static int MaxDialogWidth = 450;
 
         private static Texture2D[] WalkAnimation;
         private static Texture2D Stand;
@@ -108,7 +110,7 @@ namespace Arena.Entity {
 
             if ( _playerNearby && !_inConversation ) {
                 position = _body.Position;
-                position.Y -= Height / 2 + .5f;
+                position.Y -= CharacterHeight / 2 + .5f;
 
                 displayPosition = ConvertUnits.ToDisplayUnits(position);
 
@@ -125,14 +127,52 @@ namespace Arena.Entity {
 
             if ( _inConversation ) {
                 position = _body.Position;
-                position.Y -= Height / 2 + 1.5f;
+                position.Y -= CharacterHeight / 2 + 1.5f;
 
                 displayPosition = ConvertUnits.ToDisplayUnits(position);
 
-                Vector2 stringSize = Font.MeasureString(conversation[_conversationLineNum]);
+                // split the string with newlines to get the width right
+                StringBuilder sb = new StringBuilder();
+                string text = conversation[_conversationLineNum];
+                int left = 0, right = text.Length - 1;
+                while ( left < right ) {
+                    string substring = text.Substring(left, right - left + 1);
+                    float width = Font.MeasureString(substring).X;
+                    while ( width > MaxDialogWidth ) {
+                        // look for a space to break the text up
+                        for ( int i = right; i > left; i-- ) {
+                            if ( text[i] == ' ' ) {
+                                right = i - 1;
+                                break;
+                            }
+                        }
+                        substring = text.Substring(left, right - left + 1);
+                        width = Font.MeasureString(substring).X;
+                    }
+                    sb.Append(substring).Append("\n");
+                    left = right + 2;
+                    right = text.Length - 1;
+                }
+
+                Vector2 stringSize = Font.MeasureString(sb);
                 displayPosition -= stringSize / 2;
-                spriteBatch.DrawString(Font, conversation[_conversationLineNum], 
-                                 displayPosition, _color);
+
+                // If we're still drawing off of the screen, nudge the draw boundary
+                int screenWidth = spriteBatch.GraphicsDevice.Viewport.Bounds.Width;
+                float cameraScreenCenter = ConvertUnits.ToDisplayUnits(camera.Position).X;
+                float leftMargin = cameraScreenCenter - screenWidth / 2 + HorizontalMargin;
+                float rightMargin = cameraScreenCenter + screenWidth / 2 - HorizontalMargin;
+
+                if ( displayPosition.X < leftMargin ) {
+                    displayPosition.X = leftMargin;
+                } else if ( displayPosition.X + stringSize.X > rightMargin ) {
+                    displayPosition.X = rightMargin - stringSize.X;
+                }
+
+                // Finally, draw the text shadowed. This involves drawing the text twice, darker then lighter.
+                Color shadow = Color.Lerp(_color, Color.Black, .5f);
+                spriteBatch.DrawString(Font, sb, displayPosition + new Vector2(3), shadow);
+                spriteBatch.DrawString(Font, sb, displayPosition, _color);
             }
         }
 

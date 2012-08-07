@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Arena.Entity;
+using Arena.Entity.NPC;
 using Arena.Farseer;
 using Arena.Weapon;
 using Arena.Xbox;
