@@ -109,8 +109,11 @@
   <ItemGroup>
     <Compile Include="Arena.cs" />
     <Compile Include="Camera2D.cs" />
+    <Compile Include="CameraDirector.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Entity\NPC\Characters.cs" />
     <Compile Include="Entity\NPC\NPC.cs" />
+    <Compile Include="Entity\NPC\NPCFactory.cs" />
     <Compile Include="Entity\ShatterAnimation.cs" />
     <Compile Include="Entity\Entity.cs" />
     <Compile Include="Entity\GameEntity.cs" />

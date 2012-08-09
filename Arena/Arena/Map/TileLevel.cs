@@ -150,10 +150,7 @@ namespace Arena.Map {
                 foreach ( Object region in npcGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
                     if ( CurrentRoom.Contains(pos) ) {
-                        var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
-                        var bottomRight =
-                            ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
-                        Arena.Instance.Register(new NPC(Color.Turquoise, topLeft, bottomRight, _world));
+                        Arena.Instance.Register(NPCFactory.Create(region, _world));
                     }
                 }
             }

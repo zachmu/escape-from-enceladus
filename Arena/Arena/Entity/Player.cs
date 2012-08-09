@@ -39,12 +39,9 @@ namespace Arena.Entity {
         // How far ahead of the standing / ducking position the world must be clear to scoot freely.
         private const float ScooterForwardClearance = ScooterNudge + CharacterScootingWidth / 2;
 
-        private float Height { get; set; }
-        private float Width { get; set; }
+        public float Height { get; private set; }
+        public float Width { get; private set; }
         
-        public const int ImageWidth = 64;
-        public const int ImageHeight = 128;
-
         private static readonly Constants Constants = Constants.Instance;
         private const string PlayerInitSpeedMs = "Player initial run speed (m/s)";
         private const string PlayerMaxSpeedMs = "Player max run speed (m/s)";
@@ -90,6 +87,8 @@ namespace Arena.Entity {
         /// How long, in ms, the player must wait before regaining control after being knocked back
         /// </summary>
         private long _timeUntilRegainControl;
+
+        private Color _color = Color.SteelBlue;
 
         public bool Disposed {
             get { return false; }
@@ -173,10 +172,10 @@ namespace Arena.Entity {
             position += _imageDrawOffset;
                         
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-            Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
+            Color color = _drawSolidColor ? _flashColor : _color;
             spriteBatch.Draw(Image,
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null,  color, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
+                             null, color, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
                              _facingDirection == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);            
             foreach ( IGameEntity shot in _shots ) {
                 shot.Draw(spriteBatch, camera);

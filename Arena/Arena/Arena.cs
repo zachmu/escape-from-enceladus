@@ -20,7 +20,7 @@ using Microsoft.Xna.Framework.Input;
 using Path = System.IO.Path;
 
 namespace Arena {
-
+    
     enum Mode {
         NormalControl,
         RoomTransition,
@@ -33,6 +33,7 @@ namespace Arena {
         private TileLevel _tileLevel;
         private Texture2D _background;
         private Camera2D _camera;
+        private CameraDirector _cameraDirector;
         private World _world;
         private DebugViewXNA _debugView;
         private Player _player;
@@ -45,8 +46,6 @@ namespace Arena {
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
         private NPC _conversationNPC;
-
-        private bool _manualCamera = false;
 
         private static Arena _instance;
 
@@ -108,9 +107,10 @@ namespace Arena {
             _camera = new Camera2D(_graphics.GraphicsDevice);
             _player = new Player(new Vector2(73, 28), _world);
             _healthStatus = new HealthStatus();
-
-            _mode = Mode.NormalControl;
             _inputHelper = new InputHelper();
+
+            _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
+            _mode = Mode.NormalControl;
 
             base.Initialize();
         }
@@ -150,6 +150,30 @@ namespace Arena {
         }
 
         /// <summary>
+        /// Notifies the game that the current room has changed
+        /// </summary>
+        /// <param name="newRoom"></param>
+        public void CurrentRoomChanged(Room newRoom) {
+            foreach ( IGameEntity gameEntity in _entities.Where(entity => !newRoom.Contains(entity.Position)) ) {
+                gameEntity.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Pauses the simulation and update of all game elements
+        /// </summary>
+        public void PauseSimulation() {
+            _simulationPaused = true;
+        }
+
+        /// <summary>
+        /// Resumes simulation and update of all game elements
+        /// </summary>
+        public void ResumeSimulation() {
+            _simulationPaused = false;
+        }
+
+        /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
@@ -176,10 +200,10 @@ namespace Arena {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            ClampCameraToRoom();
+            _cameraDirector.ClampCameraToRoom();
 
-            EnableOrDisableFlag(DebugViewFlags.DebugPanel);
-            EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
+            //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
+            //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
         }
 
         private void LoadStaticContent() {
@@ -196,20 +220,6 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Constrains the camera position to the current room in the level.
-        /// </summary>
-        private void ClampCameraToRoom() {
-            Vector2 viewportCenter = ConvertUnits.ToSimUnits(GraphicsDevice.Viewport.Width / 2f,
-                                                             GraphicsDevice.Viewport.Height / 2f);
-            _camera.MinPosition = TileLevel.CurrentRoom.TopLeft + viewportCenter;
-            _camera.MaxPosition = TileLevel.CurrentRoom.BottomRight - viewportCenter;
-        }
-
-        private void UnclampCamera() {
-            _camera.MinPosition = _camera.MaxPosition;
-        }
-
-        /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
         /// all content.
         /// </summary>
@@ -217,7 +227,7 @@ namespace Arena {
             // TODO: Unload any non ContentManager content here
         }
 
-        private bool _stepSimMode = false;
+        private bool _simulationPaused = false;
         private bool _nextSimStep = false;
 
         /// <summary>
@@ -226,84 +236,24 @@ namespace Arena {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-
-            _entities.AddRange(_entitiesToAdd);
-            _entitiesToAdd.Clear();
             
             KeyboardState keyboardState = Keyboard.GetState();
             if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
 
+            _entities.AddRange(_entitiesToAdd);
+            _entitiesToAdd.Clear();
+
             _inputHelper.Update(gameTime);
+            HandleDebugControl();
+
             if ( _mode == Mode.NormalControl ) {
-                foreach ( var pressedKey in _inputHelper.GetNewKeyPresses() ) {
-                    switch ( pressedKey ) {
-                        case Keys.F1:
-                            EnableOrDisableFlag(DebugViewFlags.Shape);
-                            break;
-                        case Keys.F2:
-                            EnableOrDisableFlag(DebugViewFlags.DebugPanel);
-                            EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
-                            break;
-                        case Keys.F3:
-                            EnableOrDisableFlag(DebugViewFlags.Joint);
-                            break;
-                        case Keys.F4:
-                            EnableOrDisableFlag(DebugViewFlags.ContactPoints);
-                            EnableOrDisableFlag(DebugViewFlags.ContactNormals);
-                            break;
-                        case Keys.F5:
-                            EnableOrDisableFlag(DebugViewFlags.PolygonPoints);
-                            break;
-                        case Keys.F6:
-                            EnableOrDisableFlag(DebugViewFlags.Controllers);
-                            break;
-                        case Keys.F7:
-                            EnableOrDisableFlag(DebugViewFlags.CenterOfMass);
-                            break;
-                        case Keys.F8:
-                            EnableOrDisableFlag(DebugViewFlags.AABB);
-                            break;
-                        case Keys.F10:
-                            _stepSimMode = !_stepSimMode;
-                            break;
-                        case Keys.Enter:
-                            _nextSimStep = true;
-                            break;
-                    }
-                }
-
-                foreach ( var pressedKey in _inputHelper.KeyboardState.GetPressedKeys() ) {
-                    switch ( pressedKey ) {
-                        case Keys.Up:
-                            SetManualCamera();
-                            _camera.MoveCamera(new Vector2(0, -1));
-                            break;
-                        case Keys.Down:
-                            SetManualCamera();
-                            _camera.MoveCamera(new Vector2(0, 1));
-                            break;
-                        case Keys.Left:
-                            SetManualCamera();
-                            _camera.MoveCamera(new Vector2(-1, 0));
-                            break;
-                        case Keys.Right:
-                            SetManualCamera();
-                            _camera.MoveCamera(new Vector2(1, 0));
-                            break;
-                        case Keys.LeftAlt:
-                            _manualCamera = false;
-                            ClampCameraToRoom();
-                            break;
-                    }
-                }
-
                 Constants.Update(_inputHelper);
 
                 _world.Gravity = new Vector2(0, Constants.Get(Gravity));
 
                 // Step every simulation element
-                if ( !_stepSimMode || _nextSimStep ) {
+                if ( !_simulationPaused || _nextSimStep ) {
                     InputHelper.Instance.Update(gameTime);
 
                     float step = 0f;
@@ -325,20 +275,13 @@ namespace Arena {
                     _nextSimStep = false;
                 }
 
-                TrackPlayer();
             } else if (_mode == Mode.Conversation) {
                 InputHelper.Instance.Update(gameTime);
                 _conversationNPC.Update(gameTime);
             }
 
             _camera.Update(gameTime);
-
-            if ( _mode == Mode.RoomTransition ) {
-                if (_camera.IsAtTarget()) {
-                    _mode = Mode.NormalControl;
-                    ClampCameraToRoom();
-                }
-            }
+            _cameraDirector.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
@@ -346,84 +289,40 @@ namespace Arena {
             base.Update(gameTime);
         }
 
-        private void SetManualCamera() {
-            _manualCamera = true;
-            UnclampCamera();
-        }
-
-        /// <summary>
-        /// Moves the camera to follow the player around the screen.
-        /// </summary>
-        private void TrackPlayer() {
-            if ( !_manualCamera ) {
-                // If the sprite goes outside a margin area, move the camera
-                const int margin = 250;
-                Rectangle viewportMargin = new Rectangle(_graphics.GraphicsDevice.Viewport.X + margin,
-                                                         _graphics.GraphicsDevice.Viewport.Y + margin,
-                                                         _graphics.GraphicsDevice.Viewport.Width - 2 * margin,
-                                                         _graphics.GraphicsDevice.Viewport.Height - 2 * margin);
-                Vector2 spriteScreenPosition = _camera.ConvertWorldToScreen(_player.Position);
-
-                int maxx =
-                    viewportMargin.Right - Player.ImageWidth;
-                int minx = viewportMargin.Left;
-                int maxy = viewportMargin.Bottom - Player.ImageHeight;
-                int miny = viewportMargin.Top;
-
-                // Move the camera just enough to position the sprite at the edge of the margin
-                if ( spriteScreenPosition.X > maxx ) {
-                    float delta = spriteScreenPosition.X - maxx;
-                    _camera.MoveCamera(ConvertUnits.ToSimUnits(delta, 0));
-                } else if ( spriteScreenPosition.X < minx ) {
-                    float delta = spriteScreenPosition.X - minx;
-                    _camera.MoveCamera(ConvertUnits.ToSimUnits(delta, 0));
-                }
-
-                if ( spriteScreenPosition.Y > maxy ) {
-                    float delta = spriteScreenPosition.Y - maxy;
-                    _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
-                } else if ( spriteScreenPosition.Y < miny ) {
-                    float delta = spriteScreenPosition.Y - miny;
-                    _camera.MoveCamera(ConvertUnits.ToSimUnits(0, delta));
-                }
-            }
-
-            Room currentRoom = TileLevel.CurrentRoom;
-            if ( !currentRoom.Contains(_player.Position) ) {
-                Direction directionOfTravel = currentRoom.GetRelativeDirection(_player.Position);
-
-                _mode = Mode.RoomTransition;
-                UnclampCamera();
-
-                currentRoom = _tileLevel.SetCurrentRoom(_player.Position);
-                foreach ( IGameEntity gameEntity in _entities.Where(entity => !currentRoom.Contains(entity.Position)) ) {
-                    gameEntity.Dispose();
-                }
-                switch ( directionOfTravel ) {
-                    case Direction.Left:
-                        _camera.Position =
-                            new Vector2(
-                                currentRoom.BottomRight.X -
-                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
-
+        private void HandleDebugControl() {
+            foreach ( var pressedKey in _inputHelper.GetNewKeyPresses() ) {
+                switch ( pressedKey ) {
+                    case Keys.F1:
+                        EnableOrDisableFlag(DebugViewFlags.Shape);
                         break;
-                    case Direction.Right:
-                        _camera.Position =
-                            new Vector2(
-                                currentRoom.TopLeft.X +
-                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f), _camera.Position.Y);
+                    case Keys.F2:
+                        EnableOrDisableFlag(DebugViewFlags.DebugPanel);
+                        EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
                         break;
-                    case Direction.Up:
-                        _camera.Position =
-                            new Vector2(
-                                _camera.Position.X, currentRoom.BottomRight.Y -
-                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Height / 2f));
+                    case Keys.F3:
+                        EnableOrDisableFlag(DebugViewFlags.Joint);
                         break;
-                    case Direction.Down:
-                        _camera.Position =
-                            new Vector2(
-                                _camera.Position.X, currentRoom.TopLeft.Y +
-                                ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Height / 2f));
+                    case Keys.F4:
+                        EnableOrDisableFlag(DebugViewFlags.ContactPoints);
+                        EnableOrDisableFlag(DebugViewFlags.ContactNormals);
+                        break;
+                    case Keys.F5:
+                        EnableOrDisableFlag(DebugViewFlags.PolygonPoints);
+                        break;
+                    case Keys.F6:
+                        EnableOrDisableFlag(DebugViewFlags.Controllers);
+                        break;
+                    case Keys.F7:
+                        EnableOrDisableFlag(DebugViewFlags.CenterOfMass);
+                        break;
+                    case Keys.F8:
+                        EnableOrDisableFlag(DebugViewFlags.AABB);
+                        break;
+                    case Keys.F10:
+                        _simulationPaused = !_simulationPaused;
+                        break;
+                    case Keys.Enter:
+                        _nextSimStep = true;
                         break;
                 }
             }
@@ -571,6 +470,14 @@ namespace Arena {
             Collision.CollidePolygons(ref manifold, shape, ref transform, playerShape, ref playerTransform);
 
             return manifold.PointCount > 0;
+        }
+
+        /// <summary>
+        /// Returns whether a conversation is taking place.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsInConversation() {
+            return _mode == Mode.Conversation;
         }
     }
 }

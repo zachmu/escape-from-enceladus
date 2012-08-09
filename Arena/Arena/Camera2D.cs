@@ -21,10 +21,11 @@ namespace Arena {
         private float _currentRotation;
 
         private float _currentZoom;
-        private Vector2 _maxPosition;
-        private float _maxRotation;
         private Vector2 _minPosition;
+        private Vector2 _maxPosition;
+        private bool _constrainMovement;
         private float _minRotation;
+        private float _maxRotation;
         private bool _positionTracking;
         private bool _rotationTracking;
         private Vector2 _targetPosition;
@@ -62,10 +63,8 @@ namespace Arena {
         /// The current position of the camera.
         /// </summary>
         public Vector2 Position {
-//            get { return ConvertUnits.ToDisplayUnits(_currentPosition); }
             get { return _currentPosition; }
             set {
-//                _targetPosition = ConvertUnits.ToSimUnits(value);
                 _targetPosition = value;
                 if ( _minPosition != _maxPosition ) {
                     Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
@@ -87,9 +86,7 @@ namespace Arena {
         /// applied (unless you override that function).
         /// </summary>
         public Vector2 MinPosition {
-            //            get { return ConvertUnits.ToDisplayUnits(_minPosition); }
             get { return _minPosition; }
-            //            set { _minPosition = ConvertUnits.ToSimUnits(value); }
             set { _minPosition = value; }
         }
 
@@ -100,10 +97,14 @@ namespace Arena {
         /// </summary>
         public Vector2 MaxPosition {
             get { return _maxPosition; }
-//            get { return ConvertUnits.ToDisplayUnits(_maxPosition); }
-//            set { _maxPosition = ConvertUnits.ToSimUnits(value); }
             set { _maxPosition = value; }
         }
+
+        /// <summary>
+        /// Whether or not to constrain the position of the camera designated 
+        /// by Max and Min Position
+        /// </summary>
+        public bool ConstrainPosition { get; set; }
 
         /// <summary>
         /// The current rotation of the camera in radians.
@@ -192,7 +193,7 @@ namespace Arena {
 
         public void MoveCamera(Vector2 amount) {
             _currentPosition += amount;
-            if ( _minPosition != _maxPosition ) {
+            if ( ConstrainPosition ) {
                 Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
             }
             _targetPosition = _currentPosition;
@@ -217,6 +218,7 @@ namespace Arena {
             _targetPosition = Vector2.Zero;
             _minPosition = Vector2.Zero;
             _maxPosition = Vector2.Zero;
+            ConstrainPosition = false;
 
             _currentRotation = 0f;
             _targetRotation = 0f;
@@ -265,7 +267,7 @@ namespace Arena {
             if ( _trackingBody != null ) {
                 if ( _positionTracking ) {
                     _targetPosition = _trackingBody.Position;
-                    if ( _minPosition != _maxPosition ) {
+                    if ( ConstrainPosition) {
                         Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
                     }
                 }
