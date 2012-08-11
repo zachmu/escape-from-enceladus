@@ -67,6 +67,8 @@ namespace Arena.Map {
         public int FirstTileId;
         public int TileWidth;
         public int TileHeight;
+        public int Spacing;
+        public int Margin;
         public Dictionary<int, TilePropertyList> TileProperties = new Dictionary<int, TilePropertyList>();
         public string Image;
         protected Texture2D _Texture;
@@ -109,8 +111,8 @@ namespace Arena.Map {
 
             int col = index % rowSize;
 
-            rect.X = col * TileWidth;
-            rect.Y = row * TileHeight;
+            rect.X = col * TileWidth + col * Spacing + Margin;
+            rect.Y = row * TileHeight + row * Spacing + Margin;
             rect.Width = TileWidth;
             rect.Height = TileHeight;
             return true;
@@ -408,18 +410,14 @@ namespace Arena.Map {
             byte flipAndRotate = GetLayer().FlipAndRotate[index];
             SpriteEffects flipEffect = SpriteEffects.None;
             float rotation = 0f;
-            String HVR = "";
 
             if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 ) {
                 flipEffect |= SpriteEffects.FlipHorizontally;
-                HVR += "H";
             }
             if ( (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
                 flipEffect |= SpriteEffects.FlipVertically;
-                HVR += "V";
             }
             if ( (flipAndRotate & Layer.DiagonallyFlipDrawFlag) != 0 ) {
-                HVR += "R";
                 if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 && (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
                     rotation = (float) (Math.PI / 2);
                     flipEffect ^= SpriteEffects.FlipVertically;
@@ -434,7 +432,6 @@ namespace Arena.Map {
 
             batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle,
                        Color.White * alpha, rotation, new Vector2(32), 1f, flipEffect, 0);
-            //batch.DrawString(Arena.DebugFont, HVR, displayPosition, Color.GreenYellow);
         }
 
         /// <summary>

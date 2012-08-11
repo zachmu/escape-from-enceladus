@@ -98,6 +98,10 @@ namespace Arena.Entity {
             get { return _body.Position; }
         }
 
+        public Vector2 LinearVelocity {
+            get { return _body.LinearVelocity; }
+        }
+
         public PolygonShape Shape {
             get { return (PolygonShape) _body.FixtureList.First().Shape; }
         }

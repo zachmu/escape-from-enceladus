@@ -25,6 +25,7 @@ namespace Arena.Map {
         public static int TileDisplaySize;
         private readonly Layer _collisionLayer;
         private readonly List<Room> _rooms = new List<Room>();
+        private readonly Dictionary<Room, List<Door>> _doorsByRoom = new Dictionary<Room, List<Door>>(); 
         private readonly List<DestructionRegion> _destructionRegions = new List<DestructionRegion>();
         private readonly List<Door> _doors = new List<Door>(); 
         private readonly Map _levelMap;
@@ -35,6 +36,14 @@ namespace Arena.Map {
         public static TileLevel CurrentLevel { get; private set; }
 
         public static Room CurrentRoom { get; private set; }
+
+        public int Width {
+            get { return _levelMap.Width; }
+        }
+
+        public int Height {
+            get { return _levelMap.Height; }
+        }
 
         public TileLevel(ContentManager cm, String mapFile, World world, Vector2 startPosition) {
             CurrentLevel = this;
@@ -49,16 +58,16 @@ namespace Arena.Map {
             _collisionLayer = _levelMap.Layers[CollisionLayerName];
             
             try {
-                ObjectGroup objectGroup = _levelMap.ObjectGroups[RoomLayerName];
-                InitializeRooms(objectGroup);
+                ObjectGroup roomGroup = _levelMap.ObjectGroups[RoomLayerName];
+                InitializeRooms(roomGroup);
             } catch {
                 // No rooms layer is fine, we'll just create a room for them
                 _rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height)));
             }
 
             try {
-                ObjectGroup objectGroup = _levelMap.ObjectGroups[DestructionLayerName];
-                InitializeDestructionRegions(objectGroup);
+                ObjectGroup destructionGroup = _levelMap.ObjectGroups[DestructionLayerName];
+                InitializeDestructionRegions(destructionGroup);
             } catch {
                 // Ignore missing destruction layer
             }
@@ -77,7 +86,18 @@ namespace Arena.Map {
             foreach ( Object region in doorGroup.Objects ) {
                 var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
                 var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
-                _doors.Add(new Door(_world, topLeft, bottomRight));
+                Door door = new Door(_world, topLeft, bottomRight);
+                _doors.Add(door);
+
+                // Add the door to any straddling rooms
+                _rooms.ForEach(room => {
+                    if ( room.Intersects(door) ) {
+                        if ( !_doorsByRoom.ContainsKey(room) ) {
+                            _doorsByRoom[room] = new List<Door>();
+                        }
+                        _doorsByRoom[room].Add(door);
+                    }
+                });
             }
         }
 
@@ -674,6 +694,21 @@ namespace Arena.Map {
             Tile t = GetTile(position);
             return t != null && !t.Disposed;
         }
-    }
 
+        /// <summary>
+        /// Returns the room at the coordinates given or null if there isn't one
+        /// </summary>
+        public Room RoomAt(int x, int y) {
+            return _rooms.FirstOrDefault(room => room.Contains(x, y));
+        }
+
+        /// <summary>
+        /// Returns the set of doors attached to this room
+        /// </summary>
+        /// <param name="room"></param>
+        /// <returns></returns>
+        public List<Door> GetDoorsAttachedToRoom(Room room) {
+            return _doorsByRoom[room] ?? new List<Door>();
+        }
+    }
 }

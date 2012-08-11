@@ -35,5 +35,15 @@ namespace Arena.Map {
             }
         }
 
+        /// <summary>
+        /// Returns whether this region intersects another.  
+        /// This method considers co-linear regions to intesect.
+        /// </summary>
+        public bool Intersects(Region r) {
+            return Contains(r.TopLeft, .01f)
+                   || Contains(r.TopRight, .01f)
+                   || Contains(r.BottomLeft, .01f)
+                   || Contains(r.BottomRight, .01f);
+        }
     }
 }

@@ -42,6 +42,7 @@ namespace Arena {
         private InputHelper _inputHelper;
 
         private HealthStatus _healthStatus;
+        private VisitationMap _visitationMap;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
@@ -185,6 +186,7 @@ namespace Arena {
             LoadStaticContent();
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world,
                                        _player.Position);
+            _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/rock02");
 
@@ -201,6 +203,8 @@ namespace Arena {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _cameraDirector.ClampCameraToRoom();
+            _cameraDirector.TargetPlayer();            
+            _cameraDirector.JumpToTarget();
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
@@ -214,6 +218,7 @@ namespace Arena {
             Bomb.LoadContent(Content);
             Sonar.LoadContent(Content);
             SolidColorEffect.LoadContent(Content);
+            VisitationMap.LoadContent(Content);
             NPC.LoadContent(Content);
             Constants.font = Content.Load<SpriteFont>("DebugFont");
             DebugFont = Content.Load<SpriteFont>("DebugFont");
@@ -282,6 +287,7 @@ namespace Arena {
 
             _camera.Update(gameTime);
             _cameraDirector.Update(gameTime);
+            _visitationMap.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
@@ -402,6 +408,7 @@ namespace Arena {
             // Draw overlays on top
             _spriteBatch.Begin();
             _healthStatus.Draw(_spriteBatch, _camera);
+            _visitationMap.Draw(_spriteBatch);
             _spriteBatch.End();
 
             // And any debug info

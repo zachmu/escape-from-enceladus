@@ -14,6 +14,14 @@ namespace Arena.Map {
             get { return _topLeft; }
         }
 
+        public Vector2 BottomLeft {
+            get { return _topLeft + new Vector2(0, Height); }
+        }
+
+        public Vector2 TopRight {
+            get { return _topLeft + new Vector2(Width, 0); }
+        }
+
         protected float Width {
             get { return BottomRight.X - TopLeft.X; }
         }
@@ -45,6 +53,19 @@ namespace Arena.Map {
                     && position.X <= BottomRight.X + buffer
                     && position.Y >= TopLeft.Y - buffer
                     && position.Y <= BottomRight.Y + buffer);
+        }
+
+        public bool Contains(int x, int y) {
+            return Contains(new Vector2(x, y));
+        }
+
+        /// <summary>
+        /// Converts to a rectangle.  Any fractional measurements are lost with this method, 
+        /// so this is only valid with tile-aligned regions.
+        /// </summary>
+        /// <returns></returns>
+        public Rectangle ToRectangle(int padding) {
+            return new Rectangle((int) TopLeft.X - padding, (int) TopLeft.Y - padding, (int) Width + padding * 2, (int) Height + padding * 2);
         }
     }
 }

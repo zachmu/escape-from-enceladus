@@ -122,8 +122,10 @@
     <Compile Include="Farseer\ConvertUnits.cs" />
     <Compile Include="Entity\Enemy.cs" />
     <Compile Include="Farseer\FarseerExtensions.cs" />
+    <Compile Include="Map\MapConstants.cs" />
     <Compile Include="Map\DestructionRegion.cs" />
     <Compile Include="Map\Door.cs" />
+    <Compile Include="Map\VisitationMap.cs" />
     <Compile Include="Map\Region.cs" />
     <Compile Include="Map\Room.cs" />
     <Compile Include="Map\TiledMapLoader.cs" />

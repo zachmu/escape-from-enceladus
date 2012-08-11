@@ -23,7 +23,6 @@ namespace Arena {
         private float _currentZoom;
         private Vector2 _minPosition;
         private Vector2 _maxPosition;
-        private bool _constrainMovement;
         private float _minRotation;
         private float _maxRotation;
         private bool _positionTracking;
@@ -191,6 +190,10 @@ namespace Arena {
             }
         }
 
+        /// <summary>
+        /// Immediately moves the camera from its current position in the amount specified, 
+        /// updating the target position there as well.
+        /// </summary>
         public void MoveCamera(Vector2 amount) {
             _currentPosition += amount;
             if ( ConstrainPosition ) {
@@ -199,6 +202,16 @@ namespace Arena {
             _targetPosition = _currentPosition;
             _positionTracking = false;
             _rotationTracking = false;
+        }
+
+        /// <summary>
+        /// Sets the target position to be the current position plus a specified delta
+        /// </summary>
+        public void MoveTarget(Vector2 delta) {
+            _targetPosition = _currentPosition + delta;
+            if ( ConstrainPosition ) {
+                Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
+            }
         }
 
         public void RotateCamera(float amount) {
@@ -278,40 +291,43 @@ namespace Arena {
                     }
                 }
             }
+
+            // Move toward our target position
             Vector2 delta = _targetPosition - _currentPosition;
             float distance = delta.Length();
-            Vector2 normal = delta;
             if ( distance > 0f ) {
-                normal /= distance;
-            }
-            float inertia;
-            if ( distance < 10f ) {
-                inertia = (float) Math.Pow(distance / 10.0, 2.0);
-            } else {
-                inertia = 1f;
-            }
+                delta /= distance;
 
-            //            float rotDelta = _targetRotation - _currentRotation;
-            //
-            //            float rotInertia;
-            //            if ( Math.Abs(rotDelta) < 5f ) {
-            //                rotInertia = (float) Math.Pow(rotDelta / 5.0, 2.0);
-            //            } else {
-            //                rotInertia = 1f;
-            //            }
-            //            if ( Math.Abs(rotDelta) > 0f ) {
-            //                rotDelta /= Math.Abs(rotDelta);
-            //            }
+                float inertia;
+                if ( distance < 10f ) {
+                    inertia = (float) Math.Pow(distance / 10.0, 2.0);
+                } else {
+                    inertia = 1f;
+                }
 
-            //            _currentPosition += delta * .1f * (float) gameTime.ElapsedGameTime.TotalSeconds;
-            if ( distance < 2.0f ) {
-                _currentPosition += normal / 10f;
-            } else {
-                _currentPosition += normal *
-                                    Math.Min(Constants.Get(RoomTransitionSpeed) * inertia * (float) gameTime.ElapsedGameTime.TotalSeconds, .25f);
+                Vector2 adjustmentSpeed = 100f * delta * inertia;
+
+                // clamp the movement to a max and min speed
+                float minSpeed = 4f;
+                float maxSpeed = 30f;
+                if ( adjustmentSpeed.Length() > maxSpeed ) {
+                    adjustmentSpeed.Normalize();
+                    adjustmentSpeed *= maxSpeed;
+                } else if ( adjustmentSpeed.Length() < minSpeed ) {
+                    adjustmentSpeed.Normalize();
+                    adjustmentSpeed *= minSpeed;
+                }
+
+                // If the adjustment distance is under a min threshold, 
+                // or we're about to overshoot, we're done
+                float minAdjustment = .001f;
+                Vector2 adjustment = adjustmentSpeed * (float) gameTime.ElapsedGameTime.TotalSeconds;
+                if ( adjustment.Length() < minAdjustment || adjustment.Length() > distance ) {
+                    _currentPosition = _targetPosition;
+                } else {
+                    _currentPosition += adjustment;
+                }
             }
-
-            //            _currentRotation += 80f * rotDelta * rotInertia * (float) gameTime.ElapsedGameTime.TotalSeconds;
 
             SetView();
         }

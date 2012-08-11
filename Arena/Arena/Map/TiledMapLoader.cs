@@ -20,6 +20,8 @@ namespace Arena.Map {
             result.FirstTileId = int.Parse(reader.GetAttribute("firstgid"));
             result.TileWidth = int.Parse(reader.GetAttribute("tilewidth"));
             result.TileHeight = int.Parse(reader.GetAttribute("tileheight"));
+            int.TryParse(reader.GetAttribute("margin"), out result.Margin);
+            int.TryParse(reader.GetAttribute("spacing"), out result.Spacing);
 
             int currentTileId = -1;
 
