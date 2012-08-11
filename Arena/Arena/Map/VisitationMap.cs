@@ -142,51 +142,59 @@ namespace Arena.Map {
                 float doorAlpha = .9f;
                 // Draw each of the four walls if the room doesn't continue in that direction, 
                 // and a door if there's one in that wall.
+
+                // top
                 if ( !room.Contains(cellCenterX, cellCenterY - MapConstants.RoomHeight) ) {
                     spriteBatch.Draw(_walls[TopWall], drawPosition, Color.White * wallAlpha);
                     Rectangle topWallIntersection =
-                        new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX,
+                        new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX + 1,
                                       cellY * MapConstants.RoomHeight + MapConstants.TileOffsetY - 1,
-                                      MapConstants.RoomWidth, 2);
+                                      MapConstants.RoomWidth - 1, 2);
                     if (
                         _level.GetDoorsAttachedToRoom(room).Any(
-                            door => topWallIntersection.Intersects(door.ToRectangle(1))) ) {
+                            door => topWallIntersection.Intersects(door.ToRectangle(0))) ) {
                         spriteBatch.Draw(_doors[TopDoor], drawPosition, Color.White * doorAlpha);
                     }
                 }
+
+                // right
                 if ( !room.Contains(cellCenterX + MapConstants.RoomWidth, cellCenterY) ) {
                     spriteBatch.Draw(_walls[RightWall], drawPosition, Color.White * wallAlpha);
                     Rectangle rightWallIntersection =
                         new Rectangle((cellX + 1) * MapConstants.RoomWidth + MapConstants.TileOffsetX - 1,
-                                      cellY * MapConstants.RoomHeight + MapConstants.TileOffsetY,
-                                      2, MapConstants.RoomHeight);
+                                      cellY * MapConstants.RoomHeight + MapConstants.TileOffsetY + 1,
+                                      2, MapConstants.RoomHeight - 1);
                     if (
                         _level.GetDoorsAttachedToRoom(room).Any(
-                            door => rightWallIntersection.Intersects(door.ToRectangle(1))) ) {
+                            door => rightWallIntersection.Intersects(door.ToRectangle(0))) ) {
                         spriteBatch.Draw(_doors[RightDoor], drawPosition, Color.White * doorAlpha);
                     }
                 }
+
+                // bottom
                 if ( !room.Contains(cellCenterX, cellCenterY + MapConstants.RoomHeight) ) {
                     spriteBatch.Draw(_walls[BottomWall], drawPosition, Color.White * wallAlpha);
                     Rectangle bottomWallIntersection =
-                        new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX,
+                        new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX + 1,
                                       (cellY + 1) * MapConstants.RoomHeight + MapConstants.TileOffsetY - 1,
-                                      MapConstants.RoomWidth, 2);
+                                      MapConstants.RoomWidth - 1, 2);
                     if (
                         _level.GetDoorsAttachedToRoom(room).Any(
-                            door => bottomWallIntersection.Intersects(door.ToRectangle(1))) ) {
+                            door => bottomWallIntersection.Intersects(door.ToRectangle(0))) ) {
                         spriteBatch.Draw(_doors[BottomDoor], drawPosition, Color.White * doorAlpha);
                     }
                 }
+
+                // left
                 if ( !room.Contains(cellCenterX - MapConstants.RoomWidth, cellCenterY) ) {
                     spriteBatch.Draw(_walls[LeftWall], drawPosition, Color.White * wallAlpha);
                     Rectangle leftWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX - 1,
-                                      cellY * MapConstants.RoomHeight + MapConstants.TileOffsetY,
-                                      2, MapConstants.RoomHeight);
+                                      cellY * MapConstants.RoomHeight + MapConstants.TileOffsetY + 1,
+                                      2, MapConstants.RoomHeight + 1);
                     if (
                         _level.GetDoorsAttachedToRoom(room).Any(
-                            door => leftWallIntersection.Intersects(door.ToRectangle(1))) ) {
+                            door => leftWallIntersection.Intersects(door.ToRectangle(0))) ) {
                         spriteBatch.Draw(_doors[LeftDoor], drawPosition, Color.White * doorAlpha);
                     }
                 }
