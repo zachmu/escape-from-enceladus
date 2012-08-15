@@ -42,9 +42,8 @@ namespace Arena.Entity {
             var contactEdge = _body.ContactList;
             FixedArray2<Vector2> points;
             while ( contactEdge != null ) {
-                if ( contactEdge.Contact.IsTouching() && contactEdge.Other.GetUserData().IsTerrain ) {
-                    Vector2 normal;
-                    contactEdge.Contact.GetWorldManifold(out normal, out points);
+                if ( contactEdge.Contact.IsTouching() && (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor) ) {
+                    Vector2 normal = contactEdge.Contact.GetPlayerNormal(_body);
                     if ( normal.Y < -.8 ) {
                         isStanding = true;
                     } else if ( normal.Y > .8 ) {

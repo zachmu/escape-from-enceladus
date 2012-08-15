@@ -21,17 +21,20 @@ namespace Arena.Map {
         private const int FlashTimeMs = 500;
         private int _timeSinceFlashChange = 0;
 
-        private const int MapOverlayWidth = 5;
-        private const int MapOverlayHeight = 5;
+        private const int MapOverlayWidth = 7;
+        private const int MapOverlayHeight = 7;
         private const int MiddleCellX = MapOverlayWidth / 2;
         private const int MiddleCellY = MapOverlayHeight / 2;
-
-        private const int CellWidthPixels = 48;
-        private const int CellHeightPixels = 27;
 
         /*
          * Drawing members
          */
+        private const int CellWidthPixels = 32;
+        private const int CellHeightPixels = 18;
+
+        private const int OverlayHeightPixels = CellHeightPixels * MapOverlayHeight;
+        private const int OverlayWidthPixels = CellWidthPixels * MapOverlayWidth;
+
         private static Texture2D _backdrop;
 
         private const int NumCells = 3;
@@ -105,7 +108,7 @@ namespace Arena.Map {
             GetPlayerScreen(out playerScreenX, out playerScreenY);
 
             Vector2 drawOffset = new Vector2(spriteBatch.GraphicsDevice.Viewport.Width - DrawOffsetX, DrawOffsetY);
-            spriteBatch.Draw(_backdrop, drawOffset, Color.White * .5f);
+            spriteBatch.Draw(_backdrop, new Rectangle((int) drawOffset.X, (int) drawOffset.Y, OverlayWidthPixels, OverlayHeightPixels), Color.Black * .25f);
 
             for ( int y = 0; y < MapOverlayHeight; y++ ) {
                 int cellY = playerScreenY - MapOverlayHeight / 2 + y;
@@ -132,7 +135,7 @@ namespace Arena.Map {
             if ( room != null && _knownScreens[cellX, cellY] ) {
                 // Draw the cell background 
                 float wallAlpha = .65f;
-                if ( _activeFlash && x == MiddleCellX && y == MiddleCellY ) {
+                if ( x == MiddleCellX && y == MiddleCellY ) {
                     spriteBatch.Draw(_cells[ActiveCell], drawPosition, Color.White * wallAlpha);
                 } else {
                     spriteBatch.Draw(_visitedScreens[cellX, cellY] ? _cells[VisitedCell] : _cells[UnvisitedCell],
@@ -144,7 +147,7 @@ namespace Arena.Map {
                 // and a door if there's one in that wall.
 
                 // top
-                if ( !room.Contains(cellCenterX, cellCenterY - MapConstants.RoomHeight) ) {
+                if ( !RoomContainsPoint(room, cellCenterX, cellCenterY - MapConstants.RoomHeight) ) {
                     spriteBatch.Draw(_walls[TopWall], drawPosition, Color.White * wallAlpha);
                     Rectangle topWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX + 1,
@@ -158,7 +161,7 @@ namespace Arena.Map {
                 }
 
                 // right
-                if ( !room.Contains(cellCenterX + MapConstants.RoomWidth, cellCenterY) ) {
+                if ( !RoomContainsPoint(room, cellCenterX + MapConstants.RoomWidth, cellCenterY) ) {
                     spriteBatch.Draw(_walls[RightWall], drawPosition, Color.White * wallAlpha);
                     Rectangle rightWallIntersection =
                         new Rectangle((cellX + 1) * MapConstants.RoomWidth + MapConstants.TileOffsetX - 1,
@@ -172,7 +175,7 @@ namespace Arena.Map {
                 }
 
                 // bottom
-                if ( !room.Contains(cellCenterX, cellCenterY + MapConstants.RoomHeight) ) {
+                if ( !RoomContainsPoint(room, cellCenterX, cellCenterY + MapConstants.RoomHeight) ) {
                     spriteBatch.Draw(_walls[BottomWall], drawPosition, Color.White * wallAlpha);
                     Rectangle bottomWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX + 1,
@@ -186,7 +189,7 @@ namespace Arena.Map {
                 }
 
                 // left
-                if ( !room.Contains(cellCenterX - MapConstants.RoomWidth, cellCenterY) ) {
+                if ( !RoomContainsPoint(room, cellCenterX - MapConstants.RoomWidth, cellCenterY) ) {
                     spriteBatch.Draw(_walls[LeftWall], drawPosition, Color.White * wallAlpha);
                     Rectangle leftWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX - 1,
@@ -199,6 +202,16 @@ namespace Arena.Map {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns whether the room given contains the point given, consider non-rectangular room conglomerations.
+        /// </summary>
+        private bool RoomContainsPoint(Room room, int x, int y) {
+            if ( room.ID == null )
+                return room.Contains(x, y);
+            Room otherRoom = TileLevel.CurrentLevel.RoomAt(x, y);
+            return otherRoom != null && room.ID == otherRoom.ID;
         }
 
         /// <summary>

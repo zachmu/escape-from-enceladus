@@ -173,44 +173,7 @@ namespace Arena.Map {
             return _tiles;
         }
 
-        private readonly List<Tile> _destroyedTiles = new List<Tile>(); 
-
-        /// <summary>
-        /// Destroys the given tile.  Meant to be called on tiles in the collision layer only; 
-        /// the underlying Block layer will be automatically updated to reflect the changes.
-        /// </summary>
-        internal void DestroyTile(Tile tile) {
-            Layer blockLayer = _map.Layers["Blocks"];
-
-            int x = (int) tile.Position.X;
-            int y = (int) tile.Position.Y;
-            int index = y * Width + x;
-            Tile blockLayerTile = blockLayer.GetTile(x, y);
-            if ( blockLayerTile != null ) {
-                blockLayerTile.Disposed = true;
-                blockLayerTile.TimeUntilReappear = tile.TimeUntilReappear;
-                blockLayerTile.Age = 1;
-            }
-
-            _destroyedTiles.Add(tile);
-        }
-
-        /// <summary>
-        /// Revives the given tile.  Meant to be called on tiles in the collision layer only; 
-        /// the underlying Block layer will be automatically updated.
-        /// </summary>
-        /// <param name="tile"></param>
-        internal void ReviveTile(Tile tile) {
-            Layer blockLayer = _map.Layers["Blocks"];
-
-            int x = (int) tile.Position.X;
-            int y = (int) tile.Position.Y;
-            int index = y * Width + x;
-            Tile blockLayerTile = blockLayer.GetTile(x, y);
-            if ( blockLayerTile != null ) {
-                blockLayerTile.Disposed = false;
-            }
-        }
+        internal readonly List<Tile> _destroyedTiles = new List<Tile>(); 
 
         /// <summary>
         /// Returns the tile underneath this one, or null if there is no tile there
@@ -370,7 +333,7 @@ namespace Arena.Map {
             DestroyAttachedBodies();
             Disposed = true;
 
-            GetLayer().DestroyTile(this);
+            GetLayer()._destroyedTiles.Add(this);
         }
 
         /// <summary>
@@ -391,7 +354,6 @@ namespace Arena.Map {
 
             Console.WriteLine("Reviving tile at {0}", Position);
             Disposed = false;
-            GetLayer().ReviveTile(this);
         }
 
         public void Draw(SpriteBatch batch) {
@@ -558,13 +520,22 @@ namespace Arena.Map {
         }
 
 
-        public void Draw(SpriteBatch batch, Rectangle visibleWorld) {
-            foreach ( Layer layer in Layers.Values.Where(layer => !layer.Properties.ContainsKey("invisible")) ) {
+        public void DrawBackground(SpriteBatch batch, Rectangle visibleWorld) {
+            foreach (
+                Layer layer in
+                    Layers.Values.Where(
+                        layer =>
+                        !layer.Properties.ContainsKey("invisible") && !layer.Properties.ContainsKey("foreground")) ) {
                 layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
+        }
 
-            foreach ( var objectGroup in ObjectGroups.Values ) {
-                objectGroup.Draw(this, batch, visibleWorld);
+        public void DrawForeground(SpriteBatch batch, Rectangle visibleWorld) {
+            foreach (
+                Layer layer in
+                    Layers.Values.Where(
+                        layer => layer.Properties.ContainsKey("foreground")) ) {
+                layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
         }
 

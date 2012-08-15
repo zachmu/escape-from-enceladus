@@ -148,16 +148,29 @@ namespace Arena {
         public void EndConversation() {
             _mode = _modeStack.Pop();
             _conversationNPC = null;
+        }        
+
+        private float _backgroundAlpha = 1;
+        public float BackgroundAlpha { get { return _backgroundAlpha;  } }
+
+        /// <summary>
+        /// Dispose of all the entities in the room mentioned.
+        /// </summary>
+        public void DisposeRoom(Room disposeRoom) {
+            foreach ( IGameEntity gameEntity in _entities.Where(entity => !disposeRoom.Contains(entity.Position)) ) {
+                gameEntity.Dispose();
+            }
+            _mode = Mode.RoomTransition;
         }
 
         /// <summary>
-        /// Notifies the game that the current room has changed
+        /// Loads assets for the room given
         /// </summary>
-        /// <param name="newRoom"></param>
-        public void CurrentRoomChanged(Room newRoom) {
-            foreach ( IGameEntity gameEntity in _entities.Where(entity => !newRoom.Contains(entity.Position)) ) {
-                gameEntity.Dispose();
+        public void LoadRoom(Room room) {
+            if ( room.BackgroundImage != null ) {
+                _background = Content.Load<Texture2D>("Background/" + room.BackgroundImage);
             }
+            _mode = Mode.NormalControl;
         }
 
         /// <summary>
@@ -188,7 +201,8 @@ namespace Arena {
                                        _player.Position);
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
-            _background = Content.Load<Texture2D>("Background/rock02");
+            _background = Content.Load<Texture2D>("Background/Microscheme_0_edited");
+            //_background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
                 _debugView = new DebugViewXNA(_world);
@@ -285,6 +299,8 @@ namespace Arena {
                 _conversationNPC.Update(gameTime);
             }
 
+            UpdateBackgroundAlpha();
+
             _camera.Update(gameTime);
             _cameraDirector.Update(gameTime);
             _visitationMap.Update(gameTime);
@@ -293,6 +309,14 @@ namespace Arena {
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
 
             base.Update(gameTime);
+        }
+
+        private void UpdateBackgroundAlpha() {
+            if (_mode == Mode.RoomTransition && _backgroundAlpha > 0) {
+                _backgroundAlpha -= .05f;
+            } else if (_backgroundAlpha < 1) {
+                _backgroundAlpha += .05f;
+            }
         }
 
         private void HandleDebugControl() {
@@ -356,12 +380,12 @@ namespace Arena {
                 origin = ConvertUnits.ToDisplayUnits(origin) / 4;
                 _spriteBatch.Draw(_background, Vector2.Zero,
                                   new Rectangle((int) origin.X, (int) origin.Y, GraphicsDevice.Viewport.Bounds.Width,
-                                                GraphicsDevice.Viewport.Bounds.Height), Color.White);
+                                                GraphicsDevice.Viewport.Bounds.Height), Color.White * _backgroundAlpha);
                 _spriteBatch.End();
 
                 // Block layer
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-                _tileLevel.Draw(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
+                _tileLevel.DrawBackground(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
                 _spriteBatch.End();
 
                 // Dynamic elements (player, enemies, missiles, etc)
@@ -370,6 +394,11 @@ namespace Arena {
                     ent.Draw(_spriteBatch, _camera);
                 }
                 _player.Draw(_spriteBatch, _camera);
+                _spriteBatch.End();
+
+                // Foreground
+                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
+                _tileLevel.DrawForeground(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
                 _spriteBatch.End();
 
                 // Now apply post-processing to the scene
@@ -396,7 +425,7 @@ namespace Arena {
                     }
                 }
 
-                // Finally draw the final scene onto the screen
+                // Draw the final scene onto the screen
                 _graphics.GraphicsDevice.SetRenderTarget(null);
                 _graphics.GraphicsDevice.Clear(Color.Black);
                 _spriteBatch.Begin();
@@ -411,7 +440,14 @@ namespace Arena {
             _visitationMap.Draw(_spriteBatch);
             _spriteBatch.End();
 
-            // And any debug info
+            // Conversation is considered an overlay
+            if ( IsInConversation ) {
+                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
+                _conversationNPC.DrawConversationText(_spriteBatch, _camera);
+                _spriteBatch.End();
+            }
+
+            // Finally, debug info
             DebugDraw();
 
             base.Draw(gameTime);
@@ -482,9 +518,9 @@ namespace Arena {
         /// <summary>
         /// Returns whether a conversation is taking place.
         /// </summary>
-        /// <returns></returns>
-        public bool IsInConversation() {
-            return _mode == Mode.Conversation;
+        /// <value> </value>
+        public bool IsInConversation {
+            get { return _mode == Mode.Conversation; }
         }
     }
 }

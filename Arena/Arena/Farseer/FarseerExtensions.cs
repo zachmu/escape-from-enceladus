@@ -35,7 +35,7 @@ namespace Arena.Farseer {
             Vector2 normal;
             FixedArray2<Vector2> points;
             contact.GetWorldManifold(out normal, out points);
-            if (contact.FixtureA.Body != player) {
+            if (contact.FixtureA.Body == player) {
                 return normal * -1;
             }
             return normal;

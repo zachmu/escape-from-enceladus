@@ -131,4 +131,21 @@ namespace Arena.Entity.NPC {
 
     }
 
+    internal class ChiefMizzen : NPC {
+        public ChiefMizzen(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
+            : base(Color.DarkSalmon, topLeft, bottomRight, world, sensorWidth) {
+        }
+
+        protected override string[] GetConversation() {
+            return new[] {
+                             "No time to talk, I have my hands full keeping this bird in the air.",
+                             "Well, not air, I guess. Vaccuum.",
+                             "What? How do the engines work?",
+                             "<sigh>  You know I had to go to school for like 10 years to do this job, right?",
+                             "I can't just distill all that knowledge down to a folksy metaphor on demand!",
+                             "Anyway, shouldn't you be getting back to making sure that geriatric doesn't escape?",
+                         };
+        }
+    }
+
 }

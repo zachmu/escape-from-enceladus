@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Arena.Entity;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Arena.Map {
     
@@ -11,16 +12,25 @@ namespace Arena.Map {
     /// A room is a logical unit of the map bounded by one or more doors or secret passages.
     /// </summary>
     public class Room : Region {
-        public Room(Vector2 topLeft, Vector2 bottomRight) {
+        private readonly string _id;
+        private readonly string _backgroundImage;
+
+        public Room(Vector2 topLeft, Vector2 bottomRight, Object region) {
             _topLeft = AdjustToTileBoundary(topLeft);
             _bottomRight = AdjustToTileBoundary(bottomRight);
+
+            if ( region.Properties.ContainsKey("id") ) {
+                _id = region.Properties["id"];
+            }
+            if ( region.Properties.ContainsKey("background") ) {
+                _backgroundImage = region.Properties["background"];
+            }
         }
 
         /// <summary>
         /// Returns the relative direction of the point given to this room.
         /// </summary>
         /// <param name="position"></param>
-        /// <returns></returns>
         public Direction GetRelativeDirection(Vector2 position) {
             if (position.X < TopLeft.X) {
                 return Direction.Left;
@@ -34,6 +44,10 @@ namespace Arena.Map {
                 throw new Exception("Couldn't determine relative position");
             }
         }
+
+        public String BackgroundImage { get { return _backgroundImage; } }
+
+        public String ID { get { return _id; } }
 
         /// <summary>
         /// Returns whether this region intersects another.  

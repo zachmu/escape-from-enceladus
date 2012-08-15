@@ -40,6 +40,8 @@ namespace Arena.Entity.NPC {
                     return new EnsignGibe(topLeft, bottomRight, world, sensorWidth);
                 case "EnsignTaffrail":
                     return new EnsignTaffrail(topLeft, bottomRight, world, sensorWidth);
+                case "ChiefMizzen":
+                    return new ChiefMizzen(topLeft, bottomRight, world, sensorWidth);
                 default:
                     throw new ArgumentException("Unrecognized NPC name " + npc.Name);
             }

@@ -47,6 +47,7 @@ namespace Arena.Entity.NPC {
 
         private static Texture2D YButton { get; set; }
         private static SpriteFont Font;
+        private static Texture2D BlackBackdrop { get; set; }
 
         private int _animationFrame;
         private long _timeSinceLastAnimationUpdate;
@@ -117,6 +118,7 @@ namespace Arena.Entity.NPC {
             YButton = content.Load<Texture2D>("ButtonImages/xboxControllerButtonY");
             Font = content.Load<SpriteFont>("Fonts/November");
             Font.LineSpacing -= 10;
+            BlackBackdrop = content.Load<Texture2D>("BlackBackdrop");
         }
 
         public PolygonShape Shape {
@@ -128,10 +130,6 @@ namespace Arena.Entity.NPC {
 
             if ( _playerNearby && !_inConversation ) {
                 DrawButtonPrompt(spriteBatch);
-            }
-
-            if ( _inConversation ) {
-                DrawConversationText(spriteBatch, camera);
             }
         }
 
@@ -164,7 +162,10 @@ namespace Arena.Entity.NPC {
                              SpriteEffects.None, 0);
         }
 
-        private void DrawConversationText(SpriteBatch spriteBatch, Camera2D camera) {
+        /// <summary>
+        /// Drawing the conversation must happen in a different layer than the character, so is split out
+        /// </summary>
+        public void DrawConversationText(SpriteBatch spriteBatch, Camera2D camera) {
             Vector2 position = _body.Position;
             position.Y -= CharacterHeight / 2 + 1.5f;
 
@@ -207,8 +208,11 @@ namespace Arena.Entity.NPC {
             } else if ( displayPosition.X + stringSize.X > rightMargin ) {
                 displayPosition.X = rightMargin - stringSize.X;
             }
-            // Do the same nudging for the top of the screen and the top of the character's head.
-            //if (displayPosition.Y + stringSize.Y >= _body )
+
+            // Draw a backdrop
+            spriteBatch.Draw(BlackBackdrop,
+                             new Rectangle((int) displayPosition.X - 10, (int) displayPosition.Y + 10, (int) stringSize.X + 20,
+                                           (int) stringSize.Y - 30), Color.Black * .65f);
 
             // Finally, draw the text shadowed. This involves drawing the text twice, darker then lighter.
             Color shadow = Color.Lerp(_color, Color.Black, .5f);
@@ -258,7 +262,7 @@ namespace Arena.Entity.NPC {
             }
 
             if ( _playerNearby ) {
-                if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) && !Arena.Instance.IsInConversation() ) {
+                if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) && !Arena.Instance.IsInConversation ) {
                     StartConversation();
                 }
             }

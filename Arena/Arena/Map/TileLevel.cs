@@ -19,7 +19,7 @@ namespace Arena.Map {
     public class TileLevel {
         public const float TileSize = 1f;
         private const string RoomLayerName = "Rooms";
-        private const string CollisionLayerName = "Collision";
+        private const string CollisionLayerName = "Blocks";
         private const string DestructionLayerName = "Destruction";
         private const string DoorLayerName = "Doors";
         public static int TileDisplaySize;
@@ -62,7 +62,7 @@ namespace Arena.Map {
                 InitializeRooms(roomGroup);
             } catch {
                 // No rooms layer is fine, we'll just create a room for them
-                _rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height)));
+                _rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height), null));
             }
 
             try {
@@ -138,7 +138,7 @@ namespace Arena.Map {
             foreach ( Object region in rooms.Objects ) {
                 var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
                 var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
-                _rooms.Add(new Room(topLeft, bottomRight));
+                _rooms.Add(new Room(topLeft, bottomRight, region));
             }
         }
 
@@ -190,12 +190,19 @@ namespace Arena.Map {
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
+        public void DrawBackground(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
             var topLeft = camera.ConvertScreenToWorld(new Vector2(0f, 0f));
             var bottomRight = camera.ConvertScreenToWorld(new Vector2(viewportSize.Width, viewportSize.Height));
             var diff = bottomRight - topLeft;
-            _levelMap.Draw(spriteBatch, new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) diff.X, (int) diff.Y));
+            _levelMap.DrawBackground(spriteBatch, new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) diff.X, (int) diff.Y));
             _doors.ForEach(door => door.Draw(spriteBatch, camera));
+        }
+
+        public void DrawForeground(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
+            var topLeft = camera.ConvertScreenToWorld(new Vector2(0f, 0f));
+            var bottomRight = camera.ConvertScreenToWorld(new Vector2(viewportSize.Width, viewportSize.Height));
+            var diff = bottomRight - topLeft;
+            _levelMap.DrawForeground(spriteBatch, new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) diff.X, (int) diff.Y));
         }
 
         public void Update(GameTime gameTime) {
@@ -700,6 +707,13 @@ namespace Arena.Map {
         /// </summary>
         public Room RoomAt(int x, int y) {
             return _rooms.FirstOrDefault(room => room.Contains(x, y));
+        }
+
+        /// <summary>
+        /// Returns the room at the coordinates given or null if there isn't one
+        /// </summary>
+        public Room RoomAt(Vector2 point) {
+            return _rooms.FirstOrDefault(room => room.Contains(point));
         }
 
         /// <summary>
