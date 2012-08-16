@@ -34,7 +34,6 @@ Content\Character\run0005.xnb
 Content\Character\run0006.xnb
 Content\Character\run0007.xnb
 Content\Character\run0008.xnb
-Content\enemy.xnb
 Content\door.xnb
 Content\Character\JogRight\jog_right0000.xnb
 Content\Character\JogRight\jog_right0001.xnb
@@ -503,6 +502,8 @@ Content\BlackBackdrop.xnb
 Content\Background\Microscheme_0_edited.xnb
 Content\Maps\Cave1_padded.xnb
 Content\Background\playa.xnb
+Content\Enemy\Worm0000.xnb
+Content\Enemy\enemy.xnb
 Content\Maps\big_square.tmx
 Content\Maps\scratch.tmx
 Content\Maps\Ship.tmx

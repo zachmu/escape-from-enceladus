@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arena.Entity.Enemy;
 using Arena.Farseer;
 using Arena.Weapon;
 using Arena.Xbox;
@@ -96,6 +97,7 @@ namespace Arena.Entity {
 
         public Vector2 Position {
             get { return _body.Position; }
+            set { _body.Position = value; }
         }
 
         public Vector2 LinearVelocity {
@@ -1359,7 +1361,7 @@ namespace Arena.Entity {
 
         private readonly List<IGameEntity> _shots = new List<IGameEntity>();
 
-        public void HitBy(Enemy enemy) {
+        public void HitBy(AbstractEnemy enemy) {
             Vector2 diff = Position - enemy.Position;
             _body.LinearVelocity = new Vector2(0);
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);

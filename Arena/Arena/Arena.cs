@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Arena.Entity;
+using Arena.Entity.Enemy;
 using Arena.Entity.NPC;
 using Arena.Farseer;
 using Arena.Map;
@@ -150,6 +151,7 @@ namespace Arena {
             _conversationNPC = null;
         }        
 
+        // TODO: there is a better way to do this.
         private float _backgroundAlpha = 1;
         public float BackgroundAlpha { get { return _backgroundAlpha;  } }
 
@@ -216,16 +218,17 @@ namespace Arena {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _cameraDirector.ClampCameraToRoom();
             _cameraDirector.TargetPlayer();            
             _cameraDirector.JumpToTarget();
+            _cameraDirector.ClampCameraToRoom();
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
         }
 
         private void LoadStaticContent() {
-            Enemy.LoadContent(Content);
+            PacingEnemy.LoadContent(Content);
+            Worm.LoadContent(Content);
             Shot.LoadContent(Content);
             Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);

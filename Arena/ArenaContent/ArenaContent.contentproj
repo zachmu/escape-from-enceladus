@@ -300,13 +300,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="enemy.png">
-      <Name>enemy</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="door.png">
       <Name>door</Name>
       <Importer>TextureImporter</Importer>
@@ -2691,6 +2684,20 @@
   <ItemGroup>
     <Compile Include="Background\playa.png">
       <Name>playa</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Enemy\Worm0000.png">
+      <Name>Worm0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Enemy\enemy.png">
+      <Name>enemy</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

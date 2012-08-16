@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Arena.Entity;
+using Arena.Entity.Enemy;
 using Arena.Entity.NPC;
 using Arena.Farseer;
 using Arena.Weapon;
@@ -77,6 +78,17 @@ namespace Arena.Map {
                 InitializeDoors(doorGroup);
             } catch {
                 // no doors on this level (tests, mostly)
+            }
+
+            try {
+                ObjectGroup playerGroup = _levelMap.ObjectGroups["PlayerStart"];
+                foreach ( Object region in playerGroup.Objects ) {
+                    var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
+                    Player.Instance.Position = topLeft;
+                    break;
+                }
+            } catch {
+                Player.Instance.Position = new Vector2(10, 10);
             }
 
             SetCurrentRoom(startPosition);
@@ -183,8 +195,7 @@ namespace Arena.Map {
                 foreach ( Object obj in enemies.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
                     if ( CurrentRoom.Contains(pos) ) {
-                        Enemy enemy = new Enemy(pos, _world);
-                        Arena.Instance.Register(enemy);
+                        Arena.Instance.Register(EnemyFactory.CreateEnemy(obj, _world));
                     }
                 }
             }

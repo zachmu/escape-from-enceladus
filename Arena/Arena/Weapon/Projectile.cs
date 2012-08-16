@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Arena.Entity;
+using Arena.Entity.Enemy;
 using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics.Collision.Shapes;
@@ -153,7 +154,7 @@ namespace Arena.Weapon {
             }
         }
 
-        protected void HitEnemy(Enemy enemy) {
+        protected void HitEnemy(AbstractEnemy enemy) {
             enemy.HitBy(this);
         }
 

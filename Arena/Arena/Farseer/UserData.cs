@@ -1,4 +1,5 @@
 ﻿using Arena.Entity;
+using Arena.Entity.Enemy;
 using Arena.Map;
 using Arena.Weapon;
 
@@ -16,7 +17,7 @@ namespace Arena.Farseer {
         public bool IsDoor { get; private set; }
         public bool IsDestructibleRegion { get; private set; }
 
-        public Enemy Enemy { get; private set; }
+        public AbstractEnemy Enemy { get; private set; }
         public Projectile Projectile { get; private set; }
         public Door Door { get; private set; }
         public DestructionRegion Destruction { get; private set; }
@@ -25,7 +26,7 @@ namespace Arena.Farseer {
             return new UserData() { IsTerrain = true };
         }
 
-        public static UserData NewEnemy(Enemy enemy) {
+        public static UserData NewEnemy(AbstractEnemy enemy) {
             return new UserData() { IsEnemy = true, Enemy = enemy };
         }
 
