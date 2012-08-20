@@ -201,9 +201,7 @@ namespace Arena {
                             break;
                     }
                 }
-            } else {
-                ClampCameraToRoom();
-            }
+            } 
         }
 
         /// <summary>
@@ -220,7 +218,7 @@ namespace Arena {
             Vector2 minPosition = topLeft + viewportCenter - new Vector2(0, .125f);
             Vector2 maxPosition = bottomRight - viewportCenter + new Vector2(0, .125f);
 
-            Console.WriteLine("Max = {0}, min = {1}", maxPosition, minPosition);
+            //Console.WriteLine("Max = {0}, min = {1}", maxPosition, minPosition);
 
             if (maxPosition.X < minPosition.X) {
                 float avgX = (maxPosition.X + minPosition.X) / 2;

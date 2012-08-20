@@ -34,7 +34,7 @@ namespace Arena.Map {
             get { return TopLeft + new Vector2(Width / 2, Height / 2); }
         }
 
-        protected static Vector2 AdjustToTileBoundary(Vector2 pos) {
+        public static Vector2 AdjustToTileBoundary(Vector2 pos) {
             return new Vector2((float) Math.Round(pos.X), (float) Math.Round(pos.Y));
         }
 

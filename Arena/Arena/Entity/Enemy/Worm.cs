@@ -14,7 +14,7 @@ namespace Arena.Entity.Enemy {
     class Worm : PacingEnemy {
 
         private int _animationCounter = 0;
-        private int _halfCycleTimeMs = 500;
+        private int _halfCycleTimeMs = 750;
 
         private const float BaseWidth = 2;
         private const float BaseHeight = .55f;
@@ -38,18 +38,6 @@ namespace Arena.Entity.Enemy {
         public Worm(Vector2 position, World world) : base(position, world, MaxWidth, MinHeight) {
         }
 
-        public override float CharacterHeight {
-            get {
-                return _height;
-            }
-        }
-
-        public override float CharacterWidth {
-            get {
-                return _width;
-            }
-        }
-
         private static Texture2D WormImage;
         public static void LoadContent(ContentManager content) {
             WormImage = content.Load<Texture2D>("Enemy/worm0000");
@@ -63,25 +51,17 @@ namespace Arena.Entity.Enemy {
             if ( !Disposed ) {
                 // draw position is character's lower-left
                 Vector2 position = _body.Position;
-                position.Y += CharacterHeight / 2f;
-                position.X -= CharacterWidth / 2f;
+                position.Y += _height / 2f;
+                position.X -= _width / 2f;
 
-                                Vector2 scale = new Vector2(_width / BaseWidth, _height / BaseHeight);
+                Vector2 scale = new Vector2(_width / BaseWidth, _height / BaseHeight);
                 Vector2 origin = new Vector2(1, Image.Height);
-
-                //                if ( _direction == Direction.Left ) {
-                //                    position.X += _width / 2;
-                //                } else {
-                //                    position.X -= _width / 2;
-                //                }
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
                 Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
 
                 spriteBatch.Draw(Image, displayPosition, null, color, 0f, origin, scale,
                                  _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-//                spriteBatch.Draw(Image, displayPosition, null, Color.White, 0, origin, 1f,
-//                                 _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
             }
         }
 

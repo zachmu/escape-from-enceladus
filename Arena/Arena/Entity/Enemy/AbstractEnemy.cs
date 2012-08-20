@@ -18,7 +18,7 @@ namespace Arena.Entity.Enemy {
         protected const string EnemySpeed = "Enemy speed (m/s)";
 
         protected int _hitPoints;
-        protected abstract Texture2D Image { get; }
+        protected abstract Texture2D Image { get; set; }
         private bool _disposed;
         protected Direction _direction;
 
@@ -31,9 +31,6 @@ namespace Arena.Entity.Enemy {
         public PolygonShape Shape {
             get { return (PolygonShape) _body.FixtureList.First().Shape; }
         }
-
-        public abstract float CharacterWidth { get; }
-        public abstract float CharacterHeight { get; }
 
         public AbstractEnemy(Vector2 position, World world, float width, float height) {
             CreateBody(position, world, width, height);
@@ -74,29 +71,14 @@ namespace Arena.Entity.Enemy {
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
             _body.Friction = 0;
-            _body.Position = position;
+            // the position provided by the factor is the lower-left corner of the map area, tile-aligned
+            _body.Position = position - new Vector2(0, height / 2);
             _body.CollidesWith = Arena.PlayerCategory | Arena.PlayerProjectileCategory | Arena.TerrainCategory;
             _body.CollisionCategories = Arena.EnemyCategory;
             _body.UserData = UserData.NewEnemy(this);
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            if ( !_disposed ) {
-                Vector2 position = _body.Position;
-                position.X -= CharacterWidth / 2f;
-                position.Y -= CharacterHeight / 2f;
-
-                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
-                spriteBatch.Draw(Image,
-                                 new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
-                                               Image.Height),
-                                 null, color, 0f, new Vector2(),
-                                 _direction == Direction.Right
-                                     ? SpriteEffects.None
-                                     : SpriteEffects.FlipHorizontally, 0);
-            }
-        }
+        public abstract void Draw(SpriteBatch spriteBatch, Camera2D camera);
 
         public virtual void Update(GameTime gameTime) {
             if ( _hitPoints <= 0 ) {

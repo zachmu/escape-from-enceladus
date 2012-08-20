@@ -32,7 +32,7 @@
    H4sIAAAAAAAAC+3dYW6CMBgGYI/gL0+w6Tl2CD3Pjr6ZqGGkw/JRpS3PkxApFkL44ZuvBdntAAAA6nFYuf1KJc/tkPkJAAAAQDn79Lbvufss2Q+A9sgPACLkBwARNeZH7TnzMbMN0KOa8uN+/2vt+fGZ2b7myPF2TU6JfgAtqyk/5vZbS279cc2L0+2aHBP9AChrTn48yywAmKqVPPsNwN04EyJjbc+OueZ3ALxHifwAoE2R33sZAUCJ/DAmBNC3UuNN6g+AbZEfAES8Oj/kCkCfIvnxbG5j/3f9cSxzIgD9KFV/DLPhv/wAgCnyA4A5ZAVAPw6jz8h6rqXPgHwt2AZAu5bWH/IDYJtekR+pGkZ+ALQvlRnRd0vljne5DxhgPftdmfnu1Ls9an83IQBxpfNjfGwA+iQ/AIiQHwBEyA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHKdf5fL2icBAAAAwOZcBst51E6NV031ndoPAAAAAACgJuY0AAAAAGjF8L5dAAAAAACAmuX+L0mJPgAQIUMAiFKLAAAA76YGASBKhgAAAAAAAD3yrCEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQyg/kQUBBAF8FAA==
   </data>
  </layer>
- <objectgroup name="Rooms" width="400" height="220">
+ <objectgroup name="Rooms" width="400" height="220" visible="0">
   <object x="3919" y="77" width="1266" height="679"/>
   <object x="3906" y="768" width="2536" height="694"/>
   <object x="3910" y="1483" width="2549" height="683"/>
@@ -47,7 +47,7 @@
   <object x="1356" y="1486" width="1266" height="677"/>
   <object x="5200" y="80" width="1242" height="673"/>
   <object x="2636" y="2180" width="1268" height="1403"/>
-  <object name="worm" x="2672" y="3582" width="2564" height="698">
+  <object name="worm" x="2630" y="3606" width="2564" height="698">
    <properties>
     <property name="background" value="playa"/>
     <property name="id" value="1"/>
@@ -98,8 +98,9 @@
  </objectgroup>
  <objectgroup name="Enemies" width="400" height="220">
   <object name="worm" x="3090" y="4158" width="130" height="64"/>
+  <object name="beetle" x="3413" y="3911" width="96" height="53"/>
  </objectgroup>
  <objectgroup name="PlayerStart" width="400" height="220">
-  <object x="3655" y="4073"/>
+  <object x="2861" y="4003" width="54" height="60"/>
  </objectgroup>
 </map>

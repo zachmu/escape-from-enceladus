@@ -229,6 +229,7 @@ namespace Arena {
         private void LoadStaticContent() {
             PacingEnemy.LoadContent(Content);
             Worm.LoadContent(Content);
+            Beetle.LoadContent(Content);
             Shot.LoadContent(Content);
             Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);
