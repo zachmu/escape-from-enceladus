@@ -24,7 +24,8 @@ namespace Arena.Entity.Enemy {
                     return new Worm(pos, world);
                     break;
                 case "beetle":
-                    return new Beetle(pos, world);
+                    bool clockwise = obj.Properties.ContainsKey("clockwise");
+                    return new Beetle(pos, world, clockwise);
                     break;
                 default:
                     return new PacingEnemy(pos, world);

@@ -22,7 +22,7 @@ namespace Arena.Entity.Enemy {
 
         private const float turnTimeMs = 250;
 
-        private bool _clockwise = true;
+        private bool _clockwise = false;
         private bool _turning = false;
         private Vector2 _worldTurningJoint;
         private int _ignoreTurnsMs;
@@ -37,10 +37,15 @@ namespace Arena.Entity.Enemy {
             }
         }
 
-        public Beetle(Vector2 position, World world)
+        public Beetle(Vector2 position, World world, bool clockwise)
             : base(position, world, Width, Height) {
             _image = Animation[0];
-            _direction = Direction.Right;
+            _clockwise = clockwise;
+            if ( _clockwise ) {
+                _direction = Direction.Right;
+            } else {
+                _direction = Direction.Left;
+            }
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
@@ -87,15 +92,17 @@ namespace Arena.Entity.Enemy {
                 float rotationDelta =
                     (float) (Projectile.PiOverTwo * gameTime.ElapsedGameTime.TotalMilliseconds / turnTimeMs);
 
+                if ( !_clockwise ) {
+                    rotationDelta *= -1;
+                }
+
+                _body.Rotation += rotationDelta;
+                //Console.WriteLine("Rotation: {0}, maxrot: {1}", _body.Rotation, maxRotation);
+                Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
+                _body.Position += _worldTurningJoint - revolutionPoint;
+                float currRotation = NormalizeAngle(_body.Rotation);
+
                 if ( _clockwise ) {
-
-                    _body.Rotation += rotationDelta;
-                    //Console.WriteLine("Rotation: {0}, maxrot: {1}", _body.Rotation, maxRotation);
-                    Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
-                    _body.Position += _worldTurningJoint - revolutionPoint;
-                    float currRotation = NormalizeAngle(_body.Rotation);
-
-                    float maxRotation = 0;
                     switch ( _direction ) {
                         case Direction.Left:
                             if ( currRotation >= 3 * Projectile.PiOverTwo ) {
@@ -119,6 +126,30 @@ namespace Arena.Entity.Enemy {
                             }
                             break;
                     }
+                } else {
+                    switch ( _direction ) {
+                        case Direction.Right:
+                            if ( currRotation < -3 * Projectile.PiOverTwo ) {
+                                EndRotation(-3 * Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Left:
+                            if ( currRotation < -Projectile.PiOverTwo ) {
+                                EndRotation(-Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Up:
+                            // we'll wrap around to 0
+                            if ( currRotation > -Projectile.PiOverEight ) {
+                                EndRotation(0f);
+                            }
+                            break;
+                        case Direction.Down:
+                            if ( currRotation < -Math.PI ) {
+                                EndRotation(-(float) Math.PI);
+                            }
+                            break;
+                    }                    
                 }
 
             } else {
@@ -255,7 +286,7 @@ namespace Arena.Entity.Enemy {
 
         private void UpdateAnimation(GameTime gameTime) {
             _timeSinceLastUpdate += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_timeSinceLastUpdate > 20) {
+            if (_timeSinceLastUpdate > 100) {
                 _animationFrame = (_animationFrame + Width) % NumFrames;
                 Image = Animation[_animationFrame];
             }

@@ -98,7 +98,12 @@
  </objectgroup>
  <objectgroup name="Enemies" width="400" height="220">
   <object name="worm" x="3090" y="4158" width="130" height="64"/>
-  <object name="beetle" x="3413" y="3911" width="96" height="53"/>
+  <object name="beetle" x="3413" y="3911" width="96" height="53">
+   <properties>
+    <property name="clockwise" value=""/>
+   </properties>
+  </object>
+  <object name="beetle" x="3156" y="3710" width="96" height="53"/>
  </objectgroup>
  <objectgroup name="PlayerStart" width="400" height="220">
   <object x="2861" y="4003" width="54" height="60"/>
