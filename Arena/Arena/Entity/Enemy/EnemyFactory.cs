@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using Object = Arena.Map.Object;
 
 namespace Arena.Entity.Enemy {
-    public class EnemyFactory {
+    public static class EnemyFactory {
 
         /// <summary>
         /// Creates an appropriate enemy from the descriptor given.

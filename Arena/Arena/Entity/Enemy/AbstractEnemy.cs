@@ -82,7 +82,7 @@ namespace Arena.Entity.Enemy {
 
         public virtual void Update(GameTime gameTime) {
             if ( _hitPoints <= 0 ) {
-                Dispose();
+                Destroyed();
                 return;
             }
 
@@ -104,9 +104,13 @@ namespace Arena.Entity.Enemy {
 
         public void Dispose() {
             _disposed = true;
+            _body.Dispose();
+        }
+
+        private void Destroyed() {
             Arena.Instance.Register(new HealthPickup(_body.Position, _world));
             Arena.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
-            _body.Dispose();
+            Dispose();
         }
     }
 }

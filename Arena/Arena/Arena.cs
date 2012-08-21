@@ -279,12 +279,8 @@ namespace Arena {
                 if ( !_simulationPaused || _nextSimStep ) {
                     InputHelper.Instance.Update(gameTime);
 
-                    float step = 0f;
-                    while ( step < Math.Min((float) gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)) ) {
-                        _world.Step((1f / 60f));
-                        step += (1f / 59f);
-                    }
-
+                    StepWorld(gameTime);
+    
                     foreach ( IGameEntity ent in _entities ) {
                         ent.Update(gameTime);
                     }
@@ -313,6 +309,11 @@ namespace Arena {
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
 
             base.Update(gameTime);
+        }
+
+        internal void StepWorld(GameTime gameTime) {
+            float totalSeconds = gameTime == null ? 1f / 60f : (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _world.Step(Math.Min(totalSeconds, (1f / 30f)));
         }
 
         private void UpdateBackgroundAlpha() {

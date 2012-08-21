@@ -64,11 +64,6 @@ namespace Arena.Entity {
         }
 
         public void Update(GameTime gameTime) {
-            if ( Disposed ) {
-                _body.Dispose();
-                return;
-            }
-
             _animationFrame = (_animationFrame + 1) % NumFrames;
             Image = _animation[_animationFrame];
         }
@@ -80,6 +75,7 @@ namespace Arena.Entity {
         }
 
         public void Dispose() {
+            _body.Dispose();
             Disposed = true;
         }
     }

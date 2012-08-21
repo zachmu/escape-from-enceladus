@@ -165,6 +165,7 @@ namespace Arena.Map {
             InitializeEdges();
             CreateEnemies();
             CreateNPCs();
+            Arena.Instance.StepWorld(null);
 
             return CurrentRoom;
         }

@@ -35,7 +35,9 @@ namespace Arena.Entity.Enemy {
             Stretch, Shrink
         }
 
-        public Worm(Vector2 position, World world) : base(position, world, MaxWidth, MinHeight) {
+        public Worm(Vector2 position, World world) : base(position, world, MinWidth, MaxHeight) {
+            _width = MinWidth;
+            _height = MaxHeight;
         }
 
         private static Texture2D WormImage;

@@ -18,14 +18,15 @@ namespace Arena.Entity.Enemy {
         private int _timeSinceLastUpdate;
 
         private const float Height = .5f;
-        private const int Width = 1;
+        private const float Width = 1;
 
         private const float turnTimeMs = 250;
 
         private bool _clockwise = false;
         private bool _turning = false;
+        private bool _concaveTurn = false;
         private Vector2 _worldTurningJoint;
-        private int _ignoreTurnsMs;
+        private int _ignoreTurnsMs = 200;
 
         private Direction _direction;
 
@@ -46,6 +47,7 @@ namespace Arena.Entity.Enemy {
             } else {
                 _direction = Direction.Left;
             }
+            _ignoreTurnsMs = 200;
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
@@ -54,7 +56,34 @@ namespace Arena.Entity.Enemy {
         }
 
         protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
-            //base.HitSolidObject(contact, b);
+            if ( !_turning && (b.GetUserData().IsTerrain || b.GetUserData().IsDoor) && _ignoreTurnsMs <= 0 ) {
+                Console.WriteLine("HIT");
+                _turning = true;
+                _concaveTurn = true;
+                if ( _clockwise ) {
+                    _worldTurningJoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
+                } else {
+                    _worldTurningJoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
+                }
+            } else if ( b.GetUserData().IsPlayer ) {
+                _clockwise = !_clockwise;
+                switch ( _direction ) {
+                    case Direction.Left:
+                        _direction = Direction.Right;
+                        break;
+                    case Direction.Right:
+                        _direction = Direction.Left;
+                        break;
+                    case Direction.Up:
+                        _direction = Direction.Down;
+                        break;
+                    case Direction.Down:
+                        _direction = Direction.Up;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -88,21 +117,160 @@ namespace Arena.Entity.Enemy {
             _ignoreTurnsMs -= (int) gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if ( _turning ) {
-                _body.LinearVelocity = Vector2.Zero;
-                float rotationDelta =
-                    (float) (Projectile.PiOverTwo * gameTime.ElapsedGameTime.TotalMilliseconds / turnTimeMs);
+                HandleTurn(gameTime);
+            } else {
+                HandleMove();
+            }
 
-                if ( !_clockwise ) {
-                    rotationDelta *= -1;
+            UpdateAnimation(gameTime);
+        }
+
+        private void HandleMove() {
+            switch ( _direction ) {
+                case Direction.Left:
+                    _body.LinearVelocity = new Vector2(-2, 0);
+                    break;
+                case Direction.Right:
+                    _body.LinearVelocity = new Vector2(2, 0);
+                    break;
+                case Direction.Up:
+                    _body.LinearVelocity = new Vector2(0, -2);
+                    break;
+                case Direction.Down:
+                    _body.LinearVelocity = new Vector2(0, 2);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            if ( _ignoreTurnsMs <= 0 ) {
+                Vector2 frontEdge;
+                Vector2 rayDest;
+
+                switch ( _direction ) {
+                    case Direction.Left:
+                        if ( _clockwise ) {
+                            frontEdge = _body.Position +
+                                        new Vector2(0, -Height / 2f);
+                            rayDest = frontEdge + new Vector2(0, -Height / 2f);
+                        } else {
+                            frontEdge = _body.Position +
+                                        new Vector2(0, Height / 2f);
+                            rayDest = frontEdge + new Vector2(0, Height / 2f);
+                        }
+                        break;
+                    case Direction.Right:
+                        if ( _clockwise ) {
+                            frontEdge = _body.Position +
+                                        new Vector2(0, Height / 2f);
+                            rayDest = frontEdge + new Vector2(0, Height / 2f);
+                        } else {
+                            frontEdge = _body.Position +
+                                        new Vector2(0, -Height / 2f);
+                            rayDest = frontEdge + new Vector2(0, -Height / 2f);
+                        }
+                        break;
+                    case Direction.Up:
+                        if ( _clockwise ) {
+                            frontEdge = _body.Position +
+                                        new Vector2(Height / 2f, 0);
+                            rayDest = frontEdge + new Vector2(Height / 2f, 0);
+                        } else {
+                            frontEdge = _body.Position +
+                                        new Vector2(-Height / 2f, 0);
+                            rayDest = frontEdge + new Vector2(-Height / 2f, 0);
+                        }
+                        break;
+                    case Direction.Down:
+                        if ( _clockwise ) {
+                            frontEdge = _body.Position +
+                                        new Vector2(-Height / 2f, 0);
+                            rayDest = frontEdge + new Vector2(-Height / 2f, 0);
+                        } else {
+                            frontEdge = _body.Position +
+                                        new Vector2(+Height / 2f, 0);
+                            rayDest = frontEdge + new Vector2(+Height / 2f, 0);
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
-                _body.Rotation += rotationDelta;
-                //Console.WriteLine("Rotation: {0}, maxrot: {1}", _body.Rotation, maxRotation);
+                bool cliffSensed = true;
+
+                _world.RayCast((fixture, point, normal, fraction) => {
+                    if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                        cliffSensed = false;
+                        return 0;
+                    }
+                    return -1;
+                }, frontEdge, rayDest);
+
+                if ( cliffSensed ) {
+                    _turning = true;
+                    _concaveTurn = false;
+                    _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
+                }
+            }
+        }
+
+        private void HandleTurn(GameTime gameTime) {
+            _body.LinearVelocity = Vector2.Zero;
+            float rotationDelta =
+                (float) (Projectile.PiOverTwo * gameTime.ElapsedGameTime.TotalMilliseconds / turnTimeMs);
+
+            // We turn the opposite direction if we aren't going clockwise, 
+            // or if this is a concave turn
+            if ( !_clockwise ) {
+                rotationDelta *= -1;
+            }
+            if ( _concaveTurn ) {
+                rotationDelta *= -1;
+            }
+
+            _body.Rotation += rotationDelta;
+            //Console.WriteLine("Rotation: {0}, maxrot: {1}", _body.Rotation, maxRotation);
+
+            if (_concaveTurn) {
+                Vector2 revolutionPoint = Vector2.Zero;
+                if (_clockwise) {
+                    revolutionPoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
+                } else {
+                    revolutionPoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
+                }
+                _body.Position = new Vector2(_body.Position.X + _worldTurningJoint.X - revolutionPoint.X, _body.Position.Y);
+            } else {
                 Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
                 _body.Position += _worldTurningJoint - revolutionPoint;
-                float currRotation = NormalizeAngle(_body.Rotation);
+            }
 
-                if ( _clockwise ) {
+            float currRotation = NormalizeAngle(_body.Rotation);
+
+            if ( _clockwise ) {
+                if ( _concaveTurn ) {
+                    switch ( _direction ) {
+                        case Direction.Left:
+                            if ( currRotation <= Projectile.PiOverTwo ) {
+                                EndRotation(Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Right:
+                            if ( currRotation <= -Projectile.PiOverTwo ) {
+                                EndRotation(-Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Up:
+                            if ( currRotation < Math.PI ) {
+                                EndRotation((float) Math.PI);
+                            }
+                            break;
+                        case Direction.Down:
+                            if ( currRotation <= 0) {
+                                EndRotation(0);
+                            }
+                            break;
+                    }
+                } else {
                     switch ( _direction ) {
                         case Direction.Left:
                             if ( currRotation >= 3 * Projectile.PiOverTwo ) {
@@ -123,6 +291,31 @@ namespace Arena.Entity.Enemy {
                         case Direction.Down:
                             if ( currRotation >= Math.PI ) {
                                 EndRotation((float) Math.PI);
+                            }
+                            break;
+                    }
+                }
+            } else {
+                if ( _concaveTurn ) {
+                    switch ( _direction ) {
+                        case Direction.Right:
+                            if ( currRotation > -Projectile.PiOverTwo ) {
+                                EndRotation(-Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Left:
+                            if ( currRotation > Projectile.PiOverTwo ) {
+                                EndRotation(Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Up:
+                            if ( currRotation > -Projectile.PiOverTwo ) {
+                                EndRotation(-Projectile.PiOverTwo);
+                            }
+                            break;
+                        case Direction.Down:
+                            if ( currRotation >= 0 ) {
+                                EndRotation(0);
                             }
                             break;
                     }
@@ -149,102 +342,13 @@ namespace Arena.Entity.Enemy {
                                 EndRotation(-(float) Math.PI);
                             }
                             break;
-                    }                    
-                }
-
-            } else {
-                switch ( _direction ) {
-                    case Direction.Left:
-                        _body.LinearVelocity = new Vector2(-2, 0);
-                        break;
-                    case Direction.Right:
-                        _body.LinearVelocity = new Vector2(2, 0);
-                        break;
-                    case Direction.Up:
-                        _body.LinearVelocity = new Vector2(0, -2);
-                        break;
-                    case Direction.Down:
-                        _body.LinearVelocity = new Vector2(0, 2);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                if ( _ignoreTurnsMs <= 0 ) {
-                    Vector2 frontEdge;
-                    Vector2 rayDest;
-
-                    switch ( _direction ) {
-                        case Direction.Left:
-                            if ( _clockwise ) {
-                                frontEdge = _body.Position +
-                                            new Vector2(0, -Height / 2f);
-                                rayDest = frontEdge + new Vector2(0, -Height / 2f);
-                            } else {
-                                frontEdge = _body.Position +
-                                            new Vector2(0, Height / 2f);
-                                rayDest = frontEdge + new Vector2(0, Height / 2f);
-                            }
-                            break;
-                        case Direction.Right:
-                            if ( _clockwise ) {
-                                frontEdge = _body.Position +
-                                            new Vector2(0, Height / 2f);
-                                rayDest = frontEdge + new Vector2(0, Height / 2f);
-                            } else {
-                                frontEdge = _body.Position +
-                                            new Vector2(0, -Height / 2f);
-                                rayDest = frontEdge + new Vector2(0, -Height / 2f);
-                            }
-                            break;
-                        case Direction.Up:
-                            if ( _clockwise ) {
-                                frontEdge = _body.Position +
-                                            new Vector2(Height / 2f, 0);
-                                rayDest = frontEdge + new Vector2(Height / 2f, 0);
-                            } else {
-                                frontEdge = _body.Position +
-                                            new Vector2(-Height / 2f, 0);
-                                rayDest = frontEdge + new Vector2(-Height / 2f, 0);
-                            }
-                            break;
-                        case Direction.Down:
-                            if ( _clockwise ) {
-                                frontEdge = _body.Position +
-                                            new Vector2(-Height / 2f, 0);
-                                rayDest = frontEdge + new Vector2(-Height / 2f, 0);
-                            } else {
-                                frontEdge = _body.Position +
-                                            new Vector2(+Height / 2f, 0);
-                                rayDest = frontEdge + new Vector2(+Height / 2f, 0);
-                            }
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
-                    bool cliffSensed = true;
-
-                    _world.RayCast((fixture, point, normal, fraction) => {
-                        if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
-                            cliffSensed = false;
-                            return 0;
-                        }
-                        return -1;
-                    }, frontEdge, rayDest);
-
-                    if ( cliffSensed ) {
-                        _turning = true;
-                        _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
                     }
                 }
             }
-
-            UpdateAnimation(gameTime);
         }
 
-        private void EndRotation(float maxRotation) {
-            _body.Rotation = maxRotation;
+        private void EndRotation(float rotation) {
+            _body.Rotation = rotation;
             _turning = false;
             _ignoreTurnsMs = 200;
             SetNextDirection();
@@ -264,30 +368,50 @@ namespace Arena.Entity.Enemy {
         }
 
         // Sets the new direction after completing a turn
-        // TODO: this only handles convex shapes
         private void SetNextDirection() {
-            switch ( _direction ) {
-                case Direction.Left:
-                    _direction = _clockwise ? Direction.Up : Direction.Down;
-                    break;
-                case Direction.Right:
-                    _direction = _clockwise ? Direction.Down : Direction.Up;
-                    break;
-                case Direction.Up:
-                    _direction = _clockwise ? Direction.Right : Direction.Left;
-                    break;
-                case Direction.Down:
-                    _direction = _clockwise ? Direction.Left : Direction.Right;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            if ( _concaveTurn ) {
+                switch ( _direction ) {
+                    case Direction.Left:
+                        _direction = _clockwise ? Direction.Down : Direction.Up;
+                        break;
+                    case Direction.Right:
+                        _direction = _clockwise ? Direction.Up : Direction.Down;
+                        break;
+                    case Direction.Up:
+                        _direction = _clockwise ? Direction.Left : Direction.Right;
+                        break;
+                    case Direction.Down:
+                        _direction = _clockwise ? Direction.Right : Direction.Left;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+
+                }
+            } else {
+                switch ( _direction ) {
+                    case Direction.Left:
+                        _direction = _clockwise ? Direction.Up : Direction.Down;
+                        break;
+                    case Direction.Right:
+                        _direction = _clockwise ? Direction.Down : Direction.Up;
+                        break;
+                    case Direction.Up:
+                        _direction = _clockwise ? Direction.Right : Direction.Left;
+                        break;
+                    case Direction.Down:
+                        _direction = _clockwise ? Direction.Left : Direction.Right;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+
+                }                
             }
         }
 
         private void UpdateAnimation(GameTime gameTime) {
             _timeSinceLastUpdate += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
             if (_timeSinceLastUpdate > 100) {
-                _animationFrame = (_animationFrame + Width) % NumFrames;
+                _animationFrame = (_animationFrame + 1) % NumFrames;
                 Image = Animation[_animationFrame];
             }
         }
