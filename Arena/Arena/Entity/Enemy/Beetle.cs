@@ -26,7 +26,9 @@ namespace Arena.Entity.Enemy {
         private bool _turning = false;
         private bool _concaveTurn = false;
         private Vector2 _worldTurningJoint;
-        private int _ignoreTurnsMs = 200;
+
+        private const int IgnoreTurnTimeout = 50;
+        private int _ignoreTurnsMs = IgnoreTurnTimeout;
 
         private Direction _direction;
 
@@ -47,7 +49,7 @@ namespace Arena.Entity.Enemy {
             } else {
                 _direction = Direction.Left;
             }
-            _ignoreTurnsMs = 200;
+            _ignoreTurnsMs = IgnoreTurnTimeout;
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
@@ -58,13 +60,7 @@ namespace Arena.Entity.Enemy {
         protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
             if ( !_turning && (b.GetUserData().IsTerrain || b.GetUserData().IsDoor) && _ignoreTurnsMs <= 0 ) {
                 Console.WriteLine("HIT");
-                _turning = true;
-                _concaveTurn = true;
-                if ( _clockwise ) {
-                    _worldTurningJoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
-                } else {
-                    _worldTurningJoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
-                }
+                InitiateConcaveTurn();
             } else if ( b.GetUserData().IsPlayer ) {
                 _clockwise = !_clockwise;
                 switch ( _direction ) {
@@ -83,6 +79,16 @@ namespace Arena.Entity.Enemy {
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+            }
+        }
+
+        private void InitiateConcaveTurn() {
+            _turning = true;
+            _concaveTurn = true;
+            if ( _clockwise ) {
+                _worldTurningJoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
+            } else {
+                _worldTurningJoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
             }
         }
 
@@ -143,6 +149,7 @@ namespace Arena.Entity.Enemy {
                     throw new ArgumentOutOfRangeException();
             }
 
+            // TODO: front edge get by body query
             if ( _ignoreTurnsMs <= 0 ) {
                 Vector2 frontEdge;
                 Vector2 rayDest;
@@ -196,7 +203,7 @@ namespace Arena.Entity.Enemy {
                         throw new ArgumentOutOfRangeException();
                 }
 
-                bool cliffSensed = true;
+                bool cliffSensed = true;                
 
                 _world.RayCast((fixture, point, normal, fraction) => {
                     if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
@@ -211,6 +218,23 @@ namespace Arena.Entity.Enemy {
                     _concaveTurn = false;
                     _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
                 }
+
+                Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Width / 2 : -Width / 2, Height / 2));
+                Vector2 inFront = _body.GetWorldVector(new Vector2(_clockwise ? .05f : -.05f, 0));
+
+                bool wallSensed = false;
+                _world.RayCast((fixture, point, normal, fraction) => {
+                    if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                        wallSensed = true;
+                        Console.WriteLine("WALL");
+                        return 0;
+                    }
+                    return -1;
+                }, frontBumper, frontBumper + inFront);
+
+                if (wallSensed) {
+                    InitiateConcaveTurn();
+                }
             }
         }
 
@@ -219,7 +243,12 @@ namespace Arena.Entity.Enemy {
             float rotationDelta =
                 (float) (Projectile.PiOverTwo * gameTime.ElapsedGameTime.TotalMilliseconds / turnTimeMs);
 
-            // We turn the opposite direction if we aren't going clockwise, 
+            // Concave turns look a lot faster than convex turns, so slow them down
+            if (_concaveTurn) {
+                rotationDelta *= 2f / 3f;
+            }
+
+            // We rotate the opposite direction if we aren't going clockwise, 
             // or if this is a concave turn
             if ( !_clockwise ) {
                 rotationDelta *= -1;
@@ -238,7 +267,16 @@ namespace Arena.Entity.Enemy {
                 } else {
                     revolutionPoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
                 }
-                _body.Position = new Vector2(_body.Position.X + _worldTurningJoint.X - revolutionPoint.X, _body.Position.Y);
+                switch (_direction) {
+                    case Direction.Left:
+                    case Direction.Right:
+                        _body.Position = new Vector2(_body.Position.X + _worldTurningJoint.X - revolutionPoint.X, _body.Position.Y);
+                        break;
+                    case Direction.Up:
+                    case Direction.Down:
+                        _body.Position = new Vector2(_body.Position.X, _body.Position.Y + _worldTurningJoint.Y - revolutionPoint.Y);
+                        break;
+                }
             } else {
                 Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
                 _body.Position += _worldTurningJoint - revolutionPoint;
@@ -255,8 +293,8 @@ namespace Arena.Entity.Enemy {
                             }
                             break;
                         case Direction.Right:
-                            if ( currRotation <= -Projectile.PiOverTwo ) {
-                                EndRotation(-Projectile.PiOverTwo);
+                            if ( currRotation <= 3 * Projectile.PiOverTwo ) {
+                                EndRotation(3 * Projectile.PiOverTwo);
                             }
                             break;
                         case Direction.Up:
@@ -265,7 +303,7 @@ namespace Arena.Entity.Enemy {
                             }
                             break;
                         case Direction.Down:
-                            if ( currRotation <= 0) {
+                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
                                 EndRotation(0);
                             }
                             break;
@@ -284,7 +322,7 @@ namespace Arena.Entity.Enemy {
                             break;
                         case Direction.Up:
                             // we'll wrap around to 0
-                            if ( currRotation < Projectile.PiOverEight ) {
+                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
                                 EndRotation(0f);
                             }
                             break;
@@ -299,8 +337,8 @@ namespace Arena.Entity.Enemy {
                 if ( _concaveTurn ) {
                     switch ( _direction ) {
                         case Direction.Right:
-                            if ( currRotation > -Projectile.PiOverTwo ) {
-                                EndRotation(-Projectile.PiOverTwo);
+                            if ( currRotation > 3 * Projectile.PiOverTwo ) {
+                                EndRotation(3 * Projectile.PiOverTwo);
                             }
                             break;
                         case Direction.Left:
@@ -309,12 +347,12 @@ namespace Arena.Entity.Enemy {
                             }
                             break;
                         case Direction.Up:
-                            if ( currRotation > -Projectile.PiOverTwo ) {
-                                EndRotation(-Projectile.PiOverTwo);
+                            if ( currRotation > Math.PI ) {
+                                EndRotation((float) Math.PI);
                             }
                             break;
                         case Direction.Down:
-                            if ( currRotation >= 0 ) {
+                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
                                 EndRotation(0);
                             }
                             break;
@@ -322,24 +360,23 @@ namespace Arena.Entity.Enemy {
                 } else {
                     switch ( _direction ) {
                         case Direction.Right:
-                            if ( currRotation < -3 * Projectile.PiOverTwo ) {
-                                EndRotation(-3 * Projectile.PiOverTwo);
+                            if ( currRotation < Projectile.PiOverTwo ) {
+                                EndRotation(Projectile.PiOverTwo);
                             }
                             break;
                         case Direction.Left:
-                            if ( currRotation < -Projectile.PiOverTwo ) {
-                                EndRotation(-Projectile.PiOverTwo);
+                            if ( currRotation < 3 * Projectile.PiOverTwo ) {
+                                EndRotation(3 * Projectile.PiOverTwo);
                             }
                             break;
                         case Direction.Up:
-                            // we'll wrap around to 0
-                            if ( currRotation > -Projectile.PiOverEight ) {
+                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
                                 EndRotation(0f);
                             }
                             break;
                         case Direction.Down:
-                            if ( currRotation < -Math.PI ) {
-                                EndRotation(-(float) Math.PI);
+                            if ( currRotation < Math.PI ) {
+                                EndRotation((float) Math.PI);
                             }
                             break;
                     }
@@ -350,7 +387,7 @@ namespace Arena.Entity.Enemy {
         private void EndRotation(float rotation) {
             _body.Rotation = rotation;
             _turning = false;
-            _ignoreTurnsMs = 200;
+            _ignoreTurnsMs = IgnoreTurnTimeout;
             SetNextDirection();
         }
 
@@ -360,7 +397,7 @@ namespace Arena.Entity.Enemy {
                     angle -= 2 * (float) Math.PI;
                 }
             } else {
-                while ( angle <= -2 * Math.PI ) {
+                while ( angle < 0 ) {
                     angle += 2 * (float) Math.PI;
                 }                
             }
