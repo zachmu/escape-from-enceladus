@@ -57,24 +57,37 @@ namespace Arena.Entity.Enemy {
             _body.IgnoreGravity = true;
         }
 
+        /// <summary>
+        /// Event handler for when the beetle runs into a solid object.  We only care about the player interaction
+        /// </summary>
+        /// <param name="contact"></param>
+        /// <param name="b"></param>
         protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
-            if ( !_turning && (b.GetUserData().IsTerrain || b.GetUserData().IsDoor) && _ignoreTurnsMs <= 0 ) {
-                Console.WriteLine("HIT");
-                InitiateConcaveTurn();
-            } else if ( b.GetUserData().IsPlayer ) {
-                _clockwise = !_clockwise;
+            if ( b.GetUserData().IsPlayer ) {
                 switch ( _direction ) {
                     case Direction.Left:
-                        _direction = Direction.Right;
+                        if ( Player.Instance.Position.X < _body.Position.X ) {
+                            _clockwise = !_clockwise;
+                            _direction = Direction.Right;
+                        }
                         break;
                     case Direction.Right:
-                        _direction = Direction.Left;
+                        if ( Player.Instance.Position.X > _body.Position.X ) {
+                            _clockwise = !_clockwise;
+                            _direction = Direction.Left;
+                        }
                         break;
                     case Direction.Up:
-                        _direction = Direction.Down;
+                        if ( Player.Instance.Position.Y < _body.Position.Y ) {
+                            _clockwise = !_clockwise;
+                            _direction = Direction.Down;
+                        }
                         break;
                     case Direction.Down:
-                        _direction = Direction.Up;
+                        if ( Player.Instance.Position.Y > _body.Position.Y ) {
+                            _clockwise = !_clockwise;
+                            _direction = Direction.Up;
+                        }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -110,7 +123,8 @@ namespace Arena.Entity.Enemy {
 
         private const int NumFrames = 5;
         private static readonly Texture2D[] Animation = new Texture2D[NumFrames];
-       
+        private int LinearVelocity = 2;
+
         public static void LoadContent(ContentManager content) {
             for ( int i = 0; i < NumFrames; i++ ) {
                 Animation[i] = content.Load<Texture2D>(String.Format("Enemy/Beetle/Beetle{0:0000}", i));
@@ -134,108 +148,63 @@ namespace Arena.Entity.Enemy {
         private void HandleMove() {
             switch ( _direction ) {
                 case Direction.Left:
-                    _body.LinearVelocity = new Vector2(-2, 0);
+                    _body.LinearVelocity = new Vector2(-LinearVelocity, 0);
                     break;
                 case Direction.Right:
-                    _body.LinearVelocity = new Vector2(2, 0);
+                    _body.LinearVelocity = new Vector2(LinearVelocity, 0);
                     break;
                 case Direction.Up:
-                    _body.LinearVelocity = new Vector2(0, -2);
+                    _body.LinearVelocity = new Vector2(0, -LinearVelocity);
                     break;
                 case Direction.Down:
-                    _body.LinearVelocity = new Vector2(0, 2);
+                    _body.LinearVelocity = new Vector2(0, LinearVelocity);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            // TODO: front edge get by body query
-            if ( _ignoreTurnsMs <= 0 ) {
-                Vector2 frontEdge;
-                Vector2 rayDest;
+            Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Width / 2 : -Width / 2, Height / 2));
+            Vector2 inFront = _body.GetWorldVector(new Vector2(_clockwise ? .05f : -.05f, 0));
 
-                switch ( _direction ) {
-                    case Direction.Left:
-                        if ( _clockwise ) {
-                            frontEdge = _body.Position +
-                                        new Vector2(0, -Height / 2f);
-                            rayDest = frontEdge + new Vector2(0, -Height / 2f);
-                        } else {
-                            frontEdge = _body.Position +
-                                        new Vector2(0, Height / 2f);
-                            rayDest = frontEdge + new Vector2(0, Height / 2f);
-                        }
-                        break;
-                    case Direction.Right:
-                        if ( _clockwise ) {
-                            frontEdge = _body.Position +
-                                        new Vector2(0, Height / 2f);
-                            rayDest = frontEdge + new Vector2(0, Height / 2f);
-                        } else {
-                            frontEdge = _body.Position +
-                                        new Vector2(0, -Height / 2f);
-                            rayDest = frontEdge + new Vector2(0, -Height / 2f);
-                        }
-                        break;
-                    case Direction.Up:
-                        if ( _clockwise ) {
-                            frontEdge = _body.Position +
-                                        new Vector2(Height / 2f, 0);
-                            rayDest = frontEdge + new Vector2(Height / 2f, 0);
-                        } else {
-                            frontEdge = _body.Position +
-                                        new Vector2(-Height / 2f, 0);
-                            rayDest = frontEdge + new Vector2(-Height / 2f, 0);
-                        }
-                        break;
-                    case Direction.Down:
-                        if ( _clockwise ) {
-                            frontEdge = _body.Position +
-                                        new Vector2(-Height / 2f, 0);
-                            rayDest = frontEdge + new Vector2(-Height / 2f, 0);
-                        } else {
-                            frontEdge = _body.Position +
-                                        new Vector2(+Height / 2f, 0);
-                            rayDest = frontEdge + new Vector2(+Height / 2f, 0);
-                        }
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+            bool wallSensed = false;
+            _world.RayCast((fixture, point, normal, fraction) => {
+                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                    wallSensed = true;
+                    Console.WriteLine("WALL");
+                    return 0;
                 }
+                return -1;
+            }, frontBumper, frontBumper + inFront);
 
+            if ( wallSensed ) {
+                InitiateConcaveTurn();
+                return;
+            }
+
+            // We don't want to start a new convex turn right after this one
+            if ( _ignoreTurnsMs <= 0 ) {
+                Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, Height / 2));
+                Vector2 rayDest = cliffSensor + _body.GetWorldVector(new Vector2(0, Height / 2));
+                
                 bool cliffSensed = true;                
-
                 _world.RayCast((fixture, point, normal, fraction) => {
                     if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
                         cliffSensed = false;
                         return 0;
                     }
                     return -1;
-                }, frontEdge, rayDest);
+                }, cliffSensor, rayDest);
 
                 if ( cliffSensed ) {
-                    _turning = true;
-                    _concaveTurn = false;
-                    _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
-                }
-
-                Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Width / 2 : -Width / 2, Height / 2));
-                Vector2 inFront = _body.GetWorldVector(new Vector2(_clockwise ? .05f : -.05f, 0));
-
-                bool wallSensed = false;
-                _world.RayCast((fixture, point, normal, fraction) => {
-                    if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
-                        wallSensed = true;
-                        Console.WriteLine("WALL");
-                        return 0;
-                    }
-                    return -1;
-                }, frontBumper, frontBumper + inFront);
-
-                if (wallSensed) {
-                    InitiateConcaveTurn();
+                    InitiateConvexTurn();
                 }
             }
+        }
+
+        private void InitiateConvexTurn() {
+            _turning = true;
+            _concaveTurn = false;
+            _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
         }
 
         private void HandleTurn(GameTime gameTime) {
