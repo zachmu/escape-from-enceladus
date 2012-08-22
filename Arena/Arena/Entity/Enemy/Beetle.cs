@@ -40,6 +40,16 @@ namespace Arena.Entity.Enemy {
             }
         }
 
+        private const int NumFrames = 5;
+        private static readonly Texture2D[] Animation = new Texture2D[NumFrames];
+        private int LinearVelocity = 2;
+
+        public static void LoadContent(ContentManager content) {
+            for ( int i = 0; i < NumFrames; i++ ) {
+                Animation[i] = content.Load<Texture2D>(String.Format("Enemy/Beetle/Beetle{0:0000}", i));
+            }
+        }
+
         public Beetle(Vector2 position, World world, bool clockwise)
             : base(position, world, Width, Height) {
             _image = Animation[0];
@@ -55,6 +65,44 @@ namespace Arena.Entity.Enemy {
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
             base.CreateBody(position, world, width, height);
             _body.IgnoreGravity = true;
+        }
+
+        public override void Update(GameTime gameTime) {
+            base.Update(gameTime);
+
+            _ignoreTurnsMs -= (int) gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            if ( _turning ) {
+                HandleTurn(gameTime);
+            } else {
+                HandleMove();
+            }
+
+            UpdateAnimation(gameTime);
+        }
+
+        private void UpdateAnimation(GameTime gameTime) {
+            _timeSinceLastUpdate += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (_timeSinceLastUpdate > 100) {
+                _animationFrame = (_animationFrame + 1) % NumFrames;
+                Image = Animation[_animationFrame];
+            }
+        }
+
+        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            if ( !Disposed ) {
+                // draw position is character's center
+                Vector2 position = _body.Position;
+
+                //Vector2 scale = new Vector2(_width / BaseWidth, _height / BaseHeight);
+                Vector2 origin = new Vector2(Image.Width / 2f, Image.Height / 2f);
+
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
+
+                spriteBatch.Draw(Image, displayPosition, null, color, _body.Rotation, origin, 1f,
+                                 _clockwise ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
+            }
         }
 
         /// <summary>
@@ -95,6 +143,9 @@ namespace Arena.Entity.Enemy {
             }
         }
 
+        /// <summary>
+        /// Begins a concave turn
+        /// </summary>
         private void InitiateConcaveTurn() {
             _turning = true;
             _concaveTurn = true;
@@ -105,46 +156,18 @@ namespace Arena.Entity.Enemy {
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            if ( !Disposed ) {
-                // draw position is character's center
-                Vector2 position = _body.Position;
-
-                //Vector2 scale = new Vector2(_width / BaseWidth, _height / BaseHeight);
-                Vector2 origin = new Vector2(Image.Width / 2f, Image.Height / 2f);
-
-                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
-
-                spriteBatch.Draw(Image, displayPosition, null, color, _body.Rotation, origin, 1f,
-                                 _clockwise ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-            }
+        /// <summary>
+        /// Begins a convex turn
+        /// </summary>
+        private void InitiateConvexTurn() {
+            _turning = true;
+            _concaveTurn = false;
+            _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
         }
 
-        private const int NumFrames = 5;
-        private static readonly Texture2D[] Animation = new Texture2D[NumFrames];
-        private int LinearVelocity = 2;
-
-        public static void LoadContent(ContentManager content) {
-            for ( int i = 0; i < NumFrames; i++ ) {
-                Animation[i] = content.Load<Texture2D>(String.Format("Enemy/Beetle/Beetle{0:0000}", i));
-            }
-        }
-
-        public override void Update(GameTime gameTime) {
-            base.Update(gameTime);
-
-            _ignoreTurnsMs -= (int) gameTime.ElapsedGameTime.TotalMilliseconds;
-
-            if ( _turning ) {
-                HandleTurn(gameTime);
-            } else {
-                HandleMove();
-            }
-
-            UpdateAnimation(gameTime);
-        }
-
+        /// <summary>
+        /// Handles the movement (not turning) mode of movement
+        /// </summary>
         private void HandleMove() {
             switch ( _direction ) {
                 case Direction.Left:
@@ -201,12 +224,9 @@ namespace Arena.Entity.Enemy {
             }
         }
 
-        private void InitiateConvexTurn() {
-            _turning = true;
-            _concaveTurn = false;
-            _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
-        }
-
+        /// <summary>
+        /// Handles the turning (not moving) mode of movement
+        /// </summary>
         private void HandleTurn(GameTime gameTime) {
             _body.LinearVelocity = Vector2.Zero;
             float rotationDelta =
@@ -375,50 +395,15 @@ namespace Arena.Entity.Enemy {
 
         // Sets the new direction after completing a turn
         private void SetNextDirection() {
-            if ( _concaveTurn ) {
-                switch ( _direction ) {
-                    case Direction.Left:
-                        _direction = _clockwise ? Direction.Down : Direction.Up;
-                        break;
-                    case Direction.Right:
-                        _direction = _clockwise ? Direction.Up : Direction.Down;
-                        break;
-                    case Direction.Up:
-                        _direction = _clockwise ? Direction.Left : Direction.Right;
-                        break;
-                    case Direction.Down:
-                        _direction = _clockwise ? Direction.Right : Direction.Left;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-
-                }
+            float rotation = NormalizeAngle(_body.Rotation);
+            if ( rotation < Projectile.PiOverEight || rotation > Math.PI * 2 - Projectile.PiOverEight ) {
+                _direction = _clockwise ? Direction.Right : Direction.Left;
+            } else if ( rotation < Projectile.PiOverTwo + .05f ) {
+                _direction = _clockwise ? Direction.Down : Direction.Up;
+            } else if ( rotation < Math.PI + .05f ) {
+                _direction = _clockwise ? Direction.Left : Direction.Right;
             } else {
-                switch ( _direction ) {
-                    case Direction.Left:
-                        _direction = _clockwise ? Direction.Up : Direction.Down;
-                        break;
-                    case Direction.Right:
-                        _direction = _clockwise ? Direction.Down : Direction.Up;
-                        break;
-                    case Direction.Up:
-                        _direction = _clockwise ? Direction.Right : Direction.Left;
-                        break;
-                    case Direction.Down:
-                        _direction = _clockwise ? Direction.Left : Direction.Right;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-
-                }                
-            }
-        }
-
-        private void UpdateAnimation(GameTime gameTime) {
-            _timeSinceLastUpdate += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_timeSinceLastUpdate > 100) {
-                _animationFrame = (_animationFrame + 1) % NumFrames;
-                Image = Animation[_animationFrame];
+                _direction = _clockwise ? Direction.Up : Direction.Down;
             }
         }
     }
