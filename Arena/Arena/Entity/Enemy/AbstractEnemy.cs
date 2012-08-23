@@ -34,6 +34,7 @@ namespace Arena.Entity.Enemy {
 
         public AbstractEnemy(Vector2 position, World world, float width, float height) {
             CreateBody(position, world, width, height);
+            ConfigureBody(position, height);
 
             _hitPoints = 5;
             _direction = Direction.Left;
@@ -67,6 +68,9 @@ namespace Arena.Entity.Enemy {
 
         protected virtual void CreateBody(Vector2 position, World world, float width, float height) {
             _body = BodyFactory.CreateRectangle(world, width, height, 10f);
+        }
+
+        protected virtual void ConfigureBody(Vector2 position, float height) {
             _body.IsStatic = false;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
@@ -86,13 +90,6 @@ namespace Arena.Entity.Enemy {
                 return;
             }
 
-            if ( IsStanding ) {
-                if ( _direction == Direction.Left ) {
-                    _body.LinearVelocity = new Vector2(-Constants.Get(EnemySpeed), 0);
-                } else {
-                    _body.LinearVelocity = new Vector2(Constants.Get(EnemySpeed), 0);
-                }
-            }
 
             UpdateFlash(gameTime);
         }

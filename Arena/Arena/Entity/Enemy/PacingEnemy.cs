@@ -63,6 +63,18 @@ namespace Arena.Entity.Enemy {
                                      : SpriteEffects.FlipHorizontally, 0);
             }
         }
+
+        public override void Update(GameTime gameTime) {
+            base.Update(gameTime);
+
+            if ( IsStanding ) {
+                if ( _direction == Direction.Left ) {
+                    _body.LinearVelocity = new Vector2(-Constants.Get(EnemySpeed), 0);
+                } else {
+                    _body.LinearVelocity = new Vector2(Constants.Get(EnemySpeed), 0);
+                }
+            }
+        }
     }
 
 }

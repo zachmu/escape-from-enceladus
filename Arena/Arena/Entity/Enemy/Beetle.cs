@@ -5,6 +5,8 @@ using System.Text;
 using Arena.Farseer;
 using Arena.Weapon;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Dynamics.Contacts;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,13 +26,21 @@ namespace Arena.Entity.Enemy {
         private const float RotationDeltaPerMs = Projectile.PiOverTwo / TurnTimeMs;
 
         private bool _clockwise = false;
-        private bool _turning = false;
         private bool _concaveTurn = false;
         private float _targetAngle;
         private Vector2 _worldTurningJoint;
 
         private const int IgnoreTurnTimeout = 50;
         private int _ignoreTurnsMs = IgnoreTurnTimeout;
+
+        private enum Mode {
+            Walking,
+            Turning,
+            Falling,
+        }
+
+        private Mode _mode = Mode.Walking;
+        
 
         private Direction _direction;
 
@@ -65,8 +75,16 @@ namespace Arena.Entity.Enemy {
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
+            //_body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, width / 2, Vector2.Zero, (float) Math.PI);
+            //_body = BodyFactory.CreateLineArc(world, (float) Math.PI, 12, width / 2, position, 0, true);
             base.CreateBody(position, world, width, height);
+        }
+
+        protected override void ConfigureBody(Vector2 position, float height) {
+            base.ConfigureBody(position, height);
             _body.IgnoreGravity = true;
+            _body.Friction = .5f;
+            //_body.Position = position;
         }
 
         public override void Update(GameTime gameTime) {
@@ -74,13 +92,37 @@ namespace Arena.Entity.Enemy {
 
             _ignoreTurnsMs -= (int) gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if ( _turning ) {
-                HandleTurn(gameTime);
-            } else {
-                HandleMove();
+            switch ( _mode ) {
+                case Mode.Walking:
+                    HandleWalk();
+                    break;
+                case Mode.Turning:
+                    HandleTurn(gameTime);
+                    break;
+                case Mode.Falling:
+                    HandleRecovery(gameTime);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             UpdateAnimation(gameTime);
+        }
+
+        private void HandleRecovery(GameTime gameTime) {
+            if ( _body.LinearVelocity.Length() < .001 ) {
+                ContactEdge contactEdge = _body.ContactList;
+                while ( contactEdge != null ) {
+                    if ( contactEdge.Contact.GetPlayerNormal(_body).Y < -.8f ) {
+                        if ( _body.Rotation > 2 * Math.PI - .01 || _body.Rotation < .01 ) {
+                            _mode = Mode.Walking;
+                            _body.IgnoreGravity = true;
+                            _body.FixedRotation = true;
+                        }
+                    }
+                    contactEdge = contactEdge.Next;
+                }
+            }
         }
 
         private void UpdateAnimation(GameTime gameTime) {
@@ -93,7 +135,7 @@ namespace Arena.Entity.Enemy {
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             if ( !Disposed ) {
-                // draw position is character's center
+                // draw position is character's feet
                 Vector2 position = _body.Position;
 
                 Vector2 origin = new Vector2(Image.Width / 2f, Image.Height / 2f);
@@ -142,7 +184,7 @@ namespace Arena.Entity.Enemy {
                 }
                 if (reverseDirection) {
                     _clockwise = !_clockwise;
-                    if (_turning) {
+                    if (_mode == Mode.Turning) {
                         _targetAngle =
                             NormalizeAngle(_targetAngle + (_clockwise ? Projectile.PiOverTwo : -Projectile.PiOverTwo));
                     }
@@ -154,7 +196,7 @@ namespace Arena.Entity.Enemy {
         /// Begins a concave turn
         /// </summary>
         private void InitiateConcaveTurn() {
-            _turning = true;
+            _mode = Mode.Turning;
             _concaveTurn = true;
             if ( _clockwise ) {
                 _worldTurningJoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
@@ -171,7 +213,7 @@ namespace Arena.Entity.Enemy {
         /// Begins a convex turn
         /// </summary>
         private void InitiateConvexTurn() {
-            _turning = true;
+            _mode = Mode.Turning;
             _concaveTurn = false;
             _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
             _targetAngle =
@@ -183,7 +225,7 @@ namespace Arena.Entity.Enemy {
         /// <summary>
         /// Handles the movement (not turning) mode of movement
         /// </summary>
-        private void HandleMove() {
+        private void HandleWalk() {
             switch ( _direction ) {
                 case Direction.Left:
                     _body.LinearVelocity = new Vector2(-LinearVelocity, 0);
@@ -222,8 +264,8 @@ namespace Arena.Entity.Enemy {
             // We don't want to start a new convex turn right after this one
             if ( _ignoreTurnsMs <= 0 ) {
                 Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, Height / 2));
-                Vector2 rayDest = cliffSensor + _body.GetWorldVector(new Vector2(0, Height / 2));
-                
+                Vector2 underneath = _body.GetWorldVector(new Vector2(0, Height / 2));
+
                 bool cliffSensed = true;                
                 _world.RayCast((fixture, point, normal, fraction) => {
                     if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
@@ -231,12 +273,46 @@ namespace Arena.Entity.Enemy {
                         return 0;
                     }
                     return -1;
-                }, cliffSensor, rayDest);
+                }, cliffSensor, cliffSensor + underneath);
 
                 if ( cliffSensed ) {
-                    InitiateConvexTurn();
+                    // If there's nothing under our center, check to see if there's terrain anywhere.
+                    // If not, we fall down.
+                    var backEdge = _body.GetWorldPoint(new Vector2(-Width, Height / 2));
+                    var frontEdge = _body.GetWorldPoint(new Vector2(Width, Height / 2));
+
+                    bool terrainSensed = false;
+                    _world.RayCast((fixture, point, normal, fraction) => {
+                        if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                            terrainSensed = true;
+                            return 0;
+                        }
+                        return -1;
+                    }, frontEdge, frontEdge + underneath);
+
+                    if (!terrainSensed) {
+                        _world.RayCast((fixture, point, normal, fraction) => {
+                            if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                                terrainSensed = true;
+                                return 0;
+                            }
+                            return -1;
+                        }, backEdge, backEdge + underneath);
+                    }
+
+                    if ( terrainSensed ) {
+                        InitiateConvexTurn();
+                    } else {
+                        Fall();
+                    }
                 }
             }
+        }
+
+        private void Fall() {
+            _mode = Mode.Falling;
+            _body.IgnoreGravity = false;
+            _body.FixedRotation = false;
         }
 
         /// <summary>
@@ -306,11 +382,11 @@ namespace Arena.Entity.Enemy {
         private bool IsClockwiseRotation(float origin, float target) {
             if (target < .01f || target > 2 * Math.PI - .01f) {
                 return origin >= Math.PI;
-            } else if (target <= Projectile.PiOverTwo) {
+            } else if (target <= Projectile.PiOverTwo + .01f) {
                 return origin <= Projectile.PiOverTwo || origin >= 3 * Projectile.PiOverTwo;
             } else if (target <= Math.PI) {
                 return origin <= Math.PI;
-            } else if (target <= 3 * Projectile.PiOverTwo) {
+            } else if (target <= 3 * Projectile.PiOverTwo + .01f) {
                 return origin <= 3 * Projectile.PiOverTwo && origin >= Projectile.PiOverTwo;
             } else {
                 throw new ArgumentOutOfRangeException();
@@ -323,7 +399,7 @@ namespace Arena.Entity.Enemy {
         private void EndRotation(float rotation) {
             _body.Rotation = rotation;
             AdjustTurningPosition();
-            _turning = false;
+            _mode = Mode.Walking;
             _ignoreTurnsMs = IgnoreTurnTimeout;
             SetNextDirection();
         }
