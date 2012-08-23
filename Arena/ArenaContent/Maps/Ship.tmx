@@ -97,13 +97,12 @@
   <object name="EnsignClew" x="896" y="179" width="446" height="137"/>
  </objectgroup>
  <objectgroup name="Enemies" width="400" height="220">
-  <object name="worm" x="3090" y="4158" width="130" height="64"/>
-  <object name="beetle" x="3469" y="3869" width="36" height="25">
+  <object name="beetle" x="3214" y="3735" width="36" height="25"/>
+  <object name="beetle" x="3470" y="3873" width="36" height="25">
    <properties>
     <property name="clockwise" value=""/>
    </properties>
   </object>
-  <object name="beetle" x="3214" y="3735" width="36" height="25"/>
  </objectgroup>
  <objectgroup name="PlayerStart" width="400" height="220">
   <object x="2861" y="4003" width="54" height="60"/>

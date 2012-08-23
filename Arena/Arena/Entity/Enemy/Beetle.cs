@@ -20,11 +20,13 @@ namespace Arena.Entity.Enemy {
         private const float Height = .5f;
         private const float Width = 1;
 
-        private const float turnTimeMs = 250;
+        private const float TurnTimeMs = 250;
+        private const float RotationDeltaPerMs = Projectile.PiOverTwo / TurnTimeMs;
 
         private bool _clockwise = false;
         private bool _turning = false;
         private bool _concaveTurn = false;
+        private float _targetAngle;
         private Vector2 _worldTurningJoint;
 
         private const int IgnoreTurnTimeout = 50;
@@ -83,7 +85,7 @@ namespace Arena.Entity.Enemy {
 
         private void UpdateAnimation(GameTime gameTime) {
             _timeSinceLastUpdate += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_timeSinceLastUpdate > 100) {
+            if (_timeSinceLastUpdate > 20) {
                 _animationFrame = (_animationFrame + 1) % NumFrames;
                 Image = Animation[_animationFrame];
             }
@@ -94,7 +96,6 @@ namespace Arena.Entity.Enemy {
                 // draw position is character's center
                 Vector2 position = _body.Position;
 
-                //Vector2 scale = new Vector2(_width / BaseWidth, _height / BaseHeight);
                 Vector2 origin = new Vector2(Image.Width / 2f, Image.Height / 2f);
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
@@ -108,37 +109,43 @@ namespace Arena.Entity.Enemy {
         /// <summary>
         /// Event handler for when the beetle runs into a solid object.  We only care about the player interaction
         /// </summary>
-        /// <param name="contact"></param>
-        /// <param name="b"></param>
         protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
             if ( b.GetUserData().IsPlayer ) {
+                bool reverseDirection = false;
                 switch ( _direction ) {
                     case Direction.Left:
                         if ( Player.Instance.Position.X < _body.Position.X ) {
-                            _clockwise = !_clockwise;
+                            reverseDirection = true;
                             _direction = Direction.Right;
                         }
                         break;
                     case Direction.Right:
                         if ( Player.Instance.Position.X > _body.Position.X ) {
-                            _clockwise = !_clockwise;
+                            reverseDirection = true;
                             _direction = Direction.Left;
                         }
                         break;
                     case Direction.Up:
                         if ( Player.Instance.Position.Y < _body.Position.Y ) {
-                            _clockwise = !_clockwise;
+                            reverseDirection = true;
                             _direction = Direction.Down;
                         }
                         break;
                     case Direction.Down:
                         if ( Player.Instance.Position.Y > _body.Position.Y ) {
-                            _clockwise = !_clockwise;
+                            reverseDirection = true;
                             _direction = Direction.Up;
                         }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
+                }
+                if (reverseDirection) {
+                    _clockwise = !_clockwise;
+                    if (_turning) {
+                        _targetAngle =
+                            NormalizeAngle(_targetAngle + (_clockwise ? Projectile.PiOverTwo : -Projectile.PiOverTwo));
+                    }
                 }
             }
         }
@@ -154,6 +161,10 @@ namespace Arena.Entity.Enemy {
             } else {
                 _worldTurningJoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
             }
+            _targetAngle =
+                NormalizeAngle(_clockwise
+                                   ? _body.Rotation - Projectile.PiOverTwo
+                                   : _body.Rotation + Projectile.PiOverTwo);
         }
 
         /// <summary>
@@ -163,6 +174,10 @@ namespace Arena.Entity.Enemy {
             _turning = true;
             _concaveTurn = false;
             _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
+            _targetAngle =
+                NormalizeAngle(_clockwise
+                                   ? _body.Rotation + Projectile.PiOverTwo
+                                   : _body.Rotation - Projectile.PiOverTwo);
         }
 
         /// <summary>
@@ -229,157 +244,93 @@ namespace Arena.Entity.Enemy {
         /// </summary>
         private void HandleTurn(GameTime gameTime) {
             _body.LinearVelocity = Vector2.Zero;
-            float rotationDelta =
-                (float) (Projectile.PiOverTwo * gameTime.ElapsedGameTime.TotalMilliseconds / turnTimeMs);
+            float rotationDelta = (float) (RotationDeltaPerMs * gameTime.ElapsedGameTime.TotalMilliseconds);
 
-            // Concave turns look a lot faster than convex turns, so slow them down
+            float currRotation = NormalizeAngle(_body.Rotation);
+            bool rotatingClockwise = IsClockwiseRotation(currRotation, _targetAngle);
             if (_concaveTurn) {
                 rotationDelta *= 2f / 3f;
             }
 
-            // We rotate the opposite direction if we aren't going clockwise, 
-            // or if this is a concave turn
-            if ( !_clockwise ) {
-                rotationDelta *= -1;
+            // Make sure we don't overshoot our adjustment
+            if (Math.Abs(currRotation - _targetAngle) < rotationDelta) {
+                _body.Rotation = _targetAngle;
+            } else {
+                _body.Rotation += rotatingClockwise ? rotationDelta : -rotationDelta;
             }
-            if ( _concaveTurn ) {
-                rotationDelta *= -1;
-            }
-
-            _body.Rotation += rotationDelta;
             //Console.WriteLine("Rotation: {0}, maxrot: {1}", _body.Rotation, maxRotation);
 
-            if (_concaveTurn) {
+            // Adjust our position to keep a certain point on the ground
+            AdjustTurningPosition();
+
+            if ( Math.Abs(NormalizeAngle(_body.Rotation) - _targetAngle) <= rotationDelta / 2 ) {
+                EndRotation(_targetAngle);
+            }
+        }
+
+        /// <summary>
+        /// Moves the body to keep certain points in contact with the ground, 
+        /// depending on whether it's a concave or convex turn
+        /// </summary>
+        private void AdjustTurningPosition() {
+            if ( _concaveTurn ) {
                 Vector2 revolutionPoint = Vector2.Zero;
-                if (_clockwise) {
+                if ( _clockwise ) {
                     revolutionPoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
                 } else {
                     revolutionPoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
                 }
-                switch (_direction) {
+                switch ( _direction ) {
                     case Direction.Left:
                     case Direction.Right:
-                        _body.Position = new Vector2(_body.Position.X + _worldTurningJoint.X - revolutionPoint.X, _body.Position.Y);
+                        _body.Position = new Vector2(_body.Position.X + _worldTurningJoint.X - revolutionPoint.X,
+                                                     _body.Position.Y);
                         break;
                     case Direction.Up:
                     case Direction.Down:
-                        _body.Position = new Vector2(_body.Position.X, _body.Position.Y + _worldTurningJoint.Y - revolutionPoint.Y);
+                        _body.Position = new Vector2(_body.Position.X,
+                                                     _body.Position.Y + _worldTurningJoint.Y - revolutionPoint.Y);
                         break;
                 }
             } else {
                 Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
                 _body.Position += _worldTurningJoint - revolutionPoint;
             }
+        }
 
-            float currRotation = NormalizeAngle(_body.Rotation);
-
-            if ( _clockwise ) {
-                if ( _concaveTurn ) {
-                    switch ( _direction ) {
-                        case Direction.Left:
-                            if ( currRotation <= Projectile.PiOverTwo ) {
-                                EndRotation(Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Right:
-                            if ( currRotation <= 3 * Projectile.PiOverTwo ) {
-                                EndRotation(3 * Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Up:
-                            if ( currRotation < Math.PI ) {
-                                EndRotation((float) Math.PI);
-                            }
-                            break;
-                        case Direction.Down:
-                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
-                                EndRotation(0);
-                            }
-                            break;
-                    }
-                } else {
-                    switch ( _direction ) {
-                        case Direction.Left:
-                            if ( currRotation >= 3 * Projectile.PiOverTwo ) {
-                                EndRotation(3 * Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Right:
-                            if ( currRotation >= Projectile.PiOverTwo ) {
-                                EndRotation(Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Up:
-                            // we'll wrap around to 0
-                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
-                                EndRotation(0f);
-                            }
-                            break;
-                        case Direction.Down:
-                            if ( currRotation >= Math.PI ) {
-                                EndRotation((float) Math.PI);
-                            }
-                            break;
-                    }
-                }
+        /// <summary>
+        /// Returns whether a rotation between the two angles given is in the clockwise direction.
+        /// Angles increase in the clockwise direction.
+        /// Only works for targets in units of PI/2.
+        /// </summary>
+        private bool IsClockwiseRotation(float origin, float target) {
+            if (target < .01f || target > 2 * Math.PI - .01f) {
+                return origin >= Math.PI;
+            } else if (target <= Projectile.PiOverTwo) {
+                return origin <= Projectile.PiOverTwo || origin >= 3 * Projectile.PiOverTwo;
+            } else if (target <= Math.PI) {
+                return origin <= Math.PI;
+            } else if (target <= 3 * Projectile.PiOverTwo) {
+                return origin <= 3 * Projectile.PiOverTwo && origin >= Projectile.PiOverTwo;
             } else {
-                if ( _concaveTurn ) {
-                    switch ( _direction ) {
-                        case Direction.Right:
-                            if ( currRotation > 3 * Projectile.PiOverTwo ) {
-                                EndRotation(3 * Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Left:
-                            if ( currRotation > Projectile.PiOverTwo ) {
-                                EndRotation(Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Up:
-                            if ( currRotation > Math.PI ) {
-                                EndRotation((float) Math.PI);
-                            }
-                            break;
-                        case Direction.Down:
-                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
-                                EndRotation(0);
-                            }
-                            break;
-                    }
-                } else {
-                    switch ( _direction ) {
-                        case Direction.Right:
-                            if ( currRotation < Projectile.PiOverTwo ) {
-                                EndRotation(Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Left:
-                            if ( currRotation < 3 * Projectile.PiOverTwo ) {
-                                EndRotation(3 * Projectile.PiOverTwo);
-                            }
-                            break;
-                        case Direction.Up:
-                            if ( currRotation <= Math.Abs(rotationDelta) || currRotation >= Math.PI * 2 - Math.Abs(rotationDelta) ) {
-                                EndRotation(0f);
-                            }
-                            break;
-                        case Direction.Down:
-                            if ( currRotation < Math.PI ) {
-                                EndRotation((float) Math.PI);
-                            }
-                            break;
-                    }
-                }
+                throw new ArgumentOutOfRangeException();
             }
         }
 
+        /// <summary>
+        /// Ends the rotation mode, setting the new rotation to be the angle given
+        /// </summary>
         private void EndRotation(float rotation) {
             _body.Rotation = rotation;
+            AdjustTurningPosition();
             _turning = false;
             _ignoreTurnsMs = IgnoreTurnTimeout;
             SetNextDirection();
         }
 
+        /// <summary>
+        /// Returns an angle in the range [0..2PI]
+        /// </summary>
         private float NormalizeAngle(float angle) {
             if ( angle >= 0 ) {
                 while ( angle >= 2 * Math.PI ) {

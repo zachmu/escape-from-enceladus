@@ -19,13 +19,13 @@ namespace Arena.Weapon {
     public abstract class Projectile {
         
         // Important angles in our aiming system (sorry, tau)
-        public static readonly float PiOverTwo = (float) (Math.PI / 2f);
-        public static readonly float PiOverFour = (float) (Math.PI / 4f);
-        public static readonly float PiOverEight = (float) (Math.PI / 8f);
-        public static readonly float ThreePiOverFour = (float) (3f * (Math.PI / 4f));
-        public static readonly float ThreePiOverEight = (float) (3f * (Math.PI / 8f));
-        public static readonly float FivePiOverEight = (float) (5f * (Math.PI / 8f));
-        public static readonly float SevenPiOverEight = (float) (7f * (Math.PI / 8f));
+        public const float PiOverTwo = (float) (Math.PI / 2f);
+        public const float PiOverFour = (float) (Math.PI / 4f);
+        public const float PiOverEight = (float) (Math.PI / 8f);
+        public const float ThreePiOverFour = (float) (3f * (Math.PI / 4f));
+        public const float ThreePiOverEight = (float) (3f * (Math.PI / 8f));
+        public const float FivePiOverEight = (float) (5f * (Math.PI / 8f));
+        public const float SevenPiOverEight = (float) (7f * (Math.PI / 8f));
 
         protected Body _body;
         private bool _disposed;
