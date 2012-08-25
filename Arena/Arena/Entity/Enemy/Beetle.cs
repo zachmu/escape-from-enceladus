@@ -21,6 +21,8 @@ namespace Arena.Entity.Enemy {
 
         private const float Height = .5f;
         private const float Width = 1;
+        private const float Radius = Width / 2;
+        private static readonly float LegHeight = ConvertUnits.ToSimUnits(4f);
 
         private const float TurnTimeMs = 250;
         private const float RotationDeltaPerMs = Projectile.PiOverTwo / TurnTimeMs;
@@ -75,16 +77,19 @@ namespace Arena.Entity.Enemy {
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
-            //_body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, width / 2, Vector2.Zero, (float) Math.PI);
+//            _body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, width / 2, new Vector2(width / 2, height / 2), (float) Math.PI);
+            _body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, Radius, new Vector2(0, -LegHeight), (float) Math.PI);
+            FixtureFactory.AttachRectangle(Width - .05f, LegHeight, 1f, new Vector2(0, -LegHeight / 2), _body);
+//            _body = BodyFactory.CreateLineArc(world, (float) Math.PI, 12, width / 2 + .1f, Vector2.Zero, (float) Math.PI, true);
             //_body = BodyFactory.CreateLineArc(world, (float) Math.PI, 12, width / 2, position, 0, true);
-            base.CreateBody(position, world, width, height);
+            //base.CreateBody(position, world, width, height);
         }
 
         protected override void ConfigureBody(Vector2 position, float height) {
             base.ConfigureBody(position, height);
             _body.IgnoreGravity = true;
             _body.Friction = .5f;
-            //_body.Position = position;
+            _body.Position = position;
         }
 
         public override void Update(GameTime gameTime) {
@@ -116,6 +121,7 @@ namespace Arena.Entity.Enemy {
                     if ( contactEdge.Contact.GetPlayerNormal(_body).Y < -.8f ) {
                         if ( _body.Rotation > 2 * Math.PI - .01 || _body.Rotation < .01 ) {
                             _mode = Mode.Walking;
+                            _direction = _clockwise ? Direction.Right : Direction.Left;
                             _body.IgnoreGravity = true;
                             _body.FixedRotation = true;
                         }
@@ -138,7 +144,8 @@ namespace Arena.Entity.Enemy {
                 // draw position is character's feet
                 Vector2 position = _body.Position;
 
-                Vector2 origin = new Vector2(Image.Width / 2f, Image.Height / 2f);
+                //Vector2 origin = new Vector2();
+                Vector2 origin = new Vector2(Image.Width / 2f, Image.Height);
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
                 Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
@@ -199,9 +206,9 @@ namespace Arena.Entity.Enemy {
             _mode = Mode.Turning;
             _concaveTurn = true;
             if ( _clockwise ) {
-                _worldTurningJoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
+                _worldTurningJoint = _body.GetWorldPoint(new Vector2(Radius, 0));
             } else {
-                _worldTurningJoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
+                _worldTurningJoint = _body.GetWorldPoint(new Vector2(-Radius, 0));
             }
             _targetAngle =
                 NormalizeAngle(_clockwise
@@ -215,7 +222,7 @@ namespace Arena.Entity.Enemy {
         private void InitiateConvexTurn() {
             _mode = Mode.Turning;
             _concaveTurn = false;
-            _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
+            _worldTurningJoint = _body.GetWorldPoint(new Vector2(0, 0));
             _targetAngle =
                 NormalizeAngle(_clockwise
                                    ? _body.Rotation + Projectile.PiOverTwo
@@ -243,14 +250,13 @@ namespace Arena.Entity.Enemy {
                     throw new ArgumentOutOfRangeException();
             }
 
-            Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Width / 2 : -Width / 2, Height / 2));
-            Vector2 inFront = _body.GetWorldVector(new Vector2(_clockwise ? .05f : -.05f, 0));
+            Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Radius - .05f: -Radius + .05f, 0));
+            Vector2 inFront = _body.GetWorldVector(new Vector2(_clockwise ? .075f : -.075f, 0));
 
             bool wallSensed = false;
             _world.RayCast((fixture, point, normal, fraction) => {
                 if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
                     wallSensed = true;
-                    Console.WriteLine("WALL");
                     return 0;
                 }
                 return -1;
@@ -263,7 +269,7 @@ namespace Arena.Entity.Enemy {
 
             // We don't want to start a new convex turn right after this one
             if ( _ignoreTurnsMs <= 0 ) {
-                Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, Height / 2));
+                Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, 0));
                 Vector2 underneath = _body.GetWorldVector(new Vector2(0, Height / 2));
 
                 bool cliffSensed = true;                
@@ -278,8 +284,8 @@ namespace Arena.Entity.Enemy {
                 if ( cliffSensed ) {
                     // If there's nothing under our center, check to see if there's terrain anywhere.
                     // If not, we fall down.
-                    var backEdge = _body.GetWorldPoint(new Vector2(-Width, Height / 2));
-                    var frontEdge = _body.GetWorldPoint(new Vector2(Width, Height / 2));
+                    var backEdge = _body.GetWorldPoint(new Vector2(-Width, 0));
+                    var frontEdge = _body.GetWorldPoint(new Vector2(Width, 0));
 
                     bool terrainSensed = false;
                     _world.RayCast((fixture, point, normal, fraction) => {
@@ -352,9 +358,9 @@ namespace Arena.Entity.Enemy {
             if ( _concaveTurn ) {
                 Vector2 revolutionPoint = Vector2.Zero;
                 if ( _clockwise ) {
-                    revolutionPoint = _body.GetWorldPoint(new Vector2(Width / 2, Height / 2));
+                    revolutionPoint = _body.GetWorldPoint(new Vector2(Radius, 0));
                 } else {
-                    revolutionPoint = _body.GetWorldPoint(new Vector2(-Width / 2, Height / 2));
+                    revolutionPoint = _body.GetWorldPoint(new Vector2(-Radius, 0));
                 }
                 switch ( _direction ) {
                     case Direction.Left:
@@ -369,7 +375,7 @@ namespace Arena.Entity.Enemy {
                         break;
                 }
             } else {
-                Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, Height / 2));
+                Vector2 revolutionPoint = _body.GetWorldPoint(new Vector2(0, 0));
                 _body.Position += _worldTurningJoint - revolutionPoint;
             }
         }

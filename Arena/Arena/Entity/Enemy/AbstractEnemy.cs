@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using Arena.Farseer;
 using Arena.Weapon;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
+using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
@@ -29,7 +31,17 @@ namespace Arena.Entity.Enemy {
         public Vector2 Position { get { return _body.Position; } }
 
         public PolygonShape Shape {
-            get { return (PolygonShape) _body.FixtureList.First().Shape; }
+            get {
+                AABB aabb = new AABB();
+                foreach ( Fixture f in _body.FixtureList ) {
+                    for ( int i = 0; i < f.ProxyCount; i++ ) {
+                        AABB fab;
+                        f.GetAABB(out fab, i);
+                        aabb.Combine(ref fab);
+                    }
+                }
+                return new PolygonShape(new Vertices(aabb.GetVertices()), 0);
+            }
         }
 
         public AbstractEnemy(Vector2 position, World world, float width, float height) {
@@ -89,7 +101,6 @@ namespace Arena.Entity.Enemy {
                 Destroyed();
                 return;
             }
-
 
             UpdateFlash(gameTime);
         }
