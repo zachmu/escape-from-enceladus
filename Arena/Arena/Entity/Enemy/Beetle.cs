@@ -77,12 +77,8 @@ namespace Arena.Entity.Enemy {
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
-//            _body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, width / 2, new Vector2(width / 2, height / 2), (float) Math.PI);
             _body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, Radius, new Vector2(0, -LegHeight), (float) Math.PI);
             FixtureFactory.AttachRectangle(Width - .05f, LegHeight, 1f, new Vector2(0, -LegHeight / 2), _body);
-//            _body = BodyFactory.CreateLineArc(world, (float) Math.PI, 12, width / 2 + .1f, Vector2.Zero, (float) Math.PI, true);
-            //_body = BodyFactory.CreateLineArc(world, (float) Math.PI, 12, width / 2, position, 0, true);
-            //base.CreateBody(position, world, width, height);
         }
 
         protected override void ConfigureBody(Vector2 position, float height) {
@@ -395,7 +391,9 @@ namespace Arena.Entity.Enemy {
             } else if (target <= 3 * Projectile.PiOverTwo + .01f) {
                 return origin <= 3 * Projectile.PiOverTwo && origin >= Projectile.PiOverTwo;
             } else {
-                throw new ArgumentOutOfRangeException();
+                // Better buggy than nothing
+                return true;
+                //throw new ArgumentOutOfRangeException();
             }
         }
 

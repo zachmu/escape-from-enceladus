@@ -40,10 +40,6 @@ namespace Arena.Weapon {
             get { return _body.Position; }
         }
 
-        public PolygonShape Shape {
-            get { return (PolygonShape) _body.FixtureList.First().Shape; }
-        }
-
         protected Projectile(Vector2 position, World world, Direction direction, int speed, float width, float height) {
             _body = BodyFactory.CreateRectangle(world, width, height, 1000f);
             _body.IsStatic = false;

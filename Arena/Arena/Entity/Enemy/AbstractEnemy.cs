@@ -28,22 +28,6 @@ namespace Arena.Entity.Enemy {
             get { return _disposed; }
         }
 
-        public Vector2 Position { get { return _body.Position; } }
-
-        public PolygonShape Shape {
-            get {
-                AABB aabb = new AABB();
-                foreach ( Fixture f in _body.FixtureList ) {
-                    for ( int i = 0; i < f.ProxyCount; i++ ) {
-                        AABB fab;
-                        f.GetAABB(out fab, i);
-                        aabb.Combine(ref fab);
-                    }
-                }
-                return new PolygonShape(new Vertices(aabb.GetVertices()), 0);
-            }
-        }
-
         public AbstractEnemy(Vector2 position, World world, float width, float height) {
             CreateBody(position, world, width, height);
             ConfigureBody(position, height);

@@ -477,47 +477,22 @@ namespace Arena {
         }
 
         /// <summary>
-        /// The identity transform (no rotation) at the location given.
+        /// Determines if any entities are overlapping the region identified by the 
+        /// axis-aligned bounding box given.
         /// </summary>
-        /// <returns></returns>
-        public static Transform IdentityTransform(Vector2 centerOfMass) {
-            Mat22 m = new Mat22();
-            m.SetIdentity();
-            Vector2 position = centerOfMass;
-            Transform transform = new Transform(ref position, ref m);
-            return transform;
-        }
+        public static bool EntitiesOverlapping(AABB aabb) {
 
-        /// <summary>
-        /// Determines if any entities are overlapping the region identified by the shape at the transformation given.
-        /// /summary>
-        public static bool EntitiesOverlapping(PolygonShape shape, Vector2 centerOfShape) {
-            return EntitiesOverlapping(shape, IdentityTransform(centerOfShape));
-        }
-
-        /// <summary>
-        /// Determines if any entities are overlapping the region identified by the shape and transform given.
-        /// </summary>
-        public static bool EntitiesOverlapping(PolygonShape shape, Transform transform) {
-
-            Manifold manifold = new Manifold();
-
-            foreach ( IGameEntity ent in Instance._entities ) {
-                Transform entTransform = IdentityTransform(ent.Position);
-                PolygonShape entShape = ent.Shape;
-                if ( entShape != null ) {
-                    Collision.CollidePolygons(ref manifold, shape, ref transform, entShape, ref entTransform);
-                    if ( manifold.PointCount > 0 ) {
-                        return true;
-                    }
+            bool overlapping = false;
+            Instance._world.QueryAABB(fixture => {
+                if ( fixture.GetUserData().IsPlayer || fixture.GetUserData().IsEnemy ||
+                     fixture.GetUserData().IsProjectile || fixture.GetUserData().IsDoor ) {
+                    overlapping = true;
+                    return false;
                 }
-            }
+                return true;
+            }, ref aabb);
 
-            Transform playerTransform = Player.Instance.Transform;
-            PolygonShape playerShape = Player.Instance.Shape;
-            Collision.CollidePolygons(ref manifold, shape, ref transform, playerShape, ref playerTransform);
-
-            return manifold.PointCount > 0;
+            return overlapping;
         }
 
         /// <summary>

@@ -75,9 +75,6 @@ namespace Arena.Entity {
         #endregion
 
         private Direction _facingDirection = Direction.Right;
-        public Direction Direction {
-            get { return _facingDirection; }
-        }
 
         /// <summary>
         /// How long, in milliseconds, the player has been holding down the jump button.
@@ -102,18 +99,6 @@ namespace Arena.Entity {
 
         public Vector2 LinearVelocity {
             get { return _body.LinearVelocity; }
-        }
-
-        public PolygonShape Shape {
-            get { return (PolygonShape) _body.FixtureList.First().Shape; }
-        }
-
-        public Transform Transform {
-            get {
-                Transform t;
-                _body.GetTransform(out t);
-                return t;
-            }
         }
 
         public Player(Vector2 position, World world) {

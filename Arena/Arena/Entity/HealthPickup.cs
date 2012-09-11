@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Arena;
 using Arena.Farseer;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -46,10 +47,6 @@ namespace Arena.Entity {
                                  };
 
             Image = _animation[_animationFrame];
-        }
-
-        public PolygonShape Shape {
-            get { return null; }
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {

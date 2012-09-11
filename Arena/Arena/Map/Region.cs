@@ -1,4 +1,5 @@
 using System;
+using FarseerPhysics.Collision;
 using Microsoft.Xna.Framework;
 
 namespace Arena.Map {
@@ -36,6 +37,10 @@ namespace Arena.Map {
 
         public static Vector2 AdjustToTileBoundary(Vector2 pos) {
             return new Vector2((float) Math.Round(pos.X), (float) Math.Round(pos.Y));
+        }
+
+        public AABB Aabb {
+            get { return new AABB(TopLeft, BottomRight); }
         }
 
         /// <summary>

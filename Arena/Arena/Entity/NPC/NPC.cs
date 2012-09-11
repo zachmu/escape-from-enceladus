@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using Arena.Farseer;
 using Arena.Map;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -119,10 +120,6 @@ namespace Arena.Entity.NPC {
             Font = content.Load<SpriteFont>("Fonts/November");
             Font.LineSpacing -= 10;
             BlackBackdrop = content.Load<Texture2D>("BlackBackdrop");
-        }
-
-        public PolygonShape Shape {
-            get { return null; }
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {

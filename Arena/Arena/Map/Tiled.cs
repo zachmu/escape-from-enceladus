@@ -417,10 +417,7 @@ namespace Arena.Map {
         }
 
         public bool EntitiesOverlapping() {
-            Vertices vertices = PolygonTools.CreateRectangle(HalfTileSize, HalfTileSize);
-            PolygonShape shape = new PolygonShape(vertices, 0f);
-
-            return Arena.EntitiesOverlapping(shape, Position + new Vector2(HalfTileSize, HalfTileSize));
+            return Arena.EntitiesOverlapping(new AABB(Position, Position + new Vector2(HalfTileSize * 2)));
         }
 
         private const int BlockTimeUntilReappear = 5000;

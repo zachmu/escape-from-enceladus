@@ -1,4 +1,6 @@
 using Arena.Farseer;
+using FarseerPhysics.Collision;
+using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
@@ -9,6 +11,8 @@ namespace Arena.Entity {
 
         protected World _world;
         protected Body _body;
+
+        public Vector2 Position { get { return _body.Position; } }
 
         protected bool _isStanding;
 

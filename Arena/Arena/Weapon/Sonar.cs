@@ -43,10 +43,6 @@ namespace Arena.Weapon {
             get { return _waveEffectCenter; }
         }
 
-        public PolygonShape Shape {
-            get { throw new NotImplementedException(); }
-        }
-
         private static Texture2D _debugLocation;
         private static SoundEffect _ping;
         private static SoundEffect _pong;

@@ -126,10 +126,6 @@ namespace Arena.Entity {
             get { return new Vector2();}
         }
 
-        public PolygonShape Shape {
-            get { return null; }
-        }
-
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             float alpha = 1f - (float) _timeAlive / (float) TimeToLiveMs;
             int xOffset = _originRectangle.X;

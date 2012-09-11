@@ -53,10 +53,6 @@ namespace Arena.Map {
             get { return _body.IsDisposed; }
         }
 
-        public PolygonShape Shape {
-            get { return new PolygonShape(PolygonTools.CreateRectangle(Width / 2, Height / 2), 0f); }
-        }
-
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             int fullDisplayHeight = (int) (TileLevel.TileDisplaySize * Height);
             Rectangle rect = new Rectangle(0, 0, TileLevel.TileDisplaySize, fullDisplayHeight);
@@ -106,7 +102,7 @@ namespace Arena.Map {
                     break;
                 case State.Open:
                     if ( _msSinceLastStateChange >= Constants.Get(DoorStayOpenTime) * 1000 
-                        && !Arena.EntitiesOverlapping(Shape, Position) ) {
+                        && !Arena.EntitiesOverlapping(Aabb) ) {
                         CreateBody();
                         _state = State.Closing;
                         _msSinceLastStateChange = 0;

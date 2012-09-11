@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
@@ -25,6 +26,12 @@ namespace Arena.Farseer {
         /// </summary>
         public static UserData GetUserData(this Fixture fixture) {
             return (UserData) fixture.Body.UserData ?? new UserData();
+        }
+
+        public static AABB GetTransformedAABB(this Fixture fixture, int childIndex) {
+            AABB fab;
+            fixture.GetAABB(out fab, childIndex);
+            return new AABB(fab.LowerBound + fixture.Body.Position, fab.UpperBound + fixture.Body.Position);
         }
 
         /// <summary>
