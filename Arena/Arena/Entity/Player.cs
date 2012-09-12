@@ -56,6 +56,8 @@ namespace Arena.Entity {
         private const string PlayerWalkSpeedMultiplier = "Player walk speed multiplier";
         private const string PlayerWheelSpinSpeedMultiplier = "Player wheel spin speed multipler";
         private const string PlayerScooterOffset = "Player scooter offset";
+        private const string ProjectileOffsetX = "Projectile offset X";
+        private const string ProjectileOffsetY = "Projectile offset Y";
 
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 2.5f, Keys.I));
@@ -63,13 +65,15 @@ namespace Arena.Entity {
             Constants.Register(new Constant(PlayerMaxSpeedMs, 20, Keys.S));
             Constants.Register(new Constant(PlayerAirAccelerationMss, 5.0f, Keys.D));
             Constants.Register(new Constant(PlayerJumpSpeed, 10f, Keys.J));
-            Constants.Register(new Constant(PlayerAirBoostTime, .5f, Keys.Y));
+            Constants.Register(new Constant(PlayerAirBoostTime, .5f, Keys.D4));
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
             Constants.Register(new Constant(PlayerJogSpeedMultiplier, .37f, Keys.B, .01f));
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
             Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, 1.0f, Keys.M));
-            Constants.Register(new Constant(PlayerScooterOffset, 0f, Keys.P));            
+            Constants.Register(new Constant(PlayerScooterOffset, 0f, Keys.P));
+            Constants.Register(new Constant(ProjectileOffsetX, 0f, Keys.X, .01f));
+            Constants.Register(new Constant(ProjectileOffsetY, 0f, Keys.Y, .01f));
         }
 
         #endregion
@@ -512,11 +516,91 @@ namespace Arena.Entity {
                     throw new ArgumentOutOfRangeException("shotDirection");
             }
 
+            // tuning params
+            position += new Vector2(Constants[ProjectileOffsetX], Constants[ProjectileOffsetY]);
+
             if ( IsDucking && shotDirection != Direction.Down ) {
                 position += new Vector2(0, CharacterStandingHeight / 3f);
             }
+
+            // Fine tuning the shot placement
+            Vector2 tuning;
+            switch (shotDirection) {
+                case Direction.Left:
+                case Direction.Right:
+                    if (IsDucking) {
+                        tuning = ShotAdjustmentDuckingRight;
+                    } else if (IsStanding) {
+                        tuning = ShotAdjustmentStandingRight;
+                    } else {
+                        tuning = ShotAdjustmentJumpingRight;
+                    }
+                    break;
+                case Direction.Up:
+                    if (IsDucking) {
+                        tuning = ShotAdjustmentDuckingUp;
+                    } else if (IsStanding) {
+                        tuning = ShotAdjustmentStandingUp;
+                    } else {
+                        tuning = ShotAdjustmentJumpingUp;
+                    }
+                    break;
+                case Direction.Down:
+                    if (IsDucking) {
+                        tuning = ShotAdjustmentDuckingDown;
+                    } else if (IsStanding) {
+                        tuning = ShotAdjustmentStandingDown;
+                    } else {
+                        tuning = ShotAdjustmentJumpingDown;
+                    }
+                    break;
+                case Direction.UpLeft:
+                case Direction.UpRight:
+                    if (IsDucking) {
+                        tuning = ShotAdjustmentDuckingUpRight;
+                    } else if (IsStanding) {
+                        tuning = ShotAdjustmentStandingUpRight;
+                    } else {
+                        tuning = ShotAdjustmentJumpingUpRight;
+                    }
+                    break;
+                case Direction.DownLeft:
+                case Direction.DownRight:
+                    if (IsDucking) {
+                        tuning = ShotAdjustmentDuckingDownRight;
+                    } else if (IsStanding) {
+                        tuning = ShotAdjustmentStandingDownRight;
+                    } else {
+                        tuning = ShotAdjustmentJumpingDownRight;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("shotDirection");
+            }
+            if (_facingDirection == Direction.Left) {
+                tuning = new Vector2(-tuning.X, tuning.Y);
+            }
+
+            position += tuning;
+
             return position;
         }
+
+        private static readonly Vector2 ShotAdjustmentStandingRight = new Vector2(-.08f, .08f);
+        private static readonly Vector2 ShotAdjustmentStandingUp = new Vector2(.1f, 0f);
+        private static readonly Vector2 ShotAdjustmentStandingUpRight = new Vector2(-.02f, .22f);
+        private static readonly Vector2 ShotAdjustmentStandingDownRight = new Vector2(-.02f, .24f);
+        private static readonly Vector2 ShotAdjustmentStandingDown = new Vector2(.18f, -.36f);
+        private static readonly Vector2 ShotAdjustmentDuckingRight = new Vector2(-.02f, -.25f);
+        private static readonly Vector2 ShotAdjustmentDuckingUp = new Vector2(-.05f, -.33f);
+        private static readonly Vector2 ShotAdjustmentDuckingDownRight = new Vector2(0f, -.09f);
+        private static readonly Vector2 ShotAdjustmentDuckingUpRight = new Vector2(0f, -.36f);
+        private static readonly Vector2 ShotAdjustmentDuckingDown = new Vector2(.06f, -.26f);
+        private static readonly Vector2 ShotAdjustmentJumpingRight = new Vector2(-.02f, .10f);
+        private static readonly Vector2 ShotAdjustmentJumpingUp = new Vector2(.06f, .10f);
+        private static readonly Vector2 ShotAdjustmentJumpingUpRight = new Vector2(.06f, .19f);
+        private static readonly Vector2 ShotAdjustmentJumpingDownRight = new Vector2(.06f, .40f);
+        private static readonly Vector2 ShotAdjustmentJumpingDown = new Vector2(.16f, -.20f);
 
         /// <summary>
         /// Handles movement input, both on the ground and in the air.

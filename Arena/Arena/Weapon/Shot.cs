@@ -33,9 +33,12 @@ namespace Arena.Weapon {
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             if ( !_body.IsDisposed ) {
                 Vector2 position = _body.Position;
-                Vector2 displayUnits = new Vector2();
-                ConvertUnits.ToDisplayUnits(ref position, out displayUnits);
-                spriteBatch.Draw(Image, displayUnits, SolidColorEffect.DisabledColor);
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+                spriteBatch.Draw(Image,
+                                 new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
+                                 null, SolidColorEffect.DisabledColor, GetSpriteRotation(),
+                                 new Vector2(Image.Width / 2, Image.Height / 2),
+                                 SpriteEffects.None, 0);
             }
         }
 

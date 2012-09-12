@@ -71,7 +71,7 @@ namespace Arena.Entity.Enemy {
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
             _body.Friction = 0;
-            // the position provided by the factor is the lower-left corner of the map area, tile-aligned
+            // the position provided by the factory is the lower-left corner of the map area, tile-aligned
             _body.Position = position - new Vector2(0, height / 2);
             _body.CollidesWith = Arena.PlayerCategory | Arena.PlayerProjectileCategory | Arena.TerrainCategory;
             _body.CollisionCategories = Arena.EnemyCategory;
