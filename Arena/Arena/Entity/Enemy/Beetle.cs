@@ -265,42 +265,13 @@ namespace Arena.Entity.Enemy {
 
             // We don't want to start a new convex turn right after this one
             if ( _ignoreTurnsMs <= 0 ) {
-                Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, 0));
                 Vector2 underneath = _body.GetWorldVector(new Vector2(0, Height / 2));
 
-                bool cliffSensed = true;                
-                _world.RayCast((fixture, point, normal, fraction) => {
-                    if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
-                        cliffSensed = false;
-                        return 0;
-                    }
-                    return -1;
-                }, cliffSensor, cliffSensor + underneath);
-
+                var cliffSensed = CliffSensed(underneath);
                 if ( cliffSensed ) {
                     // If there's nothing under our center, check to see if there's terrain anywhere.
                     // If not, we fall down.
-                    var backEdge = _body.GetWorldPoint(new Vector2(-Width, 0));
-                    var frontEdge = _body.GetWorldPoint(new Vector2(Width, 0));
-
-                    bool terrainSensed = false;
-                    _world.RayCast((fixture, point, normal, fraction) => {
-                        if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
-                            terrainSensed = true;
-                            return 0;
-                        }
-                        return -1;
-                    }, frontEdge, frontEdge + underneath);
-
-                    if (!terrainSensed) {
-                        _world.RayCast((fixture, point, normal, fraction) => {
-                            if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
-                                terrainSensed = true;
-                                return 0;
-                            }
-                            return -1;
-                        }, backEdge, backEdge + underneath);
-                    }
+                    var terrainSensed = TerrainUnderneath(underneath);
 
                     if ( terrainSensed ) {
                         InitiateConvexTurn();
@@ -309,6 +280,50 @@ namespace Arena.Entity.Enemy {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns whether there is a cliff directly underneath the body.
+        /// </summary>
+        private bool CliffSensed(Vector2 underneath) {
+            Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, -.1f));
+            bool cliffSensed = true;
+            _world.RayCast((fixture, point, normal, fraction) => {
+                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                    cliffSensed = false;
+                    return 0;
+                }
+                return -1;
+            }, cliffSensor, cliffSensor + underneath);
+            return cliffSensed;
+        }
+
+        /// <summary>
+        /// Returns whether there is terrain under the front or back edge of the body, to a specified depth.
+        /// </summary>
+        private bool TerrainUnderneath(Vector2 underneath) {
+            var backEdge = _body.GetWorldPoint(new Vector2(-Width, -.1f));
+            var frontEdge = _body.GetWorldPoint(new Vector2(Width, -.1f));
+
+            bool terrainSensed = false;
+            _world.RayCast((fixture, point, normal, fraction) => {
+                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                    terrainSensed = true;
+                    return 0;
+                }
+                return -1;
+            }, frontEdge, frontEdge + underneath);
+
+            if ( !terrainSensed ) {
+                _world.RayCast((fixture, point, normal, fraction) => {
+                    if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                        terrainSensed = true;
+                        return 0;
+                    }
+                    return -1;
+                }, backEdge, backEdge + underneath);
+            }
+            return terrainSensed;
         }
 
         private void Fall() {
@@ -326,17 +341,23 @@ namespace Arena.Entity.Enemy {
 
             float currRotation = NormalizeAngle(_body.Rotation);
             bool rotatingClockwise = IsClockwiseRotation(currRotation, _targetAngle);
-            if (_concaveTurn) {
+            if ( _concaveTurn ) {
                 rotationDelta *= 2f / 3f;
             }
 
             // Make sure we don't overshoot our adjustment
-            if (Math.Abs(currRotation - _targetAngle) < rotationDelta) {
+            if ( Math.Abs(currRotation - _targetAngle) < rotationDelta ) {
                 _body.Rotation = _targetAngle;
             } else {
                 _body.Rotation += rotatingClockwise ? rotationDelta : -rotationDelta;
             }
             //Console.WriteLine("Rotation: {0}, maxrot: {1}", _body.Rotation, maxRotation);
+
+            Vector2 underneath = _body.GetWorldVector(new Vector2(0, Height * 3f / 2f));
+            if ( CliffSensed(underneath) && !TerrainUnderneath(underneath) ) {
+                Fall();
+                return;
+            }
 
             // Adjust our position to keep a certain point on the ground
             AdjustTurningPosition();

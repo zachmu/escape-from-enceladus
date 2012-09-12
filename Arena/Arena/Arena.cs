@@ -485,7 +485,7 @@ namespace Arena {
             bool overlapping = false;
             Instance._world.QueryAABB(fixture => {
                 if ( fixture.GetUserData().IsPlayer || fixture.GetUserData().IsEnemy ||
-                     fixture.GetUserData().IsProjectile || fixture.GetUserData().IsDoor ) {
+                        fixture.GetUserData().IsProjectile || fixture.GetUserData().IsDoor ) {
                     overlapping = true;
                     return false;
                 }
