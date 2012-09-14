@@ -525,14 +525,14 @@ namespace Arena.Entity {
 
             // Fine tuning the shot placement
             Vector2 tuning;
-            switch (shotDirection) {
+            switch ( shotDirection ) {
                 case Direction.Left:
                 case Direction.Right:
-                    if (IsDucking) {
+                    if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingRight;
-                    } else if (IsStanding) {
+                    } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingRight;
-                        if (!IsStandingStill()) {
+                        if ( !IsStandingStill() ) {
                             tuning += new Vector2(0, -.06f);
                         }
                     } else {
@@ -540,9 +540,9 @@ namespace Arena.Entity {
                     }
                     break;
                 case Direction.Up:
-                    if (IsDucking) {
+                    if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingUp;
-                    } else if (IsStanding) {
+                    } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingUp;
                         if ( !IsStandingStill() ) {
                             tuning += new Vector2(-.03f, 0);
@@ -552,9 +552,9 @@ namespace Arena.Entity {
                     }
                     break;
                 case Direction.Down:
-                    if (IsDucking) {
+                    if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingDown;
-                    } else if (IsStanding) {
+                    } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingDown;
                     } else {
                         tuning = ShotAdjustmentJumpingDown;
@@ -562,15 +562,15 @@ namespace Arena.Entity {
                     break;
                 case Direction.UpLeft:
                 case Direction.UpRight:
-                    if (IsDucking) {
+                    if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingUpRight;
-                    } else if (IsStanding) {
+                    } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingUpRight;
                         if ( !IsStandingStill() ) {
                             if ( IsWalkingSpeed() ) {
                                 tuning += new Vector2(0, .06f);
                             } else {
-                                tuning += new Vector2(0, -.07f);                                
+                                tuning += new Vector2(0, -.07f);
                             }
                         }
                     } else {
@@ -579,15 +579,15 @@ namespace Arena.Entity {
                     break;
                 case Direction.DownLeft:
                 case Direction.DownRight:
-                    if (IsDucking) {
+                    if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingDownRight;
-                    } else if (IsStanding) {
+                    } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingDownRight;
                         if ( !IsStandingStill() ) {
                             if ( IsWalkingSpeed() ) {
                                 tuning += new Vector2(0, -.11f);
                             } else {
-                                tuning += new Vector2(0, -.15f);                                
+                                tuning += new Vector2(0, -.15f);
                             }
                         }
                     } else {
