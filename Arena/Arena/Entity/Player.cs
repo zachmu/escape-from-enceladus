@@ -523,7 +523,7 @@ namespace Arena.Entity {
                 position += new Vector2(0, CharacterStandingHeight / 3f);
             }
 
-            // Fine tuning the shot placement
+            // Fine tuning the shot placement.  Numbers determined experimentally
             Vector2 tuning;
             switch ( shotDirection ) {
                 case Direction.Left:

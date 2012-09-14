@@ -27,6 +27,7 @@ namespace Arena.Map {
 
         private Body _body;
         private World _world;
+        private Orientation _orientation;
 
         static Door() {
             Constants.Register(new Constant(DoorOpenTime, .3f, Keys.V));
@@ -41,6 +42,12 @@ namespace Arena.Map {
             _topLeft = AdjustToTileBoundary(topLeft);
             _bottomRight = AdjustToTileBoundary(bottomRight);
             _world = world;
+
+            if (Width > Height) {
+                _orientation = Orientation.Horizontal;
+            } else {
+                _orientation = Orientation.Vertical;
+            }
 
             CreateBody();
         }
@@ -90,6 +97,11 @@ namespace Arena.Map {
             Opening,
             Open,
             Closing,
+        }
+
+        private enum Orientation {
+            Vertical,
+            Horizontal
         }
 
         private State _state = State.Closed;
