@@ -532,6 +532,9 @@ namespace Arena.Entity {
                         tuning = ShotAdjustmentDuckingRight;
                     } else if (IsStanding) {
                         tuning = ShotAdjustmentStandingRight;
+                        if (!IsStandingStill()) {
+                            tuning += new Vector2(0, -.06f);
+                        }
                     } else {
                         tuning = ShotAdjustmentJumpingRight;
                     }
@@ -541,6 +544,9 @@ namespace Arena.Entity {
                         tuning = ShotAdjustmentDuckingUp;
                     } else if (IsStanding) {
                         tuning = ShotAdjustmentStandingUp;
+                        if ( !IsStandingStill() ) {
+                            tuning += new Vector2(-.03f, 0);
+                        }
                     } else {
                         tuning = ShotAdjustmentJumpingUp;
                     }
@@ -560,6 +566,13 @@ namespace Arena.Entity {
                         tuning = ShotAdjustmentDuckingUpRight;
                     } else if (IsStanding) {
                         tuning = ShotAdjustmentStandingUpRight;
+                        if ( !IsStandingStill() ) {
+                            if ( IsWalkingSpeed() ) {
+                                tuning += new Vector2(0, .06f);
+                            } else {
+                                tuning += new Vector2(0, -.07f);                                
+                            }
+                        }
                     } else {
                         tuning = ShotAdjustmentJumpingUpRight;
                     }
@@ -570,6 +583,13 @@ namespace Arena.Entity {
                         tuning = ShotAdjustmentDuckingDownRight;
                     } else if (IsStanding) {
                         tuning = ShotAdjustmentStandingDownRight;
+                        if ( !IsStandingStill() ) {
+                            if ( IsWalkingSpeed() ) {
+                                tuning += new Vector2(0, -.11f);
+                            } else {
+                                tuning += new Vector2(0, -.15f);                                
+                            }
+                        }
                     } else {
                         tuning = ShotAdjustmentJumpingDownRight;
                     }

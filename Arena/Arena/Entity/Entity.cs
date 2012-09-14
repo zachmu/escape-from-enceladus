@@ -44,7 +44,6 @@ namespace Arena.Entity {
             bool isTouchingCeiling = false;
 
             var contactEdge = _body.ContactList;
-            FixedArray2<Vector2> points;
             while ( contactEdge != null ) {
                 if ( contactEdge.Contact.IsTouching() && (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor) ) {
                     Vector2 normal = contactEdge.Contact.GetPlayerNormal(_body);
