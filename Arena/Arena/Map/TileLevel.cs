@@ -67,13 +67,6 @@ namespace Arena.Map {
             }
 
             try {
-                ObjectGroup destructionGroup = _levelMap.ObjectGroups[DestructionLayerName];
-                InitializeDestructionRegions(destructionGroup);
-            } catch {
-                // Ignore missing destruction layer
-            }
-
-            try {
                 ObjectGroup doorGroup = _levelMap.ObjectGroups[DoorLayerName];
                 InitializeDoors(doorGroup);
             } catch {
@@ -113,34 +106,39 @@ namespace Arena.Map {
             }
         }
 
-        private void InitializeDestructionRegions(ObjectGroup regions) {
-            foreach ( Object region in regions.Objects ) {
+        private void InitializeDestructionRegions() {
+            ObjectGroup destructionRegion = _levelMap.ObjectGroups[DestructionLayerName];
+            foreach ( Object region in destructionRegion.Objects ) {
                 Vector2 topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
-                Vector2 bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
+                if ( CurrentRoom.Contains(topLeft) ) {
+                    Vector2 bottomRight =
+                        ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
 
-                int flags = 0;
-                foreach ( String weaponName in region.Properties.Keys ) {
-                    switch ( weaponName ) {
-                        case "shot":
-                            flags |= Shot.Flags;
-                            break;
-                        case "missile":
-                            flags |= Missile.Flags;
-                            break;
+                    int flags = 0;
+                    foreach ( String weaponName in region.Properties.Keys ) {
+                        switch ( weaponName ) {
+                            case "shot":
+                                flags |= Shot.Flags;
+                                break;
+                            case "missile":
+                                flags |= Missile.Flags;
+                                break;
+                        }
                     }
-                }
-                if ( flags == 0 ) {
-                    flags = 0xFFFF;
-                }
+                    if ( flags == 0 ) {
+                        flags = 0xFFFF;
+                    }
 
-                Vector2 currTopLeft = topLeft;
-                while ( currTopLeft.Y <= bottomRight.Y ) {
-                    currTopLeft.X = topLeft.X;
-                    while ( currTopLeft.X <= bottomRight.X ) {
-                        _destructionRegions.Add(new DestructionRegion(_world, currTopLeft, currTopLeft + new Vector2(1f), flags));
-                        currTopLeft.X += TileSize;
+                    Vector2 currTopLeft = topLeft;
+                    while ( currTopLeft.Y <= bottomRight.Y ) {
+                        currTopLeft.X = topLeft.X;
+                        while ( currTopLeft.X <= bottomRight.X ) {
+                            _destructionRegions.Add(new DestructionRegion(_world, currTopLeft,
+                                                                          currTopLeft + new Vector2(1f), flags));
+                            currTopLeft.X += TileSize;
+                        }
+                        currTopLeft.Y += TileSize;
                     }
-                    currTopLeft.Y += TileSize;
                 }
             }
         }
@@ -165,9 +163,17 @@ namespace Arena.Map {
             InitializeEdges();
             CreateEnemies();
             CreateNPCs();
+            TearDownDestructionRegions();
+            InitializeDestructionRegions();
+
             Arena.Instance.StepWorld(null);
 
             return CurrentRoom;
+        }
+
+        private void TearDownDestructionRegions() {
+            _destructionRegions.ForEach(region => region.Dispose());
+            _destructionRegions.Clear();
         }
 
         private void TearDownEdges() {

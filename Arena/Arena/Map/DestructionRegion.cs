@@ -19,14 +19,16 @@ namespace Arena.Map {
         // Bitwise or of weapon flags
         public int _weaponVulnerability;
 
+        private Body _body;
+
         public DestructionRegion(World world, Vector2 topLeft, Vector2 bottomRight, int weaponVulnerability ) {
             _topLeft = AdjustToTileBoundary(topLeft);
             _bottomRight = AdjustToTileBoundary(bottomRight);
-            Body rectangle = BodyFactory.CreateRectangle(world, Width, Height, 0);
-            rectangle.IsStatic = true;
-            rectangle.IsSensor = true;
-            rectangle.Position = Position;
-            rectangle.UserData = UserData.NewDestructionRegion(this);
+            _body = BodyFactory.CreateRectangle(world, Width, Height, 0);
+            _body.IsStatic = true;
+            _body.IsSensor = true;
+            _body.Position = Position;
+            _body.UserData = UserData.NewDestructionRegion(this);
 
             _weaponVulnerability = weaponVulnerability;
         }
@@ -37,6 +39,10 @@ namespace Arena.Map {
 
         public bool DestroyedBy(Projectile projectile) {
             return (projectile.DestructionFlags & _weaponVulnerability) != 0;
+        }
+
+        public void Dispose() {
+            _body.Dispose();
         }
     }
 }
