@@ -61,11 +61,20 @@ namespace Arena.Map {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            if (_orientation == Orientation.Vertical) {
+                DrawVertical(spriteBatch);
+            } else {
+//                DrawVertical(spriteBatch);
+                DrawHorizontal(spriteBatch);
+            }
+        }
+
+        private void DrawVertical(SpriteBatch spriteBatch) {
             int fullDisplayHeight = (int) (TileLevel.TileDisplaySize * Height);
             Rectangle rect = new Rectangle(0, 0, TileLevel.TileDisplaySize, fullDisplayHeight);
 
             float offset = 0;
-            switch (_state) {
+            switch ( _state ) {
                 case State.Closed:
                     break;
                 case State.Opening:
@@ -86,9 +95,42 @@ namespace Arena.Map {
 
             for ( int i = 0; i < Width / TileLevel.TileSize; i++ ) {
                 Vector2 topLeft = TopLeft + new Vector2(TileLevel.TileSize * i, offset);
-                Vector2 displayPos = new Vector2();
-                ConvertUnits.ToDisplayUnits(ref topLeft, out displayPos);
+                Vector2 displayPos = ConvertUnits.ToDisplayUnits(topLeft);
                 spriteBatch.Draw(Image, displayPos, rect, Color.White);
+            }
+        }
+
+        private void DrawHorizontal(SpriteBatch spriteBatch) {
+            int fullDisplayWidth = (int) (TileLevel.TileDisplaySize * Width);
+            Rectangle rect = new Rectangle(0, 0, TileLevel.TileDisplaySize, fullDisplayWidth);
+
+            float offset = 0;
+            switch ( _state ) {
+                case State.Closed:
+                    break;
+                case State.Opening:
+                    float percentOpen = _msSinceLastStateChange / Constants.Get(DoorOpenTime) / 1000;
+                    rect.Y = (int) (fullDisplayWidth * percentOpen);
+                    rect.Height = (int) (fullDisplayWidth * (1 - percentOpen));
+                    break;
+                case State.Open:
+                    return;
+                case State.Closing:
+                    float percentClosed = _msSinceLastStateChange / Constants.Get(DoorOpenTime) / 1000;
+                    rect.Y = (int) (fullDisplayWidth * (1 - percentClosed));
+                    rect.Height = (int) (fullDisplayWidth * percentClosed);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            for ( int i = 0; i < Height / TileLevel.TileSize; i++ ) {
+                Vector2 topLeft = TopLeft;
+                Vector2 displayPos = ConvertUnits.ToDisplayUnits(topLeft) +
+                                     new Vector2(ConvertUnits.ToDisplayUnits(Width / 2),
+                                                 TileLevel.TileDisplaySize * i + Image.Width / 2f);
+                spriteBatch.Draw(Image, displayPos, rect, Color.White, -(float) Math.PI / 2,
+                                 new Vector2(Image.Width / 2, Image.Height / 2), 1.0f, SpriteEffects.None, 1f);
             }
         }
 
