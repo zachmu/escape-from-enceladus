@@ -220,7 +220,7 @@ namespace Arena {
 
             _cameraDirector.TargetPlayer();            
             _cameraDirector.JumpToTarget();
-            _cameraDirector.ClampCameraToRoom();
+            _cameraDirector.ClampCameraToRegion();
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
@@ -285,7 +285,7 @@ namespace Arena {
                         ent.Update(gameTime);
                     }
 
-                    // Make sure our game mode hasn't change before giving the player a chance to respond
+                    // Make sure our game mode hasn't changed before giving the player a chance to respond
                     if ( _mode == Mode.NormalControl ) {
                         _player.Update(gameTime);
                     }

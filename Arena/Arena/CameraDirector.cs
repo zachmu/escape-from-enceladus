@@ -41,9 +41,9 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Updates the camera, and returns whether or not to pause the game action.
+        /// Updates the camera.
         /// </summary>
-        public bool Update(GameTime gameTime) {
+        public void Update(GameTime gameTime) {
 
             HandleManualControl();
 
@@ -65,7 +65,7 @@ namespace Arena {
                 case Mode.MoveBetweenRooms:
                     if ( _camera.IsAtTarget() ) {
                         _mode = Mode.TrackPlayer;
-                        ClampCameraToRoom();
+                        ClampCameraToRegion(TileLevel.CurrentRoom);
                         Arena.Instance.LoadRoom(TileLevel.CurrentRoom);
                         Arena.Instance.ResumeSimulation();
                     }
@@ -73,8 +73,6 @@ namespace Arena {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            return false;
         }
 
         private void TrackPlayer() {
@@ -129,10 +127,10 @@ namespace Arena {
 
                 Room oldRoom = currentRoom;
 
-                // TODO: this responsibility seems a bit strange for the camera director
-                currentRoom = TileLevel.CurrentLevel.SetCurrentRoom(_player.Position);
-
                 if ( oldRoom.ID == null || oldRoom.ID != currentRoom.ID ) {
+                    // TODO: this responsibility seems a bit strange for the camera director
+                    currentRoom = TileLevel.CurrentLevel.SetCurrentRoom(_player.Position);
+
                     UnclampCamera();
                     Arena.Instance.PauseSimulation();
                     Arena.Instance.DisposeRoom(currentRoom);
@@ -200,6 +198,8 @@ namespace Arena {
                                                     ConvertUnits.ToSimUnits(halfScreenHeight));
                             break;
                     }
+                } else { // different region, same room
+                    ClampCameraToRegion(TileLevel.CurrentLevel.GetNextRoom(_player.Position));
                 }
             }
         }
@@ -207,13 +207,13 @@ namespace Arena {
         /// <summary>
         /// Constrains the camera position to the current room in the level.
         /// </summary>
-        public void ClampCameraToRoom() {
+        public void ClampCameraToRegion(Region region) {
             Vector2 viewportCenter = ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f,
                                                              _graphics.GraphicsDevice.Viewport.Height / 2f);
 
             // Some rooms don't line up with the grid, so pretend they do for camera purposes.
-            Vector2 topLeft = SnapToGrid(TileLevel.CurrentRoom.TopLeft);
-            Vector2 bottomRight = SnapToGrid(TileLevel.CurrentRoom.BottomRight + new Vector2(1));
+            Vector2 topLeft = SnapToGrid(region.TopLeft);
+            Vector2 bottomRight = SnapToGrid(region.BottomRight + new Vector2(1));
 
             Vector2 minPosition = topLeft + viewportCenter - new Vector2(0, .125f);
             Vector2 maxPosition = bottomRight - viewportCenter + new Vector2(0, .125f);

@@ -157,7 +157,7 @@ namespace Arena.Map {
         /// Tears down any managed resources associated with the old room and creates them for this one.
         /// </summary>
         public Room SetCurrentRoom(Vector2 position) {
-            CurrentRoom = _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position, TileSize / 2f));
+            CurrentRoom = GetNextRoom(position);
 
             TearDownEdges();
             InitializeEdges();
@@ -169,6 +169,13 @@ namespace Arena.Map {
             Arena.Instance.StepWorld(null);
 
             return CurrentRoom;
+        }
+
+        /// <summary>
+        /// Returns the next room, besides the current one, that contains the point given.
+        /// </summary>
+        public Room GetNextRoom(Vector2 position) {
+            return _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position, TileSize / 2f));
         }
 
         private void TearDownDestructionRegions() {
