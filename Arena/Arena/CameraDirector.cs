@@ -65,7 +65,7 @@ namespace Arena {
                 case Mode.MoveBetweenRooms:
                     if ( _camera.IsAtTarget() ) {
                         _mode = Mode.TrackPlayer;
-                        ClampCameraToRegion(TileLevel.CurrentRoom);
+                        ClampCameraToRegion(TileLevel.CurrentRoom.Region);
                         Arena.Instance.LoadRoom(TileLevel.CurrentRoom);
                         Arena.Instance.ResumeSimulation();
                     }
@@ -136,7 +136,7 @@ namespace Arena {
                     Arena.Instance.DisposeRoom(currentRoom);
 
                     _mode = Mode.SnapToGrid;
-                    Direction directionOfTravel = oldRoom.GetRelativeDirection(_player.Position);
+                    Direction directionOfTravel = oldRoom.Region.GetRelativeDirection(_player.Position);
 
                     float halfScreenWidth = _graphics.GraphicsDevice.Viewport.Width / 2f;
                     float halfScreenHeight = _graphics.GraphicsDevice.Viewport.Height / 2f;
@@ -173,7 +173,7 @@ namespace Arena {
                         case Direction.Left:
                             _nextCameraPosition =
                                 new Vector2(
-                                    currentRoom.BottomRight.X -
+                                    currentRoom.Region.BottomRight.X -
                                     ConvertUnits.ToSimUnits(halfScreenWidth),
                                     gridPosition.Y);
 
@@ -181,25 +181,25 @@ namespace Arena {
                         case Direction.Right:
                             _nextCameraPosition =
                                 new Vector2(
-                                    currentRoom.TopLeft.X +
+                                    currentRoom.Region.TopLeft.X +
                                     ConvertUnits.ToSimUnits(halfScreenWidth),
                                     gridPosition.Y);
                             break;
                         case Direction.Up:
                             _nextCameraPosition =
                                 new Vector2(
-                                    gridPosition.X, currentRoom.BottomRight.Y -
+                                    gridPosition.X, currentRoom.Region.BottomRight.Y -
                                                     ConvertUnits.ToSimUnits(halfScreenHeight));
                             break;
                         case Direction.Down:
                             _nextCameraPosition =
                                 new Vector2(
-                                    gridPosition.X, currentRoom.TopLeft.Y +
+                                    gridPosition.X, currentRoom.Region.TopLeft.Y +
                                                     ConvertUnits.ToSimUnits(halfScreenHeight));
                             break;
                     }
                 } else { // different region, same room
-                    ClampCameraToRegion(TileLevel.CurrentLevel.GetNextRoom(_player.Position));
+                    ClampCameraToRegion(TileLevel.CurrentLevel.GetNextRoom(_player.Position).Region);
                 }
             }
         }

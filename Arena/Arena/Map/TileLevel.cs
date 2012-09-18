@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -63,7 +64,7 @@ namespace Arena.Map {
                 InitializeRooms(roomGroup);
             } catch {
                 // No rooms layer is fine, we'll just create a room for them
-                _rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height), null));
+                //_rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height)));
             }
 
             try {
@@ -143,12 +144,29 @@ namespace Arena.Map {
             }
         }
 
+        /// <summary>
+        /// Initializes the set of rooms in this level.  
+        /// The level data records rectangular regions called "rooms"; some of these are 
+        /// actually rooms, and some are rectangular portions of rooms.  Membership of region 
+        /// to room is marked with an ID.
+        /// </summary>
         private void InitializeRooms(ObjectGroup rooms) {
-            
+
+            Dictionary<String, List<Object>> multiRegionRooms = new Dictionary<string, List<Object>>();
             foreach ( Object region in rooms.Objects ) {
-                var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
-                var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
-                _rooms.Add(new Room(topLeft, bottomRight, region));
+                if ( region.Properties.ContainsKey("id") ) {
+                    string id = region.Properties["id"];
+                    if ( !multiRegionRooms.ContainsKey(id) ) {
+                        multiRegionRooms[id] = new List<Object>();
+                    }
+                    multiRegionRooms[id].Add(region);
+                } else {
+                    _rooms.Add(new Room(region));
+                }
+            }
+
+            foreach ( String id in multiRegionRooms.Keys ) {
+                _rooms.Add(new Room(multiRegionRooms[id]));
             }
         }
 

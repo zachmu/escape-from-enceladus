@@ -220,7 +220,7 @@ namespace Arena {
 
             _cameraDirector.TargetPlayer();            
             _cameraDirector.JumpToTarget();
-            _cameraDirector.ClampCameraToRegion();
+            _cameraDirector.ClampCameraToRegion(TileLevel.CurrentRoom.Region);
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
