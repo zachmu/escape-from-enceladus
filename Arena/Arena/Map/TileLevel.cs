@@ -37,8 +37,6 @@ namespace Arena.Map {
 
         public static TileLevel CurrentLevel { get; private set; }
 
-        public static Room CurrentRoom { get; private set; }
-
         public int Width {
             get { return _levelMap.Width; }
         }
@@ -47,7 +45,7 @@ namespace Arena.Map {
             get { return _levelMap.Height; }
         }
 
-        public TileLevel(ContentManager cm, String mapFile, World world, Vector2 startPosition) {
+        public TileLevel(ContentManager cm, String mapFile, World world) {
             CurrentLevel = this;
 
             _world = world;
@@ -85,7 +83,7 @@ namespace Arena.Map {
                 Player.Instance.Position = new Vector2(10, 10);
             }
 
-            SetCurrentRoom(startPosition);
+            //SetCurrentRoom(RoomAt(Player.Instance.Position));
         }
 
         private void InitializeDoors(ObjectGroup doorGroup) {
@@ -111,7 +109,7 @@ namespace Arena.Map {
             ObjectGroup destructionRegion = _levelMap.ObjectGroups[DestructionLayerName];
             foreach ( Object region in destructionRegion.Objects ) {
                 Vector2 topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
-                if ( CurrentRoom.Contains(topLeft) ) {
+                if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(topLeft) ) {
                     Vector2 bottomRight =
                         ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
 
@@ -171,12 +169,10 @@ namespace Arena.Map {
         }
 
         /// <summary>
-        /// Sets and returns the current room based on the point given.
+        /// Sets the current room.
         /// Tears down any managed resources associated with the old room and creates them for this one.
         /// </summary>
-        public Room SetCurrentRoom(Vector2 position) {
-            CurrentRoom = GetNextRoom(position);
-
+        public void SetCurrentRoom(Room room) {
             TearDownEdges();
             InitializeEdges();
             CreateEnemies();
@@ -185,15 +181,6 @@ namespace Arena.Map {
             InitializeDestructionRegions();
 
             Arena.Instance.StepWorld(null);
-
-            return CurrentRoom;
-        }
-
-        /// <summary>
-        /// Returns the next room, besides the current one, that contains the point given.
-        /// </summary>
-        public Room GetNextRoom(Vector2 position) {
-            return _rooms.FirstOrDefault(room => room != CurrentRoom && room.Contains(position, TileSize / 2f));
         }
 
         private void TearDownDestructionRegions() {
@@ -213,7 +200,7 @@ namespace Arena.Map {
                 ObjectGroup npcGroup = objectGroups["NPC"];
                 foreach ( Object region in npcGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
-                    if ( CurrentRoom.Contains(pos) ) {
+                    if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
                         Arena.Instance.Register(NPCFactory.Create(region, _world));
                     }
                 }
@@ -226,7 +213,7 @@ namespace Arena.Map {
                 ObjectGroup enemies = objectGroups["Enemies"];
                 foreach ( Object obj in enemies.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
-                    if ( CurrentRoom.Contains(pos) ) {
+                    if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
                         Arena.Instance.Register(EnemyFactory.CreateEnemy(obj, _world));
                     }
                 }
@@ -727,7 +714,10 @@ namespace Arena.Map {
         /// </summary>
         /// <returns></returns>
         private Func<Tile, bool> IsLiveTileInCurrentRoom() {
-            return adj => adj != null && !adj.Disposed && CurrentRoom.Contains(adj.Position, TileSize);
+            return
+                adj =>
+                adj != null && !adj.Disposed &&
+                PlayerPositionMonitor.Instance.CurrentRoom.Contains(adj.Position, TileSize);
         }
 
         /// <summary>

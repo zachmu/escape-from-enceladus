@@ -65,8 +65,8 @@ namespace Arena {
                 case Mode.MoveBetweenRooms:
                     if ( _camera.IsAtTarget() ) {
                         _mode = Mode.TrackPlayer;
-                        ClampCameraToRegion(TileLevel.CurrentRoom.Region);
-                        Arena.Instance.LoadRoom(TileLevel.CurrentRoom);
+                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+                        Arena.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         Arena.Instance.ResumeSimulation();
                     }
                     break;
@@ -121,86 +121,78 @@ namespace Arena {
         }
 
         private void CheckForRoomTransition() {
-            Room currentRoom = TileLevel.CurrentRoom;
 
-            if ( !currentRoom.Contains(_player.Position) ) {
+            if ( PlayerPositionMonitor.Instance.IsNewRoomChange() ) {
 
-                Room oldRoom = currentRoom;
+                UnclampCamera();
+                Arena.Instance.PauseSimulation();
 
-                if ( oldRoom.ID == null || oldRoom.ID != currentRoom.ID ) {
-                    // TODO: this responsibility seems a bit strange for the camera director
-                    currentRoom = TileLevel.CurrentLevel.SetCurrentRoom(_player.Position);
+                _mode = Mode.SnapToGrid;
+                Direction directionOfTravel =
+                    PlayerPositionMonitor.Instance.PreviousRegion.GetRelativeDirection(_player.Position);
 
-                    UnclampCamera();
-                    Arena.Instance.PauseSimulation();
-                    Arena.Instance.DisposeRoom(currentRoom);
+                float halfScreenWidth = _graphics.GraphicsDevice.Viewport.Width / 2f;
+                float halfScreenHeight = _graphics.GraphicsDevice.Viewport.Height / 2f;
 
-                    _mode = Mode.SnapToGrid;
-                    Direction directionOfTravel = oldRoom.Region.GetRelativeDirection(_player.Position);
-
-                    float halfScreenWidth = _graphics.GraphicsDevice.Viewport.Width / 2f;
-                    float halfScreenHeight = _graphics.GraphicsDevice.Viewport.Height / 2f;
-
-                    int xOffset = 0, yOffset = 0;
-                    switch ( directionOfTravel ) {
-                        case Direction.Left:
-                            xOffset = 1;
-                            break;
-                        case Direction.Right:
-                            xOffset = -1;
-                            break;
-                        case Direction.Up:
-                            yOffset = 1;
-                            break;
-                        case Direction.Down:
-                            yOffset = -1;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
-                    Vector2 gridPosition =
-                        new Vector2(
-                            ((int) (_player.Position.X - MapConstants.TileOffsetX + xOffset) /
-                             MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.RoomWidth / 2f +
-                            MapConstants.TileOffsetX,
-                            (((int) (_player.Position.Y - MapConstants.TileOffsetY + yOffset) /
-                              MapConstants.RoomHeight) * MapConstants.RoomHeight +
-                             MapConstants.RoomHeight / 2f + MapConstants.TileOffsetY));
-                    _camera.Position = gridPosition;
-
-                    switch ( directionOfTravel ) {
-                        case Direction.Left:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    currentRoom.Region.BottomRight.X -
-                                    ConvertUnits.ToSimUnits(halfScreenWidth),
-                                    gridPosition.Y);
-
-                            break;
-                        case Direction.Right:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    currentRoom.Region.TopLeft.X +
-                                    ConvertUnits.ToSimUnits(halfScreenWidth),
-                                    gridPosition.Y);
-                            break;
-                        case Direction.Up:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    gridPosition.X, currentRoom.Region.BottomRight.Y -
-                                                    ConvertUnits.ToSimUnits(halfScreenHeight));
-                            break;
-                        case Direction.Down:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    gridPosition.X, currentRoom.Region.TopLeft.Y +
-                                                    ConvertUnits.ToSimUnits(halfScreenHeight));
-                            break;
-                    }
-                } else { // different region, same room
-                    ClampCameraToRegion(TileLevel.CurrentLevel.GetNextRoom(_player.Position).Region);
+                int xOffset = 0, yOffset = 0;
+                switch ( directionOfTravel ) {
+                    case Direction.Left:
+                        xOffset = 1;
+                        break;
+                    case Direction.Right:
+                        xOffset = -1;
+                        break;
+                    case Direction.Up:
+                        yOffset = 1;
+                        break;
+                    case Direction.Down:
+                        yOffset = -1;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
+
+                Vector2 gridPosition =
+                    new Vector2(
+                        ((int) (_player.Position.X - MapConstants.TileOffsetX + xOffset) /
+                         MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.RoomWidth / 2f +
+                        MapConstants.TileOffsetX,
+                        (((int) (_player.Position.Y - MapConstants.TileOffsetY + yOffset) /
+                          MapConstants.RoomHeight) * MapConstants.RoomHeight +
+                         MapConstants.RoomHeight / 2f + MapConstants.TileOffsetY));
+                _camera.Position = gridPosition;
+
+                switch ( directionOfTravel ) {
+                    case Direction.Left:
+                        _nextCameraPosition =
+                            new Vector2(
+                                PlayerPositionMonitor.Instance.CurrentRegion.BottomRight.X -
+                                ConvertUnits.ToSimUnits(halfScreenWidth),
+                                gridPosition.Y);
+
+                        break;
+                    case Direction.Right:
+                        _nextCameraPosition =
+                            new Vector2(
+                                PlayerPositionMonitor.Instance.CurrentRegion.TopLeft.X +
+                                ConvertUnits.ToSimUnits(halfScreenWidth),
+                                gridPosition.Y);
+                        break;
+                    case Direction.Up:
+                        _nextCameraPosition =
+                            new Vector2(
+                                gridPosition.X, PlayerPositionMonitor.Instance.CurrentRegion.BottomRight.Y -
+                                                ConvertUnits.ToSimUnits(halfScreenHeight));
+                        break;
+                    case Direction.Down:
+                        _nextCameraPosition =
+                            new Vector2(
+                                gridPosition.X, PlayerPositionMonitor.Instance.CurrentRegion.TopLeft.Y +
+                                                ConvertUnits.ToSimUnits(halfScreenHeight));
+                        break;
+                }
+            } else if (PlayerPositionMonitor.Instance.IsNewRegionChange()) {
+                ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
             }
         }
 

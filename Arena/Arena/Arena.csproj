@@ -129,6 +129,7 @@
     <Compile Include="Map\MapConstants.cs" />
     <Compile Include="Map\DestructionRegion.cs" />
     <Compile Include="Map\Door.cs" />
+    <Compile Include="Map\PlayerPositionMonitor.cs" />
     <Compile Include="Map\VisitationMap.cs" />
     <Compile Include="Map\Region.cs" />
     <Compile Include="Map\Room.cs" />

@@ -75,11 +75,10 @@ namespace Arena.Map {
         }
 
         /// <summary>
-        /// Returns a representative region
-        /// TODO: remove
+        /// Returns the first region that contains the point given, or null if none do.
         /// </summary>
-        public Region Region {
-          get { return _regions.First(); }
+        public Region RegionAt(Vector2 position) {
+            return _regions.FirstOrDefault(region => region.Contains(position));
         }
     }
 }

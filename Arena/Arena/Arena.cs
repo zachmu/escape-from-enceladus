@@ -34,6 +34,7 @@ namespace Arena {
         private TileLevel _tileLevel;
         private Texture2D _background;
         private Camera2D _camera;
+        private PlayerPositionMonitor _playerPositionMonitor;
         private CameraDirector _cameraDirector;
         private World _world;
         private DebugViewXNA _debugView;
@@ -107,11 +108,12 @@ namespace Arena {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
-            _player = new Player(new Vector2(73, 28), _world);
+            _player = new Player(new Vector2(73, 28), _world); // TODO: start position unnecessary, set in tile level
             _healthStatus = new HealthStatus();
             _inputHelper = new InputHelper();
 
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
+            _playerPositionMonitor = new PlayerPositionMonitor(_player);
             _mode = Mode.NormalControl;
 
             base.Initialize();
@@ -159,14 +161,17 @@ namespace Arena {
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
         public void DisposeRoom(Room disposeRoom) {
-            foreach ( IGameEntity gameEntity in _entities.Where(entity => !disposeRoom.Contains(entity.Position)) ) {
-                gameEntity.Dispose();
+            if ( disposeRoom != null ) {
+                foreach ( IGameEntity gameEntity in _entities.Where(entity => !disposeRoom.Contains(entity.Position)) ) {
+                    gameEntity.Dispose();
+                }
+                _mode = Mode.RoomTransition;
             }
-            _mode = Mode.RoomTransition;
         }
 
         /// <summary>
         /// Loads assets for the room given
+        /// TODO: a transition / background manager should really handle this
         /// </summary>
         public void LoadRoom(Room room) {
             if ( room.BackgroundImage != null ) {
@@ -199,8 +204,7 @@ namespace Arena {
             _player.LoadContent(Content);
 
             LoadStaticContent();
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world,
-                                       _player.Position);
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/Microscheme_0_edited");
@@ -218,9 +222,13 @@ namespace Arena {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _cameraDirector.TargetPlayer();            
+            // Boostrap the map position and current room data
+            _playerPositionMonitor.Update(new GameTime());
+
+            // Bootstrap camera position
+            _cameraDirector.TargetPlayer();
             _cameraDirector.JumpToTarget();
-            _cameraDirector.ClampCameraToRegion(TileLevel.CurrentRoom.Region);
+            _cameraDirector.ClampCameraToRegion(_playerPositionMonitor.CurrentRegion);
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
@@ -302,8 +310,9 @@ namespace Arena {
             UpdateBackgroundAlpha();
 
             _camera.Update(gameTime);
-            _cameraDirector.Update(gameTime);
+            _playerPositionMonitor.Update(gameTime);
             _visitationMap.Update(gameTime);
+            _cameraDirector.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
@@ -311,6 +320,10 @@ namespace Arena {
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Steps the game world one frame, without updating any game entities.
+        /// </summary>
+        /// <param name="gameTime"></param>
         internal void StepWorld(GameTime gameTime) {
             float totalSeconds = gameTime == null ? 1f / 60f : (float) gameTime.ElapsedGameTime.TotalSeconds;
             _world.Step(Math.Min(totalSeconds, (1f / 30f)));
