@@ -4,6 +4,7 @@
 
 using System;
 using Arena.Farseer;
+using Arena.Map;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,19 +18,21 @@ namespace Arena {
         private static GraphicsDevice _graphics;
 
         private Vector2 _currentPosition;
-
         private float _currentRotation;
-
         private float _currentZoom;
+
         private Vector2 _minPosition;
         private Vector2 _maxPosition;
         private float _minRotation;
         private float _maxRotation;
+        private Room _constrainedToRoom;       
+
         private bool _positionTracking;
         private bool _rotationTracking;
+        private Body _trackingBody;
+
         private Vector2 _targetPosition;
         private float _targetRotation;
-        private Body _trackingBody;
         private readonly Vector2 _translateCenter;
 
         public Matrix DisplayView { get; private set; }
@@ -65,7 +68,7 @@ namespace Arena {
             get { return _currentPosition; }
             set {
                 _targetPosition = value;
-                if ( _minPosition != _maxPosition ) {
+                if ( IsConstrainPosition ) {
                     Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
                 }
             }
@@ -80,114 +83,27 @@ namespace Arena {
         }
 
         /// <summary>
-        /// The furthest up, and the furthest left the camera can go.
-        /// if this value equals maxPosition, then no clamping will be 
-        /// applied (unless you override that function).
+        /// Constrain the camera to the rectangular region given.
         /// </summary>
-        public Vector2 MinPosition {
-            get { return _minPosition; }
-            set { _minPosition = value; }
+        public void ConstrainToRegion(Vector2 minPosition, Vector2 maxPosition) {
+            _minPosition = minPosition;
+            _maxPosition = maxPosition;
+            _constrainedToRoom = null;
+            IsConstrainPosition = true;
         }
 
         /// <summary>
-        /// the furthest down, and the furthest right the camera will go.
-        /// if this value equals minPosition, then no clamping will be 
-        /// applied (unless you override that function).
+        /// Whether or not to constrain the position of the camera 
+        /// to a region or room
         /// </summary>
-        public Vector2 MaxPosition {
-            get { return _maxPosition; }
-            set { _maxPosition = value; }
-        }
+        public bool IsConstrainPosition { get; set; }
 
         /// <summary>
-        /// Whether or not to constrain the position of the camera designated 
-        /// by Max and Min Position
+        /// Constrain the camera to a particular room
         /// </summary>
-        public bool ConstrainPosition { get; set; }
-
-        /// <summary>
-        /// The current rotation of the camera in radians.
-        /// </summary>
-        public float Rotation {
-            get { return _currentRotation; }
-            set {
-                _targetRotation = value % MathHelper.TwoPi;
-                if ( _minRotation != _maxRotation ) {
-                    _targetRotation = MathHelper.Clamp(_targetRotation, _minRotation, _maxRotation);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the minimum rotation in radians.
-        /// </summary>
-        /// <value>The min rotation.</value>
-        public float MinRotation {
-            get { return _minRotation; }
-            set { _minRotation = MathHelper.Clamp(value, -MathHelper.Pi, 0f); }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum rotation in radians.
-        /// </summary>
-        /// <value>The max rotation.</value>
-        public float MaxRotation {
-            get { return _maxRotation; }
-            set { _maxRotation = MathHelper.Clamp(value, 0f, MathHelper.Pi); }
-        }
-
-        /// <summary>
-        /// The current rotation of the camera in radians.
-        /// </summary>
-        public float Zoom {
-            get { return _currentZoom; }
-            set {
-                _currentZoom = value;
-                _currentZoom = MathHelper.Clamp(_currentZoom, MinZoom, MaxZoom);
-            }
-        }
-
-        /// <summary>
-        /// the body that this camera is currently tracking. 
-        /// Null if not tracking any.
-        /// </summary>
-        public Body TrackingBody {
-            get { return _trackingBody; }
-            set {
-                _trackingBody = value;
-                if ( _trackingBody != null ) {
-                    _positionTracking = true;
-                }
-            }
-        }
-
-        public bool EnablePositionTracking {
-            get { return _positionTracking; }
-            set {
-                if ( value && _trackingBody != null ) {
-                    _positionTracking = true;
-                } else {
-                    _positionTracking = false;
-                }
-            }
-        }
-
-        public bool EnableRotationTracking {
-            get { return _rotationTracking; }
-            set {
-                if ( value && _trackingBody != null ) {
-                    _rotationTracking = true;
-                } else {
-                    _rotationTracking = false;
-                }
-            }
-        }
-
-        public bool EnableTracking {
-            set {
-                EnablePositionTracking = value;
-                EnableRotationTracking = value;
-            }
+        public Room ConstrainedToRoom {
+            get { return _constrainedToRoom; }
+            set { _constrainedToRoom = value; }
         }
 
         /// <summary>
@@ -196,8 +112,12 @@ namespace Arena {
         /// </summary>
         public void MoveCamera(Vector2 amount) {
             _currentPosition += amount;
-            if ( ConstrainPosition ) {
-                Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
+            if ( IsConstrainPosition ) {
+                if (_constrainedToRoom != null) {
+                    // TODO
+                } else {
+                    Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);                    
+                }
             }
             _targetPosition = _currentPosition;
             _positionTracking = false;
@@ -208,19 +128,16 @@ namespace Arena {
         /// Sets the target position to be the current position plus a specified delta
         /// </summary>
         public void MoveTarget(Vector2 delta) {
-            _targetPosition = _currentPosition + delta;
-            if ( ConstrainPosition ) {
-                Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
+            if ( IsConstrainPosition ) {
+                if (_constrainedToRoom != null) {
+                    _targetPosition = _constrainedToRoom.ConstrainCamera(_currentPosition, delta);
+                } else {
+                    _targetPosition = _currentPosition + delta;                    
+                    Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);   
+                }            
+            } else {
+                _targetPosition = _currentPosition + delta;
             }
-        }
-
-        public void RotateCamera(float amount) {
-            _currentRotation += amount;
-            if ( _minRotation != _maxRotation ) {
-                _currentRotation = MathHelper.Clamp(_currentRotation, _minRotation, _maxRotation);
-            }
-            _positionTracking = false;
-            _rotationTracking = false;
         }
 
         /// <summary>
@@ -231,7 +148,7 @@ namespace Arena {
             _targetPosition = Vector2.Zero;
             _minPosition = Vector2.Zero;
             _maxPosition = Vector2.Zero;
-            ConstrainPosition = false;
+            IsConstrainPosition = false;
 
             _currentRotation = 0f;
             _targetRotation = 0f;
@@ -280,7 +197,7 @@ namespace Arena {
             if ( _trackingBody != null ) {
                 if ( _positionTracking ) {
                     _targetPosition = _trackingBody.Position;
-                    if ( ConstrainPosition) {
+                    if ( IsConstrainPosition) {
                         Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
                     }
                 }
@@ -347,5 +264,104 @@ namespace Arena {
 
             return new Vector2(t.X, t.Y);
         }
+
+        #region unused
+
+        /// <summary>
+        /// Gets or sets the minimum rotation in radians.
+        /// </summary>
+        /// <value>The min rotation.</value>
+        public float MinRotation {
+            get { return _minRotation; }
+            set { _minRotation = MathHelper.Clamp(value, -MathHelper.Pi, 0f); }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum rotation in radians.
+        /// </summary>
+        /// <value>The max rotation.</value>
+        public float MaxRotation {
+            get { return _maxRotation; }
+            set { _maxRotation = MathHelper.Clamp(value, 0f, MathHelper.Pi); }
+        }
+
+        /// <summary>
+        /// The current rotation of the camera in radians.
+        /// </summary>
+        public float Zoom {
+            get { return _currentZoom; }
+            set {
+                _currentZoom = value;
+                _currentZoom = MathHelper.Clamp(_currentZoom, MinZoom, MaxZoom);
+            }
+        }
+
+        /// <summary>
+        /// the body that this camera is currently tracking. 
+        /// Null if not tracking any.
+        /// </summary>
+        public Body TrackingBody {
+            get { return _trackingBody; }
+            set {
+                _trackingBody = value;
+                if ( _trackingBody != null ) {
+                    _positionTracking = true;
+                }
+            }
+        }
+
+        public void RotateCamera(float amount) {
+            _currentRotation += amount;
+            if ( _minRotation != _maxRotation ) {
+                _currentRotation = MathHelper.Clamp(_currentRotation, _minRotation, _maxRotation);
+            }
+            _positionTracking = false;
+            _rotationTracking = false;
+        }
+
+        /// <summary>
+        /// The current rotation of the camera in radians.
+        /// </summary>
+        public float Rotation {
+            get { return _currentRotation; }
+            set {
+                _targetRotation = value % MathHelper.TwoPi;
+                if ( _minRotation != _maxRotation ) {
+                    _targetRotation = MathHelper.Clamp(_targetRotation, _minRotation, _maxRotation);
+                }
+            }
+        }
+
+        public bool EnablePositionTracking {
+            get { return _positionTracking; }
+            set {
+                if ( value && _trackingBody != null ) {
+                    _positionTracking = true;
+                } else {
+                    _positionTracking = false;
+                }
+            }
+        }
+
+        public bool EnableRotationTracking {
+            get { return _rotationTracking; }
+            set {
+                if ( value && _trackingBody != null ) {
+                    _rotationTracking = true;
+                } else {
+                    _rotationTracking = false;
+                }
+            }
+        }
+
+        public bool EnableTracking {
+            set {
+                EnablePositionTracking = value;
+                EnableRotationTracking = value;
+            }
+        }
+
+
+        #endregion
     }
 }

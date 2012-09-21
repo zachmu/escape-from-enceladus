@@ -224,9 +224,8 @@ namespace Arena {
                 minPosition.Y = avgY;
             }
 
-            _camera.MinPosition = minPosition;
-            _camera.MaxPosition = maxPosition;
-            _camera.ConstrainPosition = true;
+            
+            _camera.ConstrainToRegion(minPosition, maxPosition);
         }
 
         /// <summary>
@@ -257,8 +256,7 @@ namespace Arena {
         }
 
         private void UnclampCamera() {
-            _camera.MinPosition = _camera.MaxPosition;
-            _camera.ConstrainPosition = false;
+            _camera.IsConstrainPosition = false;
         }
 
         private void SetManualCamera() {

@@ -80,5 +80,9 @@ namespace Arena.Map {
         public Region RegionAt(Vector2 position) {
             return _regions.FirstOrDefault(region => region.Contains(position));
         }
+
+        public Vector2 ConstrainCamera(Vector2 currentPosition, Vector2 delta) {
+            return currentPosition + delta;
+        }
     }
 }
