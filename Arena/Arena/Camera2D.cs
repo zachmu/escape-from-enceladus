@@ -23,6 +23,8 @@ namespace Arena {
 
         private Vector2 _minPosition;
         private Vector2 _maxPosition;
+        private Room _currentRoom;
+        private bool _isConstrainedToRoom;
         private float _minRotation;
         private float _maxRotation;
 
@@ -89,6 +91,13 @@ namespace Arena {
             _minPosition = minPosition;
             _maxPosition = maxPosition;
             IsConstrainPosition = true;
+            _isConstrainedToRoom = false;
+        }
+
+        public void ConstrainToRoom(Room room) {
+            _currentRoom = room;
+            IsConstrainPosition = true;
+            _isConstrainedToRoom = true;
         }
 
         /// <summary>
@@ -104,6 +113,9 @@ namespace Arena {
         public void MoveCamera(Vector2 amount) {
             _currentPosition += amount;
             if ( IsConstrainPosition ) {
+                if ( _isConstrainedToRoom ) {
+                    _currentRoom.ClosestAreaOfConstraint(_targetPosition, out _minPosition, out _maxPosition);
+                }
                 Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
             }
             _targetPosition = _currentPosition;
@@ -117,6 +129,9 @@ namespace Arena {
         public void MoveTarget(Vector2 delta) {
             _targetPosition = _currentPosition + delta;
             if ( IsConstrainPosition ) {
+                if ( _isConstrainedToRoom ) {
+                    _currentRoom.ClosestAreaOfConstraint(_targetPosition, out _minPosition, out _maxPosition);
+                }
                 Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
             }
         }
@@ -225,7 +240,7 @@ namespace Arena {
                 } else {
                     if ( IsConstrainPosition ) {
                         _currentPosition += adjustment;
-                        Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
+                        //Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
                     } else {
                         _currentPosition += adjustment;
                     }

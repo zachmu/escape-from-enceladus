@@ -65,7 +65,8 @@ namespace Arena {
                 case Mode.MoveBetweenRooms:
                     if ( _camera.IsAtTarget() ) {
                         _mode = Mode.TrackPlayer;
-                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+//                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+                        _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         Arena.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         Arena.Instance.ResumeSimulation();
                     }
@@ -191,13 +192,14 @@ namespace Arena {
                                                 ConvertUnits.ToSimUnits(halfScreenHeight));
                         break;
                 }
-            } else if (PlayerPositionMonitor.Instance.IsNewRegionChange()) {
-                ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
-            }
+            } 
+//            else if (PlayerPositionMonitor.Instance.IsNewRegionChange()) {
+//                ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+//            }
         }
 
         /// <summary>
-        /// Constrains the camera position to the current room in the level.
+        /// Constrains the camera position to the given region of space.
         /// </summary>
         public void ClampCameraToRegion(Region region) {
             Vector2 viewportCenter = ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f,
