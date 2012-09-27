@@ -25,7 +25,6 @@ namespace Arena {
         private Vector2 _maxPosition;
         private float _minRotation;
         private float _maxRotation;
-        private Room _constrainedToRoom;       
 
         private bool _positionTracking;
         private bool _rotationTracking;
@@ -50,8 +49,9 @@ namespace Arena {
         public Camera2D(GraphicsDevice graphics) {
             _graphics = graphics;
             SimProjection = Matrix.CreateOrthographicOffCenter(0f, ConvertUnits.ToSimUnits(_graphics.Viewport.Width),
-                                                             ConvertUnits.ToSimUnits(_graphics.Viewport.Height), 0f, 0f,
-                                                             1f);
+                                                               ConvertUnits.ToSimUnits(_graphics.Viewport.Height), 0f,
+                                                               0f,
+                                                               1f);
             SimView = Matrix.Identity;
             DisplayView = Matrix.Identity;
 
@@ -88,7 +88,6 @@ namespace Arena {
         public void ConstrainToRegion(Vector2 minPosition, Vector2 maxPosition) {
             _minPosition = minPosition;
             _maxPosition = maxPosition;
-            _constrainedToRoom = null;
             IsConstrainPosition = true;
         }
 
@@ -96,15 +95,7 @@ namespace Arena {
         /// Whether or not to constrain the position of the camera 
         /// to a region or room
         /// </summary>
-        public bool IsConstrainPosition { get; set; }
-
-        /// <summary>
-        /// Constrain the camera to a particular room
-        /// </summary>
-        public Room ConstrainedToRoom {
-            get { return _constrainedToRoom; }
-            set { _constrainedToRoom = value; }
-        }
+        public bool IsConstrainPosition { get; set; }  
 
         /// <summary>
         /// Immediately moves the camera from its current position in the amount specified, 
@@ -113,11 +104,7 @@ namespace Arena {
         public void MoveCamera(Vector2 amount) {
             _currentPosition += amount;
             if ( IsConstrainPosition ) {
-                if (_constrainedToRoom != null) {
-                    // TODO
-                } else {
-                    Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);                    
-                }
+                Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
             }
             _targetPosition = _currentPosition;
             _positionTracking = false;
@@ -128,15 +115,9 @@ namespace Arena {
         /// Sets the target position to be the current position plus a specified delta
         /// </summary>
         public void MoveTarget(Vector2 delta) {
+            _targetPosition = _currentPosition + delta;
             if ( IsConstrainPosition ) {
-                if (_constrainedToRoom != null) {
-                    _targetPosition = _constrainedToRoom.ConstrainCamera(_currentPosition, delta);
-                } else {
-                    _targetPosition = _currentPosition + delta;                    
-                    Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);   
-                }            
-            } else {
-                _targetPosition = _currentPosition + delta;
+                Vector2.Clamp(ref _targetPosition, ref _minPosition, ref _maxPosition, out _targetPosition);
             }
         }
 
@@ -242,7 +223,12 @@ namespace Arena {
                 if ( adjustment.Length() < minAdjustment || adjustment.Length() > distance ) {
                     _currentPosition = _targetPosition;
                 } else {
-                    _currentPosition += adjustment;
+                    if ( IsConstrainPosition ) {
+                        _currentPosition += adjustment;
+                        Vector2.Clamp(ref _currentPosition, ref _minPosition, ref _maxPosition, out _currentPosition);
+                    } else {
+                        _currentPosition += adjustment;
+                    }
                 }
             }
 
@@ -263,6 +249,10 @@ namespace Arena {
             t = _graphics.Viewport.Project(t, SimProjection, SimView, Matrix.Identity);
 
             return new Vector2(t.X, t.Y);
+        }
+
+        public void DebugDraw(SpriteBatch batch, Texture2D debugMarker) {
+            batch.Draw(debugMarker, ConvertUnits.ToDisplayUnits(_targetPosition), null, Color.White, 0, new Vector2(debugMarker.Width / 2f, debugMarker.Height / 2f), 1f, SpriteEffects.None, 1f);
         }
 
         #region unused

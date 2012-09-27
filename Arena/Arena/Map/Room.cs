@@ -75,14 +75,21 @@ namespace Arena.Map {
         }
 
         /// <summary>
-        /// Returns the first region that contains the point given, or null if none do.
+        /// Returns all regions that contain the point given.
         /// </summary>
-        public Region RegionAt(Vector2 position) {
-            return _regions.FirstOrDefault(region => region.Contains(position));
+        public List<Region> RegionsAt(Vector2 position) {
+            return _regions.Where(region => region.Contains(position)).ToList();
         }
 
-        public Vector2 ConstrainCamera(Vector2 currentPosition, Vector2 delta) {
-            return currentPosition + delta;
+        /// <summary>
+        /// Returns a room-grid-adjusted point
+        /// </summary>
+        public static Vector2 SnapToRoomGrid(Vector2 point) {
+            Vector2 gridPosition =
+                new Vector2(
+                    ((int) (point.X - MapConstants.TileOffsetX) / MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.TileOffsetX,
+                    (((int) (point.Y - MapConstants.TileOffsetY) / MapConstants.RoomHeight) * MapConstants.RoomHeight + MapConstants.TileOffsetY));
+            return gridPosition;
         }
     }
 }

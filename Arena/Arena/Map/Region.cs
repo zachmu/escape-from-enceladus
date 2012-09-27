@@ -107,5 +107,12 @@ namespace Arena.Map {
                 throw new Exception("Couldn't determine relative position");
             }
         }
+        
+        /// <summary>
+        /// Returns a region shifted a given amount from this one.
+        /// </summary>
+        public Region Shift(Vector2 delta) {
+            return new Region(_topLeft + delta, _bottomRight + delta);
+        }
     }
 }

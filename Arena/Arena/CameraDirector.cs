@@ -22,8 +22,8 @@ namespace Arena {
             MoveBetweenRooms,
         }
 
-        private const int HorizontalMargin = 200;
-        private const int VerticalMargin = 200;
+        private const int HorizontalMargin = 450;
+        private const int VerticalMargin = 250;
 
         private readonly Camera2D _camera;
         private readonly Player _player;
@@ -202,21 +202,20 @@ namespace Arena {
         public void ClampCameraToRegion(Region region) {
             Vector2 viewportCenter = ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f,
                                                              _graphics.GraphicsDevice.Viewport.Height / 2f);
-
             // Some rooms don't line up with the grid, so pretend they do for camera purposes.
-            Vector2 topLeft = SnapToGrid(region.TopLeft);
-            Vector2 bottomRight = SnapToGrid(region.BottomRight + new Vector2(1));
+            Vector2 topLeft = Room.SnapToRoomGrid(region.TopLeft);
+            Vector2 bottomRight = Room.SnapToRoomGrid(region.BottomRight + new Vector2(1));
 
             Vector2 minPosition = topLeft + viewportCenter - new Vector2(0, .125f);
             Vector2 maxPosition = bottomRight - viewportCenter + new Vector2(0, .125f);
 
             //Console.WriteLine("Max = {0}, min = {1}", maxPosition, minPosition);
 
-            if (maxPosition.X < minPosition.X) {
+            if ( maxPosition.X < minPosition.X ) {
                 float avgX = (maxPosition.X + minPosition.X) / 2;
                 maxPosition.X = avgX;
                 minPosition.X = avgX;
-            } 
+            }
 
             if ( maxPosition.Y < minPosition.Y ) {
                 float avgY = (maxPosition.Y + minPosition.Y) / 2;
@@ -224,7 +223,6 @@ namespace Arena {
                 minPosition.Y = avgY;
             }
 
-            
             _camera.ConstrainToRegion(minPosition, maxPosition);
         }
 
@@ -233,19 +231,6 @@ namespace Arena {
         /// </summary>
         public void TargetPlayer() {
             _camera.Position = _player.Position;
-        }
-
-        /// <summary>
-        /// Returns room-grid-adjusted point
-        /// </summary>
-        /// <param name="?"></param>
-        /// <returns></returns>
-        private Vector2 SnapToGrid(Vector2 point) {
-            Vector2 gridPosition =
-                new Vector2(
-                    ((int) (point.X - MapConstants.TileOffsetX) / MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.TileOffsetX,
-                    (((int) (point.Y - MapConstants.TileOffsetY) / MapConstants.RoomHeight) * MapConstants.RoomHeight + MapConstants.TileOffsetY));
-            return gridPosition;
         }
 
         /// <summary>

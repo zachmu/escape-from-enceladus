@@ -30,9 +30,15 @@ namespace Arena {
 
     public class Arena : Game {
         private readonly GraphicsDeviceManager _graphics;
+
+        public GraphicsDeviceManager GraphicsDeviceManager {
+            get { return _graphics; }
+        }
+
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
         private Texture2D _background;
+        private Texture2D _debugMarker;
         private Camera2D _camera;
         private PlayerPositionMonitor _playerPositionMonitor;
         private CameraDirector _cameraDirector;
@@ -62,6 +68,7 @@ namespace Arena {
         private const string ShaderVar1 = "Shader Var 1";
         private const String ShaderVar2 = "Shader Var 2";
         private const String ShaderVar3 = "Shader Var 3";
+        private const string DebugCamera = "DebugCamera";
 
         public const Category PlayerCategory = Category.Cat1;
         public const Category TerrainCategory = Category.Cat2;
@@ -105,6 +112,7 @@ namespace Arena {
             Constants.Register(new Constant(ShaderVar1, .5f, Keys.D1));
             Constants.Register(new Constant(ShaderVar2, .5f, Keys.D2));
             Constants.Register(new Constant(ShaderVar3, .6f, Keys.D3));
+            Constants.Register(new Constant(DebugCamera, .99f, Keys.C));
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
@@ -208,6 +216,7 @@ namespace Arena {
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/Microscheme_0_edited");
+            _debugMarker = Content.Load<Texture2D>("Cross0000");
             //_background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
@@ -466,6 +475,12 @@ namespace Arena {
             }
 
             // Finally, debug info
+            if (Constants.Get(DebugCamera) >= 1) {
+                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
+                _camera.DebugDraw(_spriteBatch, _debugMarker);
+                _spriteBatch.End();
+            }
+
             DebugDraw();
 
             base.Draw(gameTime);
