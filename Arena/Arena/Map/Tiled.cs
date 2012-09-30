@@ -87,9 +87,7 @@ namespace Arena.Map {
         }
 
         public Texture2D Texture {
-            get {
-                return _Texture;
-            }
+            get { return _Texture; }
             set {
                 _Texture = value;
                 _TexWidth = value.Width;
@@ -122,6 +120,8 @@ namespace Arena.Map {
     public partial class Layer {
         public Dictionary<string, string> Properties = new Dictionary<string, string>();
         internal Map _map;
+
+        internal const string Foreground = "foreground";
 
         public string Name;
         public int Width, Height;
@@ -173,7 +173,7 @@ namespace Arena.Map {
             return _tiles;
         }
 
-        internal readonly List<Tile> _destroyedTiles = new List<Tile>(); 
+        internal readonly List<Tile> _destroyedTiles = new List<Tile>();
 
         /// <summary>
         /// Returns the tile underneath this one, or null if there is no tile there
@@ -239,6 +239,7 @@ namespace Arena.Map {
     public struct TileInfo {
         public Texture2D Texture;
         public Rectangle Rectangle;
+        public Tileset Tileset;
     }
 
     public class Tile : IEquatable<Tile> {
@@ -248,14 +249,16 @@ namespace Arena.Map {
         /// </summary>
         public Vector2 Position { get; private set; }
 
-        const float HalfTileSize = TileLevel.TileSize / 2;
+        private const float HalfTileSize = TileLevel.TileSize / 2;
 
         // TODO: share this data
         public readonly IList<Body> Bodies = new List<Body>();
         public HashSet<Tile> Group;
-        private readonly int _tileInfoIndex;
+
+        internal readonly int _tileInfoIndex;
 
         private Layer _layer;
+
         private Layer GetLayer() {
             return _layer;
         }
@@ -303,7 +306,7 @@ namespace Arena.Map {
             if ( ReferenceEquals(this, obj) ) {
                 return true;
             }
-            if ( obj.GetType() != typeof(Tile) ) {
+            if ( obj.GetType() != typeof ( Tile ) ) {
                 return false;
             }
             return Equals((Tile) obj);
@@ -380,7 +383,8 @@ namespace Arena.Map {
                 flipEffect |= SpriteEffects.FlipVertically;
             }
             if ( (flipAndRotate & Layer.DiagonallyFlipDrawFlag) != 0 ) {
-                if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 && (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
+                if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 &&
+                     (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
                     rotation = (float) (Math.PI / 2);
                     flipEffect ^= SpriteEffects.FlipVertically;
                 } else if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 ) {
@@ -408,7 +412,7 @@ namespace Arena.Map {
         public void Update(GameTime gameTime) {
             if ( Disposed ) {
                 TimeUntilReappear -= gameTime.ElapsedGameTime.Milliseconds;
-                if ( TimeUntilReappear <= 0 ) {                    
+                if ( TimeUntilReappear <= 0 ) {
                     TileLevel.CurrentLevel.ReviveTile(this);
                 }
             } else {
@@ -420,8 +424,12 @@ namespace Arena.Map {
             return Arena.EntitiesOverlapping(new AABB(Position, Position + new Vector2(HalfTileSize * 2)));
         }
 
+        public bool IsForeground() {
+            return GetLayer().Properties.ContainsKey(Layer.Foreground);
+        }
+
         private const int BlockTimeUntilReappear = 5000;
-        public const int FadeInTime = 1000;        
+        public const int FadeInTime = 1000;
     }
 
     public partial class ObjectGroup {
@@ -430,7 +438,7 @@ namespace Arena.Map {
 
         public string Name;
         public int Width, Height, X, Y;
-        float Opacity = 1;
+        private float Opacity = 1;
 
         public void Draw(Map result, SpriteBatch batch, Rectangle rectangle) {
             foreach ( var obj in Objects ) {
@@ -451,16 +459,13 @@ namespace Arena.Map {
         protected int _TexWidth, _TexHeight;
 
         public Texture2D Texture {
-            get {
-                return _Texture;
-            }
+            get { return _Texture; }
             set {
                 _Texture = value;
                 _TexWidth = value.Width;
                 _TexHeight = value.Height;
             }
         }
-
 
         public void Draw(SpriteBatch batch, Rectangle visibleWorld) {
             var tileCorner = new Vector2(X - 1f / 2f,
@@ -475,7 +480,8 @@ namespace Arena.Map {
 
             if ( this.X + this.Width > minx && this.X < maxx )
                 if ( this.Y + this.Height > miny && this.Y < maxy ) {
-                    batch.Draw(_Texture, displayPosition, new Rectangle(0, 0, _Texture.Width, _Texture.Height), Color.White);
+                    batch.Draw(_Texture, displayPosition, new Rectangle(0, 0, _Texture.Width, _Texture.Height),
+                               Color.White);
                 }
         }
     }
@@ -501,13 +507,19 @@ namespace Arena.Map {
             var cache = new List<TileInfo>();
             int i = 1;
 
-        next:
-            foreach (Tileset tileset in tilesets) {
+            /*
+             * Tile ID is unique across tile sets.   Search each contiguous integer and add 
+             * its corresponding tileset to the cache, stopping when we can't find any tileset 
+             * corresponding to that int.
+             */
+            next:
+            foreach ( Tileset tileset in tilesets ) {
                 if ( tileset.MapTileToRect(i, ref rect) ) {
                     cache.Add(new TileInfo {
-                        Texture = tileset.Texture,
-                        Rectangle = rect
-                    });
+                                               Texture = tileset.Texture,
+                                               Rectangle = rect,
+                                               Tileset = tileset
+                                           });
                     i += 1;
                     goto next;
                 }
@@ -516,13 +528,12 @@ namespace Arena.Map {
             return cache.ToArray();
         }
 
-
         public void DrawBackground(SpriteBatch batch, Rectangle visibleWorld) {
             foreach (
                 Layer layer in
                     Layers.Values.Where(
                         layer =>
-                        !layer.Properties.ContainsKey("invisible") && !layer.Properties.ContainsKey("foreground")) ) {
+                        !layer.Properties.ContainsKey("invisible") && !layer.Properties.ContainsKey(Layer.Foreground)) ) {
                 layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
         }
@@ -531,7 +542,7 @@ namespace Arena.Map {
             foreach (
                 Layer layer in
                     Layers.Values.Where(
-                        layer => layer.Properties.ContainsKey("foreground")) ) {
+                        layer => layer.Properties.ContainsKey(Layer.Foreground)) ) {
                 layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
         }
@@ -540,6 +551,41 @@ namespace Arena.Map {
             foreach ( Layer layer in Layers.Values ) {
                 layer.Update(gameTime);
             }
+        }
+
+        /// <summary>
+        /// Returns a list of surrounding foreground tiles that should be destroyed when 
+        /// this collision-layer tile is destroyed.
+        /// </summary>
+        public List<Tile> GetDestroyedForegroundBlocks(Tile tile) {
+            List<Tile> tiles = new List<Tile>();
+            foreach (
+                Layer layer in
+                    Layers.Values.Where(
+                        layer => layer.Properties.ContainsKey(Layer.Foreground)) ) {
+
+                // TODO: merge with projectile hit code in TileLevel
+                Tile[] adjacent = new Tile[] {
+                                                 layer.GetLeftTile(tile), layer.GetRightTile(tile),
+                                                 layer.GetUpTile(tile),
+                                                 layer.GetDownTile(tile)
+                                             };
+                // Destroy any adjacent tile with the "attached" tile property set
+                foreach ( Tile adj in adjacent ) {
+                    if ( adj != null ) {
+                        TileInfo tileInfo = GetTileInfoCache()[adj._tileInfoIndex];
+                        int tilesetTileId = adj._tileInfoIndex + 1; // tileset indexes are 1-based
+                        if ( tileInfo.Tileset.TileProperties.ContainsKey(tilesetTileId) ) {
+                            Tileset.TilePropertyList tilePropertyList = tileInfo.Tileset.TileProperties[tilesetTileId];
+                            if ( tilePropertyList.ContainsKey("attached") ) {
+                                tiles.Add(adj);
+                            }
+                        }
+                    }
+                }
+
+            }
+            return tiles;
         }
     }
 }

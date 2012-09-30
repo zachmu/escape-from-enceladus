@@ -237,6 +237,7 @@ namespace Arena.Map {
                 HashSet<Tile> affectedTiles = new HashSet<Tile>();
                 foreach ( Tile t in _tilesToRemove ) {
                     t.Dispose();
+
                     affectedTiles.Add(t);
                     TileInfo tileInfo = t.GetBlockTextureInfo();
 #if XBOX
@@ -483,11 +484,17 @@ namespace Arena.Map {
         }
 
         /// <summary>
-        /// Destroys this tile, unless it's already been destroyed.
+        /// Destroys this tile, unless it's already been destroyed.  
+        /// Also destroys attached foreground blocks, like vegetation or stalagmites
         /// </summary>
         public void DestroyTile(Tile t) {
             if ( !t.Disposed ) {
                 _tilesToRemove.Add(t);
+                _levelMap.GetDestroyedForegroundBlocks(t).ForEach(tile => {
+                                                                      if ( !tile.Disposed ) {
+                                                                          _tilesToRemove.Add(tile);
+                                                                      }
+                                                                  });
             }
         }
 
