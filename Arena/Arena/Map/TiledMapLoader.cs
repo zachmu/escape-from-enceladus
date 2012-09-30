@@ -38,9 +38,9 @@ namespace Arena.Map {
                                 currentTileId = int.Parse(reader.GetAttribute("id"));
                                 break;
                             case "property": {
-                                Tileset.TilePropertyList props;
+                                TilePropertyList props;
                                 if ( !result.TileProperties.TryGetValue(currentTileId, out props) ) {
-                                    props = new Tileset.TilePropertyList();
+                                    props = new TilePropertyList();
                                     result.TileProperties[currentTileId] = props;
                                 }
 
