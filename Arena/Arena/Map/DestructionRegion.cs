@@ -21,9 +21,8 @@ namespace Arena.Map {
 
         private Body _body;
 
-        public DestructionRegion(World world, Vector2 topLeft, Vector2 bottomRight, int weaponVulnerability ) {
-            _topLeft = AdjustToTileBoundary(topLeft);
-            _bottomRight = AdjustToTileBoundary(bottomRight);
+        public DestructionRegion(World world, Vector2 topLeft, Vector2 bottomRight, int weaponVulnerability)
+            : base(AdjustToTileBoundary(topLeft), AdjustToTileBoundary(bottomRight)) {
             _body = BodyFactory.CreateRectangle(world, Width, Height, 0);
             _body.IsStatic = true;
             _body.IsSensor = true;

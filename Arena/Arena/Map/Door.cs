@@ -30,17 +30,16 @@ namespace Arena.Map {
         private Orientation _orientation;
 
         static Door() {
-            Constants.Register(new Constant(DoorOpenTime, .3f, Keys.V));
-            Constants.Register(new Constant(DoorStayOpenTime, 2.5f, Keys.F));
+            Constants.Register(new Constant(DoorOpenTime, .2f, Keys.V));
+            Constants.Register(new Constant(DoorStayOpenTime, 5f, Keys.F));
         }
 
         public static void LoadContent(ContentManager content) {
             Image = content.Load<Texture2D>("door");
         }
 
-        public Door(World world, Vector2 topLeft, Vector2 bottomRight) {
-            _topLeft = AdjustToTileBoundary(topLeft);
-            _bottomRight = AdjustToTileBoundary(bottomRight);
+        public Door(World world, Vector2 topLeft, Vector2 bottomRight)
+            : base(AdjustToTileBoundary(topLeft), AdjustToTileBoundary(bottomRight)) {
             _world = world;
 
             if (Width > Height) {

@@ -22,8 +22,8 @@ namespace Arena {
             MoveBetweenRooms,
         }
 
-        private const int HorizontalMargin = 200;
-        private const int VerticalMargin = 200;
+        private const int HorizontalMargin = 450;
+        private const int VerticalMargin = 250;
 
         private readonly Camera2D _camera;
         private readonly Player _player;
@@ -65,8 +65,8 @@ namespace Arena {
                 case Mode.MoveBetweenRooms:
                     if ( _camera.IsAtTarget() ) {
                         _mode = Mode.TrackPlayer;
-                        ClampCameraToRegion(TileLevel.CurrentRoom);
-                        Arena.Instance.LoadRoom(TileLevel.CurrentRoom);
+                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+                        Arena.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         Arena.Instance.ResumeSimulation();
                     }
                     break;
@@ -121,86 +121,78 @@ namespace Arena {
         }
 
         private void CheckForRoomTransition() {
-            Room currentRoom = TileLevel.CurrentRoom;
 
-            if ( !currentRoom.Contains(_player.Position) ) {
+            if ( PlayerPositionMonitor.Instance.IsNewRoomChange() ) {
 
-                Room oldRoom = currentRoom;
+                UnclampCamera();
+                Arena.Instance.PauseSimulation();
 
-                if ( oldRoom.ID == null || oldRoom.ID != currentRoom.ID ) {
-                    // TODO: this responsibility seems a bit strange for the camera director
-                    currentRoom = TileLevel.CurrentLevel.SetCurrentRoom(_player.Position);
+                _mode = Mode.SnapToGrid;
+                Direction directionOfTravel =
+                    PlayerPositionMonitor.Instance.PreviousRegion.GetRelativeDirection(_player.Position);
 
-                    UnclampCamera();
-                    Arena.Instance.PauseSimulation();
-                    Arena.Instance.DisposeRoom(currentRoom);
+                float halfScreenWidth = _graphics.GraphicsDevice.Viewport.Width / 2f;
+                float halfScreenHeight = _graphics.GraphicsDevice.Viewport.Height / 2f;
 
-                    _mode = Mode.SnapToGrid;
-                    Direction directionOfTravel = oldRoom.GetRelativeDirection(_player.Position);
-
-                    float halfScreenWidth = _graphics.GraphicsDevice.Viewport.Width / 2f;
-                    float halfScreenHeight = _graphics.GraphicsDevice.Viewport.Height / 2f;
-
-                    int xOffset = 0, yOffset = 0;
-                    switch ( directionOfTravel ) {
-                        case Direction.Left:
-                            xOffset = 1;
-                            break;
-                        case Direction.Right:
-                            xOffset = -1;
-                            break;
-                        case Direction.Up:
-                            yOffset = 1;
-                            break;
-                        case Direction.Down:
-                            yOffset = -1;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
-                    Vector2 gridPosition =
-                        new Vector2(
-                            ((int) (_player.Position.X - MapConstants.TileOffsetX + xOffset) /
-                             MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.RoomWidth / 2f +
-                            MapConstants.TileOffsetX,
-                            (((int) (_player.Position.Y - MapConstants.TileOffsetY + yOffset) /
-                              MapConstants.RoomHeight) * MapConstants.RoomHeight +
-                             MapConstants.RoomHeight / 2f + MapConstants.TileOffsetY));
-                    _camera.Position = gridPosition;
-
-                    switch ( directionOfTravel ) {
-                        case Direction.Left:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    currentRoom.BottomRight.X -
-                                    ConvertUnits.ToSimUnits(halfScreenWidth),
-                                    gridPosition.Y);
-
-                            break;
-                        case Direction.Right:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    currentRoom.TopLeft.X +
-                                    ConvertUnits.ToSimUnits(halfScreenWidth),
-                                    gridPosition.Y);
-                            break;
-                        case Direction.Up:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    gridPosition.X, currentRoom.BottomRight.Y -
-                                                    ConvertUnits.ToSimUnits(halfScreenHeight));
-                            break;
-                        case Direction.Down:
-                            _nextCameraPosition =
-                                new Vector2(
-                                    gridPosition.X, currentRoom.TopLeft.Y +
-                                                    ConvertUnits.ToSimUnits(halfScreenHeight));
-                            break;
-                    }
-                } else { // different region, same room
-                    ClampCameraToRegion(TileLevel.CurrentLevel.GetNextRoom(_player.Position));
+                int xOffset = 0, yOffset = 0;
+                switch ( directionOfTravel ) {
+                    case Direction.Left:
+                        xOffset = 1;
+                        break;
+                    case Direction.Right:
+                        xOffset = -1;
+                        break;
+                    case Direction.Up:
+                        yOffset = 1;
+                        break;
+                    case Direction.Down:
+                        yOffset = -1;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
+
+                Vector2 gridPosition =
+                    new Vector2(
+                        ((int) (_player.Position.X - MapConstants.TileOffsetX + xOffset) /
+                         MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.RoomWidth / 2f +
+                        MapConstants.TileOffsetX,
+                        (((int) (_player.Position.Y - MapConstants.TileOffsetY + yOffset) /
+                          MapConstants.RoomHeight) * MapConstants.RoomHeight +
+                         MapConstants.RoomHeight / 2f + MapConstants.TileOffsetY));
+                _camera.Position = gridPosition;
+
+                switch ( directionOfTravel ) {
+                    case Direction.Left:
+                        _nextCameraPosition =
+                            new Vector2(
+                                PlayerPositionMonitor.Instance.CurrentRegion.BottomRight.X -
+                                ConvertUnits.ToSimUnits(halfScreenWidth),
+                                gridPosition.Y);
+
+                        break;
+                    case Direction.Right:
+                        _nextCameraPosition =
+                            new Vector2(
+                                PlayerPositionMonitor.Instance.CurrentRegion.TopLeft.X +
+                                ConvertUnits.ToSimUnits(halfScreenWidth),
+                                gridPosition.Y);
+                        break;
+                    case Direction.Up:
+                        _nextCameraPosition =
+                            new Vector2(
+                                gridPosition.X, PlayerPositionMonitor.Instance.CurrentRegion.BottomRight.Y -
+                                                ConvertUnits.ToSimUnits(halfScreenHeight));
+                        break;
+                    case Direction.Down:
+                        _nextCameraPosition =
+                            new Vector2(
+                                gridPosition.X, PlayerPositionMonitor.Instance.CurrentRegion.TopLeft.Y +
+                                                ConvertUnits.ToSimUnits(halfScreenHeight));
+                        break;
+                }
+            } else if (PlayerPositionMonitor.Instance.IsNewRegionChange()) {
+                ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
             }
         }
 
@@ -210,21 +202,20 @@ namespace Arena {
         public void ClampCameraToRegion(Region region) {
             Vector2 viewportCenter = ConvertUnits.ToSimUnits(_graphics.GraphicsDevice.Viewport.Width / 2f,
                                                              _graphics.GraphicsDevice.Viewport.Height / 2f);
-
             // Some rooms don't line up with the grid, so pretend they do for camera purposes.
-            Vector2 topLeft = SnapToGrid(region.TopLeft);
-            Vector2 bottomRight = SnapToGrid(region.BottomRight + new Vector2(1));
+            Vector2 topLeft = Room.SnapToRoomGrid(region.TopLeft);
+            Vector2 bottomRight = Room.SnapToRoomGrid(region.BottomRight + new Vector2(1));
 
             Vector2 minPosition = topLeft + viewportCenter - new Vector2(0, .125f);
             Vector2 maxPosition = bottomRight - viewportCenter + new Vector2(0, .125f);
 
             //Console.WriteLine("Max = {0}, min = {1}", maxPosition, minPosition);
 
-            if (maxPosition.X < minPosition.X) {
+            if ( maxPosition.X < minPosition.X ) {
                 float avgX = (maxPosition.X + minPosition.X) / 2;
                 maxPosition.X = avgX;
                 minPosition.X = avgX;
-            } 
+            }
 
             if ( maxPosition.Y < minPosition.Y ) {
                 float avgY = (maxPosition.Y + minPosition.Y) / 2;
@@ -232,9 +223,7 @@ namespace Arena {
                 minPosition.Y = avgY;
             }
 
-            _camera.MinPosition = minPosition;
-            _camera.MaxPosition = maxPosition;
-            _camera.ConstrainPosition = true;
+            _camera.ConstrainToRegion(minPosition, maxPosition);
         }
 
         /// <summary>
@@ -245,19 +234,6 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Returns room-grid-adjusted point
-        /// </summary>
-        /// <param name="?"></param>
-        /// <returns></returns>
-        private Vector2 SnapToGrid(Vector2 point) {
-            Vector2 gridPosition =
-                new Vector2(
-                    ((int) (point.X - MapConstants.TileOffsetX) / MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.TileOffsetX,
-                    (((int) (point.Y - MapConstants.TileOffsetY) / MapConstants.RoomHeight) * MapConstants.RoomHeight + MapConstants.TileOffsetY));
-            return gridPosition;
-        }
-
-        /// <summary>
         /// Immediately move the camera to its target position.
         /// </summary>
         public void JumpToTarget() {
@@ -265,8 +241,7 @@ namespace Arena {
         }
 
         private void UnclampCamera() {
-            _camera.MinPosition = _camera.MaxPosition;
-            _camera.ConstrainPosition = false;
+            _camera.IsConstrainPosition = false;
         }
 
         private void SetManualCamera() {

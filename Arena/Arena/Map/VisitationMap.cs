@@ -147,7 +147,7 @@ namespace Arena.Map {
                 // and a door if there's one in that wall.
 
                 // top
-                if ( !RoomContainsPoint(room, cellCenterX, cellCenterY - MapConstants.RoomHeight) ) {
+                if ( !room.Contains(cellCenterX, cellCenterY - MapConstants.RoomHeight) ) {
                     spriteBatch.Draw(_walls[TopWall], drawPosition, Color.White * wallAlpha);
                     Rectangle topWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX + 1,
@@ -161,7 +161,7 @@ namespace Arena.Map {
                 }
 
                 // right
-                if ( !RoomContainsPoint(room, cellCenterX + MapConstants.RoomWidth, cellCenterY) ) {
+                if ( !room.Contains(cellCenterX + MapConstants.RoomWidth, cellCenterY) ) {
                     spriteBatch.Draw(_walls[RightWall], drawPosition, Color.White * wallAlpha);
                     Rectangle rightWallIntersection =
                         new Rectangle((cellX + 1) * MapConstants.RoomWidth + MapConstants.TileOffsetX - 1,
@@ -175,7 +175,7 @@ namespace Arena.Map {
                 }
 
                 // bottom
-                if ( !RoomContainsPoint(room, cellCenterX, cellCenterY + MapConstants.RoomHeight) ) {
+                if ( !room.Contains(cellCenterX, cellCenterY + MapConstants.RoomHeight) ) {
                     spriteBatch.Draw(_walls[BottomWall], drawPosition, Color.White * wallAlpha);
                     Rectangle bottomWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX + 1,
@@ -189,7 +189,7 @@ namespace Arena.Map {
                 }
 
                 // left
-                if ( !RoomContainsPoint(room, cellCenterX - MapConstants.RoomWidth, cellCenterY) ) {
+                if ( !room.Contains(cellCenterX - MapConstants.RoomWidth, cellCenterY) ) {
                     spriteBatch.Draw(_walls[LeftWall], drawPosition, Color.White * wallAlpha);
                     Rectangle leftWallIntersection =
                         new Rectangle(cellX * MapConstants.RoomWidth + MapConstants.TileOffsetX - 1,
@@ -202,16 +202,6 @@ namespace Arena.Map {
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns whether the room given contains the point given, consider non-rectangular room conglomerations.
-        /// </summary>
-        private bool RoomContainsPoint(Room room, int x, int y) {
-            if ( room.ID == null )
-                return room.Contains(x, y);
-            Room otherRoom = TileLevel.CurrentLevel.RoomAt(x, y);
-            return otherRoom != null && room.ID == otherRoom.ID;
         }
 
         /// <summary>

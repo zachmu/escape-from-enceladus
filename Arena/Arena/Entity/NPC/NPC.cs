@@ -80,9 +80,7 @@ namespace Arena.Entity.NPC {
         private bool _inConversation;
         private int _conversationLineNum;
 
-        public NPC(Color color, Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth) {
-            _topLeft = topLeft;
-            _bottomRight = bottomRight;
+        public NPC(Color color, Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth) : base(topLeft, bottomRight) {
             _color = color;
 
             _body = BodyFactory.CreateRectangle(world, .6f, CharacterHeight, 0f);

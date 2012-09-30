@@ -30,10 +30,17 @@ namespace Arena {
 
     public class Arena : Game {
         private readonly GraphicsDeviceManager _graphics;
+
+        public GraphicsDeviceManager GraphicsDeviceManager {
+            get { return _graphics; }
+        }
+
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
         private Texture2D _background;
+        private Texture2D _debugMarker;
         private Camera2D _camera;
+        private PlayerPositionMonitor _playerPositionMonitor;
         private CameraDirector _cameraDirector;
         private World _world;
         private DebugViewXNA _debugView;
@@ -61,6 +68,7 @@ namespace Arena {
         private const string ShaderVar1 = "Shader Var 1";
         private const String ShaderVar2 = "Shader Var 2";
         private const String ShaderVar3 = "Shader Var 3";
+        private const string DebugCamera = "DebugCamera";
 
         public const Category PlayerCategory = Category.Cat1;
         public const Category TerrainCategory = Category.Cat2;
@@ -104,14 +112,16 @@ namespace Arena {
             Constants.Register(new Constant(ShaderVar1, .5f, Keys.D1));
             Constants.Register(new Constant(ShaderVar2, .5f, Keys.D2));
             Constants.Register(new Constant(ShaderVar3, .6f, Keys.D3));
+            Constants.Register(new Constant(DebugCamera, .99f, Keys.C));
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
-            _player = new Player(new Vector2(73, 28), _world);
+            _player = new Player(new Vector2(73, 28), _world); // TODO: start position unnecessary, set in tile level
             _healthStatus = new HealthStatus();
             _inputHelper = new InputHelper();
 
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
+            _playerPositionMonitor = new PlayerPositionMonitor(_player);
             _mode = Mode.NormalControl;
 
             base.Initialize();
@@ -159,14 +169,17 @@ namespace Arena {
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
         public void DisposeRoom(Room disposeRoom) {
-            foreach ( IGameEntity gameEntity in _entities.Where(entity => !disposeRoom.Contains(entity.Position)) ) {
-                gameEntity.Dispose();
+            if ( disposeRoom != null ) {
+                foreach ( IGameEntity gameEntity in _entities.Where(entity => !disposeRoom.Contains(entity.Position)) ) {
+                    gameEntity.Dispose();
+                }
+                _mode = Mode.RoomTransition;
             }
-            _mode = Mode.RoomTransition;
         }
 
         /// <summary>
         /// Loads assets for the room given
+        /// TODO: a transition / background manager should really handle this
         /// </summary>
         public void LoadRoom(Room room) {
             if ( room.BackgroundImage != null ) {
@@ -199,11 +212,11 @@ namespace Arena {
             _player.LoadContent(Content);
 
             LoadStaticContent();
-            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world,
-                                       _player.Position);
+            _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/Microscheme_0_edited");
+            _debugMarker = Content.Load<Texture2D>("Cross0000");
             //_background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
@@ -218,9 +231,13 @@ namespace Arena {
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _cameraDirector.TargetPlayer();            
+            // Boostrap the map position and current room data
+            _playerPositionMonitor.Update(new GameTime());
+
+            // Bootstrap camera position
+            _cameraDirector.TargetPlayer();
             _cameraDirector.JumpToTarget();
-            _cameraDirector.ClampCameraToRegion();
+            _cameraDirector.ClampCameraToRegion(_playerPositionMonitor.CurrentRegion);
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
@@ -302,8 +319,9 @@ namespace Arena {
             UpdateBackgroundAlpha();
 
             _camera.Update(gameTime);
-            _cameraDirector.Update(gameTime);
+            _playerPositionMonitor.Update(gameTime);
             _visitationMap.Update(gameTime);
+            _cameraDirector.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
@@ -311,6 +329,10 @@ namespace Arena {
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Steps the game world one frame, without updating any game entities.
+        /// </summary>
+        /// <param name="gameTime"></param>
         internal void StepWorld(GameTime gameTime) {
             float totalSeconds = gameTime == null ? 1f / 60f : (float) gameTime.ElapsedGameTime.TotalSeconds;
             _world.Step(Math.Min(totalSeconds, (1f / 30f)));
@@ -453,6 +475,12 @@ namespace Arena {
             }
 
             // Finally, debug info
+            if (Constants.Get(DebugCamera) >= 1) {
+                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
+                _camera.DebugDraw(_spriteBatch, _debugMarker);
+                _spriteBatch.End();
+            }
+
             DebugDraw();
 
             base.Draw(gameTime);
