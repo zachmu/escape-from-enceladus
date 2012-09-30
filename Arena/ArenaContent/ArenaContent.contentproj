@@ -2730,8 +2730,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cross0000.png">
+    <Compile Include="Debug\Cross0000.png">
       <Name>Cross0000</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Debug\Cross0001.png">
+      <Name>Cross0001</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

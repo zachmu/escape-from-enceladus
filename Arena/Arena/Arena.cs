@@ -216,7 +216,6 @@ namespace Arena {
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _background = Content.Load<Texture2D>("Background/Microscheme_0_edited");
-            _debugMarker = Content.Load<Texture2D>("Cross0000");
             //_background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
@@ -233,7 +232,7 @@ namespace Arena {
 
             // Boostrap the map position and current room data
             _playerPositionMonitor.Update(new GameTime());
-
+           
             // Bootstrap camera position
             _cameraDirector.TargetPlayer();
             _cameraDirector.JumpToTarget();
@@ -256,6 +255,7 @@ namespace Arena {
             VisitationMap.LoadContent(Content);
             NPC.LoadContent(Content);
             Constants.font = Content.Load<SpriteFont>("DebugFont");
+            Camera2D.LoadContent(Content);
             DebugFont = Content.Load<SpriteFont>("DebugFont");
         }
 
@@ -477,7 +477,7 @@ namespace Arena {
             // Finally, debug info
             if (Constants.Get(DebugCamera) >= 1) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-                _camera.DebugDraw(_spriteBatch, _debugMarker);
+                _camera.Draw(_spriteBatch);
                 _spriteBatch.End();
             }
 

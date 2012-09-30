@@ -7,6 +7,7 @@ using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -23,8 +24,10 @@ namespace Arena {
 
         private Vector2 _minPosition;
         private Vector2 _maxPosition;
+
         private Room _currentRoom;
         private bool _isConstrainedToRoom;
+        
         private float _minRotation;
         private float _maxRotation;
 
@@ -33,6 +36,7 @@ namespace Arena {
         private Body _trackingBody;
 
         private Vector2 _targetPosition;
+        private Vector2 _unconstrainedTargetPosition;
         private float _targetRotation;
         private readonly Vector2 _translateCenter;
 
@@ -128,6 +132,7 @@ namespace Arena {
         /// </summary>
         public void MoveTarget(Vector2 delta) {
             _targetPosition = _currentPosition + delta;
+            _unconstrainedTargetPosition = _targetPosition;
             if ( IsConstrainPosition ) {
                 if ( _isConstrainedToRoom ) {
                     _currentRoom.ClosestAreaOfConstraint(_targetPosition, out _minPosition, out _maxPosition);
@@ -190,6 +195,7 @@ namespace Arena {
         /// Moves the camera forward one timestep.
         /// </summary>
         public void Update(GameTime gameTime) {
+
             if ( _trackingBody != null ) {
                 if ( _positionTracking ) {
                     _targetPosition = _trackingBody.Position;
@@ -266,8 +272,17 @@ namespace Arena {
             return new Vector2(t.X, t.Y);
         }
 
-        public void DebugDraw(SpriteBatch batch, Texture2D debugMarker) {
-            batch.Draw(debugMarker, ConvertUnits.ToDisplayUnits(_targetPosition), null, Color.White, 0, new Vector2(debugMarker.Width / 2f, debugMarker.Height / 2f), 1f, SpriteEffects.None, 1f);
+        private static Texture2D greenCross;
+        private static Texture2D redCross;
+
+        public static void LoadContent(ContentManager cm) {
+            greenCross = cm.Load<Texture2D>("Debug/Cross0000");
+            redCross = cm.Load<Texture2D>("Debug/Cross0001");
+        }
+
+        public void Draw(SpriteBatch batch) {
+            batch.Draw(redCross, ConvertUnits.ToDisplayUnits(_unconstrainedTargetPosition), null, Color.White, 0, new Vector2(redCross.Width / 2f, redCross.Height / 2f), 1f, SpriteEffects.None, 1f);
+            batch.Draw(greenCross, ConvertUnits.ToDisplayUnits(_targetPosition), null, Color.White, 0, new Vector2(greenCross.Width / 2f, greenCross.Height / 2f), 1f, SpriteEffects.None, 1f);
         }
 
         #region unused

@@ -79,7 +79,6 @@ namespace Arena.Map {
             _previousRegion = CurrentRegion;
             _previousRoom = CurrentRoom;
 
-            // TODO: region change only on change leaving old region
             _currentRoom = TileLevel.CurrentLevel.RoomAt(_player.Position);
             List<Region> regions = CurrentRoom.RegionsAt(_player.Position);
             if ( _currentRegion == null || !regions.Contains(_currentRegion) ) {
