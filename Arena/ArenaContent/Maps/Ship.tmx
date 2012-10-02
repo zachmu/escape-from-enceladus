@@ -16,7 +16,7 @@
    </properties>
   </tile>
  </tileset>
- <layer name="Room Grid" width="400" height="220">
+ <layer name="Room Grid" width="400" height="220" visible="0">
   <properties>
    <property name="invisible" value="true"/>
   </properties>
@@ -39,10 +39,26 @@
    <property name="foreground" value="true"/>
   </properties>
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+3c2wmDMAAFUKdwglbn6BA6T0dvhRYkBJvGZ/QckBiN6JeXPLSqAAAAjqPeub6mJZ+tTiwBAAAAAAAAAACIu/1ZB2Bdpax/vSfWhxxpquo57LeRdgBcS2r/Y8iL9pMfTaQdAABQplLGvgBY3xqZkPJ/kq3OAQAAAHBOxoQAAAAAAICS5M5tmBMBICQbAAAAAMhRB2XO/tx7p3rMOAbAdckPAHLEciHWh5EfAIyljndZ6wVwHt7pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACUontv/d4PAQAAAMDl9KOtC+qx8aqptlPXAQAAAAAAHMl3vgMAAGBLfVACwC9hdsgQAAAAAADgyFL/S7JEGwDIIUMAyKUvAgAAbE0fBIBcMgQAAAAAADgj3xoCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS3kB408GMgBfBQA=
+   H4sIAAAAAAAAC+3cUW7CIAAG4J6iz3vY9BruEPq8o+xoO4pHEZKaNA1WhlKl/b6EAC1GnvwD1HYdAADA++hf3K/pmXPrM2sAAAAAAAAAAADSPv/ZB6CuVp5//crsxxzZdd1vbO8T4wDYltz1R8yL/ZAfu8Q4AACgTa3sfQFQX41MyHk/yVL3AAAAAFgne0IAAAAAAEBLSs82nIkAMCUbAAAAACjRT+qS9qPfnev7gWsAbJf8AKBEKhdSaxj5AcBY7n6XZ70A1sNvOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArTiGcnr1JAAAAADYnNOoHCf91H7V3Ni5zwEAAAAAALyT63kHAABAbWH98RfKYWh34xoA7plmhz0tAO4JmfFz4/p52ZkA0JKQEx83rp+XnQkArYnnIEN9GNcAbFfue0liZlzrubFz9wCghAwBoJS1CAAAsDRrEABKyRAAAAAAAGCN/NcQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeJYLQRIRCgBfBQA=
   </data>
  </layer>
- <objectgroup name="Rooms" width="400" height="220">
+ <layer name="Foreground2" width="400" height="220">
+  <properties>
+   <property name="foreground" value="true"/>
+  </properties>
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3YIQ4AIAwDwL0SzdP3FBQJoDAEEu5MJ2vXCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4X4mow533mgAAAD/pv8iQebEOAAAAAEzW3cp+BcCusiQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMBpDSdcGPQAXwUA
+  </data>
+ </layer>
+ <layer name="Foreground3" width="400" height="220">
+  <properties>
+   <property name="foreground" value="true"/>
+  </properties>
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+3OMQEAMAgDsKrkRvqkTAG8PImCJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAppJ3fQAAAACASSV9fQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAzQdZZOEnAF8FAA==
+  </data>
+ </layer>
+ <objectgroup name="Rooms" width="400" height="220" visible="0">
   <object x="3919" y="77" width="1266" height="679"/>
   <object x="3906" y="768" width="2536" height="694"/>
   <object x="3910" y="1483" width="2549" height="683"/>
@@ -69,7 +85,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup name="Doors" width="400" height="220">
+ <objectgroup name="Doors" width="400" height="220" visible="0">
   <object x="2585" y="334" width="94" height="164"/>
   <object x="3861" y="534" width="79" height="155"/>
   <object x="2573" y="1040" width="94" height="164"/>
@@ -81,7 +97,7 @@
   <object x="3075" y="2121" width="244" height="113"/>
   <object x="5118" y="4612" width="118" height="186"/>
  </objectgroup>
- <objectgroup name="Destruction" width="400" height="220">
+ <objectgroup name="Destruction" width="400" height="220" visible="0">
   <object x="5753" y="1090" width="61" height="53"/>
   <object x="4671" y="1280" width="60" height="127"/>
   <object x="3962" y="1280" width="190" height="120"/>
@@ -91,7 +107,7 @@
   <object x="3272" y="3908" width="300" height="248"/>
   <object x="3136" y="3768" width="116" height="64"/>
  </objectgroup>
- <objectgroup name="NPC" width="400" height="220">
+ <objectgroup name="NPC" width="400" height="220" visible="0">
   <object name="ProfessorIapetus" x="5182" y="1764" width="163" height="216">
    <properties>
     <property name="Face" value="left"/>
@@ -108,7 +124,7 @@
   <object name="EnsignGibe" x="6079" y="961" width="122" height="187"/>
   <object name="EnsignClew" x="896" y="179" width="446" height="137"/>
  </objectgroup>
- <objectgroup name="Enemies" width="400" height="220">
+ <objectgroup name="Enemies" width="400" height="220" visible="0">
   <object name="beetle" x="3214" y="3735" width="36" height="25"/>
   <object name="beetle" x="3470" y="3873" width="36" height="25">
    <properties>
@@ -117,7 +133,7 @@
   </object>
   <object name="worm" x="2836" y="4132" width="208" height="76"/>
  </objectgroup>
- <objectgroup name="PlayerStart" width="400" height="220">
+ <objectgroup name="PlayerStart" width="400" height="220" visible="0">
   <object x="2939" y="3047" width="54" height="60"/>
  </objectgroup>
 </map>

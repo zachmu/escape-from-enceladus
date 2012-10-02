@@ -219,20 +219,11 @@ namespace Arena.Map {
         }
 
         public void Update(GameTime gameTime) {
-            Layer blockLayer = _map.Layers["Blocks"];
             foreach ( Tile tile in _destroyedTiles ) {
                 tile.Update(gameTime);
-                int x = (int) tile.Position.X;
-                int y = (int) tile.Position.Y;
-                int index = y * Width + x;
-                Tile blockLayerTile = blockLayer.GetTile(x, y);
-                if ( blockLayerTile != null ) {
-                    blockLayerTile.Update(gameTime);
-                }
             }
 
             _destroyedTiles.RemoveAll(tile => !tile.Disposed && tile.Age > Tile.FadeInTime);
-            //_destroyedTiles.Remove
         }
     }
 
@@ -259,7 +250,7 @@ namespace Arena.Map {
 
         private Layer _layer;
 
-        private Layer GetLayer() {
+        internal Layer GetLayer() {
             return _layer;
         }
 
@@ -370,19 +361,24 @@ namespace Arena.Map {
 
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(Position + new Vector2(.5f));
             TileInfo tileInfo = GetLayer()._map.GetTileInfoCache()[_tileInfoIndex];
+
             int index = ((int) Position.Y * GetLayer().Width) + (int) Position.X;
 
             byte flipAndRotate = GetLayer().FlipAndRotate[index];
             SpriteEffects flipEffect = SpriteEffects.None;
             float rotation = 0f;
+            String HVR = "";
 
             if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 ) {
                 flipEffect |= SpriteEffects.FlipHorizontally;
+                HVR += "H";
             }
             if ( (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
                 flipEffect |= SpriteEffects.FlipVertically;
+                HVR += "V";
             }
             if ( (flipAndRotate & Layer.DiagonallyFlipDrawFlag) != 0 ) {
+                HVR += "R";
                 if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 &&
                      (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
                     rotation = (float) (Math.PI / 2);
@@ -390,23 +386,26 @@ namespace Arena.Map {
                 } else if ( (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0 ) {
                     rotation = (float) -(Math.PI / 2);
                     flipEffect ^= SpriteEffects.FlipVertically;
+                } else if ( (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0 ) {
+                    rotation = (float) (Math.PI / 2);                 
+                    flipEffect ^= SpriteEffects.FlipHorizontally;
                 } else {
-                    rotation = (float) (Math.PI / 2);
+                    rotation = -(float) (Math.PI / 2);
                     flipEffect ^= SpriteEffects.FlipHorizontally;
                 }
             }
 
             batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle,
                        Color.White * alpha, rotation, new Vector2(32), 1f, flipEffect, 0);
+            //batch.DrawString(Arena.DebugFont, HVR, displayPosition, Color.GreenYellow);
         }
 
         /// <summary>
         /// Intended for external callers only, this returns the tile info 
-        /// for the block layer corresponding to this tile.
+        /// for this tile.
         /// </summary>
-        public TileInfo GetBlockTextureInfo() {
-            int tileInfoIndex = GetLayer()._map.Layers["Blocks"].GetTile(this.Position)._tileInfoIndex;
-            return GetLayer()._map.GetTileInfoCache()[tileInfoIndex];
+        public TileInfo GetTextureInfo() {
+            return GetLayer()._map.GetTileInfoCache()[_tileInfoIndex];
         }
 
         public void Update(GameTime gameTime) {
@@ -570,22 +569,88 @@ namespace Arena.Map {
                                                  layer.GetUpTile(tile),
                                                  layer.GetDownTile(tile)
                                              };
+                String[] destroyedConnection = new string[] {
+                                                                "right",
+                                                                "left",
+                                                                "down",
+                                                                "up"
+                                                            };
+
                 // Destroy any adjacent tile with the "attached" tile property set
-                foreach ( Tile adj in adjacent ) {
+                for ( int i = 0; i < adjacent.Length; i++ ) {
+                    Tile adj = adjacent[i];
                     if ( adj != null ) {
                         TileInfo tileInfo = GetTileInfoCache()[adj._tileInfoIndex];
-                        int tilesetTileId = adj._tileInfoIndex + 1; // tileset indexes are 1-based
-                        if ( tileInfo.Tileset.TileProperties.ContainsKey(tilesetTileId) ) {
-                            Tileset.TilePropertyList tilePropertyList = tileInfo.Tileset.TileProperties[tilesetTileId];
-                            if ( tilePropertyList.ContainsKey("attached") ) {
+                        int tilesetTileId = adj._tileInfoIndex + 1;
+                        // tileset indexes are 1-based                            
+                        Tileset.TilePropertyList tileProperties = tileInfo.Tileset.GetTileProperties(tilesetTileId);
+
+                        // find out which tile this foreground tile has affinity for
+                        if ( tileProperties != null && tileProperties.ContainsKey("attached") ) {
+                            var attachment = GetTileAttachment(adj, tileProperties);
+
+                            if ( attachment == destroyedConnection[i] ) {
                                 tiles.Add(adj);
                             }
                         }
                     }
                 }
-
             }
+
             return tiles;
+        }
+
+        /// <summary>
+        /// Returns the effective tile attachment for the foreground tile given, taking 
+        /// rotation and mirroring into account.
+        /// </summary>
+        private static string GetTileAttachment(Tile tile, Tileset.TilePropertyList tileProperties) {
+            int index = ((int) tile.Position.Y * tile.GetLayer().Width) + (int) tile.Position.X;
+            byte flipAndRotate = tile.GetLayer().FlipAndRotate[index];
+            bool flipH = (flipAndRotate & Layer.HorizontalFlipDrawFlag) != 0;
+            bool flipV = (flipAndRotate & Layer.VerticalFlipDrawFlag) != 0;
+            bool flipR = (flipAndRotate & Layer.DiagonallyFlipDrawFlag) != 0;
+
+            string attachment = tileProperties["attached"];
+            switch ( attachment ) {
+                case "up":
+                    if ( flipH && flipR ) {
+                        attachment = "right";
+                    } else if ( flipV && !flipR ) {
+                        attachment = "down";
+                    } else if ( flipR && !flipH ) {
+                        attachment = "left";
+                    }
+                    break;
+                case "down":
+                    if ( flipH && flipR ) {
+                        attachment = "left";
+                    } else if ( flipV && !flipR ) {
+                        attachment = "up";
+                    } else if ( flipR && !flipH ) {
+                        attachment = "right";
+                    }
+                    break;
+                case "left":
+                    if ( flipH && flipR ) {
+                        attachment = "up";
+                    } else if ( flipV && !flipR ) {
+                        attachment = "right";
+                    } else if ( flipR && !flipH ) {
+                        attachment = "down";
+                    }
+                    break;
+                case "right":
+                    if ( flipH && flipR ) {
+                        attachment = "down";
+                    } else if ( flipV && !flipR ) {
+                        attachment = "left";
+                    } else if ( flipR && !flipH ) {
+                        attachment = "up";
+                    }
+                    break;
+            }
+            return attachment;
         }
     }
 }

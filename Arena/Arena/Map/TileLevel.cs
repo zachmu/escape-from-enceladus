@@ -244,7 +244,7 @@ namespace Arena.Map {
                     t.Dispose();
 
                     affectedTiles.Add(t);
-                    TileInfo tileInfo = t.GetBlockTextureInfo();
+                    TileInfo tileInfo = t.GetTextureInfo();
 #if XBOX
                     int numPieces = 2;
 #else
@@ -263,7 +263,7 @@ namespace Arena.Map {
                     FindAdjacentSolidTiles(t).ForEach(tile => tile.DestroyAttachedBodies());
                     affectedTiles.Add(t);
                 }
-                RecreateEdges(affectedTiles);
+                RecreateEdges(affectedTiles.Where(tile => !tile.IsForeground()));
 
                 _tilesToRemove.Clear();
                 safeToAdd.ForEach(tile => _tilesToAdd.Remove(tile));

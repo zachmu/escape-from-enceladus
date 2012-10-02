@@ -38,7 +38,6 @@ namespace Arena {
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
         private Texture2D _background;
-        private Texture2D _debugMarker;
         private Camera2D _camera;
         private PlayerPositionMonitor _playerPositionMonitor;
         private CameraDirector _cameraDirector;
