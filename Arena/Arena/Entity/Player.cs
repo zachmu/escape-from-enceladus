@@ -30,7 +30,7 @@ namespace Arena.Entity {
 
         private const float CharacterStandingHeight = 1.9f;
         private const float CharacterStandingWidth = .6f;
-        private const float CharacterJumpingHeight = 1.6f;
+        private const float CharacterJumpingHeight = 1.7f;
         private const float CharacterJumpingWidth = .6f;
         private const float CharacterDuckingHeight = 1.3f;
         private const float CharacterDuckingWidth = .6f;
@@ -172,9 +172,6 @@ namespace Arena.Entity {
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
                              null, color, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
                              _facingDirection == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);            
-            foreach ( IGameEntity shot in _shots ) {
-                shot.Draw(spriteBatch, camera);
-            }
         }
 
         /// <summary>
@@ -371,20 +368,7 @@ namespace Arena.Entity {
 
             HandleSonar(gameTime);
 
-            UpdateShots(gameTime);
-
             UpdateFlash(gameTime);
-        }
-
-        /// <summary>
-        /// Updates all the shots owned by the player
-        /// </summary>
-        /// <param name="gameTime"></param>
-        private void UpdateShots(GameTime gameTime) {
-            foreach ( IGameEntity shot in _shots ) {
-                shot.Update(gameTime);
-            }
-            _shots.RemoveAll(shot => shot.Disposed);
         }
 
         /// <summary>
@@ -418,16 +402,16 @@ namespace Arena.Entity {
                     } else {
                         pos = _body.Position + new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);                                                
                     }
-                    _shots.Add(new Bomb(pos, _world, _facingDirection));
+                    Arena.Instance.Register(new Bomb(pos, _world, _facingDirection));
                 } else {
                     Direction shotDirection;
                     var position = GetShotParameters(out shotDirection);
-                    _shots.Add(new Shot(position, _world, shotDirection));
+                    Arena.Instance.Register(new Shot(position, _world, shotDirection));
                 }
             } else if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
-                _shots.Add(new Missile(position, _world, shotDirection));
+                Arena.Instance.Register(new Missile(position, _world, shotDirection));
             }
         }
 
@@ -606,6 +590,8 @@ namespace Arena.Entity {
             return position;
         }
 
+        #region ShotAdjustments
+
         private static readonly Vector2 ShotAdjustmentStandingRight = new Vector2(-.08f, .08f);
         private static readonly Vector2 ShotAdjustmentStandingUp = new Vector2(.1f, 0f);
         private static readonly Vector2 ShotAdjustmentStandingUpRight = new Vector2(-.02f, .22f);
@@ -621,6 +607,8 @@ namespace Arena.Entity {
         private static readonly Vector2 ShotAdjustmentJumpingUpRight = new Vector2(.06f, .19f);
         private static readonly Vector2 ShotAdjustmentJumpingDownRight = new Vector2(.06f, .40f);
         private static readonly Vector2 ShotAdjustmentJumpingDown = new Vector2(.16f, -.20f);
+
+        #endregion
 
         /// <summary>
         /// Handles movement input, both on the ground and in the air.
@@ -823,7 +811,7 @@ namespace Arena.Entity {
                 || InputHelper.Instance.IsNewButtonPress(Buttons.RightShoulder) ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
-                _shots.Add(new Sonar(_world, position, shotDirection));
+                Arena.Instance.Register(new Sonar(_world, position, shotDirection));
             }
         }
 
@@ -1447,8 +1435,6 @@ namespace Arena.Entity {
         }
 
         #endregion
-
-        private readonly List<IGameEntity> _shots = new List<IGameEntity>();
 
         public void HitBy(AbstractEnemy enemy) {
             Vector2 diff = Position - enemy.Position;

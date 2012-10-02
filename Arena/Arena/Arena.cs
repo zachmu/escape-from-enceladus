@@ -409,7 +409,7 @@ namespace Arena {
                                                 GraphicsDevice.Viewport.Bounds.Height), Color.White * _backgroundAlpha);
                 _spriteBatch.End();
 
-                // Block layer
+                // Background content
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _tileLevel.DrawBackground(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
                 _spriteBatch.End();
@@ -422,7 +422,7 @@ namespace Arena {
                 _player.Draw(_spriteBatch, _camera);
                 _spriteBatch.End();
 
-                // Foreground
+                // Foreground content
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _tileLevel.DrawForeground(_spriteBatch, _camera, _graphics.GraphicsDevice.Viewport.Bounds);
                 _spriteBatch.End();
@@ -511,8 +511,8 @@ namespace Arena {
 
             bool overlapping = false;
             Instance._world.QueryAABB(fixture => {
-                if ( fixture.GetUserData().IsPlayer || fixture.GetUserData().IsEnemy ||
-                        fixture.GetUserData().IsProjectile || fixture.GetUserData().IsDoor ) {
+                if ( !fixture.IsSensor && (fixture.GetUserData().IsPlayer || fixture.GetUserData().IsEnemy ||
+                                           fixture.GetUserData().IsProjectile || fixture.GetUserData().IsDoor) ) {
                     overlapping = true;
                     return false;
                 }

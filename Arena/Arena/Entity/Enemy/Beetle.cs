@@ -43,9 +43,6 @@ namespace Arena.Entity.Enemy {
 
         private Mode _mode = Mode.Walking;
         
-
-        private Direction _direction;
-
         protected override Texture2D Image {
             get { return _image; }
             set {
@@ -289,7 +286,7 @@ namespace Arena.Entity.Enemy {
             Vector2 cliffSensor = _body.GetWorldPoint(new Vector2(0, -.1f));
             bool cliffSensed = true;
             _world.RayCast((fixture, point, normal, fraction) => {
-                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor && !fixture.IsSensor ) {
                     cliffSensed = false;
                     return 0;
                 }
@@ -307,7 +304,7 @@ namespace Arena.Entity.Enemy {
 
             bool terrainSensed = false;
             _world.RayCast((fixture, point, normal, fraction) => {
-                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor ) {
+                if ( fixture.GetUserData().IsTerrain || fixture.GetUserData().IsDoor && !fixture.IsSensor ) {
                     terrainSensed = true;
                     return 0;
                 }

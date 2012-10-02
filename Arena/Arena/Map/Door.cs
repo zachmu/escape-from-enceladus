@@ -63,7 +63,6 @@ namespace Arena.Map {
             if (_orientation == Orientation.Vertical) {
                 DrawVertical(spriteBatch);
             } else {
-//                DrawVertical(spriteBatch);
                 DrawHorizontal(spriteBatch);
             }
         }
@@ -103,7 +102,6 @@ namespace Arena.Map {
             int fullDisplayWidth = (int) (TileLevel.TileDisplaySize * Width);
             Rectangle rect = new Rectangle(0, 0, TileLevel.TileDisplaySize, fullDisplayWidth);
 
-            float offset = 0;
             switch ( _state ) {
                 case State.Closed:
                     break;
@@ -156,16 +154,12 @@ namespace Arena.Map {
                 case State.Open:
                     if ( _msSinceLastStateChange >= Constants.Get(DoorStayOpenTime) * 1000 
                         && !Arena.EntitiesOverlapping(Aabb) ) {
-                        CreateBody();
-                        _state = State.Closing;
-                        _msSinceLastStateChange = 0;
+                        CloseDoor();
                     }
                     break;
                 case State.Opening:
                     if ( _msSinceLastStateChange >= Constants.Get(DoorOpenTime) * 1000 ) {
-                        DestroyBody();
-                        _state = State.Open;
-                        _msSinceLastStateChange = 0;
+                        OpenDoorFully();
                     }
                     break;
                 case State.Closing:
@@ -179,6 +173,18 @@ namespace Arena.Map {
             }
         }
 
+        private void OpenDoorFully() {
+            MakeDoorPassable();
+            _state = State.Open;
+            _msSinceLastStateChange = 0;
+        }
+
+        private void CloseDoor() {
+            MakeDoorSolid();
+            _state = State.Closing;
+            _msSinceLastStateChange = 0;
+        }
+
         private void CreateBody() {
             _body = BodyFactory.CreateRectangle(_world, Width, Height, 0);
             _body.IsStatic = true;
@@ -186,10 +192,24 @@ namespace Arena.Map {
             _body.UserData = UserData.NewDoor(this);
             _body.CollidesWith = Category.All;
             _body.CollisionCategories = Arena.TerrainCategory;
+            _body.OnSeparation += (a, b) => {
+                if ( b.GetUserData().IsPlayer ) {
+                    if ( _state == State.Open ) {
+                        CloseDoor();
+                        Console.WriteLine("Closing door");
+                    }
+                }
+            };
         }
 
-        private void DestroyBody() {
-            _body.Dispose();
+        private void MakeDoorPassable() {
+            _body.IsSensor = true;
+         //   _body.CollidesWith = Category.None;
+        }
+
+        private void MakeDoorSolid() {
+            _body.IsSensor = false;
+           // _body.CollidesWith = Category.All;
         }
 
         public void HitBy(Projectile shot) {

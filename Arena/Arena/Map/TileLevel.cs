@@ -246,7 +246,7 @@ namespace Arena.Map {
                     affectedTiles.Add(t);
                     TileInfo tileInfo = t.GetTextureInfo();
 #if XBOX
-                    int numPieces = 2;
+                    int numPieces = 3;
 #else
                     int numPieces = 4;
 #endif
@@ -257,7 +257,8 @@ namespace Arena.Map {
 
                 // When recreating tiles, we need to be careful not to recreate 
                 // any on top of the player or any other entities.
-                List<Tile> safeToAdd = _tilesToAdd.Where(tile => !tile.EntitiesOverlapping()).ToList();
+                List<Tile> safeToAdd = _tilesToAdd.Where(tile => tile.IsForeground() 
+                    || !tile.EntitiesOverlapping()).ToList();
                 foreach ( Tile t in safeToAdd ) {
                     t.Revive();
                     FindAdjacentSolidTiles(t).ForEach(tile => tile.DestroyAttachedBodies());
@@ -495,7 +496,7 @@ namespace Arena.Map {
         public void DestroyTile(Tile t) {
             if ( !t.Disposed ) {
                 _tilesToRemove.Add(t);
-                _levelMap.GetDestroyedForegroundBlocks(t).ForEach(tile => {
+                _levelMap.GetAttachedForegroundTiles(t).ForEach(tile => {
                                                                       if ( !tile.Disposed ) {
                                                                           _tilesToRemove.Add(tile);
                                                                       }

@@ -348,6 +348,9 @@ namespace Arena.Map {
 
             Console.WriteLine("Reviving tile at {0}", Position);
             Disposed = false;
+            if ( GetLayer().Name == "Blocks" ) {
+                GetLayer()._map.GetAttachedForegroundTiles(this).ForEach(tile => tile.Revive());
+            }
         }
 
         public void Draw(SpriteBatch batch) {
@@ -411,7 +414,7 @@ namespace Arena.Map {
         public void Update(GameTime gameTime) {
             if ( Disposed ) {
                 TimeUntilReappear -= gameTime.ElapsedGameTime.Milliseconds;
-                if ( TimeUntilReappear <= 0 ) {
+                if ( TimeUntilReappear <= 0 && !IsForeground() ) {
                     TileLevel.CurrentLevel.ReviveTile(this);
                 }
             } else {
@@ -532,7 +535,9 @@ namespace Arena.Map {
                 Layer layer in
                     Layers.Values.Where(
                         layer =>
-                        !layer.Properties.ContainsKey("invisible") && !layer.Properties.ContainsKey(Layer.Foreground)) ) {
+                        !layer.Properties.ContainsKey("invisible") 
+                        && !layer.Properties.ContainsKey(Layer.Foreground)
+                        && layer.Name != "Blocks") ) {
                 layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
         }
@@ -541,7 +546,7 @@ namespace Arena.Map {
             foreach (
                 Layer layer in
                     Layers.Values.Where(
-                        layer => layer.Properties.ContainsKey(Layer.Foreground)) ) {
+                        layer => layer.Properties.ContainsKey(Layer.Foreground) || layer.Name == "Blocks") ) {
                 layer.Draw(batch, Tilesets.Values, visibleWorld);
             }
         }
@@ -556,7 +561,7 @@ namespace Arena.Map {
         /// Returns a list of surrounding foreground tiles that should be destroyed when 
         /// this collision-layer tile is destroyed.
         /// </summary>
-        public List<Tile> GetDestroyedForegroundBlocks(Tile tile) {
+        public List<Tile> GetAttachedForegroundTiles(Tile tile) {
             List<Tile> tiles = new List<Tile>();
             foreach (
                 Layer layer in
@@ -565,7 +570,8 @@ namespace Arena.Map {
 
                 // TODO: merge with projectile hit code in TileLevel
                 Tile[] adjacent = new Tile[] {
-                                                 layer.GetLeftTile(tile), layer.GetRightTile(tile),
+                                                 layer.GetLeftTile(tile),
+                                                 layer.GetRightTile(tile),
                                                  layer.GetUpTile(tile),
                                                  layer.GetDownTile(tile)
                                              };
