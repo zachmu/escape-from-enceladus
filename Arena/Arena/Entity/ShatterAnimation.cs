@@ -110,7 +110,7 @@ namespace Arena.Entity {
             Vector2 velocity = new Vector2((float) (Math.Cos(direction) * linearVelocity),
                 (float) (Math.Sin(direction) * linearVelocity));
             body.LinearVelocity = velocity;
-            body.ApplyTorque((float) (linearVelocity / 5));
+            body.ApplyTorque((float) (random.NextDouble() * _maxVelocity / 20f));
         }
 
         public void Dispose() {
