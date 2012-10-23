@@ -2741,6 +2741,55 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\EnsignForecastle-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignForecastle-default</Name>
+    </None>
+    <None Include="Conversations\ChefHawser-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>ChefHawser-default</Name>
+    </None>
+    <None Include="Conversations\EnsignClew-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignClew-default</Name>
+    </None>
+    <None Include="Conversations\EnsignGibe-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignGibe-default</Name>
+    </None>
+    <None Include="Conversations\EnsignTaffrail-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignTaffrail-default</Name>
+    </None>
+    <None Include="Conversations\CaptainPurchase-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>CaptainPurchase-default</Name>
+    </None>
+    <None Include="Conversations\EnsignLeeward-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignLeeward-default</Name>
+    </None>
+    <None Include="Conversations\ChiefMizzen-default.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>ChiefMizzen-default</Name>
+    </None>
+    <None Include="Conversations\ProfessorIapetus-default.txt">
+      <Name>ProfessorIapetus-default</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

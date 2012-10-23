@@ -22,6 +22,7 @@ using Path = System.IO.Path;
 
 namespace Arena {
     
+    // TODO: this doesn't belong here
     enum Mode {
         NormalControl,
         RoomTransition,
@@ -47,13 +48,14 @@ namespace Arena {
         private Mode _mode;
         private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
+        private Conversation _currentConversation;
+        private ConversationManager _conversationManager;            
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
-        private NPC _conversationNPC;
 
         private static Arena _instance;
 
@@ -121,6 +123,7 @@ namespace Arena {
 
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
+            _conversationManager = new ConversationManager(Content);
             _mode = Mode.NormalControl;
 
             base.Initialize();
@@ -144,12 +147,12 @@ namespace Arena {
         }
 
         /// <summary>
-        /// Registers this NPC as having a conversation, which freezes the action
+        /// Registers a conversation as having started, which freezes the action.
         /// </summary>
-        public void StartConversation(NPC actor) {
+        public void ConversationStarted(Conversation conversation) {
             _modeStack.Push(_mode);
             _mode = Mode.Conversation;
-            _conversationNPC = actor;
+            _currentConversation = conversation;
         }
 
         /// <summary>
@@ -157,7 +160,7 @@ namespace Arena {
         /// </summary>
         public void EndConversation() {
             _mode = _modeStack.Pop();
-            _conversationNPC = null;
+            _currentConversation = null;
         }        
 
         // TODO: there is a better way to do this.
@@ -312,7 +315,7 @@ namespace Arena {
 
             } else if (_mode == Mode.Conversation) {
                 InputHelper.Instance.Update(gameTime);
-                _conversationNPC.Update(gameTime);
+                _currentConversation.Update(gameTime);
             }
 
             UpdateBackgroundAlpha();
@@ -469,7 +472,7 @@ namespace Arena {
             // Conversation is considered an overlay
             if ( IsInConversation ) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-                _conversationNPC.DrawConversationText(_spriteBatch, _camera);
+                _currentConversation.Draw(_spriteBatch, _camera);
                 _spriteBatch.End();
             }
 

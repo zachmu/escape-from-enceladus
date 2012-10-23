@@ -13,6 +13,12 @@ namespace Arena.Entity.NPC {
 
         private const float DefaultSensorWidth = 6f;
 
+        private static Dictionary<String, NPC> _npcs = new Dictionary<string, NPC>(); 
+
+        /// <summary>
+        /// Creates a new instance of the NPC map object given, 
+        /// storing that copy of the NPC for reference.
+        /// </summary>
         public static NPC Create(Object npc, World world) {
             Vector2 pos = ConvertUnits.ToSimUnits(npc.X, npc.Y);
             var topLeft = ConvertUnits.ToSimUnits(new Vector2(npc.X, npc.Y));
@@ -25,28 +31,37 @@ namespace Arena.Entity.NPC {
 
             switch ( npc.Name ) {
                 case "ProfessorIapetus":
-                    return new ProfessorIapetus(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["ProfessorIapetus"] = new ProfessorIapetus(topLeft, bottomRight, world, sensorWidth);
                 case "EnsignForecastle":
-                    return new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["EnsignForecastle"] = new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
                 case "ChefHawser":
-                    return new ChefHawser(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["ChefHawser"] = new ChefHawser(topLeft, bottomRight, world, sensorWidth);
                 case "EnsignClew":
-                    return new EnsignClew(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["EnsignClew"] = new EnsignClew(topLeft, bottomRight, world, sensorWidth);
                 case "EnsignLeeward":
-                    return new EnsignLeeward(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["EnsignLeeward"] = new EnsignLeeward(topLeft, bottomRight, world, sensorWidth);
                 case "CaptainPurchase":
-                    return new CaptainPurchase(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["CaptainPurchase"] = new CaptainPurchase(topLeft, bottomRight, world, sensorWidth);
                 case "EnsignGibe":
-                    return new EnsignGibe(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["EnsignGibe"] = new EnsignGibe(topLeft, bottomRight, world, sensorWidth);
                 case "EnsignTaffrail":
-                    return new EnsignTaffrail(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["EnsignTaffrail"] = new EnsignTaffrail(topLeft, bottomRight, world, sensorWidth);
                 case "ChiefMizzen":
-                    return new ChiefMizzen(topLeft, bottomRight, world, sensorWidth);
+                    return _npcs["ChiefMizzen"] = new ChiefMizzen(topLeft, bottomRight, world, sensorWidth);
                 default:
                     throw new ArgumentException("Unrecognized NPC name " + npc.Name);
             }
+        }
 
-            return null;
+        /// <summary>
+        /// Returns the NPC with the name given.  The NPC must have previous been created.
+        /// </summary>
+        public static IDialogEntity Get(String npcName) {
+            if ( npcName == "Roark" ) {
+                return new PlayerDialog();
+            }
+
+            return _npcs[npcName];
         }
     }
 }

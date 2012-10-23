@@ -1,0 +1,4 @@
+﻿CaptainPurchase: At ease, Lieutenant.
+CaptainPurchase: ...just right now, I mean. In general, keep your eyes open and your ears peeled!
+CaptainPurchase: Iapetus is not to be trusted. He's managed to escape the Planetary Union too many times!
+CaptainPurchase: But not this time! And you're in charge of making sure of that!

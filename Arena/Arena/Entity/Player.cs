@@ -91,6 +91,7 @@ namespace Arena.Entity {
         private long _timeUntilRegainControl;
 
         private Color _color = Color.SteelBlue;
+        public Color Color { get { return _color; } }
 
         public bool Disposed {
             get { return false; }

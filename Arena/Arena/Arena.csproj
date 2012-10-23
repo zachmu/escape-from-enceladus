@@ -116,6 +116,10 @@
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\Worm.cs" />
     <Compile Include="Entity\NPC\Characters.cs" />
+    <Compile Include="Entity\NPC\IDialogEntity.cs" />
+    <Compile Include="Entity\NPC\PlayerDialog.cs" />
+    <Compile Include="Entity\NPC\Conversation.cs" />
+    <Compile Include="Entity\NPC\ConversationManager.cs" />
     <Compile Include="Entity\NPC\NPC.cs" />
     <Compile Include="Entity\NPC\NPCFactory.cs" />
     <Compile Include="Entity\ShatterAnimation.cs" />

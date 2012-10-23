@@ -18,7 +18,7 @@ namespace Arena.Entity.NPC {
     /// <summary>
     /// NPC character that you can talk to.
     /// </summary>
-    public class NPC : Region, IGameEntity {
+    public abstract class NPC : Region, IGameEntity, IDialogEntity {
 
         private bool _disposed;
 
@@ -30,15 +30,6 @@ namespace Arena.Entity.NPC {
         private const int NumUnarmedWalkFrames = 27;
         private const float CharacterHeight = 1.9f;
         private const int HorizontalMargin = 40;
-
-        private String[] conversation = new String[] {
-                                                     "I hope this dialogue references a popular meme.",
-                                                     "There is no way I'm buying this game otherwise."
-                                                 };
-
-        protected virtual String[] GetConversation() {
-            return conversation;
-        }
 
         protected static int MaxDialogWidth = 450;
 
@@ -78,9 +69,14 @@ namespace Arena.Entity.NPC {
         private int _contactCount = 0;
         private bool _playerNearby;
         private bool _inConversation;
-        private int _conversationLineNum;
+        private string _name;
 
-        public NPC(Color color, Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth) : base(topLeft, bottomRight) {
+        public string Name {
+            get { return _name; }
+        }
+
+        public NPC(String name, Color color, Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth) : base(topLeft, bottomRight) {
+            _name = name;
             _color = color;
 
             _body = BodyFactory.CreateRectangle(world, .6f, CharacterHeight, 0f);
@@ -159,17 +155,21 @@ namespace Arena.Entity.NPC {
         }
 
         /// <summary>
-        /// Drawing the conversation must happen in a different layer than the character, so is split out
+        /// Draws the conversation text given in a text box above the NPC
         /// </summary>
-        public void DrawConversationText(SpriteBatch spriteBatch, Camera2D camera) {
+        public virtual void DrawConversationText(SpriteBatch spriteBatch, Camera2D camera, string text) {
             Vector2 position = _body.Position;
             position.Y -= CharacterHeight / 2 + 1.5f;
-
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+            DrawText(spriteBatch, _color, camera, text, displayPosition);
+        }
 
+        /// <summary>
+        /// Draws the text given centered at the position given.
+        /// </summary>
+        internal static void DrawText(SpriteBatch spriteBatch, Color color, Camera2D camera, string text, Vector2 displayPosition) {
             // split the string with newlines to get the width right
             StringBuilder sb = new StringBuilder();
-            string text = GetConversation()[_conversationLineNum];
             int left = 0, right = text.Length - 1;
             while ( left < right ) {
                 string substring = text.Substring(left, right - left + 1);
@@ -211,23 +211,15 @@ namespace Arena.Entity.NPC {
                                            (int) stringSize.Y - 30), Color.Black * .65f);
 
             // Finally, draw the text shadowed. This involves drawing the text twice, darker then lighter.
-            Color shadow = Color.Lerp(_color, Color.Black, .5f);
+            Color shadow = Color.Lerp(color, Color.Black, .5f);
             spriteBatch.DrawString(Font, sb, displayPosition + new Vector2(3), shadow);
-            spriteBatch.DrawString(Font, sb, displayPosition, _color);
+            spriteBatch.DrawString(Font, sb, displayPosition, color);
         }
 
         public void Update(GameTime gameTime) {
             _playerNearby = _contactCount > 0;
 
-            if ( _inConversation ) {
-                if ( new Buttons[] { Buttons.A, Buttons.B, Buttons.Y, Buttons.X }.ToList().Any(
-                    button => InputHelper.Instance.IsNewButtonPress(button)) ) {
-                    _conversationLineNum++;
-                    if ( _conversationLineNum >= GetConversation().Length ) {
-                        StopConversation();
-                    }
-                }
-            } else if ( _mode == Mode.Walking ) {
+            if ( _mode == Mode.Walking ) {
                 if ( !Contains(_body.Position) ) {
                     _facingDirection = _body.Position.X > BottomRight.X ? Direction.Left : Direction.Right;
                 }
@@ -259,7 +251,7 @@ namespace Arena.Entity.NPC {
 
             if ( _playerNearby ) {
                 if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) && !Arena.Instance.IsInConversation ) {
-                    StartConversation();
+                    ConversationManager.Instance.StartConversation(this);
                 }
             }
 
@@ -280,17 +272,17 @@ namespace Arena.Entity.NPC {
             }
         }
 
-        private void StartConversation() {
-            Arena.Instance.StartConversation(this);
+        /// <summary>
+        /// Initiates conversation mode
+        /// </summary>
+        public void StartConversation() {
             _inConversation = true;
-            _conversationLineNum = 0;
             _body.LinearVelocity = Vector2.Zero;
             _mode = Mode.Standing;
             _facingDirection = Player.Instance.Position.X < _body.Position.X ? Direction.Left : Direction.Right;
         }
 
-        private void StopConversation() {
-            Arena.Instance.EndConversation();
+        public void StopConversation() {
             _inConversation = false;
         }
     }
