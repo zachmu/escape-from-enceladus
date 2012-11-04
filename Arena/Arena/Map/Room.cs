@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Arena.Map {
-    
+
     /// <summary>
     /// A room is a logical unit of the map bounded by one or more doors or secret passages.
     /// It comprises one or more overlapping rectangular regions.
@@ -16,7 +16,7 @@ namespace Arena.Map {
     public class Room {
         private string _id;
         private string _backgroundImage;
-        private readonly List<Region> _regions = new List<Region>(); 
+        private readonly List<Region> _regions = new List<Region>();
 
         /// <summary>
         /// Creates a room consisting of exactly one region.
@@ -54,9 +54,13 @@ namespace Arena.Map {
             _regions.Add(new Region(topLeft, bottomRight));
         }
 
-        public String BackgroundImage { get { return _backgroundImage; } }
+        public String BackgroundImage {
+            get { return _backgroundImage; }
+        }
 
-        public String ID { get { return _id; } }
+        public String ID {
+            get { return _id; }
+        }
 
         public bool Contains(Vector2 position) {
             return _regions.Any(region => region.Contains(position));
@@ -87,37 +91,59 @@ namespace Arena.Map {
         public static Vector2 SnapToRoomGrid(Vector2 point) {
             Vector2 gridPosition =
                 new Vector2(
-                    ((int) (point.X - MapConstants.TileOffsetX) / MapConstants.RoomWidth) * MapConstants.RoomWidth + MapConstants.TileOffsetX,
-                    (((int) (point.Y - MapConstants.TileOffsetY) / MapConstants.RoomHeight) * MapConstants.RoomHeight + MapConstants.TileOffsetY));
+                    ((int) (point.X - MapConstants.TileOffsetX) / MapConstants.RoomWidth) * MapConstants.RoomWidth +
+                    MapConstants.TileOffsetX,
+                    (((int) (point.Y - MapConstants.TileOffsetY) / MapConstants.RoomHeight) * MapConstants.RoomHeight +
+                     MapConstants.TileOffsetY));
             return gridPosition;
         }
 
-        private List<Vector2> _endpoint1;
-        private List<Vector2> _endpoint2;         
+        #region cameracontrol
+
+        /// <summary>
+        /// Parralel lists of lines of camera constraint.  The camera will restrict its movement to these lines.
+        /// </summary>
+        private List<Vector2> _cameraConstraintEndpoint1;
+
+        private List<Vector2> _cameraConstraintEndpoint2;
+
+        /// <summary>
+        /// For single-screen rooms, the camera constraint is just a point.
+        /// </summary>
+        private bool _singlePointConstraint;
+        private Vector2 _cameraCenter;
 
         public void ClosestAreaOfConstraint(Vector2 point, out Vector2 min, out Vector2 max) {
-            min = new Vector2();
-            max = new Vector2();
-            
             InitializeMinMaxCache();
-            float minDist = float.MaxValue;
-            for (int i = 0; i < _endpoint1.Count; i++) {
-                float dist = DistanceBetweenPointAndLine(_endpoint1[i], _endpoint2[i], point);
-                if (dist < minDist) {
-                    minDist = dist;
-                    min = _endpoint1[i];
-                    max = _endpoint2[i];
+
+            if ( _singlePointConstraint ) {
+                min = max = _cameraCenter;
+            } else {
+
+                min = new Vector2();
+                max = new Vector2();
+
+                float minDist = float.MaxValue;
+                for ( int i = 0; i < _cameraConstraintEndpoint1.Count; i++ ) {
+                    float dist = DistanceBetweenPointAndLine(_cameraConstraintEndpoint1[i],
+                                                             _cameraConstraintEndpoint2[i],
+                                                             point);
+                    if ( dist < minDist ) {
+                        minDist = dist;
+                        min = _cameraConstraintEndpoint1[i];
+                        max = _cameraConstraintEndpoint2[i];
+                    }
                 }
             }
         }
 
         private void InitializeMinMaxCache() {
-            if (_endpoint1 == null) {
-                _endpoint1 = new List<Vector2>();
-                _endpoint2 = new List<Vector2>();
-                foreach (Region region in _regions) {
+            if ( _cameraConstraintEndpoint1 == null ) {
+                _cameraConstraintEndpoint1 = new List<Vector2>();
+                _cameraConstraintEndpoint2 = new List<Vector2>();
+                foreach ( Region region in _regions ) {
                     Vector2 viewportCenter = ConvertUnits.ToSimUnits(Arena.Instance.GraphicsDevice.Viewport.Width / 2f,
-                                                 Arena.Instance.GraphicsDevice.Viewport.Height / 2f);
+                                                                     Arena.Instance.GraphicsDevice.Viewport.Height / 2f);
 
                     // Some rooms don't line up with the grid, so pretend they do for camera purposes.
                     Vector2 topLeft = Room.SnapToRoomGrid(region.TopLeft);
@@ -140,19 +166,26 @@ namespace Arena.Map {
                         minPosition.Y = avgY;
                     }
 
+                    // If min = max, then this is a one-screen space.  Record it.
+                    // TODO: this will only work if the entire room is one screen.
+                    if ( maxPosition == minPosition ) {
+                        _singlePointConstraint = true;
+                        _cameraCenter = maxPosition;
+                    }
+
                     // For each set of min, max, we store the (at most) four edges of that rectangle for easy lookup
-                    CacheEndpoints(minPosition, new Vector2(maxPosition.X, minPosition.Y));
-                    CacheEndpoints(minPosition, new Vector2(minPosition.X, maxPosition.Y));
-                    CacheEndpoints(new Vector2(minPosition.X, maxPosition.Y), maxPosition);
-                    CacheEndpoints(new Vector2(maxPosition.X, minPosition.Y), maxPosition);
+                    CacheCameraConstraintEndpoints(minPosition, new Vector2(maxPosition.X, minPosition.Y));
+                    CacheCameraConstraintEndpoints(minPosition, new Vector2(minPosition.X, maxPosition.Y));
+                    CacheCameraConstraintEndpoints(new Vector2(minPosition.X, maxPosition.Y), maxPosition);
+                    CacheCameraConstraintEndpoints(new Vector2(maxPosition.X, minPosition.Y), maxPosition);
                 }
             }
         }
 
-        private void CacheEndpoints(Vector2 endpoint1, Vector2 endpoint2) {
-            if (endpoint1 != endpoint2) {
-                _endpoint1.Add(endpoint1);
-                _endpoint2.Add(endpoint2);
+        private void CacheCameraConstraintEndpoints(Vector2 endpoint1, Vector2 endpoint2) {
+            if ( endpoint1 != endpoint2 ) {
+                _cameraConstraintEndpoint1.Add(endpoint1);
+                _cameraConstraintEndpoint2.Add(endpoint2);
             }
         }
 
@@ -163,4 +196,6 @@ namespace Arena.Map {
             return ((a - point) - (Vector2.Dot(a - point, n) * n)).Length();
         }
     }
+
+    #endregion
 }

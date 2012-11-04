@@ -94,8 +94,7 @@ namespace Arena {
             float spriteHeight = ConvertUnits.ToDisplayUnits(_player.Height);
             float spriteWidth = ConvertUnits.ToDisplayUnits(_player.Width);
 
-            int maxx =
-                (int) (viewportMargin.Right - spriteWidth);
+            int maxx = (int) (viewportMargin.Right - spriteWidth);
             int minx = viewportMargin.Left;
             int maxy = (int) (viewportMargin.Bottom - spriteHeight);
             int miny = viewportMargin.Top;
