@@ -1,0 +1,11 @@
+Escape From Enceladus is an indie Metroidvania game for the PC and XBox360.
+
+http://gamedev.sleptlate.org/blog/
+
+The game itself is under the "Arena" project, since it was started as a test bed and never renamed. It requires XNA Game Studio and Visual Studio to build, and is only tested with a wired XBox360 USB controller on Windows 7.
+
+This project includes a redistribution of the Farseer Physics Engine with a minor bug fix.
+
+http://farseerphysics.codeplex.com/
+
+Farseer is licensed separately under the Ms-PL, not the Apache License.
