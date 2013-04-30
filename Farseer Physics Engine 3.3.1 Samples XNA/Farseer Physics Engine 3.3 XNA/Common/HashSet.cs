@@ -31,7 +31,9 @@ namespace FarseerPhysics.Common
         public void Add(T item)
         {
             // We don't care for the value in dictionary, Keys matter.
-            _dict.Add(item, 0);
+            if ( !Contains(item) ) {
+                _dict.Add(item, 0);
+            }
         }
 
         public void Clear()
