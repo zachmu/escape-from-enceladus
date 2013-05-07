@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Arena.Control;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -51,8 +52,11 @@ namespace Arena.Entity.NPC {
         /// Updates the conversation with a button press.
         /// </summary>
         public void Update(GameTime gameTime) {
-            if ( new Buttons[] { Buttons.A, Buttons.B, Buttons.Y, Buttons.X }.ToList().Any(
-                button => InputHelper.Instance.IsNewButtonPress(button)) ) {
+            bool shouldAdvance = (PlayerControl.Control.IsKeyboardControl() &&
+                                  InputHelper.Instance.GetNewKeyPresses().Any()) ||
+                                 new Buttons[] {Buttons.A, Buttons.B, Buttons.X, Buttons.Y,}.ToList().Any(
+                                     button => InputHelper.Instance.IsNewButtonPress(button));
+            if ( shouldAdvance ) {
                 _currentLine++;
                 if ( _currentLine >= _lines.Count ) {
                     Arena.Instance.EndConversation();

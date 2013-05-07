@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arena.Control;
 using Arena.Entity.Enemy;
 using Arena.Farseer;
 using Arena.Weapon;
@@ -353,7 +354,6 @@ namespace Arena.Entity {
         public void Update(GameTime gameTime) {
             KeyboardState keyboardState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-            Vector2 leftStick = gamePadState.ThumbSticks.Left;
 
             UpdateBookkeepingCounters(gameTime);
 
@@ -361,7 +361,7 @@ namespace Arena.Entity {
 
             HandleShot(gameTime);
 
-            HandleMovement(leftStick, gameTime);
+            HandleMovement(gameTime);
 
             HandleScooter(gameTime);
 
@@ -394,8 +394,7 @@ namespace Arena.Entity {
         /// Handles firing any weapons
         /// </summary>
         private void HandleShot(GameTime gameTime) {
-            if ( InputHelper.Instance.IsNewButtonPress(Buttons.X)
-                 || InputHelper.Instance.IsNewButtonPress(Buttons.RightTrigger) ) {
+            if ( PlayerControl.Control.IsNewShot() ) {
                 if ( IsScooting ) {
                     Vector2 pos = Vector2.Zero;
                     if (_facingDirection == Direction.Right) {
@@ -418,18 +417,18 @@ namespace Arena.Entity {
 
         private Direction GetAimDirection() {
             Direction? aimDirection =
-                InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Right);
-            if ( aimDirection == null ) {
+                PlayerControl.Control.GetAimDirection();
+            if ( aimDirection == null || (aimDirection == Direction.Down && PlayerControl.Control.IsKeyboardControl()) ) {
                 aimDirection = _facingDirection;
             }
 
             // Left stick always overrides right stick, unless just running or ducking
             if ( !IsDucking && (!IsStanding || IsStandingStill()) ) {
-                Direction? leftStickDirection =
-                    InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
-                if ( leftStickDirection != null && leftStickDirection != Direction.Left &&
-                     leftStickDirection != Direction.Right ) {
-                    aimDirection = leftStickDirection.Value;
+                Direction? movementDirection =
+                    PlayerControl.Control.GetMovementDirection();
+                if ( movementDirection != null && movementDirection != Direction.Left &&
+                     movementDirection != Direction.Right ) {
+                    aimDirection = movementDirection.Value;
                 }
             }
 
@@ -614,14 +613,14 @@ namespace Arena.Entity {
         /// <summary>
         /// Handles movement input, both on the ground and in the air.
         /// </summary>
-        private void HandleMovement(Vector2 movementInput, GameTime gameTime) {
+        private void HandleMovement(GameTime gameTime) {
             bool isDucking = false;
 
+            Direction? movementDirection = PlayerControl.Control.GetMovementDirection();
             if ( _timeUntilRegainControl <= 0 ) {
                 if ( IsStanding ) {
-                    Direction? leftStickDirection = InputHelper.Instance.GetStickDirection(InputHelper.Instance.GamePadState.ThumbSticks.Left);
-                    if ( leftStickDirection != null ) {
-                        switch ( leftStickDirection.Value ) {
+                    if ( movementDirection != null ) {
+                        switch ( movementDirection.Value ) {
                             case Direction.Left:
                             case Direction.DownLeft:
                             case Direction.UpLeft:
@@ -630,7 +629,7 @@ namespace Arena.Entity {
                                     _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs],
                                                                        _body.LinearVelocity.Y);
                                 } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                                    if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                                    if ( PlayerControl.Control.IsRunButtonDown() ) {
                                         _body.LinearVelocity -= new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
@@ -647,7 +646,7 @@ namespace Arena.Entity {
                                     _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs],
                                                                        _body.LinearVelocity.Y);
                                 } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
-                                    if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.B) ) {
+                                    if ( PlayerControl.Control.IsRunButtonDown() ) {
                                         _body.LinearVelocity += new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
@@ -674,25 +673,40 @@ namespace Arena.Entity {
                     }
                 } else {
                     // in the air
-                    if ( movementInput.X < 0 ) {
-                        if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
-                            _body.LinearVelocity -= new Vector2(
-                                GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
-                        } else {
-                            _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                        }
-                        if ( _body.LinearVelocity.X <= 0 ) {
-                            _facingDirection = Direction.Left;
-                        }
-                    } else if ( movementInput.X > 0 ) {
-                        if ( _body.LinearVelocity.X < Constants[PlayerMaxSpeedMs] ) {
-                            _body.LinearVelocity += new Vector2(
-                                GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
-                        } else {
-                            _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs], _body.LinearVelocity.Y);
-                        }
-                        if ( _body.LinearVelocity.X >= 0 ) {
-                            _facingDirection = Direction.Right;
+                    if ( movementDirection != null ) {
+                        switch ( movementDirection.Value ) {
+
+                            case Direction.Left:
+                            case Direction.UpLeft:
+                            case Direction.DownLeft:
+                                if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
+                                    _body.LinearVelocity -= new Vector2(
+                                        GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
+                                } else {
+                                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs],
+                                                                       _body.LinearVelocity.Y);
+                                }
+                                if ( _body.LinearVelocity.X <= 0 ) {
+                                    _facingDirection = Direction.Left;
+                                }
+
+                                break;
+                            case Direction.Right:
+                            case Direction.UpRight:
+                            case Direction.DownRight:
+                                if ( _body.LinearVelocity.X < Constants[PlayerMaxSpeedMs] ) {
+                                    _body.LinearVelocity += new Vector2(
+                                        GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
+                                } else {
+                                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs],
+                                                                       _body.LinearVelocity.Y);
+                                }
+                                if ( _body.LinearVelocity.X >= 0 ) {
+                                    _facingDirection = Direction.Right;
+                                }
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -729,13 +743,13 @@ namespace Arena.Entity {
         /// </summary>
         private void HandleJump(GameTime gameTime) {
 
-            if ( InputHelper.Instance.IsNewButtonPress(Buttons.A) ) {
+            if ( PlayerControl.Control.IsNewJump() ) {
                 if ( IsStanding ) {
                     _jumpInitiated = true;
                     _airBoostTime = 0;
                     _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
                 }
-            } else if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.A) ) {
+            } else if ( PlayerControl.Control.IsJumpButtonDown() ) {
                 if ( IsTouchingCeiling ) {
                     _airBoostTime = -1;
                 } else if ( _airBoostTime >= 0
@@ -753,10 +767,10 @@ namespace Arena.Entity {
         /// Handles the scooter device controls
         /// </summary>
         private void HandleScooter(GameTime gameTime) {
-            if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftTrigger) && IsDucking && !IsScooting ) {
+            if ( PlayerControl.Control.IsNewScooter() && IsDucking && !IsScooting ) {
                 _scooterInitiated = true;
                 IsScooting = true;
-            } else if ( !InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftTrigger) ) {
+            } else if ( !PlayerControl.Control.IsScooterButtonDown() ) {
                 EndScooter();
             }
         }
@@ -808,8 +822,7 @@ namespace Arena.Entity {
         }
 
         private void HandleSonar(GameTime gameTime) {
-            if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) 
-                || InputHelper.Instance.IsNewButtonPress(Buttons.RightShoulder) ) {
+            if ( PlayerControl.Control.IsNewSonar() ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
                 Arena.Instance.Register(new Sonar(_world, position, shotDirection));

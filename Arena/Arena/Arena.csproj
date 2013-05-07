@@ -111,6 +111,7 @@
     <Compile Include="Camera2D.cs" />
     <Compile Include="CameraDirector.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Control\PlayerControl.cs" />
     <Compile Include="Entity\Enemy\AbstractEnemy.cs" />
     <Compile Include="Entity\Enemy\Beetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />

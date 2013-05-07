@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Control;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -48,6 +49,9 @@ namespace Arena {
         }
 
         public static void Update(InputHelper input) {
+            if ( PlayerControl.Control.IsKeyboardControl() ) {
+                return;
+            }
             foreach ( Keys key in input.GetNewKeyPresses() ) {
                 if ( ConstantsByKey.ContainsKey(key) ) {
                     if ( input.KeyboardState.IsKeyDown(Keys.LeftShift) || input.KeyboardState.IsKeyDown(Keys.RightShift) ) {

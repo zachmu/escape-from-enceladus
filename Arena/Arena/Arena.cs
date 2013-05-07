@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arena.Control;
 using Arena.Entity;
 using Arena.Entity.Enemy;
 using Arena.Entity.NPC;
@@ -120,6 +121,7 @@ namespace Arena {
             _player = new Player(new Vector2(73, 28), _world); // TODO: start position unnecessary, set in tile level
             _healthStatus = new HealthStatus();
             _inputHelper = new InputHelper();
+            PlayerControl.Control = new PlayerGamepadControl();
 
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
@@ -379,6 +381,13 @@ namespace Arena {
                         break;
                     case Keys.F10:
                         _simulationPaused = !_simulationPaused;
+                        break;
+                    case Keys.Space:
+                        if ( PlayerControl.Control.IsKeyboardControl() ) {
+                            PlayerControl.Control = new PlayerGamepadControl();                        
+                        } else {
+                            PlayerControl.Control = new PlayerKeyboardControl();
+                        }
                         break;
                     case Keys.Enter:
                         _nextSimStep = true;

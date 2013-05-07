@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Control;
 using Arena.Entity;
 using Arena.Farseer;
 using Arena.Map;
@@ -254,20 +255,28 @@ namespace Arena {
             foreach ( var pressedKey in _inputHelper.KeyboardState.GetPressedKeys() ) {
                 switch ( pressedKey ) {
                     case Keys.Up:
-                        SetManualCamera();
-                        _camera.MoveCamera(new Vector2(0, -1));
+                        if ( !PlayerControl.Control.IsKeyboardControl() ) {
+                            SetManualCamera();
+                            _camera.MoveCamera(new Vector2(0, -1));
+                        }
                         break;
                     case Keys.Down:
-                        SetManualCamera();
-                        _camera.MoveCamera(new Vector2(0, 1));
+                        if ( !PlayerControl.Control.IsKeyboardControl() ) {
+                            SetManualCamera();
+                            _camera.MoveCamera(new Vector2(0, 1));
+                        }
                         break;
                     case Keys.Left:
-                        SetManualCamera();
-                        _camera.MoveCamera(new Vector2(-1, 0));
+                        if ( !PlayerControl.Control.IsKeyboardControl() ) {
+                            SetManualCamera();
+                            _camera.MoveCamera(new Vector2(-1, 0));
+                        }
                         break;
                     case Keys.Right:
-                        SetManualCamera();
-                        _camera.MoveCamera(new Vector2(1, 0));
+                        if ( !PlayerControl.Control.IsKeyboardControl() ) {
+                            SetManualCamera();
+                            _camera.MoveCamera(new Vector2(1, 0));
+                        }
                         break;
                     case Keys.LeftAlt:
                         _mode = Mode.TrackPlayer;

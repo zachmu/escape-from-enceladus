@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Control;
 using Arena.Farseer;
 using Arena.Map;
 using FarseerPhysics.Collision;
@@ -250,7 +251,7 @@ namespace Arena.Entity.NPC {
             }
 
             if ( _playerNearby ) {
-                if ( InputHelper.Instance.IsNewButtonPress(Buttons.Y) && !Arena.Instance.IsInConversation ) {
+                if ( PlayerControl.Control.IsNewAction() && !Arena.Instance.IsInConversation ) {
                     ConversationManager.Instance.StartConversation(this);
                 }
             }
