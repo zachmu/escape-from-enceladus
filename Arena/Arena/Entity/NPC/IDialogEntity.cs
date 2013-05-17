@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Arena.Entity.NPC {
@@ -25,5 +26,10 @@ namespace Arena.Entity.NPC {
         /// Notifies the receiver that conversation is ending.
         /// </summary>
         void StopConversation();
+
+        /// <summary>
+        /// The color of this dialog
+        /// </summary>
+        Color Color { get; }
     }
 }

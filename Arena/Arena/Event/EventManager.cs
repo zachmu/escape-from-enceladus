@@ -1,0 +1,89 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Arena.Entity.NPC;
+using Microsoft.Xna.Framework.Content;
+
+namespace Arena.Event {
+
+    /// <summary>
+    /// Responsible for maintaining global state about game-progress events
+    /// </summary>
+    public class EventManager {
+
+        private static EventManager _instance = new EventManager();
+
+        public static EventManager Instance {
+            get { return _instance; }
+        }
+
+        private readonly Dictionary<string, IGameEvent> _events = new Dictionary<string, IGameEvent>();
+        private readonly List<IGameEvent> _activeEvents = new List<IGameEvent>();
+
+        /// <summary>
+        /// Loads every possible event, along with any persisted state they might have. 
+        /// Events aren't actively listening for changes until loaded via LoadEvent()
+        /// </summary>
+        /// <param name="contentManager"></param>
+        public void LoadContent(ContentManager contentManager) {
+        }
+
+        /// <summary>
+        /// Triggers the event with the ID given, which must be active
+        /// </summary>
+        /// <param name="eventId"></param>
+        public void TriggerEvent(string eventId) {
+            _activeEvents.First(@event => @event.Id == eventId).Apply();
+        }
+
+        /// <summary>
+        /// Loads the event with the ID given and makes it receive notifications about in-game actions.
+        /// </summary>
+        /// <param name="eventId"></param>
+        public void LoadEvent(string eventId) {
+            IGameEvent gameEvent = _events[eventId];
+            if ( gameEvent.IsRemoveOnTrigger() ) {
+                gameEvent.Triggered += GameEventOnTriggered;
+            }
+            _activeEvents.Add(gameEvent);
+        }
+
+        /// <summary>
+        /// Delegate method called when an event is triggered to notify us it has happened.
+        /// </summary>
+        /// <param name="event"></param>
+        private void GameEventOnTriggered(IGameEvent @event) {            
+            UnloadEvent(@event.Id);
+        }
+
+        /// <summary>
+        /// Unloads the event with the ID given. It will no longer receive notifications about in-game actions.
+        /// </summary>
+        /// <param name="eventId"></param>
+        public void UnloadEvent(string eventId) {
+            _activeEvents.RemoveAll(@event => @event.Id == eventId);
+            _events[eventId].Triggered -= GameEventOnTriggered;
+        }
+
+        public void NotifyConversation(Conversation conversation) {
+            _activeEvents.ForEach(@event => @event.ConversationStarted(conversation));
+        }
+
+        /// <summary>
+        /// Updates all active events. Called when some event takes place, such as 
+        /// collecting an important item, that might cause another event to be triggered.
+        /// </summary>
+        public void Update() {
+            _activeEvents.ForEach(@event => @event.Update());
+        }
+    }
+
+    /// <summary>
+    /// Class to store whether particular events have occurred or not, 
+    /// as a shorthand to needing to keep all events and their status around all the time.
+    /// </summary>
+    public class GameState {
+        
+    }
+}

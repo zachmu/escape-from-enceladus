@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Arena.Event;
 using Microsoft.Xna.Framework.Content;
 
 namespace Arena.Entity.NPC {
@@ -34,6 +35,7 @@ namespace Arena.Entity.NPC {
             Conversation conversation = new Conversation(_cm, String.Format("{0}-default.txt", initiatingNPC.Name));
             conversation.NotifySpeakersConversationStarted();
             Arena.Instance.ConversationStarted(conversation);
+            EventManager.Instance.NotifyConversation(conversation);
         }
     }
 }

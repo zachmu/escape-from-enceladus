@@ -117,6 +117,7 @@
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\Worm.cs" />
     <Compile Include="Entity\NPC\Characters.cs" />
+    <Compile Include="Entity\NPC\DisembodiedSpeaker.cs" />
     <Compile Include="Entity\NPC\IDialogEntity.cs" />
     <Compile Include="Entity\NPC\PlayerDialog.cs" />
     <Compile Include="Entity\NPC\Conversation.cs" />
@@ -128,6 +129,9 @@
     <Compile Include="Entity\GameEntity.cs" />
     <Compile Include="Entity\HealthPickup.cs" />
     <Compile Include="Entity\SolidColorEffect.cs" />
+    <Compile Include="Event\EventManager.cs" />
+    <Compile Include="Event\GameEvent.cs" />
+    <Compile Include="Event\Prologue.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />
     <Compile Include="Entity\Enemy\PacingEnemy.cs" />
     <Compile Include="Farseer\FarseerExtensions.cs" />

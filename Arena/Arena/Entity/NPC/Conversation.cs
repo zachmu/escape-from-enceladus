@@ -25,11 +25,30 @@ namespace Arena.Entity.NPC {
             string file = Path.Combine(content.RootDirectory, Path.Combine("Conversations", conversationName));
             foreach ( String line in File.ReadLines(file) ) {
                 int split = line.IndexOf(":");
-                String character = line.Substring(0, split);
+                bool isDisembodied = false;
+                string character = line.Substring(0, split);
+                if ( character.StartsWith(NPCFactory.Announcement) ) {
+                    isDisembodied = true;
+                    character = character.Substring(NPCFactory.Announcement.Count() + 1,
+                                                    character.Count() - NPCFactory.Announcement.Count() - 2);
+                }
+
                 String speech = line.Substring(split + 1);
-                _characters.Add(NPCFactory.Get(character));
+                if ( isDisembodied ) {
+                    _characters.Add(NPCFactory.GetDisembodiedSpeaker(character));
+                } else {
+                    _characters.Add(NPCFactory.GetDialogEntity(character));
+                }
+
                 _lines.Add(speech);
             }
+        }
+
+        /// <summary>
+        /// Returns the participants in this conversation
+        /// </summary>
+        public List<IDialogEntity> Participants {
+            get { return _characters; }
         }
 
         /// <summary>
@@ -52,15 +71,15 @@ namespace Arena.Entity.NPC {
         /// Updates the conversation with a button press.
         /// </summary>
         public void Update(GameTime gameTime) {
-            bool shouldAdvance = (PlayerControl.Control.IsKeyboardControl() &&
-                                  InputHelper.Instance.GetNewKeyPresses().Any()) ||
-                                 new Buttons[] {Buttons.A, Buttons.B, Buttons.X, Buttons.Y,}.ToList().Any(
+            bool shouldAdvance = ((PlayerControl.Control.IsKeyboardControl() &&
+                                   InputHelper.Instance.GetNewKeyPresses().Any()))
+                                 || new[] { Buttons.A, Buttons.B, Buttons.X, Buttons.Y, }.ToList().Any(
                                      button => InputHelper.Instance.IsNewButtonPress(button));
             if ( shouldAdvance ) {
                 _currentLine++;
                 if ( _currentLine >= _lines.Count ) {
-                    Arena.Instance.EndConversation();
                     _characters.ForEach(npc => npc.StopConversation());
+                    Arena.Instance.EndConversation();
                 }
             }
         }

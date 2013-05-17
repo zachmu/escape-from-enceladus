@@ -5,6 +5,7 @@ using Arena.Control;
 using Arena.Entity;
 using Arena.Entity.Enemy;
 using Arena.Entity.NPC;
+using Arena.Event;
 using Arena.Farseer;
 using Arena.Map;
 using Arena.Overlay;
@@ -50,7 +51,7 @@ namespace Arena {
         private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
         private Conversation _currentConversation;
-        private ConversationManager _conversationManager;            
+        private ConversationManager _conversationManager;
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -261,6 +262,7 @@ namespace Arena {
             Constants.font = Content.Load<SpriteFont>("DebugFont");
             Camera2D.LoadContent(Content);
             DebugFont = Content.Load<SpriteFont>("DebugFont");
+            EventManager.Instance.LoadContent(Content);
         }
 
         /// <summary>

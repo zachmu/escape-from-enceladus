@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Arena.Entity.NPC {
 
     /// <summary>
-    /// The NPC stands-in for the character
+    /// The NPC stand-in for the character
     /// </summary>
     class PlayerDialog : IDialogEntity {
 
@@ -25,5 +25,7 @@ namespace Arena.Entity.NPC {
 
         public void StopConversation() {
         }
+
+        public Color Color { get { return Player.Instance.Color; } }
     }
 }

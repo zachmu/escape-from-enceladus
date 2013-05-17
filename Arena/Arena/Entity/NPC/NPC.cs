@@ -26,6 +26,7 @@ namespace Arena.Entity.NPC {
         public void Dispose() {
             _disposed = true;
             _body.Dispose();
+            NPCFactory.Destroy(this);
         }
 
         private const int NumUnarmedWalkFrames = 27;
@@ -286,5 +287,7 @@ namespace Arena.Entity.NPC {
         public void StopConversation() {
             _inConversation = false;
         }
+
+        public Color Color { get { return _color; } }
     }
 }

@@ -7,56 +7,69 @@ using Microsoft.Xna.Framework;
 
 namespace Arena.Entity.NPC {
     internal class ProfessorIapetus : NPC {
+        public static readonly Color CharacterColor = Color.Tomato;
         public ProfessorIapetus(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("ProfessorIapetus", Color.Tomato, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharProfessorIapetus, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class EnsignForecastle : NPC {
+        public static readonly Color CharacterColor = Color.Plum;
         public EnsignForecastle(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("EnsignForecastle", Color.Plum, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharEnsignForecastle, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class ChefHawser : NPC {
+        public static readonly Color CharacterColor = Color.Wheat;
         public ChefHawser(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("ChefHawser", Color.Wheat, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharChefHawser, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class EnsignClew : NPC {
+        public static readonly Color CharacterColor = Color.Bisque;
         public EnsignClew(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("EnsignClew", Color.Bisque, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharEnsignClew, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class EnsignLeeward : NPC {
+        public static readonly Color CharacterColor = Color.DarkOrange;
         public EnsignLeeward(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("EnsignLeeward", Color.DarkOrange, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharEnsignLeeward, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class EnsignTaffrail : NPC {
+        public static readonly Color CharacterColor = Color.DarkSalmon;
+
         public EnsignTaffrail(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("EnsignTaffrail", Color.DarkSalmon, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharEnsignTaffrail, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class CaptainPurchase : NPC {
+        public static readonly Color CharacterColor = Color.SpringGreen;
+
         public CaptainPurchase(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("CaptainPurchase", Color.SpringGreen, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharCaptainPurchase, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class EnsignGibe : NPC {
+        public static readonly Color CharacterColor = Color.DarkSalmon;
+
         public EnsignGibe(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("EnsignGibe", Color.DarkSalmon, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharEnsignGibe, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
     internal class ChiefMizzen : NPC {
+        public static readonly Color CharacterColor = Microsoft.Xna.Framework.Color.DarkSalmon;
+
         public ChiefMizzen(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base("ChiefMizzen", Color.DarkSalmon, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharChiefMizzen, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
