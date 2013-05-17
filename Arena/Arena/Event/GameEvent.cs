@@ -16,7 +16,7 @@ namespace Arena.Event {
         /// <summary>
         /// The unique id of this event
         /// </summary>
-        string Id { get; set; }
+        string Id { get; }
 
         /// <summary>
         /// Apply this event to the game world
@@ -44,7 +44,7 @@ namespace Arena.Event {
     abstract class GameEvent : IGameEvent {
         
         public event EventTriggeredHandler Triggered;
-        public string Id { get; set; }
+        public abstract string Id { get; }
 
         public virtual void Apply() {
             Triggered(this);
@@ -53,7 +53,8 @@ namespace Arena.Event {
         public virtual void Update() {            
         }
 
-        public abstract void ConversationStarted(Conversation conversation);
+        public virtual void ConversationStarted(Conversation conversation) {            
+        }
 
         public bool IsRemoveOnTrigger() {
             return true;

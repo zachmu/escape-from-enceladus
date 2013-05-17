@@ -19,6 +19,7 @@ namespace Arena.Entity {
         private bool _disposed;
         private readonly Texture2D _image;
         private readonly Rectangle _originRectangle;
+        private readonly Vector2 _originLocation;
         private Piece[] _pieces;
 
         private readonly int _displayPieceWidth;
@@ -56,6 +57,7 @@ namespace Arena.Entity {
         public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces, float maxVelocity) {
             _image = image;
             _originRectangle = originRectangle ?? new Rectangle(0, 0, 0, 0);
+            _originLocation = position;
             _pieces = new Piece[numPieces * numPieces];
             _maxVelocity = maxVelocity;
 
@@ -125,7 +127,7 @@ namespace Arena.Entity {
         }
 
         public Vector2 Position {
-            get { return new Vector2();}
+            get { return new Vector2(_originLocation.X, _originLocation.Y); }
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {

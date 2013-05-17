@@ -32,10 +32,24 @@ namespace Arena.Entity.NPC {
         /// </summary>
         public void StartConversation(NPC initiatingNPC) {
             // For now, we just return the one, static conversation for each character.
-            Conversation conversation = new Conversation(_cm, String.Format("{0}-default.txt", initiatingNPC.Name));
+            StartConversation(new Conversation(_cm, String.Format("{0}-default.txt", initiatingNPC.Name)));
+        }
+
+        /// <summary>
+        /// Does the necessary bookkeeping to notify all interested parties that a conversation has started
+        /// </summary>
+        private static void StartConversation(Conversation conversation) {
             conversation.NotifySpeakersConversationStarted();
             Arena.Instance.ConversationStarted(conversation);
             EventManager.Instance.NotifyConversation(conversation);
         }
+
+        /// <summary>
+        /// Starts the conversation with the name given.
+        /// </summary>
+        public void StartConversation(string conversationName) {
+            StartConversation(new Conversation(_cm, conversationName));
+        }
+
     }
 }

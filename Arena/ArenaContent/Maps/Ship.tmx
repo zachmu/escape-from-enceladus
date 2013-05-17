@@ -107,7 +107,7 @@
   <object x="3272" y="3908" width="300" height="248"/>
   <object x="3136" y="3768" width="116" height="64"/>
  </objectgroup>
- <objectgroup name="NPC" width="400" height="220" visible="0">
+ <objectgroup name="NPC" width="400" height="220">
   <object name="ProfessorIapetus" x="5182" y="1764" width="163" height="216">
    <properties>
     <property name="Face" value="left"/>
@@ -134,6 +134,6 @@
   <object name="worm" x="2836" y="4132" width="208" height="76"/>
  </objectgroup>
  <objectgroup name="PlayerStart" width="400" height="220">
-  <object x="4107" y="1767" width="54" height="60"/>
+  <object x="222" y="228" width="54" height="60"/>
  </objectgroup>
 </map>

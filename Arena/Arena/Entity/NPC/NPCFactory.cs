@@ -86,23 +86,23 @@ namespace Arena.Entity.NPC {
             if ( !_activeNpcs.ContainsKey(npcName) ) {
                 switch ( npcName ) {
                     case CharProfessorIapetus:
-                        return new DisembodiedSpeaker(ProfessorIapetus.CharacterColor);
+                        return new DisembodiedSpeaker(ProfessorIapetus.CharacterColor, CharProfessorIapetus);
                     case CharEnsignForecastle:
-                        return new DisembodiedSpeaker(EnsignForecastle.CharacterColor);
+                        return new DisembodiedSpeaker(EnsignForecastle.CharacterColor, CharEnsignForecastle);
                     case CharChefHawser:
-                        return new DisembodiedSpeaker(ChefHawser.CharacterColor);
+                        return new DisembodiedSpeaker(ChefHawser.CharacterColor, CharChefHawser);
                     case CharEnsignClew:
-                        return new DisembodiedSpeaker(EnsignClew.CharacterColor);
+                        return new DisembodiedSpeaker(EnsignClew.CharacterColor, CharEnsignClew);
                     case CharEnsignLeeward:
-                        return new DisembodiedSpeaker(EnsignLeeward.CharacterColor);
+                        return new DisembodiedSpeaker(EnsignLeeward.CharacterColor, CharEnsignLeeward);
                     case CharCaptainPurchase:
-                        return new DisembodiedSpeaker(CaptainPurchase.CharacterColor);
+                        return new DisembodiedSpeaker(CaptainPurchase.CharacterColor, CharCaptainPurchase);
                     case CharEnsignGibe:
-                        return new DisembodiedSpeaker(EnsignGibe.CharacterColor);
+                        return new DisembodiedSpeaker(EnsignGibe.CharacterColor, CharEnsignGibe);
                     case CharEnsignTaffrail:
-                        return new DisembodiedSpeaker(EnsignTaffrail.CharacterColor);
+                        return new DisembodiedSpeaker(EnsignTaffrail.CharacterColor, CharEnsignTaffrail);
                     case CharChiefMizzen:
-                        return new DisembodiedSpeaker(ChiefMizzen.CharacterColor);
+                        return new DisembodiedSpeaker(ChiefMizzen.CharacterColor, CharChiefMizzen);
                     default:
                         throw new ArgumentException("Unrecognized NPC name " + npcName);
                 }
@@ -117,7 +117,7 @@ namespace Arena.Entity.NPC {
         /// <param name="npcName"></param>
         public static IDialogEntity GetDisembodiedSpeaker(String npcName) {
             IDialogEntity speaker = GetDialogEntity(npcName);
-            return new DisembodiedSpeaker(speaker.Color);
+            return new DisembodiedSpeaker(speaker.Color, npcName);
         }
     }
 }

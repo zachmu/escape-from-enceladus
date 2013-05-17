@@ -27,6 +27,13 @@ namespace Arena.Event {
         /// </summary>
         /// <param name="contentManager"></param>
         public void LoadContent(ContentManager contentManager) {
+            IGameEvent[] allEvents = new IGameEvent[] { 
+                new GameIntro(),
+                new TalkToCaptain(),
+                new Prologue(), 
+            };
+
+            allEvents.ToList().ForEach(@event => _events[@event.Id] = @event);
         }
 
         /// <summary>
@@ -84,6 +91,17 @@ namespace Arena.Event {
     /// as a shorthand to needing to keep all events and their status around all the time.
     /// </summary>
     public class GameState {
-        
+
+        private static HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
+
+        public static bool HasMilestoneOccurred(GameMilestone milestone) {
+            return _milestones.Contains(milestone);
+        }
+
+        public static void MilestoneAcheived(GameMilestone milestone) {
+            _milestones.Add(milestone);
+        }
     }
+
+    public enum GameMilestone {GameStarted, TalkedToCaptain }
 }

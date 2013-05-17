@@ -6,6 +6,7 @@ using Arena.Entity.NPC;
 
 namespace Arena.Event {
     internal class Prologue : GameEvent {
+        public const string ID = "PrologueOnShip";
 
         private readonly HashSet<IDialogEntity> _toTalkTo = new HashSet<IDialogEntity>();
 
@@ -19,6 +20,10 @@ namespace Arena.Event {
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.EnsignLeeward));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.EnsignTaffrail));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.ProfessorIapetus));
+        }
+
+        public override string Id {
+            get { return ID; }
         }
 
         public override void Apply() {

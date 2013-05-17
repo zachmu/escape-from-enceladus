@@ -27,5 +27,6 @@ namespace Arena.Entity.NPC {
         }
 
         public Color Color { get { return Player.Instance.Color; } }
+        public string Name { get { return "Roark"; } }
     }
 }

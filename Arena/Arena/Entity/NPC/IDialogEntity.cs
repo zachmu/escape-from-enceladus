@@ -31,5 +31,10 @@ namespace Arena.Entity.NPC {
         /// The color of this dialog
         /// </summary>
         Color Color { get; }
+
+        /// <summary>
+        /// The name of the character speaking
+        /// </summary>
+        string Name { get; }
     }
 }

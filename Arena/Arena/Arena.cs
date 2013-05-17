@@ -175,7 +175,7 @@ namespace Arena {
         /// </summary>
         public void DisposeRoom(Room disposeRoom) {
             if ( disposeRoom != null ) {
-                foreach ( IGameEntity gameEntity in _entities.Where(entity => !disposeRoom.Contains(entity.Position)) ) {
+                foreach ( IGameEntity gameEntity in _entities.Where(entity => disposeRoom.Contains(entity.Position)) ) {
                     gameEntity.Dispose();
                 }
                 _mode = Mode.RoomTransition;

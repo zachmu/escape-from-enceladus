@@ -32,6 +32,7 @@ namespace Arena.Entity.NPC {
         private const int NumUnarmedWalkFrames = 27;
         private const float CharacterHeight = 1.9f;
         private const int HorizontalMargin = 40;
+        private const int VerticalMargin = 40;
 
         protected static int MaxDialogWidth = 450;
 
@@ -197,14 +198,22 @@ namespace Arena.Entity.NPC {
 
             // If we're still drawing off of the screen, nudge the draw boundary
             int screenWidth = spriteBatch.GraphicsDevice.Viewport.Bounds.Width;
-            float cameraScreenCenter = ConvertUnits.ToDisplayUnits(camera.Position).X;
-            float leftMargin = cameraScreenCenter - screenWidth / 2 + HorizontalMargin;
-            float rightMargin = cameraScreenCenter + screenWidth / 2 - HorizontalMargin;
+            int screenHeight = spriteBatch.GraphicsDevice.Viewport.Bounds.Height;
+            Vector2 cameraScreenCenter = ConvertUnits.ToDisplayUnits(camera.Position);
+            float leftMargin = cameraScreenCenter.X - screenWidth / 2 + HorizontalMargin;
+            float rightMargin = cameraScreenCenter.X + screenWidth / 2 - HorizontalMargin;
+            float topMargin = cameraScreenCenter.Y - screenHeight / 2 + VerticalMargin;
+            float bottomMargin = cameraScreenCenter.Y + screenHeight / 2 - VerticalMargin;
 
             if ( displayPosition.X < leftMargin ) {
                 displayPosition.X = leftMargin;
             } else if ( displayPosition.X + stringSize.X > rightMargin ) {
                 displayPosition.X = rightMargin - stringSize.X;
+            }
+            if ( displayPosition.Y < topMargin ) {
+                displayPosition.Y = topMargin;
+            } else if ( displayPosition.Y + stringSize.Y > bottomMargin ) {
+                displayPosition.Y = bottomMargin - stringSize.Y;
             }
 
             // Draw a backdrop
