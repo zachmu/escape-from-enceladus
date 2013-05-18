@@ -134,6 +134,6 @@
   <object name="worm" x="2836" y="4132" width="208" height="76"/>
  </objectgroup>
  <objectgroup name="PlayerStart" width="400" height="220">
-  <object x="222" y="228" width="54" height="60"/>
+  <object x="4168" y="358" width="54" height="60"/>
  </objectgroup>
 </map>

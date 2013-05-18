@@ -31,8 +31,19 @@ namespace Arena.Entity.NPC {
         /// Returns the appropriate conversation to initiate, at this point of the game, with the NPC given.
         /// </summary>
         public void StartConversation(NPC initiatingNPC) {
-            // For now, we just return the one, static conversation for each character.
-            StartConversation(new Conversation(_cm, String.Format("{0}-default.txt", initiatingNPC.Name)));
+            if ( initiatingNPC.Name == NPCFactory.CharCaptainPurchase ) {
+                StartConversationWithCaptainPurchase();
+            } else {
+                StartConversation(new Conversation(_cm, String.Format("{0}-default.txt", initiatingNPC.Name)));
+            }
+        }
+
+        private void StartConversationWithCaptainPurchase() {
+            if ( GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, String.Format("{0}-default.txt", "CaptainPurchase")));
+            } else {
+                StartConversation(new Conversation(_cm, "CaptainPurchaseFirst.txt"));
+            }
         }
 
         /// <summary>

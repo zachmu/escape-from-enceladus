@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Arena.Entity.NPC;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
 namespace Arena.Event {
@@ -16,6 +17,9 @@ namespace Arena.Event {
 
         public static EventManager Instance {
             get { return _instance; }
+        }
+
+        private EventManager() {
         }
 
         private readonly Dictionary<string, IGameEvent> _events = new Dictionary<string, IGameEvent>();
@@ -34,6 +38,14 @@ namespace Arena.Event {
             };
 
             allEvents.ToList().ForEach(@event => _events[@event.Id] = @event);
+            Init();
+        }
+
+        /// <summary>
+        /// Initialize the state of the event space based on persisted data.
+        /// </summary>
+        private void Init() {
+            LoadEvent(GameIntro.ID);
         }
 
         /// <summary>
@@ -81,8 +93,9 @@ namespace Arena.Event {
         /// Updates all active events. Called when some event takes place, such as 
         /// collecting an important item, that might cause another event to be triggered.
         /// </summary>
-        public void Update() {
-            _activeEvents.ForEach(@event => @event.Update());
+        /// <param name="gameTime"></param>
+        public void Update(GameTime gameTime) {
+            _activeEvents.ForEach(@event => @event.Update(gameTime));
         }
     }
 

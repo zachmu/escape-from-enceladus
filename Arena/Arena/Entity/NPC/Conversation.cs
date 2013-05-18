@@ -33,7 +33,7 @@ namespace Arena.Entity.NPC {
                                                     character.Count() - NPCFactory.Announcement.Count() - 2);
                 }
 
-                String speech = line.Substring(split + 1);
+                String speech = line.Substring(split + 1).Trim();
                 if ( isDisembodied ) {
                     _characters.Add(NPCFactory.GetDisembodiedSpeaker(character));
                 } else {

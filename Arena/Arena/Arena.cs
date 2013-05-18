@@ -52,6 +52,7 @@ namespace Arena {
         private InputHelper _inputHelper;
         private Conversation _currentConversation;
         private ConversationManager _conversationManager;
+        private EventManager _eventManager; 
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -127,6 +128,7 @@ namespace Arena {
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
             _conversationManager = new ConversationManager(Content);
+            _eventManager = EventManager.Instance;
             _mode = Mode.NormalControl;
 
             base.Initialize();
@@ -328,6 +330,7 @@ namespace Arena {
             _playerPositionMonitor.Update(gameTime);
             _visitationMap.Update(gameTime);
             _cameraDirector.Update(gameTime);
+            _eventManager.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);

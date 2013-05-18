@@ -527,6 +527,8 @@ Content\Conversations\CaptainPurchase-default.txt
 Content\Conversations\EnsignLeeward-default.txt
 Content\Conversations\ChiefMizzen-default.txt
 Content\Conversations\ProfessorIapetus-default.txt
+Content\Conversations\InitialCaptainAnnouncement.txt
+Content\Conversations\CaptainPurchaseFirst.txt
 Content\font.xnb
 Content\Materials\blank.xnb
 Content\Common\gradient.xnb

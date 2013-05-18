@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Arena.Entity.NPC;
+using Microsoft.Xna.Framework;
 
 namespace Arena.Event {
 
@@ -26,10 +27,11 @@ namespace Arena.Event {
         /// <summary>
         /// Update the status of this event using global game state, triggering if necessary.
         /// </summary>
-        void Update();
+        /// <param name="gameTime"></param>
+        void Update(GameTime gameTime);
 
         /// <summary>
-        /// Notifies this event that the given conversation is taking place
+        /// Notifies this event that the given conversation just happened.
         /// </summary>
         /// <param name="conversation"></param>
         void ConversationStarted(Conversation conversation);
@@ -50,7 +52,7 @@ namespace Arena.Event {
             Triggered(this);
         }
 
-        public virtual void Update() {            
+        public virtual void Update(GameTime gameTime) {            
         }
 
         public virtual void ConversationStarted(Conversation conversation) {            
