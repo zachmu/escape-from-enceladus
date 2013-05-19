@@ -50,7 +50,7 @@ namespace Arena.Map {
         }
 
         /// <summary>
-        /// Same as Contains, but includes a buffer of the given thickness around the rectangle.
+        /// Returns whether this region contains the given point
         /// </summary>
         public bool Contains(Vector2 position) {
             return Contains(position, 0f);
@@ -66,6 +66,9 @@ namespace Arena.Map {
                     && position.Y <= BottomRight.Y + buffer);
         }
 
+        /// <summary>
+        /// Returns whether this region contains the given point
+        /// </summary>
         public bool Contains(int x, int y) {
             return Contains(new Vector2(x, y));
         }

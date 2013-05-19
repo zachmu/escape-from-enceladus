@@ -13,13 +13,14 @@ namespace Arena.Event {
     /// </summary>
     public class EventManager {
 
-        private static EventManager _instance = new EventManager();
+        private static EventManager _instance;
 
         public static EventManager Instance {
             get { return _instance; }
         }
 
-        private EventManager() {
+        public EventManager() {
+            _instance = this;
         }
 
         private readonly Dictionary<string, IGameEvent> _events = new Dictionary<string, IGameEvent>();

@@ -17,7 +17,9 @@ using Microsoft.Xna.Framework.Input;
 namespace Arena.Map {
     
     /// <summary>
-    /// A door that can be opened by some weapon.
+    /// A door that can be opened by some weapon. Doors live the life of the simulation,
+    /// but they only physically exist when the player is around. A door's life will be
+    /// a series of call to Create() and Destroy().
     /// </summary>
     public class Door : Region, IGameEntity {
         public static Texture2D Image { get; private set; }
@@ -28,6 +30,8 @@ namespace Arena.Map {
         private Body _body;
         private World _world;
         private Orientation _orientation;
+        private bool _locked;
+        private string _name;
 
         static Door() {
             Constants.Register(new Constant(DoorOpenTime, .2f, Keys.V));
@@ -38,29 +42,57 @@ namespace Arena.Map {
             Image = content.Load<Texture2D>("door");
         }
 
-        public Door(World world, Vector2 topLeft, Vector2 bottomRight)
+        public Door(World world, Vector2 topLeft, Vector2 bottomRight, Object mapObject)
             : base(AdjustToTileBoundary(topLeft), AdjustToTileBoundary(bottomRight)) {
             _world = world;
+            if ( mapObject.Name != null ) {
+                _name = mapObject.Name;
+            }
 
-            if (Width > Height) {
+            if ( Width > Height ) {
                 _orientation = Orientation.Horizontal;
             } else {
                 _orientation = Orientation.Vertical;
             }
-
-            CreateBody();
         }
 
+        /// <summary>
+        /// The unique name of this door. Most doors don't have one.
+        /// </summary>
+        public string Name {
+            get { return _name; }
+        }
+
+        /// <summary>
+        /// A disposed door doesn't physically exist, but its 
+        /// metadata (like locked state) might still be relevant.
+        /// </summary>
         public void Dispose() {
             _body.Dispose();
         }
 
         public bool Disposed {
-            get { return _body.IsDisposed; }
+            get { return _body == null || _body.IsDisposed; }
+        }
+
+        /// <summary>
+        /// All doors can be locked, but only named ones can persist this information
+        /// </summary>
+        public void Lock() {
+            _locked = true;
+            DoorState.Instance.DoorLocked(Name);
+        }
+
+        /// <summary>
+        /// All doors can be unlocked, but only named ones can persist this information
+        /// </summary>
+        public void Unlock() {
+            _locked = false;
+            DoorState.Instance.DoorUnlocked(Name);
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            if (_orientation == Orientation.Vertical) {
+            if ( _orientation == Orientation.Vertical ) {
                 DrawVertical(spriteBatch);
             } else {
                 DrawHorizontal(spriteBatch);
@@ -94,7 +126,7 @@ namespace Arena.Map {
             for ( int i = 0; i < Width / TileLevel.TileSize; i++ ) {
                 Vector2 topLeft = TopLeft + new Vector2(TileLevel.TileSize * i, offset);
                 Vector2 displayPos = ConvertUnits.ToDisplayUnits(topLeft);
-                spriteBatch.Draw(Image, displayPos, rect, Color.White);
+                spriteBatch.Draw(Image, displayPos, rect, SolidColorEffect.DisabledColor);
             }
         }
 
@@ -126,7 +158,7 @@ namespace Arena.Map {
                 Vector2 displayPos = ConvertUnits.ToDisplayUnits(topLeft) +
                                      new Vector2(ConvertUnits.ToDisplayUnits(Width / 2),
                                                  TileLevel.TileDisplaySize * i + Image.Width / 2f);
-                spriteBatch.Draw(Image, displayPos, rect, Color.White, -(float) Math.PI / 2,
+                spriteBatch.Draw(Image, displayPos, rect, SolidColorEffect.DisabledColor, -(float) Math.PI / 2,
                                  new Vector2(Image.Width / 2, Image.Height / 2), 1.0f, SpriteEffects.None, 1f);
             }
         }
@@ -213,16 +245,27 @@ namespace Arena.Map {
         }
 
         public void HitBy(Projectile shot) {
-            switch (_state) {
-                case State.Closed:
-                    _state = State.Opening;
-                    _msSinceLastStateChange = 0;
-                    break;
-                case State.Closing:
-                    _state = State.Opening;
-                    _msSinceLastStateChange = (int) (Constants.Get(DoorOpenTime) * 1000 - _msSinceLastStateChange);
-                    break;
+            if ( !_locked ) {
+                switch ( _state ) {
+                    case State.Closed:
+                        _state = State.Opening;
+                        _msSinceLastStateChange = 0;
+                        break;
+                    case State.Closing:
+                        _state = State.Opening;
+                        _msSinceLastStateChange = (int) (Constants.Get(DoorOpenTime) * 1000 - _msSinceLastStateChange);
+                        break;
+                }
             }
+        }
+
+        /// <summary>
+        /// Called to instantiate this door in the game world as an interactive object.
+        /// Dispose gets rid of it.
+        /// </summary>
+        public void Create() {
+            CreateBody();
+            CloseDoor();
         }
     }
 }

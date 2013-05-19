@@ -42,7 +42,7 @@
    H4sIAAAAAAAAC+3cUW7CIAAG4J6iz3vY9BruEPq8o+xoO4pHEZKaNA1WhlKl/b6EAC1GnvwD1HYdAADA++hf3K/pmXPrM2sAAAAAAAAAAADSPv/ZB6CuVp5//crsxxzZdd1vbO8T4wDYltz1R8yL/ZAfu8Q4AACgTa3sfQFQX41MyHk/yVL3AAAAAFgne0IAAAAAAEBLSs82nIkAMCUbAAAAACjRT+qS9qPfnev7gWsAbJf8AKBEKhdSaxj5AcBY7n6XZ70A1sNvOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArTiGcnr1JAAAAADYnNOoHCf91H7V3Ni5zwEAAAAAALyT63kHAABAbWH98RfKYWh34xoA7plmhz0tAO4JmfFz4/p52ZkA0JKQEx83rp+XnQkArYnnIEN9GNcAbFfue0liZlzrubFz9wCghAwBoJS1CAAAsDRrEABKyRAAAAAAAGCN/NcQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeJYLQRIRCgBfBQA=
   </data>
  </layer>
- <layer name="Foreground2" width="400" height="220">
+ <layer name="Foreground2" width="400" height="220" visible="0">
   <properties>
    <property name="foreground" value="true"/>
   </properties>
@@ -50,7 +50,7 @@
    H4sIAAAAAAAAC+3YIQ4AIAwDwL0SzdP3FBQJoDAEEu5MJ2vXCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4X4mow533mgAAAD/pv8iQebEOAAAAAEzW3cp+BcCusiQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMBpDSdcGPQAXwUA
   </data>
  </layer>
- <layer name="Foreground3" width="400" height="220">
+ <layer name="Foreground3" width="400" height="220" visible="0">
   <properties>
    <property name="foreground" value="true"/>
   </properties>
@@ -85,7 +85,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup name="Doors" width="400" height="220" visible="0">
+ <objectgroup name="Doors" width="400" height="220">
   <object x="2585" y="334" width="94" height="164"/>
   <object x="3861" y="534" width="79" height="155"/>
   <object x="2573" y="1040" width="94" height="164"/>
@@ -94,7 +94,7 @@
   <object x="3861" y="1743" width="82" height="158"/>
   <object x="5126" y="264" width="97" height="173"/>
   <object x="3079" y="3535" width="244" height="113"/>
-  <object x="3075" y="2121" width="244" height="113"/>
+  <object name="shipDoor" x="3075" y="2121" width="244" height="113"/>
   <object x="5118" y="4612" width="118" height="186"/>
  </objectgroup>
  <objectgroup name="Destruction" width="400" height="220" visible="0">
@@ -107,7 +107,7 @@
   <object x="3272" y="3908" width="300" height="248"/>
   <object x="3136" y="3768" width="116" height="64"/>
  </objectgroup>
- <objectgroup name="NPC" width="400" height="220">
+ <objectgroup name="NPC" width="400" height="220" visible="0">
   <object name="ProfessorIapetus" x="5182" y="1764" width="163" height="216">
    <properties>
     <property name="Face" value="left"/>
@@ -133,7 +133,7 @@
   </object>
   <object name="worm" x="2836" y="4132" width="208" height="76"/>
  </objectgroup>
- <objectgroup name="PlayerStart" width="400" height="220">
+ <objectgroup name="PlayerStart" width="400" height="220" visible="0">
   <object x="4168" y="358" width="54" height="60"/>
  </objectgroup>
 </map>

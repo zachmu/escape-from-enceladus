@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Arena.Entity.NPC;
+using Arena.Map;
 using Microsoft.Xna.Framework;
 
 namespace Arena.Event {
@@ -13,7 +14,7 @@ namespace Arena.Event {
     class GameIntro : GameEvent {
         public const string ID = "GameIntro";
 
-        private const int MillisecondsBeforeTrigger = 1000;
+        private const int MillisecondsBeforeTrigger = 3000;
         private double MsLeftUntilTrigger = MillisecondsBeforeTrigger; 
 
         public override void ConversationStarted(Conversation conversation) {
@@ -31,6 +32,8 @@ namespace Arena.Event {
         }
 
         public override void Apply() {
+            TileLevel.CurrentLevel.DoorNamed("shipDoor").Lock();
+
             ConversationManager.Instance.StartConversation("InitialCaptainAnnouncement.txt");
             GameState.MilestoneAcheived(GameMilestone.GameStarted);
             EventManager.Instance.LoadEvent(TalkToCaptain.ID);

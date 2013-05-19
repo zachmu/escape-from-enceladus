@@ -52,7 +52,8 @@ namespace Arena {
         private InputHelper _inputHelper;
         private Conversation _currentConversation;
         private ConversationManager _conversationManager;
-        private EventManager _eventManager; 
+        private EventManager _eventManager;
+        private DoorState _doorState;
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -128,7 +129,8 @@ namespace Arena {
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
             _conversationManager = new ConversationManager(Content);
-            _eventManager = EventManager.Instance;
+            _eventManager = new EventManager();
+            _doorState = new DoorState();
             _mode = Mode.NormalControl;
 
             base.Initialize();
@@ -177,9 +179,13 @@ namespace Arena {
         /// </summary>
         public void DisposeRoom(Room disposeRoom) {
             if ( disposeRoom != null ) {
-                foreach ( IGameEntity gameEntity in _entities.Where(entity => disposeRoom.Contains(entity.Position)) ) {
-                    gameEntity.Dispose();
+                foreach ( IGameEntity gameEntity in _entities ) {
+                    if ( disposeRoom.Contains(gameEntity) && !_playerPositionMonitor.CurrentRoom.Contains(gameEntity) ) {
+                        gameEntity.Dispose();
+                    }
                 }
+
+                // TODO: this doesn't belong here
                 _mode = Mode.RoomTransition;
             }
         }
@@ -250,6 +256,7 @@ namespace Arena {
         }
 
         private void LoadStaticContent() {
+            Door.LoadContent(Content);
             PacingEnemy.LoadContent(Content);
             Worm.LoadContent(Content);
             Beetle.LoadContent(Content);

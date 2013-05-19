@@ -34,6 +34,7 @@ namespace Arena.Map {
         private readonly World _world;
         private readonly HashSet<Tile> _tilesToRemove = new HashSet<Tile>();
         private readonly HashSet<Tile> _tilesToAdd = new HashSet<Tile>();
+        private readonly Dictionary<string, Door> _namedDoors = new Dictionary<string, Door>();
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -50,10 +51,9 @@ namespace Arena.Map {
 
             _world = world;
             
-             TileDisplaySize = (int) ConvertUnits.ToDisplayUnits(TileSize);
+            TileDisplaySize = (int) ConvertUnits.ToDisplayUnits(TileSize);
 
             _levelMap = Map.Load(mapFile, cm);
-            Door.LoadContent(cm);
             
             _collisionLayer = _levelMap.Layers[CollisionLayerName];
             
@@ -87,11 +87,14 @@ namespace Arena.Map {
         }
 
         private void InitializeDoors(ObjectGroup doorGroup) {
-            foreach ( Object region in doorGroup.Objects ) {
+            foreach ( Object region in doorGroup.Objects ) {                
                 var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
                 var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
-                Door door = new Door(_world, topLeft, bottomRight);
+                Door door = new Door(_world, topLeft, bottomRight, region);
                 _doors.Add(door);
+                if ( door.Name != null ) {
+                    _namedDoors[door.Name] = door;
+                }
 
                 // Add the door to any straddling rooms
                 _rooms.ForEach(room => {
@@ -177,6 +180,7 @@ namespace Arena.Map {
             InitializeEdges();
             CreateEnemies();
             CreateNPCs();
+            CreateDoors();
             TearDownDestructionRegions();
             InitializeDestructionRegions();
 
@@ -191,6 +195,15 @@ namespace Arena.Map {
         private void TearDownEdges() {
             foreach ( Tile t in _collisionLayer.GetTiles().Where(tile => tile != null) ) {
                 t.DestroyAttachedBodies();
+            }
+        }
+
+        private void CreateDoors() {
+            foreach ( Door door in _doorsByRoom[PlayerPositionMonitor.Instance.CurrentRoom] ) {
+                if ( door.Disposed ) {
+                    door.Create();
+                    Arena.Instance.Register(door);
+                }
             }
         }
 
@@ -209,7 +222,7 @@ namespace Arena.Map {
 
         private void CreateEnemies() {
             Dictionary<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
-            if (objectGroups.ContainsKey("Enemies")) {
+            if ( objectGroups.ContainsKey("Enemies") ) {
                 ObjectGroup enemies = objectGroups["Enemies"];
                 foreach ( Object obj in enemies.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
@@ -225,7 +238,6 @@ namespace Arena.Map {
             var bottomRight = camera.ConvertScreenToWorld(new Vector2(viewportSize.Width, viewportSize.Height));
             var diff = bottomRight - topLeft;
             _levelMap.DrawBackground(spriteBatch, new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) diff.X, (int) diff.Y));
-            _doors.ForEach(door => door.Draw(spriteBatch, camera));
         }
 
         public void DrawForeground(SpriteBatch spriteBatch, Camera2D camera, Rectangle viewportSize) {
@@ -269,8 +281,6 @@ namespace Arena.Map {
                 _tilesToRemove.Clear();
                 safeToAdd.ForEach(tile => _tilesToAdd.Remove(tile));
             }
-
-            _doors.ForEach(door => door.Update(gameTime));
         }
 
         /// <summary>
@@ -755,6 +765,13 @@ namespace Arena.Map {
         /// </summary>
         public Room RoomAt(Vector2 point) {
             return _rooms.FirstOrDefault(room => room.Contains(point));
+        }
+
+        /// <summary>
+        /// Returns the door with the name given or null if there isn't one.
+        /// </summary>
+        public Door DoorNamed(string name) {
+            return _namedDoors[name];
         }
 
         /// <summary>

@@ -62,6 +62,14 @@ namespace Arena.Map {
             get { return _id; }
         }
 
+        public bool Contains(IGameEntity entity) {
+            if ( entity is Door ) {
+                return Intersects((Door) entity);
+            } else {
+                return Contains(entity.Position);
+            }
+        }
+
         public bool Contains(Vector2 position) {
             return _regions.Any(region => region.Contains(position));
         }
