@@ -15,7 +15,7 @@ namespace Arena.Event {
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.ChefHawser));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.ChiefMizzen));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.EnsignClew));
-            _toTalkTo.Add(NPCFactory.GetDialogEntity(NPCFactory.CharEnsignForecastle));
+            _toTalkTo.Add(NPCFactory.GetDialogEntity(NPCFactory.CharSergeantForecastle));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.EnsignGibe));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.EnsignLeeward));
 //            _toTalkTo.Add(NPCFactory.Get(NPCFactory.EnsignTaffrail));

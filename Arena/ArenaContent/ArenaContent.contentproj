@@ -2742,10 +2742,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Conversations\EnsignForecastle-default.txt">
+    <None Include="Conversations\SergeantForecastle-default.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>EnsignForecastle-default</Name>
+      <Name>SergeantForecastle-default</Name>
     </None>
     <None Include="Conversations\ChefHawser-default.txt">
       <SubType>Designer</SubType>

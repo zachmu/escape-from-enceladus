@@ -16,7 +16,7 @@ namespace Arena.Entity.NPC {
     internal class EnsignForecastle : NPC {
         public static readonly Color CharacterColor = Color.Plum;
         public EnsignForecastle(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base(NPCFactory.CharEnsignForecastle, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharSergeantForecastle, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
@@ -24,13 +24,6 @@ namespace Arena.Entity.NPC {
         public static readonly Color CharacterColor = Color.Wheat;
         public ChefHawser(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
             : base(NPCFactory.CharChefHawser, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
-        }
-    }
-
-    internal class EnsignClew : NPC {
-        public static readonly Color CharacterColor = Color.Bisque;
-        public EnsignClew(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base(NPCFactory.CharEnsignClew, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
@@ -58,7 +51,7 @@ namespace Arena.Entity.NPC {
     }
 
     internal class EnsignGibe : NPC {
-        public static readonly Color CharacterColor = Color.DarkSalmon;
+        public static readonly Color CharacterColor = Color.DarkRed;
 
         public EnsignGibe(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
             : base(NPCFactory.CharEnsignGibe, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
@@ -66,7 +59,7 @@ namespace Arena.Entity.NPC {
     }
 
     internal class ChiefMizzen : NPC {
-        public static readonly Color CharacterColor = Microsoft.Xna.Framework.Color.DarkSalmon;
+        public static readonly Color CharacterColor = Color.Aqua;
 
         public ChiefMizzen(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
             : base(NPCFactory.CharChiefMizzen, CharacterColor, topLeft, bottomRight, world, sensorWidth) {

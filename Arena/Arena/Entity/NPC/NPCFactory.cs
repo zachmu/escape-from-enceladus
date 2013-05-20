@@ -14,9 +14,8 @@ namespace Arena.Entity.NPC {
         private const float DefaultSensorWidth = 6f;
 
         public const string CharProfessorIapetus = "ProfessorIapetus";
-        public const string CharEnsignForecastle = "EnsignForecastle";
+        public const string CharSergeantForecastle = "SergeantForecastle";
         public const string CharChefHawser = "ChefHawser";
-        public const string CharEnsignClew = "EnsignClew";
         public const string CharEnsignLeeward = "EnsignLeeward";
         public const string CharCaptainPurchase = "CaptainPurchase";
         public const string CharEnsignGibe = "EnsignGibe";
@@ -43,12 +42,10 @@ namespace Arena.Entity.NPC {
             switch ( npc.Name ) {
                 case CharProfessorIapetus:
                     return _activeNpcs[CharProfessorIapetus] = new ProfessorIapetus(topLeft, bottomRight, world, sensorWidth);
-                case CharEnsignForecastle:
-                    return _activeNpcs[CharEnsignForecastle] = new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
+                case CharSergeantForecastle:
+                    return _activeNpcs[CharSergeantForecastle] = new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
                 case CharChefHawser:
                     return _activeNpcs[CharChefHawser] = new ChefHawser(topLeft, bottomRight, world, sensorWidth);
-                case CharEnsignClew:
-                    return _activeNpcs[CharEnsignClew] = new EnsignClew(topLeft, bottomRight, world, sensorWidth);
                 case CharEnsignLeeward:
                     return _activeNpcs[CharEnsignLeeward] = new EnsignLeeward(topLeft, bottomRight, world, sensorWidth);
                 case CharCaptainPurchase:
@@ -87,12 +84,10 @@ namespace Arena.Entity.NPC {
                 switch ( npcName ) {
                     case CharProfessorIapetus:
                         return new DisembodiedSpeaker(ProfessorIapetus.CharacterColor, CharProfessorIapetus);
-                    case CharEnsignForecastle:
-                        return new DisembodiedSpeaker(EnsignForecastle.CharacterColor, CharEnsignForecastle);
+                    case CharSergeantForecastle:
+                        return new DisembodiedSpeaker(EnsignForecastle.CharacterColor, CharSergeantForecastle);
                     case CharChefHawser:
                         return new DisembodiedSpeaker(ChefHawser.CharacterColor, CharChefHawser);
-                    case CharEnsignClew:
-                        return new DisembodiedSpeaker(EnsignClew.CharacterColor, CharEnsignClew);
                     case CharEnsignLeeward:
                         return new DisembodiedSpeaker(EnsignLeeward.CharacterColor, CharEnsignLeeward);
                     case CharCaptainPurchase:
