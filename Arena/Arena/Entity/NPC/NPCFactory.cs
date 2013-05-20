@@ -9,17 +9,23 @@ using Microsoft.Xna.Framework;
 using Object = Arena.Map.Object;
 
 namespace Arena.Entity.NPC {
+
+    /// <summary>
+    /// NPCs should be created via Create when they become active to 
+    /// the game world, such as upon room load, and destroyed when 
+    /// they no longer need to be physically present in a scene.
+    /// </summary>
     public class NPCFactory {
 
         private const float DefaultSensorWidth = 6f;
 
         public const string CharProfessorIapetus = "ProfessorIapetus";
-        public const string CharSergeantForecastle = "SergeantForecastle";
+        public const string CharLieutenantForecastle = "LieutenantForecastle";
         public const string CharChefHawser = "ChefHawser";
         public const string CharEnsignLeeward = "EnsignLeeward";
         public const string CharCaptainPurchase = "CaptainPurchase";
         public const string CharEnsignGibe = "EnsignGibe";
-        public const string CharEnsignTaffrail = "EnsignTaffrail";
+        public const string CharCommanderTaffrail = "CommanderTaffrail";
         public const string CharChiefMizzen = "ChiefMizzen";
         public const string Announcement = "Announcement";
 
@@ -42,8 +48,8 @@ namespace Arena.Entity.NPC {
             switch ( npc.Name ) {
                 case CharProfessorIapetus:
                     return _activeNpcs[CharProfessorIapetus] = new ProfessorIapetus(topLeft, bottomRight, world, sensorWidth);
-                case CharSergeantForecastle:
-                    return _activeNpcs[CharSergeantForecastle] = new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
+                case CharLieutenantForecastle:
+                    return _activeNpcs[CharLieutenantForecastle] = new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
                 case CharChefHawser:
                     return _activeNpcs[CharChefHawser] = new ChefHawser(topLeft, bottomRight, world, sensorWidth);
                 case CharEnsignLeeward:
@@ -52,8 +58,8 @@ namespace Arena.Entity.NPC {
                     return _activeNpcs[CharCaptainPurchase] = new CaptainPurchase(topLeft, bottomRight, world, sensorWidth);
                 case CharEnsignGibe:
                     return _activeNpcs[CharEnsignGibe] = new EnsignGibe(topLeft, bottomRight, world, sensorWidth);
-                case CharEnsignTaffrail:
-                    return _activeNpcs[CharEnsignTaffrail] = new EnsignTaffrail(topLeft, bottomRight, world, sensorWidth);
+                case CharCommanderTaffrail:
+                    return _activeNpcs[CharCommanderTaffrail] = new EnsignTaffrail(topLeft, bottomRight, world, sensorWidth);
                 case CharChiefMizzen:
                     return _activeNpcs[CharChiefMizzen] = new ChiefMizzen(topLeft, bottomRight, world, sensorWidth);
                 default:
@@ -84,8 +90,8 @@ namespace Arena.Entity.NPC {
                 switch ( npcName ) {
                     case CharProfessorIapetus:
                         return new DisembodiedSpeaker(ProfessorIapetus.CharacterColor, CharProfessorIapetus);
-                    case CharSergeantForecastle:
-                        return new DisembodiedSpeaker(EnsignForecastle.CharacterColor, CharSergeantForecastle);
+                    case CharLieutenantForecastle:
+                        return new DisembodiedSpeaker(EnsignForecastle.CharacterColor, CharLieutenantForecastle);
                     case CharChefHawser:
                         return new DisembodiedSpeaker(ChefHawser.CharacterColor, CharChefHawser);
                     case CharEnsignLeeward:
@@ -94,8 +100,8 @@ namespace Arena.Entity.NPC {
                         return new DisembodiedSpeaker(CaptainPurchase.CharacterColor, CharCaptainPurchase);
                     case CharEnsignGibe:
                         return new DisembodiedSpeaker(EnsignGibe.CharacterColor, CharEnsignGibe);
-                    case CharEnsignTaffrail:
-                        return new DisembodiedSpeaker(EnsignTaffrail.CharacterColor, CharEnsignTaffrail);
+                    case CharCommanderTaffrail:
+                        return new DisembodiedSpeaker(EnsignTaffrail.CharacterColor, CharCommanderTaffrail);
                     case CharChiefMizzen:
                         return new DisembodiedSpeaker(ChiefMizzen.CharacterColor, CharChiefMizzen);
                     default:

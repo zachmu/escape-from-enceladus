@@ -16,7 +16,7 @@ namespace Arena.Entity.NPC {
     internal class EnsignForecastle : NPC {
         public static readonly Color CharacterColor = Color.Plum;
         public EnsignForecastle(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base(NPCFactory.CharSergeantForecastle, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharLieutenantForecastle, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 
@@ -38,7 +38,7 @@ namespace Arena.Entity.NPC {
         public static readonly Color CharacterColor = Color.DarkSalmon;
 
         public EnsignTaffrail(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
-            : base(NPCFactory.CharEnsignTaffrail, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
+            : base(NPCFactory.CharCommanderTaffrail, CharacterColor, topLeft, bottomRight, world, sensorWidth) {
         }
     }
 

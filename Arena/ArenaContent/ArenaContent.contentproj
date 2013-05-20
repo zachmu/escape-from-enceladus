@@ -2742,10 +2742,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Conversations\SergeantForecastle-default.txt">
+    <None Include="Conversations\LieutenantForecastle-default.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>SergeantForecastle-default</Name>
+      <Name>LieutenantForecastle-default</Name>
     </None>
     <None Include="Conversations\ChefHawser-default.txt">
       <SubType>Designer</SubType>
@@ -2762,10 +2762,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>EnsignGibe-default</Name>
     </None>
-    <None Include="Conversations\EnsignTaffrail-default.txt">
+    <None Include="Conversations\CommanderTaffrail-default.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>EnsignTaffrail-default</Name>
+      <Name>CommanderTaffrail-default</Name>
     </None>
     <None Include="Conversations\CaptainPurchase-default.txt">
       <SubType>Designer</SubType>

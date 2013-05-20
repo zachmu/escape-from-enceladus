@@ -1,13 +1,11 @@
 ﻿CaptainPurchase: At ease, Lieutenant.
 CaptainPurchase: ... just right now, I mean. In general, keep your eyes open and your ears peeled!
 Roark: Sir!
-CaptainPurchase: As you know, we have been contracted to transport the criminally insane... 
-CaptainPurchase: ... Professor Iapetus to the prison colony on Enceladus.
+CaptainPurchase: As you know, we have been contracted to transport the criminally insane Professor Iapetus to the prison colony on Enceladus.
 Roark: The moon of Saturn, sir?
 CaptainPurchase: Don't interrupt, but obviously, yes.
-CaptainPurchase: Iapetus has been sentenced to permanent exile on the satellite, where he will be supervised...
-CaptainPurchase: ... and allowed to complete some of his research that was deemed harmless.
-CaptainPurchase: As the ship's security officer, I trust you feel up to guarding an unarmed and feeble 106-year-old man?
+CaptainPurchase: Iapetus has been sentenced to permanent exile on the satellite, where he will be supervised and allowed to complete some of his research that was deemed harmless.
+CaptainPurchase: As the ship's security officer, I trust you feel up to guarding an unarmed pencil pusher?
 Roark: An interesting challenge, sir!
 CaptainPurchase: As you say, lieutenant.
 CaptainPurchase: Please execute a security sweep of the ship, and make sure to talk to everyone.

@@ -116,10 +116,10 @@
   </object>
   <object x="6842" y="812"/>
   <object name="ChefHawser" x="1403" y="1924" width="439" height="182"/>
-  <object name="SergeantForecastle" x="4078" y="1874" width="575" height="235"/>
+  <object name="LieutenantForecastle" x="4078" y="1874" width="575" height="235"/>
   <object name="ChiefMizzen" x="1408" y="1236" width="639" height="169"/>
   <object name="CaptainPurchase" x="6136" y="515" width="199" height="185"/>
-  <object name="EnsignTaffrail" x="4310" y="499" width="546" height="199"/>
+  <object name="CommanderTaffrail" x="4310" y="499" width="546" height="199"/>
   <object name="EnsignLeeward" x="3970" y="499" width="607" height="200"/>
   <object name="EnsignGibe" x="6079" y="961" width="122" height="187"/>
  </objectgroup>
