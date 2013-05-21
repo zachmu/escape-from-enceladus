@@ -61,7 +61,6 @@ namespace Arena.Map {
                 ObjectGroup roomGroup = _levelMap.ObjectGroups[RoomLayerName];
                 InitializeRooms(roomGroup);
             } catch {
-                // No rooms layer is fine, we'll just create a room for them
                 //_rooms.Add(new Room(new Vector2(0, 0), new Vector2(_levelMap.Width, _levelMap.Height)));
             }
 
@@ -199,10 +198,12 @@ namespace Arena.Map {
         }
 
         private void CreateDoors() {
-            foreach ( Door door in _doorsByRoom[PlayerPositionMonitor.Instance.CurrentRoom] ) {
-                if ( door.Disposed ) {
-                    door.Create();
-                    Arena.Instance.Register(door);
+            if ( _doorsByRoom.ContainsKey(PlayerPositionMonitor.Instance.CurrentRoom) ) {
+                foreach ( Door door in _doorsByRoom[PlayerPositionMonitor.Instance.CurrentRoom] ) {
+                    if ( door.Disposed ) {
+                        door.Create();
+                        Arena.Instance.Register(door);
+                    }
                 }
             }
         }
@@ -780,7 +781,10 @@ namespace Arena.Map {
         /// <param name="room"></param>
         /// <returns></returns>
         public List<Door> GetDoorsAttachedToRoom(Room room) {
-            return _doorsByRoom[room] ?? new List<Door>();
+            if ( !_doorsByRoom.ContainsKey(room) ) {
+                return new List<Door>();
+            }
+            return _doorsByRoom[room];
         }
     }
 }
