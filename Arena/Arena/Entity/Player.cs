@@ -45,7 +45,8 @@ namespace Arena.Entity {
         public float Width { get; private set; }
         
         private static readonly Constants Constants = Constants.Instance;
-        private const string PlayerInitSpeedMs = "Player initial run speed (m/s)";
+        private const string PlayerInitSpeedMs = "Player initial walk speed (m/s)";
+        private const string PlayerInitRunSpeedMs = "Player initial run speed (m/s)";
         private const string PlayerMaxSpeedMs = "Player max run speed (m/s)";
         private const string PlayerAccelerationMss = "Player acceleration (m/s/s)";
         private const string PlayerAirAccelerationMss = "Player horizontal air acceleration (m/s/s)";
@@ -62,11 +63,12 @@ namespace Arena.Entity {
 
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 2.5f, Keys.I));
+            Constants.Register(new Constant(PlayerInitRunSpeedMs, 5.0f, Keys.O));
             Constants.Register(new Constant(PlayerAccelerationMss, 5.0f, Keys.A));
             Constants.Register(new Constant(PlayerMaxSpeedMs, 20, Keys.S));
             Constants.Register(new Constant(PlayerAirAccelerationMss, 5.0f, Keys.D));
             Constants.Register(new Constant(PlayerJumpSpeed, 10f, Keys.J));
-            Constants.Register(new Constant(PlayerAirBoostTime, .5f, Keys.D4));
+            Constants.Register(new Constant(PlayerAirBoostTime, .4f, Keys.D4));
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
             Constants.Register(new Constant(PlayerJogSpeedMultiplier, .37f, Keys.B, .01f));
@@ -620,13 +622,14 @@ namespace Arena.Entity {
             if ( _timeUntilRegainControl <= 0 ) {
                 if ( IsStanding ) {
                     if ( movementDirection != null ) {
+                        float minLateralSpeed = PlayerControl.Control.IsRunButtonDown() ? Constants[PlayerInitRunSpeedMs] : Constants[PlayerInitSpeedMs];
                         switch ( movementDirection.Value ) {
                             case Direction.Left:
                             case Direction.DownLeft:
                             case Direction.UpLeft:
                                 _facingDirection = Direction.Left;
-                                if ( _body.LinearVelocity.X > -Constants[PlayerInitSpeedMs] ) {
-                                    _body.LinearVelocity = new Vector2(-Constants[PlayerInitSpeedMs],
+                                if ( _body.LinearVelocity.X > -minLateralSpeed ) {
+                                    _body.LinearVelocity = new Vector2(-minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
                                 } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
                                     if ( PlayerControl.Control.IsRunButtonDown() ) {
@@ -642,8 +645,8 @@ namespace Arena.Entity {
                             case Direction.UpRight:
                             case Direction.DownRight:
                                 _facingDirection = Direction.Right;
-                                if ( _body.LinearVelocity.X < Constants[PlayerInitSpeedMs] ) {
-                                    _body.LinearVelocity = new Vector2(Constants[PlayerInitSpeedMs],
+                                if ( _body.LinearVelocity.X < minLateralSpeed ) {
+                                    _body.LinearVelocity = new Vector2(minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
                                 } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
                                     if ( PlayerControl.Control.IsRunButtonDown() ) {

@@ -113,7 +113,7 @@ namespace Arena {
         protected override void Initialize() {
             _instance = this;
 
-            Constants.Register(new Constant(Gravity, 25f, Keys.G));
+            Constants.Register(new Constant(Gravity, 30f, Keys.G));
             Constants.Register(new Constant(ShaderVar1, .5f, Keys.D1));
             Constants.Register(new Constant(ShaderVar2, .5f, Keys.D2));
             Constants.Register(new Constant(ShaderVar3, .6f, Keys.D3));
