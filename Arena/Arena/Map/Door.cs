@@ -211,9 +211,28 @@ namespace Arena.Map {
             _msSinceLastStateChange = 0;
         }
 
+        private void OpenDoor() {
+            switch ( _state ) {
+                case State.Closed:
+                    _state = State.Opening;
+                    _msSinceLastStateChange = 0;
+                    break;
+                case State.Closing:
+                    _state = State.Opening;
+                    _msSinceLastStateChange = (int) (Constants.Get(DoorOpenTime) * 1000 - _msSinceLastStateChange);
+                    break;
+            }
+        }
+
         private void CloseDoor() {
             MakeDoorSolid();
             _state = State.Closing;
+            _msSinceLastStateChange = 0;
+        }
+
+        private void CloseDoorFully() {
+            MakeDoorSolid();
+            _state = State.Closed;
             _msSinceLastStateChange = 0;
         }
 
@@ -246,16 +265,7 @@ namespace Arena.Map {
 
         public void HitBy(Projectile shot) {
             if ( !_locked ) {
-                switch ( _state ) {
-                    case State.Closed:
-                        _state = State.Opening;
-                        _msSinceLastStateChange = 0;
-                        break;
-                    case State.Closing:
-                        _state = State.Opening;
-                        _msSinceLastStateChange = (int) (Constants.Get(DoorOpenTime) * 1000 - _msSinceLastStateChange);
-                        break;
-                }
+                OpenDoor();
             }
         }
 
@@ -265,7 +275,7 @@ namespace Arena.Map {
         /// </summary>
         public void Create() {
             CreateBody();
-            CloseDoor();
+            CloseDoorFully();
         }
     }
 }
