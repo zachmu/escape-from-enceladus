@@ -208,7 +208,7 @@ namespace Arena.Map {
         /// Retrieves the player's coordinate's in screens
         /// </summary>
         private void GetPlayerScreen(out int playerScreenX, out int playerScreenY) {
-            Vector2 playerPos = Player.Instance.Position - new Vector2(1);
+            Vector2 playerPos = Player.Instance.Position - new Vector2(MapConstants.TileOffsetX, MapConstants.TileOffsetY);
             playerScreenX = (int) playerPos.X / MapConstants.RoomWidth;
             playerScreenY = (int) playerPos.Y / MapConstants.RoomHeight;
         }

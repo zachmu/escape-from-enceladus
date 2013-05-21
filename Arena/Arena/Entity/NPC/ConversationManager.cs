@@ -31,11 +31,60 @@ namespace Arena.Entity.NPC {
         /// Returns the appropriate conversation to initiate, at this point of the game, with the NPC given.
         /// </summary>
         public void StartConversation(NPC initiatingNPC) {
-            if ( initiatingNPC.Name == NPCFactory.CharCaptainPurchase ) {
-                StartConversationWithCaptainPurchase();
-            } else {
-                StartConversation(new Conversation(_cm, String.Format("{0}-default.txt", initiatingNPC.Name)));
+            switch ( initiatingNPC.Name ) {
+                case NPCFactory.CharCaptainPurchase:
+                    StartConversationWithCaptainPurchase();
+                    break;
+                case NPCFactory.CharChefHawser:
+                    StartConversationWithChefHawser();
+                    break;
+                case NPCFactory.CharChiefMizzen:
+                    StartConversationWithChiefMizzen();
+                    break;
+                case NPCFactory.CharCommanderTaffrail:
+                    StartConversationWithCommanderTaffrail();
+                    break;
+                case NPCFactory.CharEnsignGibe:
+                    StartConversationWithEnsignGibe();
+                    break;
+                case NPCFactory.CharEnsignLeeward:
+                    StartConversationWithEnsignLeeward();
+                    break;
+                case NPCFactory.CharLieutenantForecastle:
+                    StartConversationWithLieutenantForecastle();
+                    break;
+                case NPCFactory.CharProfessorIapetus:
+                    StartConversationWithProfessorIapetus();
+                    break;
             }
+        }
+
+        private void StartConversationWithProfessorIapetus() {
+            throw new NotImplementedException();
+        }
+
+        private void StartConversationWithLieutenantForecastle() {
+            throw new NotImplementedException();
+        }
+
+        private void StartConversationWithEnsignLeeward() {
+            throw new NotImplementedException();
+        }
+
+        private void StartConversationWithEnsignGibe() {
+            throw new NotImplementedException();
+        }
+
+        private void StartConversationWithChiefMizzen() {
+            throw new NotImplementedException();
+        }
+
+        private void StartConversationWithCommanderTaffrail() {
+            throw new NotImplementedException();
+        }
+
+        private void StartConversationWithChefHawser() {
+            throw new NotImplementedException();
         }
 
         private void StartConversationWithCaptainPurchase() {
