@@ -47,9 +47,10 @@ namespace Arena.Entity {
         private static readonly Constants Constants = Constants.Instance;
         private const string PlayerInitSpeedMs = "Player initial walk speed (m/s)";
         private const string PlayerInitRunSpeedMs = "Player initial run speed (m/s)";
-        private const string PlayerMaxSpeedMs = "Player max run speed (m/s)";
+        private const string PlayerMaxGroundSpeedMs = "Player max run speed (m/s)";
         private const string PlayerAccelerationMss = "Player acceleration (m/s/s)";
-        private const string PlayerAirAccelerationMss = "Player horizontal air acceleration (m/s/s)";
+        private const string PlayerFastJumpSpeed = "Player fast jump speed (m/s)";
+        private const string PlayerAirBrakeMss = "Player horizontal air brake (m/s/s)";
         private const string PlayerJumpSpeed = "Player jump speed (m/s)";
         private const string PlayerAirBoostTime = "Player max air boost time (s)";
         private const string PlayerKnockbackTime = "Player knock back time (s)";
@@ -62,18 +63,19 @@ namespace Arena.Entity {
         private const string ProjectileOffsetY = "Projectile offset Y";
 
         static Player() {
-            Constants.Register(new Constant(PlayerInitSpeedMs, 2.5f, Keys.I));
-            Constants.Register(new Constant(PlayerInitRunSpeedMs, 5.0f, Keys.O));
+            Constants.Register(new Constant(PlayerInitSpeedMs, 3.5f, Keys.I));
+            Constants.Register(new Constant(PlayerInitRunSpeedMs, 7.0f, Keys.O));
             Constants.Register(new Constant(PlayerAccelerationMss, 5.0f, Keys.A));
-            Constants.Register(new Constant(PlayerMaxSpeedMs, 20, Keys.S));
-            Constants.Register(new Constant(PlayerAirAccelerationMss, 5.0f, Keys.D));
+            Constants.Register(new Constant(PlayerFastJumpSpeed, 5f, Keys.M));
+            Constants.Register(new Constant(PlayerMaxGroundSpeedMs, 20, Keys.S));
+            Constants.Register(new Constant(PlayerAirBrakeMss, 7.0f, Keys.D));
             Constants.Register(new Constant(PlayerJumpSpeed, 10f, Keys.J));
             Constants.Register(new Constant(PlayerAirBoostTime, .4f, Keys.D4));
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
-            Constants.Register(new Constant(PlayerJogSpeedMultiplier, .37f, Keys.B, .01f));
+            Constants.Register(new Constant(PlayerJogSpeedMultiplier, .5f, Keys.B, .01f));
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
-            Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, 1.0f, Keys.M));
+            Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, 1.0f, null));
             Constants.Register(new Constant(PlayerScooterOffset, 0f, Keys.P));
             Constants.Register(new Constant(ProjectileOffsetX, 0f, Keys.X, .01f));
             Constants.Register(new Constant(ProjectileOffsetY, 0f, Keys.Y, .01f));
@@ -631,13 +633,13 @@ namespace Arena.Entity {
                                 if ( _body.LinearVelocity.X > -minLateralSpeed ) {
                                     _body.LinearVelocity = new Vector2(-minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
-                                } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
+                                } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxGroundSpeedMs] ) {
                                     if ( PlayerControl.Control.IsRunButtonDown() ) {
                                         _body.LinearVelocity -= new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
                                 } else {
-                                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs],
+                                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxGroundSpeedMs],
                                                                        _body.LinearVelocity.Y);
                                 }
                                 break;
@@ -648,13 +650,13 @@ namespace Arena.Entity {
                                 if ( _body.LinearVelocity.X < minLateralSpeed ) {
                                     _body.LinearVelocity = new Vector2(minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
-                                } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxSpeedMs] ) {
+                                } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxGroundSpeedMs] ) {
                                     if ( PlayerControl.Control.IsRunButtonDown() ) {
                                         _body.LinearVelocity += new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
                                 } else {
-                                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs],
+                                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxGroundSpeedMs],
                                                                        _body.LinearVelocity.Y);
                                 }
                                 break;
@@ -677,18 +679,21 @@ namespace Arena.Entity {
                 } else {
                     // in the air
                     if ( movementDirection != null ) {
-                        switch ( movementDirection.Value ) {
-
+                        float minLateralSpeed = Constants[PlayerInitSpeedMs];
+                        float fastJumpSpeed = Constants[PlayerFastJumpSpeed];
+                        switch ( movementDirection.Value ) {                                
                             case Direction.Left:
                             case Direction.UpLeft:
                             case Direction.DownLeft:
-                                if ( _body.LinearVelocity.X > -Constants[PlayerMaxSpeedMs] ) {
+                                // move left instantaneously unless you are moving too fast to the right
+                                if ( _body.LinearVelocity.X < fastJumpSpeed && _body.LinearVelocity.X > -minLateralSpeed ) {
+                                    _body.LinearVelocity = new Vector2(-minLateralSpeed, _body.LinearVelocity.Y);
+                                // you can brake a fast jump, but you can't turn it around until it's slow enough
+                                } else if ( _body.LinearVelocity.X >= fastJumpSpeed ) {
                                     _body.LinearVelocity -= new Vector2(
-                                        GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
-                                } else {
-                                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxSpeedMs],
-                                                                       _body.LinearVelocity.Y);
+                                        GetVelocityDelta(Constants[PlayerAirBrakeMss], gameTime), 0);
                                 }
+
                                 if ( _body.LinearVelocity.X <= 0 ) {
                                     _facingDirection = Direction.Left;
                                 }
@@ -697,18 +702,18 @@ namespace Arena.Entity {
                             case Direction.Right:
                             case Direction.UpRight:
                             case Direction.DownRight:
-                                if ( _body.LinearVelocity.X < Constants[PlayerMaxSpeedMs] ) {
+                                // move right instantaneously unless you are moving too fast to the left
+                                if ( _body.LinearVelocity.X > -fastJumpSpeed && _body.LinearVelocity.X < minLateralSpeed ) {
+                                    _body.LinearVelocity = new Vector2(minLateralSpeed, _body.LinearVelocity.Y);
+                                    // you can brake a fast jump, but you can't turn it around until it's slow enough
+                                } else if ( _body.LinearVelocity.X <= -fastJumpSpeed ) {
                                     _body.LinearVelocity += new Vector2(
-                                        GetVelocityDelta(Constants[PlayerAirAccelerationMss], gameTime), 0);
-                                } else {
-                                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxSpeedMs],
-                                                                       _body.LinearVelocity.Y);
+                                        GetVelocityDelta(Constants[PlayerAirBrakeMss], gameTime), 0);
                                 }
+
                                 if ( _body.LinearVelocity.X >= 0 ) {
                                     _facingDirection = Direction.Right;
                                 }
-                                break;
-                            default:
                                 break;
                         }
                     }
@@ -1444,11 +1449,11 @@ namespace Arena.Entity {
         }
 
         private bool IsJoggingSpeed() {
-            return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerMaxSpeedMs] * .75f;
+            return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerMaxGroundSpeedMs] * .6f;
         }
 
         private bool IsWalkingSpeed() {
-            return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerInitSpeedMs];
+            return Math.Abs(_body.LinearVelocity.X) <= (Constants[PlayerInitSpeedMs] + Constants[PlayerInitRunSpeedMs]) / 2f;
         }
 
         #endregion

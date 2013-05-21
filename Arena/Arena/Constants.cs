@@ -30,13 +30,16 @@ namespace Arena {
         }
 
         public static void Register(Constant c) {
-            if (ConstantsByKey.ContainsKey(c._key)) {
-                throw new ArgumentException(String.Format("Duplicate constant key registered: {0}", ConstantsByKey[c._key]));
+            if ( c._key != null ) {
+                if ( ConstantsByKey.ContainsKey((Keys) c._key) ) {
+                    throw new ArgumentException(String.Format("Duplicate constant key registered: {0}",
+                                                              ConstantsByKey[(Keys) c._key]));
+                }
+                ConstantsByKey[(Keys) c._key] = c;
             }
             if ( ConstantsByName.ContainsKey(c._name) ) {
                 throw new ArgumentException(String.Format("Duplicate constant name registered: {0}", ConstantsByName[c._name]));
             }
-            ConstantsByKey[c._key] = c;
             ConstantsByName[c._name] = c;
         }
 
@@ -85,7 +88,7 @@ namespace Arena {
     public class Constant {
         internal string _name;
         internal float _value;
-        internal Keys _key;
+        internal Keys? _key;
         internal float _increment;
 
         public float Value {
@@ -95,10 +98,10 @@ namespace Arena {
         internal bool Visible { get; set; }
         internal long LastDisplayTime { get; set; }
 
-        public Constant(string name, float value, Keys key) : this(name, value,  key, .1f) {
+        public Constant(string name, float value, Keys? key) : this(name, value,  key, .1f) {
         }
 
-        public Constant(string name, float value, Keys key, float increment) {
+        public Constant(string name, float value, Keys? key, float increment) {
             _name = name;
             _value = value;
             _key = key;
