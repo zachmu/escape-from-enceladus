@@ -59,7 +59,7 @@ namespace Arena.Entity.NPC {
     }
 
     internal class ChiefMizzen : NPC {
-        public static readonly Color CharacterColor = Color.Aqua;
+        public static readonly Color CharacterColor = Color.SaddleBrown;
 
         public ChiefMizzen(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)
             : base(NPCFactory.CharChiefMizzen, CharacterColor, topLeft, bottomRight, world, sensorWidth) {

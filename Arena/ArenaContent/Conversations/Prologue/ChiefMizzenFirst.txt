@@ -1,6 +1,3 @@
-﻿ChiefMizzen: No time to talk, I have my hands full keeping this bird in the air.
-ChiefMizzen: Well, not air, I guess. Vaccuum.
-ChiefMizzen: What? How do the engines work?
-ChiefMizzen: <sigh>  You know I had to go to school for like 10 years to do this job, right?
-ChiefMizzen: I can't just distill all that knowledge down to a folksy metaphor on demand!
-ChiefMizzen: Anyway, shouldn't you be getting back to making sure that geriatric doesn't escape?
+﻿ChiefMizzen: I might need to postpone our chess game tonight -- the engines need a level one diagnostic.
+Roark: What does that even do?
+ChiefMizzen: I think the captain is looking for you, isn't he?

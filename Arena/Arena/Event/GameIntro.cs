@@ -34,7 +34,7 @@ namespace Arena.Event {
         public override void Apply() {
             TileLevel.CurrentLevel.DoorNamed("shipDoor").Lock();
 
-            ConversationManager.Instance.StartConversation("InitialCaptainAnnouncement.txt");
+            ConversationManager.Instance.StartConversation("Prologue/InitialCaptainAnnouncement.txt");
             GameState.MilestoneAcheived(GameMilestone.GameStarted);
             EventManager.Instance.LoadEvent(TalkToCaptain.ID);
 

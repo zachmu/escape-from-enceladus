@@ -1,4 +1,9 @@
-﻿CommanderTaffrail: Don't pay any mind to Ensign Leeward, Lietenant Commander Roark. He's been in a terrible mood all day.
-CommanderTaffrail: He got a hypergram from his ex-wife this morning.
-CommanderTaffrail: I guess she's getting the moon resort in the divorce.  Poor guy.
-CommanderTaffrail: He really loved that place.
+﻿EnsignLeeward: If it isn't the world's laziest security officer!
+EnsignLeeward: What do you even do all day, with Professor Iapetus locked behind his laser bars?
+EnsignLeeward: This must be a really nice gig for you!
+EnsignLeeward: Lieutenant Forecastle says you spend a lot of time "in your bunk" if you catch my meaning.
+CommanderTaffrail: That's quite enough lip!
+CommanderTaffrail: Don't pay any mind to Ensign Leeward, Lieutenant Commander Roark. He's been in a terrible mood all day.
+CommanderTaffrail: He got a hypergram from his ex-wife this morning. I guess she's getting the moon resort in the divorce.
+CommanderTaffrail: Poor guy. He really loved that place.
+EnsignLeeward: *sob*

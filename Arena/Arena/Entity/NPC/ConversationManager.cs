@@ -60,38 +60,66 @@ namespace Arena.Entity.NPC {
         }
 
         private void StartConversationWithProfessorIapetus() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/ProfessorIapetusFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/ProfessorIapetusSecond.txt"));
+            }
         }
 
         private void StartConversationWithLieutenantForecastle() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/LieutenantForecastleFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/LieutenantForecastleSecond.txt"));
+            }
         }
 
         private void StartConversationWithEnsignLeeward() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/EnsignLeewardSecond.txt"));
+            }
         }
 
         private void StartConversationWithEnsignGibe() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/EnsignGibeFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/EnsignGibeSecond.txt"));
+            }
         }
 
         private void StartConversationWithChiefMizzen() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/ChiefMizzenFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/ChiefMizzenSecond.txt"));
+            }
         }
 
         private void StartConversationWithCommanderTaffrail() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailSecond.txt"));
+            }
         }
 
         private void StartConversationWithChefHawser() {
-            throw new NotImplementedException();
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/ChefHawserFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/ChefHawserFirst.txt"));
+            }
         }
 
         private void StartConversationWithCaptainPurchase() {
-            if ( GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
-                StartConversation(new Conversation(_cm, String.Format("{0}-default.txt", "CaptainPurchase")));
+            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+                StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseFirst.txt"));
             } else {
-                StartConversation(new Conversation(_cm, "CaptainPurchaseFirst.txt"));
+                StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseSecond.txt"));
             }
         }
 

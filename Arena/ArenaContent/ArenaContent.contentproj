@@ -2742,48 +2742,38 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Conversations\LieutenantForecastle-default.txt">
+    <None Include="Conversations\Prologue\LieutenantForecastleFirst.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>LieutenantForecastle-default</Name>
+      <Name>LieutenantForecastleFirst</Name>
     </None>
-    <None Include="Conversations\ChefHawser-default.txt">
+    <None Include="Conversations\Prologue\ChefHawserFirst.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>ChefHawser-default</Name>
+      <Name>ChefHawserFirst</Name>
     </None>
-    <None Include="Conversations\EnsignClew-default.txt">
+    <None Include="Conversations\Prologue\EnsignGibeFirst.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>EnsignClew-default</Name>
+      <Name>EnsignGibeFirst</Name>
     </None>
-    <None Include="Conversations\EnsignGibe-default.txt">
+    <None Include="Conversations\Prologue\CommanderTaffrailFirst.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>EnsignGibe-default</Name>
+      <Name>CommanderTaffrailFirst</Name>
     </None>
-    <None Include="Conversations\CommanderTaffrail-default.txt">
+    <None Include="Conversations\Prologue\CaptainPurchaseSecond.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>CommanderTaffrail-default</Name>
+      <Name>CaptainPurchaseSecond</Name>
     </None>
-    <None Include="Conversations\CaptainPurchase-default.txt">
+    <None Include="Conversations\Prologue\ChiefMizzenSecond.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>CaptainPurchase-default</Name>
+      <Name>ChiefMizzenSecond</Name>
     </None>
-    <None Include="Conversations\EnsignLeeward-default.txt">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>EnsignLeeward-default</Name>
-    </None>
-    <None Include="Conversations\ChiefMizzen-default.txt">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Name>ChiefMizzen-default</Name>
-    </None>
-    <None Include="Conversations\ProfessorIapetus-default.txt">
-      <Name>ProfessorIapetus-default</Name>
+    <None Include="Conversations\Prologue\ProfessorIapetusFirst.txt">
+      <Name>ProfessorIapetusFirst</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
       <SubType>Designer</SubType>
@@ -2791,7 +2781,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Conversations\InitialCaptainAnnouncement.txt">
+    <None Include="Conversations\Prologue\InitialCaptainAnnouncement.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>InitialCaptainAnnouncement</Name>
@@ -2799,10 +2789,52 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Conversations\CaptainPurchaseFirst.txt">
+    <None Include="Conversations\Prologue\CaptainPurchaseFirst.txt">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>CaptainPurchaseFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\ChiefMizzenFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>ChiefMizzenFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\EnsignGibeSecond.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignGibeSecond</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\LieutenantForecastleSecond.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>LieutenantForecastleSecond</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\CommanderTaffrailSecond.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>CommanderTaffrailSecond</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\EnsignLeewardSecond.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignLeewardSecond</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\ProfessorIapetusSecond.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>ProfessorIapetusSecond</Name>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

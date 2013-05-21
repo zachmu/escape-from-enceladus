@@ -1,0 +1,5 @@
+﻿CommanderTaffrail: Lieutenant Commander Roark.
+Roark: Yes, Commander Taffrail?
+CommanderTaffrail: Don't let your guard down, even if the prisoner seems weak.
+CommanderTaffrail: It's vital we deliver Professor Iapetus to his exile without incident.
+Roark: Sir!
