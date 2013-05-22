@@ -35,7 +35,9 @@ namespace Arena.Event {
             IGameEvent[] allEvents = new IGameEvent[] { 
                 new GameIntro(),
                 new TalkToCaptain(),
-                new Prologue(), 
+                new Prologue(),
+                new IapetusEscapes(), 
+                new Embarking(), 
             };
 
             allEvents.ToList().ForEach(@event => _events[@event.Id] = @event);
@@ -86,8 +88,8 @@ namespace Arena.Event {
             _events[eventId].Triggered -= GameEventOnTriggered;
         }
 
-        public void NotifyConversation(Conversation conversation) {
-            _activeEvents.ForEach(@event => @event.ConversationStarted(conversation));
+        public void NotifyConversationOver(Conversation conversation) {
+            _activeEvents.ForEach(@event => @event.ConversationOver(conversation));
         }
 
         /// <summary>
@@ -106,7 +108,7 @@ namespace Arena.Event {
     /// </summary>
     public class GameState {
 
-        private static HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
+        private static readonly HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
 
         public static bool HasMilestoneOccurred(GameMilestone milestone) {
             return _milestones.Contains(milestone);
@@ -117,5 +119,5 @@ namespace Arena.Event {
         }
     }
 
-    public enum GameMilestone {GameStarted, TalkedToCaptain }
+    public enum GameMilestone {GameStarted, TalkedToCaptain, TalkedToEveryone, Embarked}
 }

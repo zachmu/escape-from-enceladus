@@ -1,0 +1,3 @@
+﻿CaptainPurchase: I see you have completed your rounds, Lietenant Commander. Excellent.
+CaptainPurchase: Did you find anything out of place?
+Roark: The crew seems a little odder than usual, but otherwise we're in ship shape.

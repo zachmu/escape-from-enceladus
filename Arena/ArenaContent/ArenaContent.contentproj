@@ -2837,6 +2837,27 @@
       <Name>ProfessorIapetusSecond</Name>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\CaptainPurchaseThird.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>CaptainPurchaseThird</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\IapetusEscapes.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>IapetusEscapes</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\Prologue\Embarking.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>Embarking</Name>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

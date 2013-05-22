@@ -1,0 +1,27 @@
+﻿EnsignLeeward: Captain, this is Ensign Leeward at the helm.
+CaptainPurchase: Go ahead, Ensign.
+EnsignLeeward: We're fast approaching the colony on Enceladus. I hailed them but there was no response.
+CommanderTaffrail: Captain, this is Commander Taffrail. I'm picking up some novel radioactive signatures coming from the colony.
+CommanderTaffrail: It's in a very exotic bandwidth, and it almost seems like some kind of code...
+ChiefMizzen: Captain, we've lost engine power!
+EnsignLeeward: We're still headed directly for the surface of Enceladus.
+CaptainPurchase: What?! Get us back online immediately, Chief Mizzen!
+ChiefMizzen: We need to think of other options, sir! We are a no-go in engineering!
+CaptainPurchase: Ensign Gibe, how much time until impact?
+EnsignLeeward: Um, about... it's hard to say, exactly, sir.
+CaptainPurchase: I need answers now, Ensign.
+EnsignLeeward: I didn't want to say anything before, but astrogation is down as well. We're flying blind.
+CommanderTaffrail: Captain, both failures coincided with the strange radiation from the colony.
+CaptainPurchase: A trap! Damn your eyes, Iapetus!
+CaptainPurchase: Any thoughts, Lieutenant Commander?
+Roark: We could look out the windshield, I guess.
+CaptainPurchase: That's a terrible idea. And it doesn't help without engine power.
+ChiefMizzen: Captain, I've managed to jury-rig a backup-backup system. I can get us just a trickle of power.
+CaptainPurchase: Is it enough to land with?
+ChiefMizzen: Not gently, but yes.
+CaptainPurchase: I can't believe I'm saying this, but look out the windshield, Lieutenant Commander. You'll need to estimate when to fire the engines.
+Roark: Engineering, on my mark!
+Roark: 3!
+Roark: 2!
+Roark: 1!
+Roark: Mark!

@@ -118,8 +118,10 @@ namespace Arena.Entity.NPC {
         private void StartConversationWithCaptainPurchase() {
             if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseFirst.txt"));
-            } else {
+            } else if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToEveryone) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseSecond.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseThird.txt"));
             }
         }
 
@@ -129,7 +131,6 @@ namespace Arena.Entity.NPC {
         private static void StartConversation(Conversation conversation) {
             conversation.NotifySpeakersConversationStarted();
             Arena.Instance.ConversationStarted(conversation);
-            EventManager.Instance.NotifyConversation(conversation);
         }
 
         /// <summary>

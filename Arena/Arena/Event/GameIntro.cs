@@ -17,7 +17,7 @@ namespace Arena.Event {
         private const int MillisecondsBeforeTrigger = 3000;
         private double MsLeftUntilTrigger = MillisecondsBeforeTrigger; 
 
-        public override void ConversationStarted(Conversation conversation) {
+        public override void ConversationOver(Conversation conversation) {
         }
 
         public override void Update(GameTime gameTime) {
@@ -48,8 +48,8 @@ namespace Arena.Event {
     class TalkToCaptain : GameEvent {
         public const string ID = "TalkToCaptain";
 
-        public override void ConversationStarted(Conversation conversation) {
-            if ( conversation.Participants.Any(entity => entity.Name == NPCFactory.CharCaptainPurchase) ) {
+        public override void ConversationOver(Conversation conversation) {
+            if ( conversation.Name == "Prologue/CaptainPurchaseFirst.txt" ) {
                 Apply();
             }
         }

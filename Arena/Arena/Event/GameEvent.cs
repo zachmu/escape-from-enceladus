@@ -34,7 +34,7 @@ namespace Arena.Event {
         /// Notifies this event that the given conversation just happened.
         /// </summary>
         /// <param name="conversation"></param>
-        void ConversationStarted(Conversation conversation);
+        void ConversationOver(Conversation conversation);
 
         /// <summary>
         /// Whether to remove this event when it's triggered
@@ -55,7 +55,7 @@ namespace Arena.Event {
         public virtual void Update(GameTime gameTime) {            
         }
 
-        public virtual void ConversationStarted(Conversation conversation) {            
+        public virtual void ConversationOver(Conversation conversation) {            
         }
 
         public bool IsRemoveOnTrigger() {

@@ -1,0 +1,32 @@
+﻿CaptainPurchase: We've landed. Report, all stations.
+ChiefMizzen: Engines weren't hurt, but we still have no power.
+EnsignLeeward: Astrogation seems undamaged, but won't come online.
+CommanderTaffrail: Same for communications.
+LieutenantForecastle: Same for shields. We have just enough to resist the vacuum here, not enough for takeoff.
+CaptainPurchase: Damn, every one of those systems is vital! We won't be able to take off until they are all repaired.
+LieutenantForecastle: I have some more bad news, captain.
+LieutenantForecastle: Professor Iapetus isn't in his cell. His laser cage is functional, but he isn't here.
+LieutenantForecastle: It's like he just disappeared!
+ChiefMizzen: Captain, I just figured out why the engines won't fire. The primary power coupling is just... gone. Vanished!
+EnsignLeeward: Same for the astrogation console. We're missing a holocube memory unit.
+CaptainPurchase: Communications, life support?
+CommanderTaffrail: Missing an antenna unit.
+LieutenantForecastle: And a high-volume electron pump.
+CaptainPurchase: Number three, your thoughts?
+Roark: Wasn't Iapetus rumored to be working on some sort of matter displacement technology?
+CommanderTaffrail: Computer says it checks out, based on what we know about his work.
+CommanderTaffrail: It would explain all the disappearances.
+CaptainPurchase: Lieutenant Commander Roark, assemble an away team!
+CaptainPurchase: We need to get those items back if we want off this rock.
+EnsignLeeward: Wait a minute, has anyone heard from Ensign Gibe? Wasn't he in cargo?
+CaptainPurchase: Ensign Gibe, report!
+CommanderTaffrail: His personnel transponder isn't on the ship.
+CaptainPurchase: For now we must assume he was complicit in this plot.
+LieutenantForecastle: More bad news, Captain.
+LieutenantForecastle: We're also missing all the nanomech combat suits. There's no way for us to survive outside the ship without them.
+Roark: Well, not quite. I'm wearing mine, and I have my multi-sidearm.
+CaptainPurchase: It seems our course is decided for us, in that case.
+CaptainPurchase: Lieutenant Commander Roark, our fate is in your hands.
+CaptainPurchase: Descend to the surface and find our missing equipment.
+CaptainPurchase: I've unlocked the door in the base of the ship. Good luck!
+Roark: I won't let you down, sir!

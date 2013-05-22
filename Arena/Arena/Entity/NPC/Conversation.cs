@@ -18,10 +18,16 @@ namespace Arena.Entity.NPC {
 
         private List<String> _lines = new List<string>();
         private List<IDialogEntity> _characters = new List<IDialogEntity>();
+        private string _name;
+
+        public string Name {
+            get { return _name; }
+        }
 
         private int _currentLine = 0;
 
         public Conversation(ContentManager content, String conversationName) {
+            _name = conversationName;
             string file = Path.Combine(content.RootDirectory, Path.Combine("Conversations", conversationName));
             foreach ( String line in File.ReadLines(file) ) {
                 int split = line.IndexOf(":");
@@ -79,7 +85,7 @@ namespace Arena.Entity.NPC {
                 _currentLine++;
                 if ( _currentLine >= _lines.Count ) {
                     _characters.ForEach(npc => npc.StopConversation());
-                    Arena.Instance.EndConversation();
+                    Arena.Instance.EndConversation(this);
                 }
             }
         }

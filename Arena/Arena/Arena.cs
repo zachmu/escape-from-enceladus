@@ -165,9 +165,10 @@ namespace Arena {
         /// <summary>
         /// End this conversation
         /// </summary>
-        public void EndConversation() {
+        public void EndConversation(Conversation conversation) {
             _mode = _modeStack.Pop();
             _currentConversation = null;
+            _eventManager.NotifyConversationOver(conversation);
         }        
 
         // TODO: there is a better way to do this.
