@@ -27,11 +27,11 @@ namespace Arena.Map {
         private const string DoorOpenTime = "Door open time (s)";
         private const string DoorStayOpenTime = "Door stays open (s)";
 
+        private readonly World _world;
+        private readonly Orientation _orientation;
+        private readonly string _name;
         private Body _body;
-        private World _world;
-        private Orientation _orientation;
         private bool _locked;
-        private string _name;
 
         static Door() {
             Constants.Register(new Constant(DoorOpenTime, .2f, Keys.V));
@@ -196,8 +196,7 @@ namespace Arena.Map {
                     break;
                 case State.Closing:
                     if ( _msSinceLastStateChange >= Constants.Get(DoorOpenTime) * 1000 ) {
-                        _state = State.Closed;
-                        _msSinceLastStateChange = 0;
+                        CloseDoorFully();
                     }
                     break;
                 default:
@@ -212,6 +211,7 @@ namespace Arena.Map {
         }
 
         private void OpenDoor() {
+            MakeDoorPassable();
             switch ( _state ) {
                 case State.Closed:
                     _state = State.Opening;
@@ -225,7 +225,6 @@ namespace Arena.Map {
         }
 
         private void CloseDoor() {
-            MakeDoorSolid();
             _state = State.Closing;
             _msSinceLastStateChange = 0;
         }
@@ -247,7 +246,6 @@ namespace Arena.Map {
                 if ( b.GetUserData().IsPlayer ) {
                     if ( _state == State.Open ) {
                         CloseDoor();
-                        Console.WriteLine("Closing door");
                     }
                 }
             };
@@ -255,12 +253,10 @@ namespace Arena.Map {
 
         private void MakeDoorPassable() {
             _body.IsSensor = true;
-         //   _body.CollidesWith = Category.None;
         }
 
         private void MakeDoorSolid() {
             _body.IsSensor = false;
-           // _body.CollidesWith = Category.All;
         }
 
         public void HitBy(Projectile shot) {
