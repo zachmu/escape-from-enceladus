@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Arena.Control;
 using Arena.Entity.NPC;
+using Arena.Event;
 using Arena.Farseer;
 using Arena.Map;
 using Arena.Overlay;
@@ -16,11 +17,20 @@ namespace Arena.Entity.InteractiveObject {
     public class SaveStation : Region, IGameEntity {
         private Body _body;
         private int _contactCount = 0;
+        private string _id;
+
+        public string Id {
+            get { return _id; }
+        }
+
         private bool _playerNearby = false;
         private bool _saving = false;
 
-        public SaveStation(World world, Vector2 topLeft, Vector2 bottomRight)
+        public SaveStation(World world, string name, Vector2 topLeft, Vector2 bottomRight)
             : base(topLeft, bottomRight) {
+
+            _id = name; 
+
             _body = BodyFactory.CreateRectangle(world, Width, Height, 0f);
             _body.Position = Position;
             _body.IsStatic = true;
@@ -89,7 +99,8 @@ namespace Arena.Entity.InteractiveObject {
             _playerNearby = _contactCount > 0;
             if ( _playerNearby ) {
                 if ( PlayerControl.Control.IsNewAction() && !Arena.Instance.IsInConversation ) {
-
+                    SaveState state = SaveState.Create(Id);
+                    state.Persist();
                 }
             }
         }

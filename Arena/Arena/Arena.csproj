@@ -135,6 +135,7 @@
     <Compile Include="Event\GameEvent.cs" />
     <Compile Include="Event\GameIntro.cs" />
     <Compile Include="Event\Prologue.cs" />
+    <Compile Include="Event\SaveState.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />
     <Compile Include="Entity\Enemy\PacingEnemy.cs" />
     <Compile Include="Farseer\FarseerExtensions.cs" />

@@ -110,6 +110,10 @@ namespace Arena.Event {
 
         private static readonly HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
 
+        public static HashSet<GameMilestone> Milestones {
+            get { return _milestones; }
+        }
+
         public static bool HasMilestoneOccurred(GameMilestone milestone) {
             return _milestones.Contains(milestone);
         }

@@ -22,7 +22,7 @@ namespace Arena.Entity.InteractiveObject {
 
             switch ( obj.Type ) {
                 case "save":
-                    return new SaveStation(world, topLeft, bottomRight);
+                    return new SaveStation(world, obj.Name, topLeft, bottomRight);
                 default:
                     throw new ArgumentException("Unexpected type of object: %s", obj.Type);
             }

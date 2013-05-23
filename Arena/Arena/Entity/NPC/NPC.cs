@@ -131,7 +131,7 @@ namespace Arena.Entity.NPC {
             Color color = _color;
             spriteBatch.Draw(Image,
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null, color, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
+                             null, color, 0f, new Vector2(Image.Width / 2f, Image.Height - 1),
                              _facingDirection == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
         }
 
@@ -147,7 +147,7 @@ namespace Arena.Entity.NPC {
                                            image.Height / 2),
                              new Rectangle(0, 0, image.Width, image.Height),
                              SolidColorEffect.DisabledColor, 0f,
-                             new Vector2(image.Width / 2, image.Height / 2),
+                             new Vector2(image.Width / 2f, image.Height / 2f),
                              SpriteEffects.None, 0);
         }
 
