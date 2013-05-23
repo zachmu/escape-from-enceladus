@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Arena.Control;
 using Arena.Entity.NPC;
 using Arena.Event;
@@ -15,6 +16,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Arena.Entity.InteractiveObject {
     public class SaveStation : Region, IGameEntity {
+
+        private const string SaveGame = "Save game";
+        private const string Saving = "Saving...";
+        private const string Saved = "Saved";
+
         private Body _body;
         private int _contactCount = 0;
         private string _id;
@@ -25,6 +31,11 @@ namespace Arena.Entity.InteractiveObject {
 
         private bool _playerNearby = false;
         private bool _saving = false;
+        private bool _saved = false;
+        private ManualResetEvent _saveHandle;
+        private double _timerMs;
+
+        private const double _minSavingDisplayTimeMs = 1000;
 
         public SaveStation(World world, string name, Vector2 topLeft, Vector2 bottomRight)
             : base(topLeft, bottomRight) {
@@ -56,7 +67,7 @@ namespace Arena.Entity.InteractiveObject {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            if ( _playerNearby && !_saving ) {
+            if ( _playerNearby ) {
                 DrawButtonPrompt(spriteBatch);
             }
         }
@@ -69,9 +80,17 @@ namespace Arena.Entity.InteractiveObject {
 
             Texture2D button = SharedGraphicalAssets.YButton;
 
-            string save = "Save game";
+            string text;
+            if ( _saved ) {
+                text = Saved;
+            } else if ( _saving ) {
+                text = Saving;
+            } else {
+                text = SaveGame;
+            }
+
             SpriteFont dialogFont = SharedGraphicalAssets.DialogFont;
-            Vector2 stringSize = dialogFont.MeasureString(save);
+            Vector2 stringSize = dialogFont.MeasureString(text);
             float imageWidth = button.Width / 2f;
             displayPosition -= stringSize / 2 - new Vector2(imageWidth / 2, 0);
 
@@ -81,8 +100,8 @@ namespace Arena.Entity.InteractiveObject {
                                            (int) stringSize.Y), Color.Black * .65f);
 
             Color shadow = Color.Lerp(Color.White, Color.Black, .5f);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, save, displayPosition + new Vector2(3), shadow);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, save, displayPosition, Color.White);
+            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, text, displayPosition + new Vector2(3), shadow);
+            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, text, displayPosition, Color.White);
 
             spriteBatch.Draw(button,
                              new Rectangle((int) (displayPosition.X - imageWidth + 10),
@@ -97,10 +116,30 @@ namespace Arena.Entity.InteractiveObject {
 
         public void Update(GameTime gameTime) {
             _playerNearby = _contactCount > 0;
-            if ( _playerNearby ) {
+            if ( _saving ) {
+                _timerMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                // It's a bad experience to let players think things didn't save just 
+                // because it happens quickly, so fake a delay in that case.
+                if ( _timerMs >= _minSavingDisplayTimeMs && _saveHandle.WaitOne(20) ) {
+                    _saving = false;
+                    _saveHandle = null;
+                    _saved = true;
+                    _timerMs = 0;
+                    Arena.Instance.UnsetMode();
+                }
+            } else if ( _saved ) {
+                _timerMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+                if ( _timerMs >= _minSavingDisplayTimeMs ) {
+                    _saved = false;
+                }
+            } else if ( _playerNearby ) {
                 if ( PlayerControl.Control.IsNewAction() && !Arena.Instance.IsInConversation ) {
+                    Arena.Instance.SetMode(Mode.Saving);
+                    _saving = true;
+                    _timerMs = 0;
                     SaveState state = SaveState.Create(Id);
-                    state.Persist();
+                    _saveHandle = state.Persist();
                 }
             }
         }
@@ -110,7 +149,7 @@ namespace Arena.Entity.InteractiveObject {
         }
 
         public bool UpdateInMode(Mode mode) {
-            return mode == Mode.NormalControl || mode == Mode.Conversation;
+            return mode == Mode.NormalControl || mode == Mode.Conversation || mode == Mode.Saving;
         }
     }
 }

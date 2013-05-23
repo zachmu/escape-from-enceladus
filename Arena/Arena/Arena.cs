@@ -29,6 +29,7 @@ namespace Arena {
         NormalControl,
         RoomTransition,
         Conversation,
+        Saving,
     }
 
     public class Arena : Game {
@@ -157,8 +158,7 @@ namespace Arena {
         /// Registers a conversation as having started, which freezes the action.
         /// </summary>
         public void ConversationStarted(Conversation conversation) {
-            _modeStack.Push(_mode);
-            _mode = Mode.Conversation;
+            SetMode(Mode.Conversation);
             Register(conversation);
         }
 
@@ -166,9 +166,28 @@ namespace Arena {
         /// End this conversation
         /// </summary>
         public void EndConversation(Conversation conversation) {
-            _mode = _modeStack.Pop();            
+            UnsetMode();
             _eventManager.NotifyConversationOver(conversation);
             conversation.Dispose();
+        }
+
+        /// <summary>
+        /// Sets the game mode to the one given.
+        /// </summary>
+        public void SetMode(Mode mode) {
+            _modeStack.Push(_mode);
+            _mode = mode;
+        }
+
+        /// <summary>
+        /// Restores the game mode to whatever it was before the last call to SetMode()
+        /// </summary>
+        public void UnsetMode() {
+            if ( _modeStack.Count == 0 ) {
+                _mode = Mode.NormalControl;
+            } else {
+                _mode = _modeStack.Pop();
+            }
         }
 
         // TODO: there is a better way to do this.
