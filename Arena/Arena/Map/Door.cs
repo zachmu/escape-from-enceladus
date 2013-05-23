@@ -204,6 +204,14 @@ namespace Arena.Map {
             }
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         private void OpenDoorFully() {
             MakeDoorPassable();
             _state = State.Open;

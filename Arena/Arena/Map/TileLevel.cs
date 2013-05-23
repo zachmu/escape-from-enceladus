@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using Arena.Entity;
 using Arena.Entity.Enemy;
+using Arena.Entity.InteractiveObject;
 using Arena.Entity.NPC;
 using Arena.Farseer;
 using Arena.Weapon;
@@ -24,6 +25,9 @@ namespace Arena.Map {
         private const string CollisionLayerName = "Blocks";
         private const string DestructionLayerName = "Destruction";
         private const string DoorLayerName = "Doors";
+        private const string NPCLayerName = "NPC";
+        private const string InteractiveObjectsLayerName = "InteractiveObjects";
+
         public static int TileDisplaySize;
         private readonly Layer _collisionLayer;
         private readonly List<Room> _rooms = new List<Room>();
@@ -182,8 +186,22 @@ namespace Arena.Map {
             CreateDoors();
             TearDownDestructionRegions();
             InitializeDestructionRegions();
+            CreateInteractiveObjects();
 
             Arena.Instance.StepWorld(null);
+        }
+
+        private void CreateInteractiveObjects() {
+            Dictionary<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
+            if ( objectGroups.ContainsKey(InteractiveObjectsLayerName) ) {
+                ObjectGroup objectGroup = objectGroups[InteractiveObjectsLayerName];
+                foreach ( Object region in objectGroup.Objects ) {
+                    Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
+                    if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
+                        Arena.Instance.Register(InteractiveObjectFactory.Create(_world, region));
+                    }
+                }
+            }
         }
 
         private void TearDownDestructionRegions() {
@@ -210,8 +228,8 @@ namespace Arena.Map {
 
         private void CreateNPCs() {
             Dictionary<string, ObjectGroup> objectGroups = _levelMap.ObjectGroups;
-            if ( objectGroups.ContainsKey("NPC") ) {
-                ObjectGroup npcGroup = objectGroups["NPC"];
+            if ( objectGroups.ContainsKey(NPCLayerName) ) {
+                ObjectGroup npcGroup = objectGroups[NPCLayerName];
                 foreach ( Object region in npcGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
                     if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {

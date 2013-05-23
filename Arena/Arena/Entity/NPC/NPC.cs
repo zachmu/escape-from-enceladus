@@ -5,6 +5,7 @@ using System.Text;
 using Arena.Control;
 using Arena.Farseer;
 using Arena.Map;
+using Arena.Overlay;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
@@ -40,10 +41,6 @@ namespace Arena.Entity.NPC {
         private static Texture2D Stand;
 
         private static Random _random = new Random(0);
-
-        private static Texture2D YButton { get; set; }
-        private static SpriteFont Font;
-        private static Texture2D BlackBackdrop { get; set; }
 
         private int _animationFrame;
         private long _timeSinceLastAnimationUpdate;
@@ -90,7 +87,7 @@ namespace Arena.Entity.NPC {
 
             Fixture proximitySensor = FixtureFactory.AttachRectangle(sensorWidth, CharacterHeight * 2, 0, Vector2.Zero, _body);
             proximitySensor.IsSensor = true;
-            proximitySensor.CollisionCategories = Arena.TerrainCategory;
+            proximitySensor.CollisionCategories = Arena.PlayerSensorCategory;
             proximitySensor.CollidesWith = Arena.PlayerCategory;
 
             proximitySensor.OnCollision += (a, b, contact) => {
@@ -114,10 +111,6 @@ namespace Arena.Entity.NPC {
         public static void LoadContent(ContentManager content) {
             WalkAnimation = Player.Instance._unarmedWalkAnimation;
             Stand = Player.Instance._unarmedStandFrame;
-            YButton = content.Load<Texture2D>("ButtonImages/xboxControllerButtonY");
-            Font = content.Load<SpriteFont>("Fonts/November");
-            Font.LineSpacing -= 10;
-            BlackBackdrop = content.Load<Texture2D>("BlackBackdrop");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -148,12 +141,13 @@ namespace Arena.Entity.NPC {
 
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
 
-            spriteBatch.Draw(YButton,
-                             new Rectangle((int) displayPosition.X, (int) displayPosition.Y, YButton.Width / 2,
-                                           YButton.Height / 2),
-                             new Rectangle(0, 0, YButton.Width, YButton.Height),
+            Texture2D image = SharedGraphicalAssets.YButton;
+            spriteBatch.Draw(image,
+                             new Rectangle((int) displayPosition.X, (int) displayPosition.Y, image.Width / 2,
+                                           image.Height / 2),
+                             new Rectangle(0, 0, image.Width, image.Height),
                              SolidColorEffect.DisabledColor, 0f,
-                             new Vector2(YButton.Width / 2, YButton.Height / 2),
+                             new Vector2(image.Width / 2, image.Height / 2),
                              SpriteEffects.None, 0);
         }
 
@@ -176,7 +170,7 @@ namespace Arena.Entity.NPC {
             int left = 0, right = text.Length - 1;
             while ( left < right ) {
                 string substring = text.Substring(left, right - left + 1);
-                float width = Font.MeasureString(substring).X;
+                float width = SharedGraphicalAssets.DialogFont.MeasureString(substring).X;
                 while ( width > MaxDialogWidth ) {
                     // look for a space to break the text up
                     for ( int i = right; i > left; i-- ) {
@@ -186,14 +180,14 @@ namespace Arena.Entity.NPC {
                         }
                     }
                     substring = text.Substring(left, right - left + 1);
-                    width = Font.MeasureString(substring).X;
+                    width = SharedGraphicalAssets.DialogFont.MeasureString(substring).X;
                 }
                 sb.Append(substring).Append("\n");
                 left = right + 2;
                 right = text.Length - 1;
             }
 
-            Vector2 stringSize = Font.MeasureString(sb);
+            Vector2 stringSize = SharedGraphicalAssets.DialogFont.MeasureString(sb);
             displayPosition -= stringSize / 2;
 
             // If we're still drawing off of the screen, nudge the draw boundary
@@ -217,14 +211,14 @@ namespace Arena.Entity.NPC {
             }
 
             // Draw a backdrop
-            spriteBatch.Draw(BlackBackdrop,
+            spriteBatch.Draw(SharedGraphicalAssets.BlackBackdrop,
                              new Rectangle((int) displayPosition.X - 10, (int) displayPosition.Y + 10, (int) stringSize.X + 20,
                                            (int) stringSize.Y - 30), Color.Black * .65f);
 
             // Finally, draw the text shadowed. This involves drawing the text twice, darker then lighter.
             Color shadow = Color.Lerp(color, Color.Black, .5f);
-            spriteBatch.DrawString(Font, sb, displayPosition + new Vector2(3), shadow);
-            spriteBatch.DrawString(Font, sb, displayPosition, color);
+            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, sb, displayPosition + new Vector2(3), shadow);
+            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, sb, displayPosition, color);
         }
 
         public void Update(GameTime gameTime) {
@@ -267,6 +261,14 @@ namespace Arena.Entity.NPC {
             }
 
             UpdateImage(gameTime);
+        }
+
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(global::Arena.Mode mode) {
+            return mode == global::Arena.Mode.NormalControl; 
         }
 
         private void UpdateImage(GameTime gameTime) {

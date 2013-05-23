@@ -109,6 +109,14 @@ namespace Arena.Weapon {
             base.Update(gameTime);
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         private void Explode() {
             AABB aabb = new AABB(_body.Position - new Vector2(0, TileLevel.TileSize / 2 - Height / 2), ExplodeRadius,
                                  ExplodeRadius);

@@ -43,6 +43,14 @@ namespace Arena.Weapon {
             get { return _waveEffectCenter; }
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         private static Texture2D _debugLocation;
         private static SoundEffect _ping;
         private static SoundEffect _pong;

@@ -454,7 +454,7 @@ namespace Arena.Map {
     public partial class Object {
         public Dictionary<string, string> Properties = new Dictionary<string, string>();
 
-        public string Name, Image;
+        public string Name, Image, Type;
         public int Width, Height, X, Y;
 
         protected Texture2D _Texture;

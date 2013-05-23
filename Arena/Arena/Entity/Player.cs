@@ -107,6 +107,14 @@ namespace Arena.Entity {
             set { _body.Position = value; }
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         public Vector2 LinearVelocity {
             get { return _body.LinearVelocity; }
         }
@@ -133,7 +141,7 @@ namespace Arena.Entity {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
-            _body.CollidesWith = Arena.TerrainCategory | Arena.EnemyCategory;
+            _body.CollidesWith = Arena.TerrainCategory | Arena.EnemyCategory | Arena.PlayerSensorCategory;
             _body.CollisionCategories = Arena.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
             _body.FixtureList.First().UserData = "body";

@@ -130,6 +130,14 @@ namespace Arena.Entity {
             get { return new Vector2(_originLocation.X, _originLocation.Y); }
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             float alpha = 1f - (float) _timeAlive / (float) TimeToLiveMs;
             int xOffset = _originRectangle.X;

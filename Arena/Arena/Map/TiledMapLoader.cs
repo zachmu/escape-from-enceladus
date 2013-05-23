@@ -24,7 +24,7 @@ namespace Arena.Map {
             int.TryParse(reader.GetAttribute("spacing"), out result.Spacing);
 
             int currentTileId = -1;
-
+            
             while ( reader.Read() ) {
                 var name = reader.Name;
 
@@ -276,6 +276,7 @@ namespace Arena.Map {
             result.Name = reader.GetAttribute("name");
             result.X = int.Parse(reader.GetAttribute("x"));
             result.Y = int.Parse(reader.GetAttribute("y"));
+            result.Type = reader.GetAttribute("type");
 
             int width;
             if ( int.TryParse(reader.GetAttribute("width"), out width) ) {

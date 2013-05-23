@@ -42,6 +42,14 @@ namespace Arena.Weapon {
             }
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         public override int DestructionFlags {
             get { return Flags; }
         }

@@ -25,7 +25,7 @@ using Path = System.IO.Path;
 namespace Arena {
     
     // TODO: this doesn't belong here
-    enum Mode {
+    public enum Mode {
         NormalControl,
         RoomTransition,
         Conversation,
@@ -50,7 +50,6 @@ namespace Arena {
         private Mode _mode;
         private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
-        private Conversation _currentConversation;
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
         private DoorState _doorState;
@@ -80,6 +79,7 @@ namespace Arena {
         public const Category PlayerProjectileCategory = Category.Cat3;
         public const Category EnemyCategory = Category.Cat4;
         public const Category NPCCategory = Category.Cat5;
+        public const Category PlayerSensorCategory = Category.Cat6;
 
         public static Boolean Debug = true;
 
@@ -140,8 +140,8 @@ namespace Arena {
         /// Registers an entity to receive update and draw calls.
         /// Entity will be removed when it is disposed.
         /// </summary>
-        public void Register(params IGameEntity[] entity) {
-            _entitiesToAdd.AddRange(entity);
+        public void Register(params IGameEntity[] entities) {
+            _entitiesToAdd.AddRange(entities);
         }
 
         private readonly List<PostProcessingEffect> _postProcessorEffects = new List<PostProcessingEffect>();
@@ -159,17 +159,17 @@ namespace Arena {
         public void ConversationStarted(Conversation conversation) {
             _modeStack.Push(_mode);
             _mode = Mode.Conversation;
-            _currentConversation = conversation;
+            Register(conversation);
         }
 
         /// <summary>
         /// End this conversation
         /// </summary>
         public void EndConversation(Conversation conversation) {
-            _mode = _modeStack.Pop();
-            _currentConversation = null;
+            _mode = _modeStack.Pop();            
             _eventManager.NotifyConversationOver(conversation);
-        }        
+            conversation.Dispose();
+        }
 
         // TODO: there is a better way to do this.
         private float _backgroundAlpha = 1;
@@ -257,6 +257,7 @@ namespace Arena {
         }
 
         private void LoadStaticContent() {
+            SharedGraphicalAssets.LoadContent(Content);
             Door.LoadContent(Content);
             PacingEnemy.LoadContent(Content);
             Worm.LoadContent(Content);
@@ -327,9 +328,11 @@ namespace Arena {
                     _nextSimStep = false;
                 }
 
-            } else if (_mode == Mode.Conversation) {
+            } else {
                 InputHelper.Instance.Update(gameTime);
-                _currentConversation.Update(gameTime);
+                foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
+                    ent.Update(gameTime);
+                }
             }
 
             UpdateBackgroundAlpha();
@@ -441,7 +444,7 @@ namespace Arena {
 
                 // Dynamic elements (player, enemies, missiles, etc)
                 _spriteBatch.Begin(0, null, null, null, null, SolidColorEffect.Effect, _camera.DisplayView);
-                foreach ( IGameEntity ent in _entities ) {
+                foreach ( IGameEntity ent in _entities.Where(entity => !entity.DrawAsOverlay) ) {
                     ent.Draw(_spriteBatch, _camera);
                 }
                 _player.Draw(_spriteBatch, _camera);
@@ -492,9 +495,11 @@ namespace Arena {
             _spriteBatch.End();
 
             // Conversation is considered an overlay
-            if ( IsInConversation ) {
+            if ( _entities.Count > 0 ) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
-                _currentConversation.Draw(_spriteBatch, _camera);
+                foreach ( IGameEntity ent in _entities.Where(entity => entity.DrawAsOverlay) ) {
+                    ent.Draw(_spriteBatch, _camera);
+                }
                 _spriteBatch.End();
             }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Arena.Control;
+using Arena.Overlay;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,7 +15,7 @@ namespace Arena.Entity.NPC {
     /// <summary>
     /// A conversation between one or more characters.
     /// </summary>
-    public class Conversation {
+    public class Conversation : IGameEntity {
 
         private List<String> _lines = new List<string>();
         private List<IDialogEntity> _characters = new List<IDialogEntity>();
@@ -57,6 +58,8 @@ namespace Arena.Entity.NPC {
             get { return _characters; }
         }
 
+        public bool Disposed { get; private set; }
+
         /// <summary>
         /// Draws this conversation as an overlay onto the screen.
         /// </summary>
@@ -88,6 +91,20 @@ namespace Arena.Entity.NPC {
                     Arena.Instance.EndConversation(this);
                 }
             }
+        }
+
+        public Vector2 Position { get { return Vector2.Zero; } }
+
+        public bool DrawAsOverlay {
+            get { return true; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl || mode == Mode.Conversation; 
+        }
+
+        public void Dispose() {
+            Disposed = true;
         }
     }
 }

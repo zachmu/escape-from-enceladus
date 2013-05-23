@@ -31,6 +31,14 @@ namespace Arena.Entity {
             get { return _body.Position; }
         }
 
+        public bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public bool UpdateInMode(Mode mode) {
+            return mode == Mode.NormalControl; 
+        }
+
         public HealthPickup(Vector2 position, World world) {
             _body = BodyFactory.CreateCircle(world, Radius, 0f);
             _body.IsSensor = true;

@@ -116,6 +116,8 @@
     <Compile Include="Entity\Enemy\Beetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\Worm.cs" />
+    <Compile Include="Entity\InteractiveObject\InteractiveObjectFactory.cs" />
+    <Compile Include="Entity\InteractiveObject\SaveStation.cs" />
     <Compile Include="Entity\NPC\Characters.cs" />
     <Compile Include="Entity\NPC\DisembodiedSpeaker.cs" />
     <Compile Include="Entity\NPC\IDialogEntity.cs" />
@@ -147,6 +149,7 @@
     <Compile Include="Map\TiledMapLoader.cs" />
     <Compile Include="Map\TileLevel.cs" />
     <Compile Include="InputHelper.cs" />
+    <Compile Include="Overlay\SharedGraphicalAssets.cs" />
     <Compile Include="Weapon\Bomb.cs" />
     <Compile Include="Weapon\Missile.cs" />
     <Compile Include="Weapon\Projectile.cs" />

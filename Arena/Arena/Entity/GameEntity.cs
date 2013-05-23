@@ -19,6 +19,8 @@ namespace Arena.Entity {
         void Draw(SpriteBatch spriteBatch, Camera2D camera);
         void Update(GameTime gameTime);
         Vector2 Position { get; }
+        bool DrawAsOverlay { get; }
+        bool UpdateInMode(Mode mode);
     }
 
     /// <summary>
