@@ -64,7 +64,7 @@ namespace Arena {
                     }
                     break;
                 case Mode.MoveBetweenRooms:
-                    if ( _camera.IsAtTarget() ) {
+                    if ( _camera.IsAtTarget() && Arena.Instance.Mode == global::Arena.Mode.RoomTransition ) {
                         _mode = Mode.TrackPlayer;
 //                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
                         _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);

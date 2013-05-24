@@ -149,7 +149,7 @@ namespace Arena.Entity.InteractiveObject {
         }
 
         public bool UpdateInMode(Mode mode) {
-            return mode == Mode.NormalControl || mode == Mode.Conversation || mode == Mode.Saving;
+            return mode == Mode.NormalControl || mode == Mode.Saving;
         }
     }
 }
