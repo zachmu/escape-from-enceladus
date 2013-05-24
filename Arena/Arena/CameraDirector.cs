@@ -57,7 +57,7 @@ namespace Arena {
                     break;
                 case Mode.SnapToGrid:
                     if ( _camera.IsAtTarget() ) {
-                        if ( Arena.Instance.BackgroundAlpha <= 0 ) {
+                        if ( BackgroundManager.Instance.BackgroundAlpha <= 0 ) {
                             _mode = Mode.MoveBetweenRooms;
                             _camera.Position = _nextCameraPosition;
                         }
@@ -68,8 +68,8 @@ namespace Arena {
                         _mode = Mode.TrackPlayer;
 //                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
                         _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);
-                        Arena.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
-                        Arena.Instance.ResumeSimulation();
+                        BackgroundManager.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
+                        Arena.Instance.UnsetMode();
                     }
                     break;
                 default:
@@ -126,7 +126,7 @@ namespace Arena {
             if ( PlayerPositionMonitor.Instance.IsNewRoomChange() ) {
 
                 UnclampCamera();
-                Arena.Instance.PauseSimulation();
+                Arena.Instance.SetMode(global::Arena.Mode.RoomTransition);
 
                 _mode = Mode.SnapToGrid;
                 Direction directionOfTravel =

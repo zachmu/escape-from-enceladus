@@ -41,7 +41,6 @@ namespace Arena {
 
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
-        private Texture2D _background;
         private Camera2D _camera;
         private PlayerPositionMonitor _playerPositionMonitor;
         private CameraDirector _cameraDirector;
@@ -53,6 +52,7 @@ namespace Arena {
         private InputHelper _inputHelper;
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
+        private BackgroundManager _backgroundManager;
         private DoorState _doorState;
 
         private HealthStatus _healthStatus;
@@ -67,6 +67,10 @@ namespace Arena {
 
         public static Arena Instance {
             get { return _instance; }
+        }
+
+        public Mode Mode {
+            get { return _mode; }
         }
 
         private const string Gravity = "World gravity (m/s/s)";
@@ -130,6 +134,7 @@ namespace Arena {
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
             _conversationManager = new ConversationManager(Content);
+            _backgroundManager = new BackgroundManager(Content);
             _eventManager = new EventManager();
             _doorState = new DoorState();
             _mode = Mode.NormalControl;
@@ -190,10 +195,6 @@ namespace Arena {
             }
         }
 
-        // TODO: there is a better way to do this.
-        private float _backgroundAlpha = 1;
-        public float BackgroundAlpha { get { return _backgroundAlpha;  } }
-
         /// <summary>
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
@@ -204,35 +205,7 @@ namespace Arena {
                         gameEntity.Dispose();
                     }
                 }
-
-                // TODO: this doesn't belong here
-                _mode = Mode.RoomTransition;
             }
-        }
-
-        /// <summary>
-        /// Loads assets for the room given
-        /// TODO: a transition / background manager should really handle this
-        /// </summary>
-        public void LoadRoom(Room room) {
-            if ( room.BackgroundImage != null ) {
-                _background = Content.Load<Texture2D>("Background/" + room.BackgroundImage);
-            }
-            _mode = Mode.NormalControl;
-        }
-
-        /// <summary>
-        /// Pauses the simulation and update of all game elements
-        /// </summary>
-        public void PauseSimulation() {
-            _simulationPaused = true;
-        }
-
-        /// <summary>
-        /// Resumes simulation and update of all game elements
-        /// </summary>
-        public void ResumeSimulation() {
-            _simulationPaused = false;
         }
 
         /// <summary>
@@ -248,7 +221,7 @@ namespace Arena {
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
-            _background = Content.Load<Texture2D>("Background/Microscheme_0_edited");
+            _backgroundManager.LoadContent();
             //_background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
@@ -354,7 +327,7 @@ namespace Arena {
                 }
             }
 
-            UpdateBackgroundAlpha();
+            _backgroundManager.Update(gameTime);
 
             _camera.Update(gameTime);
             _playerPositionMonitor.Update(gameTime);
@@ -375,14 +348,6 @@ namespace Arena {
         internal void StepWorld(GameTime gameTime) {
             float totalSeconds = gameTime == null ? 1f / 60f : (float) gameTime.ElapsedGameTime.TotalSeconds;
             _world.Step(Math.Min(totalSeconds, (1f / 30f)));
-        }
-
-        private void UpdateBackgroundAlpha() {
-            if (_mode == Mode.RoomTransition && _backgroundAlpha > 0) {
-                _backgroundAlpha -= .05f;
-            } else if (_backgroundAlpha < 1) {
-                _backgroundAlpha += .05f;
-            }
         }
 
         private void HandleDebugControl() {
@@ -447,14 +412,7 @@ namespace Arena {
                 _graphics.GraphicsDevice.Clear(Color.Black);
 
                 // Background image
-                _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.Opaque, SamplerState.LinearWrap,
-                                   DepthStencilState.None, RasterizerState.CullNone);
-                Vector2 origin = _camera.Position;
-                origin = ConvertUnits.ToDisplayUnits(origin) / 4;
-                _spriteBatch.Draw(_background, Vector2.Zero,
-                                  new Rectangle((int) origin.X, (int) origin.Y, GraphicsDevice.Viewport.Bounds.Width,
-                                                GraphicsDevice.Viewport.Bounds.Height), Color.White * _backgroundAlpha);
-                _spriteBatch.End();
+                _backgroundManager.Draw(_spriteBatch, _camera);
 
                 // Background content
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);

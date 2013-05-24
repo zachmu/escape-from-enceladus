@@ -139,6 +139,7 @@
     <Compile Include="Farseer\ConvertUnits.cs" />
     <Compile Include="Entity\Enemy\PacingEnemy.cs" />
     <Compile Include="Farseer\FarseerExtensions.cs" />
+    <Compile Include="Map\BackgroundManager.cs" />
     <Compile Include="Map\DoorState.cs" />
     <Compile Include="Map\MapConstants.cs" />
     <Compile Include="Map\DestructionRegion.cs" />
