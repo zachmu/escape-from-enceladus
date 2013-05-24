@@ -8,7 +8,7 @@ namespace Enceladus
         /// </summary>
         static void Main(string[] args)
         {
-            using (Arena game = new Arena())
+            using (EnceladusGame game = new EnceladusGame())
             {
                 game.Run();
             }

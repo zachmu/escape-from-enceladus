@@ -150,8 +150,8 @@ namespace Enceladus.Map {
                 _cameraConstraintEndpoint1 = new List<Vector2>();
                 _cameraConstraintEndpoint2 = new List<Vector2>();
                 foreach ( Region region in _regions ) {
-                    Vector2 viewportCenter = ConvertUnits.ToSimUnits(Arena.Instance.GraphicsDevice.Viewport.Width / 2f,
-                                                                     Arena.Instance.GraphicsDevice.Viewport.Height / 2f);
+                    Vector2 viewportCenter = ConvertUnits.ToSimUnits(EnceladusGame.Instance.GraphicsDevice.Viewport.Width / 2f,
+                                                                     EnceladusGame.Instance.GraphicsDevice.Viewport.Height / 2f);
 
                     // Some rooms don't line up with the grid, so pretend they do for camera purposes.
                     Vector2 topLeft = Room.SnapToRoomGrid(region.TopLeft);

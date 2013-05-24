@@ -69,7 +69,7 @@ namespace Enceladus.Map {
             if ( _background == null ) {
                 LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
             }
-            if ( Arena.Instance.Mode == Mode.RoomTransition && _backgroundAlpha > 0 ) {
+            if ( EnceladusGame.Instance.Mode == Mode.RoomTransition && _backgroundAlpha > 0 ) {
                 _backgroundAlpha -= .05f;
                 if ( _backgroundAlpha < .01f ) {
                     _backgroundAlpha = 0f;

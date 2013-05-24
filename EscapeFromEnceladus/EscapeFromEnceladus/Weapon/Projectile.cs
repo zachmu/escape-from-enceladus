@@ -48,8 +48,8 @@ namespace Enceladus.Weapon {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.IgnoreGravity = true;
-            _body.CollidesWith = Arena.TerrainCategory | Arena.EnemyCategory;
-            _body.CollisionCategories = Arena.PlayerProjectileCategory;
+            _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory;
+            _body.CollisionCategories = EnceladusGame.PlayerProjectileCategory;
             _body.UserData = UserData.NewProjectile(this);
 
             _body.OnCollision += CollisionHandler();

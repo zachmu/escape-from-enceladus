@@ -49,8 +49,8 @@ namespace Enceladus.Weapon {
             Image = Animation[0];
             _timeToLiveMs = FrameTime * (NumFrames + 1);
             _world = world;
-            _body.CollidesWith = Arena.TerrainCategory;
-            _body.CollisionCategories = Arena.TerrainCategory;
+            _body.CollidesWith = EnceladusGame.TerrainCategory;
+            _body.CollisionCategories = EnceladusGame.TerrainCategory;
             _body.IsStatic = false;
             _body.IgnoreGravity = false;
         }

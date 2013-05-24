@@ -130,7 +130,7 @@ namespace Enceladus.Entity.NPC {
         /// </summary>
         private static void StartConversation(Conversation conversation) {
             conversation.NotifySpeakersConversationStarted();
-            Arena.Instance.ConversationStarted(conversation);
+            EnceladusGame.Instance.ConversationStarted(conversation);
         }
 
         /// <summary>

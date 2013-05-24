@@ -185,7 +185,7 @@ namespace Enceladus.Map {
                     break;
                 case State.Open:
                     if ( _msSinceLastStateChange >= Constants.Get(DoorStayOpenTime) * 1000 
-                        && !Arena.EntitiesOverlapping(Aabb) ) {
+                        && !EnceladusGame.EntitiesOverlapping(Aabb) ) {
                         CloseDoor();
                     }
                     break;
@@ -249,7 +249,7 @@ namespace Enceladus.Map {
             _body.Position = _topLeft + new Vector2(Width / 2, Height / 2);
             _body.UserData = UserData.NewDoor(this);
             _body.CollidesWith = Category.All;
-            _body.CollisionCategories = Arena.TerrainCategory;
+            _body.CollisionCategories = EnceladusGame.TerrainCategory;
             _body.OnSeparation += (a, b) => {
                 if ( b.GetUserData().IsPlayer ) {
                     if ( _state == State.Open ) {

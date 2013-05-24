@@ -81,14 +81,14 @@ namespace Enceladus.Entity.NPC {
 
             _body = BodyFactory.CreateRectangle(world, .6f, CharacterHeight, 0f);
             _body.IsStatic = false;
-            _body.CollisionCategories = Arena.NPCCategory;
-            _body.CollidesWith = Arena.TerrainCategory;
+            _body.CollisionCategories = EnceladusGame.NPCCategory;
+            _body.CollidesWith = EnceladusGame.TerrainCategory;
             _body.Position = Position + new Vector2(0, Height / 2 - CharacterHeight / 2);
 
             Fixture proximitySensor = FixtureFactory.AttachRectangle(sensorWidth, CharacterHeight * 2, 0, Vector2.Zero, _body);
             proximitySensor.IsSensor = true;
-            proximitySensor.CollisionCategories = Arena.PlayerSensorCategory;
-            proximitySensor.CollidesWith = Arena.PlayerCategory;
+            proximitySensor.CollisionCategories = EnceladusGame.PlayerSensorCategory;
+            proximitySensor.CollidesWith = EnceladusGame.PlayerCategory;
 
             proximitySensor.OnCollision += (a, b, contact) => {
                 if ( b.Body == _body ) {
@@ -255,7 +255,7 @@ namespace Enceladus.Entity.NPC {
             }
 
             if ( _playerNearby ) {
-                if ( PlayerControl.Control.IsNewAction() && !Arena.Instance.IsInConversation ) {
+                if ( PlayerControl.Control.IsNewAction() && !EnceladusGame.Instance.IsInConversation ) {
                     ConversationManager.Instance.StartConversation(this);
                 }
             }

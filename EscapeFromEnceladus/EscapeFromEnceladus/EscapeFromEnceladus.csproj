@@ -107,7 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Arena.cs" />
+    <Compile Include="EnceladusGame.cs" />
     <Compile Include="Camera2D.cs" />
     <Compile Include="CameraDirector.cs" />
     <Compile Include="Constants.cs" />

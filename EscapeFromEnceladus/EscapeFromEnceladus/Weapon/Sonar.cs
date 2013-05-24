@@ -86,7 +86,7 @@ namespace Enceladus.Weapon {
             _waveEffectCenter = waveEffectCenter;
             DetermineAngle(direction);
             DetermineIntersectedRegions(world, waveEffectCenter);
-            Arena.Instance.Register(new WaveEffect(this));
+            EnceladusGame.Instance.Register(new WaveEffect(this));
             _ping.Play();
         }
 

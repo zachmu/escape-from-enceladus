@@ -73,8 +73,8 @@ namespace Enceladus.Entity.Enemy {
             _body.Friction = 0;
             // the position provided by the factory is the lower-left corner of the map area, tile-aligned
             _body.Position = position - new Vector2(0, height / 2);
-            _body.CollidesWith = Arena.PlayerCategory | Arena.PlayerProjectileCategory | Arena.TerrainCategory;
-            _body.CollisionCategories = Arena.EnemyCategory;
+            _body.CollidesWith = EnceladusGame.PlayerCategory | EnceladusGame.PlayerProjectileCategory | EnceladusGame.TerrainCategory;
+            _body.CollisionCategories = EnceladusGame.EnemyCategory;
             _body.UserData = UserData.NewEnemy(this);
         }
 
@@ -108,8 +108,8 @@ namespace Enceladus.Entity.Enemy {
         }
 
         private void Destroyed() {
-            Arena.Instance.Register(new HealthPickup(_body.Position, _world));
-            Arena.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
+            EnceladusGame.Instance.Register(new HealthPickup(_body.Position, _world));
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
             Dispose();
         }
     }

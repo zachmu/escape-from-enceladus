@@ -32,7 +32,7 @@ namespace Enceladus {
         Saving,
     }
 
-    public class Arena : Game {
+    public class EnceladusGame : Game {
         private readonly GraphicsDeviceManager _graphics;
 
         public GraphicsDeviceManager GraphicsDeviceManager {
@@ -61,11 +61,11 @@ namespace Enceladus {
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
 
-        private static Arena _instance;
+        private static EnceladusGame _instance;
 
         public static SpriteFont DebugFont;
 
-        public static Arena Instance {
+        public static EnceladusGame Instance {
             get { return _instance; }
         }
 
@@ -88,7 +88,7 @@ namespace Enceladus {
 
         public static Boolean Debug = true;
 
-        public Arena() {
+        public EnceladusGame() {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 

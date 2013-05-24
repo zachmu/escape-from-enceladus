@@ -64,12 +64,12 @@ namespace Enceladus {
                     }
                     break;
                 case Mode.MoveBetweenRooms:
-                    if ( _camera.IsAtTarget() && Arena.Instance.Mode == global::Enceladus.Mode.RoomTransition ) {
+                    if ( _camera.IsAtTarget() && EnceladusGame.Instance.Mode == global::Enceladus.Mode.RoomTransition ) {
                         _mode = Mode.TrackPlayer;
 //                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
                         _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         BackgroundManager.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
-                        Arena.Instance.UnsetMode();
+                        EnceladusGame.Instance.UnsetMode();
                     }
                     break;
                 default:
@@ -126,7 +126,7 @@ namespace Enceladus {
             if ( PlayerPositionMonitor.Instance.IsNewRoomChange() ) {
 
                 UnclampCamera();
-                Arena.Instance.SetMode(global::Enceladus.Mode.RoomTransition);
+                EnceladusGame.Instance.SetMode(global::Enceladus.Mode.RoomTransition);
 
                 _mode = Mode.SnapToGrid;
                 Direction directionOfTravel =

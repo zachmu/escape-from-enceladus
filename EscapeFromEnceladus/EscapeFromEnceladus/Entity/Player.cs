@@ -141,8 +141,8 @@ namespace Enceladus.Entity {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
-            _body.CollidesWith = Arena.TerrainCategory | Arena.EnemyCategory | Arena.PlayerSensorCategory;
-            _body.CollisionCategories = Arena.PlayerCategory;
+            _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory | EnceladusGame.PlayerSensorCategory;
+            _body.CollisionCategories = EnceladusGame.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
             _body.FixtureList.First().UserData = "body";
 
@@ -414,16 +414,16 @@ namespace Enceladus.Entity {
                     } else {
                         pos = _body.Position + new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);                                                
                     }
-                    Arena.Instance.Register(new Bomb(pos, _world, _facingDirection));
+                    EnceladusGame.Instance.Register(new Bomb(pos, _world, _facingDirection));
                 } else {
                     Direction shotDirection;
                     var position = GetShotParameters(out shotDirection);
-                    Arena.Instance.Register(new Shot(position, _world, shotDirection));
+                    EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
                 }
             } else if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
-                Arena.Instance.Register(new Missile(position, _world, shotDirection));
+                EnceladusGame.Instance.Register(new Missile(position, _world, shotDirection));
             }
         }
 
@@ -841,7 +841,7 @@ namespace Enceladus.Entity {
             if ( PlayerControl.Control.IsNewSonar() ) {
                 Direction shotDirection;
                 var position = GetShotParameters(out shotDirection);
-                Arena.Instance.Register(new Sonar(_world, position, shotDirection));
+                EnceladusGame.Instance.Register(new Sonar(_world, position, shotDirection));
             }
         }
 

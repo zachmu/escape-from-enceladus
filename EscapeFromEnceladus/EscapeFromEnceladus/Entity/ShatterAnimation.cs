@@ -81,8 +81,8 @@ namespace Enceladus.Entity {
                     float posy = position.Y - simHeightOffset + (y * simPieceHeight + simPieceHeight / 2);
                     //Body body = BodyFactory.CreateCircle(world, simPieceWidth / 2 - .05f, 1);
                     Body body = BodyFactory.CreateRectangle(world, simPieceWidth * 3f / 4f, simPieceHeight * 3f / 4f, 1);
-                    body.CollidesWith = Arena.TerrainCategory;
-                    body.CollisionCategories = Arena.PlayerProjectileCategory;
+                    body.CollidesWith = EnceladusGame.TerrainCategory;
+                    body.CollisionCategories = EnceladusGame.PlayerProjectileCategory;
                     body.Position = new Vector2(posx, posy);
                     body.IsStatic = false;
                     body.FixedRotation = false;

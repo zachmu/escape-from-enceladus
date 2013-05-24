@@ -46,8 +46,8 @@ namespace Enceladus.Entity.InteractiveObject {
             _body.Position = Position;
             _body.IsStatic = true;
             _body.IsSensor = true;
-            _body.CollisionCategories = Arena.PlayerSensorCategory;
-            _body.CollidesWith = Arena.PlayerCategory;
+            _body.CollisionCategories = EnceladusGame.PlayerSensorCategory;
+            _body.CollidesWith = EnceladusGame.PlayerCategory;
 
             _body.OnCollision += (a, b, contact) => {
                 _contactCount++;
@@ -126,7 +126,7 @@ namespace Enceladus.Entity.InteractiveObject {
                     _saveHandle = null;
                     _saved = true;
                     _timerMs = 0;
-                    Arena.Instance.UnsetMode();
+                    EnceladusGame.Instance.UnsetMode();
                 }
             } else if ( _saved ) {
                 _timerMs += gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -134,8 +134,8 @@ namespace Enceladus.Entity.InteractiveObject {
                     _saved = false;
                 }
             } else if ( _playerNearby ) {
-                if ( PlayerControl.Control.IsNewAction() && !Arena.Instance.IsInConversation ) {
-                    Arena.Instance.SetMode(Mode.Saving);
+                if ( PlayerControl.Control.IsNewAction() && !EnceladusGame.Instance.IsInConversation ) {
+                    EnceladusGame.Instance.SetMode(Mode.Saving);
                     _saving = true;
                     _timerMs = 0;
                     SaveState state = SaveState.Create(Id);

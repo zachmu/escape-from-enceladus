@@ -400,7 +400,7 @@ namespace Enceladus.Map {
 
             batch.Draw(tileInfo.Texture, displayPosition, tileInfo.Rectangle,
                        Color.White * alpha, rotation, new Vector2(32), 1f, flipEffect, 0);
-            //batch.DrawString(Arena.DebugFont, HVR, displayPosition, Color.GreenYellow);
+            //batch.DrawString(EnceladusGame.DebugFont, HVR, displayPosition, Color.GreenYellow);
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Enceladus.Map {
         }
 
         public bool EntitiesOverlapping() {
-            return Arena.EntitiesOverlapping(new AABB(Position, Position + new Vector2(HalfTileSize * 2)));
+            return EnceladusGame.EntitiesOverlapping(new AABB(Position, Position + new Vector2(HalfTileSize * 2)));
         }
 
         public bool IsForeground() {

@@ -45,7 +45,7 @@ namespace Enceladus.Entity {
             _body.IsStatic = true;
             _body.Position = position;
             _body.CollisionCategories = Category.All;
-            _body.CollidesWith = Arena.PlayerCategory;
+            _body.CollidesWith = EnceladusGame.PlayerCategory;
             _body.OnCollision += (a, b, contact) => {
                                      if ( b.Body.GetUserData().IsPlayer ) {
                                          Player.Instance.Pickup(this);

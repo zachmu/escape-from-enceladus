@@ -188,7 +188,7 @@ namespace Enceladus.Map {
             InitializeDestructionRegions();
             CreateInteractiveObjects();
 
-            Arena.Instance.StepWorld(null);
+            EnceladusGame.Instance.StepWorld(null);
         }
 
         private void CreateInteractiveObjects() {
@@ -198,7 +198,7 @@ namespace Enceladus.Map {
                 foreach ( Object region in objectGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
                     if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
-                        Arena.Instance.Register(InteractiveObjectFactory.Create(_world, region));
+                        EnceladusGame.Instance.Register(InteractiveObjectFactory.Create(_world, region));
                     }
                 }
             }
@@ -220,7 +220,7 @@ namespace Enceladus.Map {
                 foreach ( Door door in _doorsByRoom[PlayerPositionMonitor.Instance.CurrentRoom] ) {
                     if ( door.Disposed ) {
                         door.Create();
-                        Arena.Instance.Register(door);
+                        EnceladusGame.Instance.Register(door);
                     }
                 }
             }
@@ -233,7 +233,7 @@ namespace Enceladus.Map {
                 foreach ( Object region in npcGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
                     if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
-                        Arena.Instance.Register(NPCFactory.Create(region, _world));
+                        EnceladusGame.Instance.Register(NPCFactory.Create(region, _world));
                     }
                 }
             }
@@ -246,7 +246,7 @@ namespace Enceladus.Map {
                 foreach ( Object obj in enemies.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
                     if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
-                        Arena.Instance.Register(EnemyFactory.CreateEnemy(obj, _world));
+                        EnceladusGame.Instance.Register(EnemyFactory.CreateEnemy(obj, _world));
                     }
                 }
             }
@@ -281,7 +281,7 @@ namespace Enceladus.Map {
 #else
                     int numPieces = 4;
 #endif
-                    Arena.Instance.Register(new ShatterAnimation(_world, tileInfo.Texture, tileInfo.Rectangle,
+                    EnceladusGame.Instance.Register(new ShatterAnimation(_world, tileInfo.Texture, tileInfo.Rectangle,
                                                                  t.Position + new Vector2(TileSize / 2, TileSize / 2),
                                                                  numPieces, 20f));
                 }
@@ -456,7 +456,7 @@ namespace Enceladus.Map {
                 loopShape.Friction = .5f;
                 loopShape.IsStatic = true;
                 loopShape.CollidesWith = Category.All;
-                loopShape.CollisionCategories = Arena.TerrainCategory;
+                loopShape.CollisionCategories = EnceladusGame.TerrainCategory;
                 loopShape.UserData = UserData.NewTerrain();
 
                 //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
