@@ -86,9 +86,13 @@ namespace Arena.Map {
             }
 
             if ( IsNewRoomChange() ) {
-                TileLevel.CurrentLevel.SetCurrentRoom(_currentRoom);
-                Arena.Instance.DisposeRoom(_previousRoom);
+                RoomChanged(_previousRoom, _currentRoom);
             }
         }
+
+        public event RoomChangedHandle RoomChanged;
+
     }
+
+    public delegate void RoomChangedHandle(Room oldRoom, Room newRoom);
 }

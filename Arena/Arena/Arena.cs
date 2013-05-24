@@ -139,6 +139,8 @@ namespace Arena {
             _doorState = new DoorState();
             _mode = Mode.NormalControl;
 
+            _playerPositionMonitor.RoomChanged += DisposeRoom;
+
             base.Initialize();
         }
 
@@ -198,10 +200,10 @@ namespace Arena {
         /// <summary>
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
-        public void DisposeRoom(Room disposeRoom) {
-            if ( disposeRoom != null ) {
+        public void DisposeRoom(Room oldRoom, Room newRoom) {
+            if ( oldRoom != null ) {
                 foreach ( IGameEntity gameEntity in _entities ) {
-                    if ( disposeRoom.Contains(gameEntity) && !_playerPositionMonitor.CurrentRoom.Contains(gameEntity) ) {
+                    if ( oldRoom.Contains(gameEntity) && !_playerPositionMonitor.CurrentRoom.Contains(gameEntity) ) {
                         gameEntity.Dispose();
                     }
                 }

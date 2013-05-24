@@ -86,7 +86,7 @@ namespace Arena.Map {
                 Player.Instance.Position = new Vector2(10, 10);
             }
 
-            //SetCurrentRoom(RoomAt(Player.Instance.Position));
+            PlayerPositionMonitor.Instance.RoomChanged += SetCurrentRoom;
         }
 
         private void InitializeDoors(ObjectGroup doorGroup) {
@@ -178,7 +178,7 @@ namespace Arena.Map {
         /// Sets the current room.
         /// Tears down any managed resources associated with the old room and creates them for this one.
         /// </summary>
-        public void SetCurrentRoom(Room room) {
+        public void SetCurrentRoom(Room oldRoom, Room newRoom) {
             TearDownEdges();
             InitializeEdges();
             CreateEnemies();
