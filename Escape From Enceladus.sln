@@ -11,9 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugView XNA", "Farseer Ph
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugView XNA Content", "Farseer Physics Engine 3.3.1 Samples XNA\DebugView XNA\Content\DebugView XNA Content.contentproj", "{AC26EDE1-2A42-4A57-BEEE-9603FCAC9317}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arena", "Arena\Arena\Arena.csproj", "{6CF0E7DF-28BA-4E91-AED8-9BFB0B2BAA95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EscapeFromEnceladus", "EscapeFromEnceladus\EscapeFromEnceladus\EscapeFromEnceladus.csproj", "{6CF0E7DF-28BA-4E91-AED8-9BFB0B2BAA95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArenaContent", "Arena\ArenaContent\ArenaContent.contentproj", "{8AAD328F-336B-43B0-A03F-759118507A8D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EscapeFromEnceladus Content", "EscapeFromEnceladus\EscapeFromEnceladusContent\EscapeFromEnceladus Content.contentproj", "{8AAD328F-336B-43B0-A03F-759118507A8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
