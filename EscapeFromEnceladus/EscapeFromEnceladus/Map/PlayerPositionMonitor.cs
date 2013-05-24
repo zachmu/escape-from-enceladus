@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
+using Enceladus.Entity;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     /// <summary>
     /// Helper class to keep track of where in the gameworld the player currently is and has been.

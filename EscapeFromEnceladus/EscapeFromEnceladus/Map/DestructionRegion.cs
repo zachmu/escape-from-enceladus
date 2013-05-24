@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
-using Arena.Farseer;
-using Arena.Weapon;
+using Enceladus.Entity;
+using Enceladus.Farseer;
+using Enceladus.Weapon;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     /// <summary>
     /// A region of destructible tiles.

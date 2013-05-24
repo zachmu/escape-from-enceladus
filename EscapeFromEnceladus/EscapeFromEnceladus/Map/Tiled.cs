@@ -47,9 +47,9 @@ Copyright (C) 2009 Kevin Gadd
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arena.Entity;
-using Arena.Farseer;
-using Arena.Xbox;
+using Enceladus.Entity;
+using Enceladus.Xbox;
+using Enceladus.Farseer;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -57,7 +57,7 @@ using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     public partial class Tileset {
         public class TilePropertyList : Dictionary<string, string> {

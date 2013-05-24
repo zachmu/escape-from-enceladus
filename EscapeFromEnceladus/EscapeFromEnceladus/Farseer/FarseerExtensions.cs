@@ -8,7 +8,7 @@ using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Farseer {
+namespace Enceladus.Farseer {
 
     public static class FarseerExtensions {
         

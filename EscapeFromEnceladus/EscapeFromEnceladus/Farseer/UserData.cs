@@ -1,9 +1,9 @@
-﻿using Arena.Entity;
-using Arena.Entity.Enemy;
-using Arena.Map;
-using Arena.Weapon;
+﻿using Enceladus.Entity;
+using Enceladus.Entity.Enemy;
+using Enceladus.Map;
+using Enceladus.Weapon;
 
-namespace Arena.Farseer {
+namespace Enceladus.Farseer {
 
     /// <summary>
     /// Place to store data about bodies in the game world

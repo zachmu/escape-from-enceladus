@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
-using Arena.Weapon;
+using Enceladus.Farseer;
+using Enceladus.Weapon;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity.Enemy {
+namespace Enceladus.Entity.Enemy {
 
     public class Beetle : AbstractEnemy {
 

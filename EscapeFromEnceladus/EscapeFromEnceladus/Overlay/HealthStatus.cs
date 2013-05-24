@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
+using Enceladus.Entity;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Overlay {
+namespace Enceladus.Overlay {
     
     public class HealthStatus {
         private const int ContainerOffset = 28;

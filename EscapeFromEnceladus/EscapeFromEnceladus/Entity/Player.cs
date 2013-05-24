@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arena.Control;
-using Arena.Entity.Enemy;
-using Arena.Farseer;
-using Arena.Weapon;
-using Arena.Xbox;
+using Enceladus.Xbox;
+using Enceladus.Control;
+using Enceladus.Entity.Enemy;
+using Enceladus.Farseer;
+using Enceladus.Weapon;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -17,9 +17,9 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using ConvertUnits = Arena.Farseer.ConvertUnits;
+using ConvertUnits = Enceladus.Farseer.ConvertUnits;
 
-namespace Arena.Entity {
+namespace Enceladus.Entity {
     public class Player : Entity, IGameEntity {
 
         private static Player _instance;

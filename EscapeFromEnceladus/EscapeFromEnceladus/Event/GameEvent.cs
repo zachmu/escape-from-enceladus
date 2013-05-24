@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity.NPC;
+using Enceladus.Entity.NPC;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Event {
+namespace Enceladus.Event {
 
     /// <summary>
     /// An in-game event, which must have certain circumstances met to occur

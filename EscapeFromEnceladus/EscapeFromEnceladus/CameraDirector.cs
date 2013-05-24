@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Control;
-using Arena.Entity;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Control;
+using Enceladus.Entity;
+using Enceladus.Farseer;
+using Enceladus.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena {
+namespace Enceladus {
 
     /// <summary>
     /// Controls all camera movement
@@ -64,7 +64,7 @@ namespace Arena {
                     }
                     break;
                 case Mode.MoveBetweenRooms:
-                    if ( _camera.IsAtTarget() && Arena.Instance.Mode == global::Arena.Mode.RoomTransition ) {
+                    if ( _camera.IsAtTarget() && Arena.Instance.Mode == global::Enceladus.Mode.RoomTransition ) {
                         _mode = Mode.TrackPlayer;
 //                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
                         _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);
@@ -126,7 +126,7 @@ namespace Arena {
             if ( PlayerPositionMonitor.Instance.IsNewRoomChange() ) {
 
                 UnclampCamera();
-                Arena.Instance.SetMode(global::Arena.Mode.RoomTransition);
+                Arena.Instance.SetMode(global::Enceladus.Mode.RoomTransition);
 
                 _mode = Mode.SnapToGrid;
                 Direction directionOfTravel =

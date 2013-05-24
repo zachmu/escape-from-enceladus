@@ -1,4 +1,4 @@
-using Arena.Farseer;
+using Enceladus.Farseer;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -6,7 +6,7 @@ using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Enceladus.Entity {
     public class Entity {
 
         protected World _world;

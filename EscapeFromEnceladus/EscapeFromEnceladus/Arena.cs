@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arena.Control;
-using Arena.Entity;
-using Arena.Entity.Enemy;
-using Arena.Entity.NPC;
-using Arena.Event;
-using Arena.Farseer;
-using Arena.Map;
-using Arena.Overlay;
-using Arena.Weapon;
-using Arena.Xbox;
+using Enceladus.Xbox;
+using Enceladus.Control;
+using Enceladus.Entity;
+using Enceladus.Entity.Enemy;
+using Enceladus.Entity.NPC;
+using Enceladus.Event;
+using Enceladus.Farseer;
+using Enceladus.Map;
+using Enceladus.Overlay;
+using Enceladus.Weapon;
 using FarseerPhysics;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
@@ -22,7 +22,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Path = System.IO.Path;
 
-namespace Arena {
+namespace Enceladus {
     
     // TODO: this doesn't belong here
     public enum Mode {

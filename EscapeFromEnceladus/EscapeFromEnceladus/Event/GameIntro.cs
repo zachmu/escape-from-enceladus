@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity.NPC;
-using Arena.Map;
+using Enceladus.Entity.NPC;
+using Enceladus.Map;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Event {
+namespace Enceladus.Event {
 
     /// <summary>
     /// An event for the introduction to the game

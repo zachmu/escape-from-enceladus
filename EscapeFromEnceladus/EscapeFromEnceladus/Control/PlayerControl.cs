@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
+using Enceladus.Entity;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Control
+namespace Enceladus.Control
 {
     /// <summary>
     /// Abstraction for controlling the player via various means

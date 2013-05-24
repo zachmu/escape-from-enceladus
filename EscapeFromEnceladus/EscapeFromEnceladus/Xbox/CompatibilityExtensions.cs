@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FarseerPhysics.Common;
 
-namespace Arena.Xbox {
+namespace Enceladus.Xbox {
 
     // Just here to make this namespace non-empty on windows
     public static class Dummy {

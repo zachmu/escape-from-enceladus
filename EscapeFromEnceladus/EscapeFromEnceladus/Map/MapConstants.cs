@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     /// <summary>
     /// Mapping system constants for universal access

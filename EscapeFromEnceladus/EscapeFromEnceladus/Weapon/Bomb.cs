@@ -1,7 +1,7 @@
 using System;
-using Arena.Entity;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Entity;
+using Enceladus.Farseer;
+using Enceladus.Map;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Weapon {
+namespace Enceladus.Weapon {
 
     /// <summary>
     /// The bomb isn't really a projectile since it just sits there, but it does

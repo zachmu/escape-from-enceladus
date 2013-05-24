@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
-using Arena.Farseer;
-using Arena.Weapon;
+using Enceladus.Entity;
+using Enceladus.Farseer;
+using Enceladus.Weapon;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
     
     /// <summary>
     /// A door that can be opened by some weapon. Doors live the life of the simulation,

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
 
     /// <summary>
     ///  An entity that knows how to read dialog.

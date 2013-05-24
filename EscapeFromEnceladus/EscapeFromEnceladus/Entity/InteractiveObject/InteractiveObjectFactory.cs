@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
+using Enceladus.Farseer;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
-using Object = Arena.Map.Object;
+using Object = Enceladus.Map.Object;
 
-namespace Arena.Entity.InteractiveObject {
+namespace Enceladus.Entity.InteractiveObject {
 
     /// <summary>
     /// Factory to create the appropriate kind of interactive object 
     /// </summary>
     public class InteractiveObjectFactory {
 
-        public static IGameEntity Create(World world, Object obj) {
+        public static IGameEntity Create(World world, Map.Object obj) {
             Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
             var topLeft = ConvertUnits.ToSimUnits(new Vector2(obj.X, obj.Y));
             var bottomRight =

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Control;
+using Enceladus.Control;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena {
+namespace Enceladus {
     /// <summary>
     /// Adjustable constants for game play
     /// </summary>

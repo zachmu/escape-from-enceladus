@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Arena.Entity;
-using Arena.Entity.Enemy;
-using Arena.Entity.InteractiveObject;
-using Arena.Entity.NPC;
-using Arena.Farseer;
-using Arena.Weapon;
-using Arena.Xbox;
+using Enceladus.Xbox;
+using Enceladus.Entity;
+using Enceladus.Entity.Enemy;
+using Enceladus.Entity.InteractiveObject;
+using Enceladus.Entity.NPC;
+using Enceladus.Farseer;
+using Enceladus.Weapon;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -17,7 +17,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     public class TileLevel {
         public const float TileSize = 1f;

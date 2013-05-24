@@ -7,7 +7,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Storage;
 
-namespace Arena.Event {
+namespace Enceladus.Event {
     /// <summary>
     /// Encapsulates everything about a save state.
     /// </summary>

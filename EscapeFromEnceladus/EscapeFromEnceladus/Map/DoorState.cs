@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
     
     /// <summary>
     /// Persistent store of which doors are locked, etc.

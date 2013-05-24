@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
+using Enceladus.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Enceladus.Entity {
 
     /// <summary>
     /// Simple break-up destruction animation

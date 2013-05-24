@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using Arena.Entity;
-using Arena.Entity.Enemy;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Entity;
+using Enceladus.Entity.Enemy;
+using Enceladus.Farseer;
+using Enceladus.Map;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -11,7 +11,7 @@ using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Weapon {
+namespace Enceladus.Weapon {
 
     /// <summary>
     /// Base class for projectiles

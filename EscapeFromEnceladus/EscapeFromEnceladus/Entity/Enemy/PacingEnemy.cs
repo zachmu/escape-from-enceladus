@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using Arena.Farseer;
-using Arena.Weapon;
+using Enceladus.Weapon;
+using Enceladus.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Entity.Enemy {
+namespace Enceladus.Entity.Enemy {
 
     public class PacingEnemy : AbstractEnemy, IGameEntity {
 

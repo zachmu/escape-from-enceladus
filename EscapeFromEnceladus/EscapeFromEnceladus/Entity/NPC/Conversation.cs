@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Arena.Control;
-using Arena.Overlay;
+using Enceladus.Overlay;
+using Enceladus.Control;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
 
     /// <summary>
     /// A conversation between one or more characters.

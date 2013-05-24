@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
-using Arena.Weapon;
+using Enceladus.Farseer;
+using Enceladus.Weapon;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -13,7 +13,7 @@ using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity.Enemy {
+namespace Enceladus.Entity.Enemy {
 
     public abstract class AbstractEnemy : Entity, IGameEntity {
 

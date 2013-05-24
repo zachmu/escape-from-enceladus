@@ -1,9 +1,9 @@
 using System;
-using Arena.Entity;
+using Enceladus.Entity;
 using FarseerPhysics.Collision;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
     public class Region {
         protected Vector2 _topLeft;
         protected Vector2 _bottomRight;

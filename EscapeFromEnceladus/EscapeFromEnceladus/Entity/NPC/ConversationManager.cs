@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Event;
+using Enceladus.Event;
 using Microsoft.Xna.Framework.Content;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
     /// <summary>
     /// Manages conversations initiated by talking to an NPC or various events, 
     /// creating and distributing them as needed.

@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Arena</RootNamespace>
+    <RootNamespace>Enceladus</RootNamespace>
     <AssemblyName>EscapeFromEnceladus</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -184,7 +184,7 @@
       <Project>{1681ADA2-B2F3-4157-A603-82C742379856}</Project>
       <Name>Samples XNA</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ArenaContent\EscapeFromEnceladus Content.contentproj">
+    <ProjectReference Include="..\EscapeFromEnceladusContent\EscapeFromEnceladus Content.contentproj">
       <Name>EscapeFromEnceladus Content %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
       <Project>{8AAD328F-336B-43B0-A03F-759118507A8D}</Project>

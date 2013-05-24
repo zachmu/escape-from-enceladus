@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
-using Arena.Farseer;
+using Enceladus.Entity;
+using Enceladus.Farseer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
     /// <summary>
     /// The background manager is responsible for drawing all background images.
     /// </summary>

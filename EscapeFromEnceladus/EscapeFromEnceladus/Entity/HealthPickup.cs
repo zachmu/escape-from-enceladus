@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena;
-using Arena.Farseer;
+using Enceladus;
+using Enceladus.Farseer;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Enceladus.Entity {
     public class HealthPickup : IGameEntity {
 
         private static Texture2D[] _animation = new Texture2D[NumFrames];

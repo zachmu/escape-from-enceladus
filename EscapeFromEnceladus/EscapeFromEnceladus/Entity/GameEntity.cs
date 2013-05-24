@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Enceladus.Entity {
     
     /// <summary>
     /// There's also a LoadContent implied, but for most classes this 

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
+using Enceladus.Farseer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
 
     /// <summary>
     /// The NPC stand-in for the character

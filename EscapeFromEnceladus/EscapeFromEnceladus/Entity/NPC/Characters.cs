@@ -5,7 +5,7 @@ using System.Text;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
     internal class ProfessorIapetus : NPC {
         public static readonly Color CharacterColor = Color.Tomato;
         public ProfessorIapetus(Vector2 topLeft, Vector2 bottomRight, World world, float sensorWidth)

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Map;
 using System;
+using Enceladus.Farseer;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
-using Object = Arena.Map.Object;
+using Object = Enceladus.Map.Object;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
 
     /// <summary>
     /// NPCs should be created via Create when they become active to 
@@ -35,7 +35,7 @@ namespace Arena.Entity.NPC {
         /// Creates a new instance of the NPC map object given, 
         /// storing that copy of the NPC for reference.
         /// </summary>
-        public static NPC Create(Object npc, World world) {
+        public static NPC Create(Map.Object npc, World world) {
             Vector2 pos = ConvertUnits.ToSimUnits(npc.X, npc.Y);
             var topLeft = ConvertUnits.ToSimUnits(new Vector2(npc.X, npc.Y));
             var bottomRight =

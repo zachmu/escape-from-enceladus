@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity.NPC;
-using Arena.Map;
+using Enceladus.Entity.NPC;
+using Enceladus.Map;
 
-namespace Arena.Event {
+namespace Enceladus.Event {
 
     /// <summary>
     /// Talk to everyone on the ship to trigger this event.

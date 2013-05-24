@@ -1,4 +1,4 @@
-namespace Arena
+namespace Enceladus
 {
 #if WINDOWS || XBOX
     static class Program

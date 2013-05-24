@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Overlay {
+namespace Enceladus.Overlay {
 
     /// <summary>
     /// Static class to hold shared control graphical assets (buttons, etc)

@@ -9,7 +9,7 @@ using System.Xml;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     partial class Tileset {
 

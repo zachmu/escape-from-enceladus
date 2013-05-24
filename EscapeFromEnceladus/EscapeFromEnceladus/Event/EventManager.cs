@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity.NPC;
+using Enceladus.Entity.NPC;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
-namespace Arena.Event {
+namespace Enceladus.Event {
 
     /// <summary>
     /// Responsible for maintaining global state about game-progress events

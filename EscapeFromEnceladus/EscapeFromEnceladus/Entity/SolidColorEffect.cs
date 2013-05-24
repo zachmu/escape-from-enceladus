@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Entity {
+namespace Enceladus.Entity {
     
     /// <summary>
     /// Simple container for the solid-color shader effect

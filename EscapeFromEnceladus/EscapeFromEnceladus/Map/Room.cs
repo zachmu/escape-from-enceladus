@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
-using Arena.Farseer;
+using Enceladus.Entity;
+using Enceladus.Farseer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Map {
+namespace Enceladus.Map {
 
     /// <summary>
     /// A room is a logical unit of the map bounded by one or more doors or secret passages.

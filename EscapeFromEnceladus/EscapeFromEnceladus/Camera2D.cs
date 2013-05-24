@@ -3,15 +3,15 @@
  */
 
 using System;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Farseer;
+using Enceladus.Map;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena {
+namespace Enceladus {
     public class Camera2D {
         private const float MinZoom = 0.02f;
         private const float MaxZoom = 20f;

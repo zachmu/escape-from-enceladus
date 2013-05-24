@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Entity;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Entity;
+using Enceladus.Farseer;
+using Enceladus.Map;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Weapon {
+namespace Enceladus.Weapon {
 
     /// <summary>
     /// The sonar weapon.

@@ -4,7 +4,7 @@
 
 using Microsoft.Xna.Framework;
 
-namespace Arena.Farseer {
+namespace Enceladus.Farseer {
     /// <summary>
     /// Convert units between display and simulation units.
     /// </summary>

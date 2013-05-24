@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Farseer;
-using Arena.Map;
+using Enceladus.Farseer;
+using Enceladus.Map;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
-using Object = Arena.Map.Object;
+using Object = Enceladus.Map.Object;
 
-namespace Arena.Entity.Enemy {
+namespace Enceladus.Entity.Enemy {
     public static class EnemyFactory {
 
         /// <summary>
         /// Creates an appropriate enemy from the descriptor given.
         /// </summary>
-        public static AbstractEnemy CreateEnemy(Object obj, World world) {
+        public static AbstractEnemy CreateEnemy(Map.Object obj, World world) {
             // We use the lower-left corner for objects, aligned to the nearest tile boundary. 
             // this is to start enemies off with their feet on the ground.
             Vector2 pos = Region.AdjustToTileBoundary(ConvertUnits.ToSimUnits(obj.X, obj.Y + obj.Height));            

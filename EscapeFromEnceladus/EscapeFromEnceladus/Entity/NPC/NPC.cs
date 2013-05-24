@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Arena.Control;
-using Arena.Farseer;
-using Arena.Map;
-using Arena.Overlay;
+using Enceladus.Control;
+using Enceladus.Farseer;
+using Enceladus.Map;
+using Enceladus.Overlay;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Arena.Entity.NPC {
+namespace Enceladus.Entity.NPC {
 
     /// <summary>
     /// NPC character that you can talk to.
@@ -267,8 +267,8 @@ namespace Arena.Entity.NPC {
             get { return false; }
         }
 
-        public bool UpdateInMode(global::Arena.Mode mode) {
-            return mode == global::Arena.Mode.NormalControl; 
+        public bool UpdateInMode(global::Enceladus.Mode mode) {
+            return mode == global::Enceladus.Mode.NormalControl; 
         }
 
         private void UpdateImage(GameTime gameTime) {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Arena.Weapon {
+namespace Enceladus.Weapon {
 
     /// <summary>
     /// A post-processing effect drawn over the entire screen.
