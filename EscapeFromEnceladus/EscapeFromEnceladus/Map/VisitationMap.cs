@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Enceladus.Entity;
+using Enceladus.Event;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -71,6 +72,42 @@ namespace Enceladus.Map {
 
             _visitedScreens = new bool[_numScreensX, _numScreensY];
             _knownScreens = new bool[_numScreensX, _numScreensY];
+        }
+
+        /// <summary>
+        /// Loads the visitation info from the save state given.
+        /// </summary>
+        public void LoadFromSave(SaveState save) {
+            Array.Clear(_visitedScreens, 0, _visitedScreens.Length);
+            Array.Clear(_knownScreens, 0, _knownScreens.Length);
+            for ( int i = 0; i < save.VisitedScreensX.Count; i++ ) {
+                _visitedScreens[save.VisitedScreensX[i], save.VisitedScreensY[i]] = true;
+            }
+            for ( int i = 0; i < save.KnownScreensX.Count; i++ ) {
+                _knownScreens[save.KnownScreensX[i], save.KnownScreensY[i]] = true;
+            }
+        }
+
+        /// <summary>
+        /// Saves the visitation info into the save state given.
+        /// </summary>
+        public void Save(SaveState save) {
+            save.VisitedScreensX = new List<int>();
+            save.VisitedScreensY = new List<int>();
+            save.KnownScreensX = new List<int>();
+            save.KnownScreensY = new List<int>();
+            for ( int x = 0; x < _numScreensX; x++ ) {
+                for ( int y = 0; y < _numScreensY; y++ ) {
+                    if ( _visitedScreens[x, y] ) {
+                        save.VisitedScreensX.Add(x);
+                        save.VisitedScreensY.Add(y);
+                    }
+                    if ( _knownScreens[x, y] ) {
+                        save.KnownScreensX.Add(x);
+                        save.KnownScreensY.Add(y);
+                    }
+                }
+            }
         }
 
         public static void LoadContent(ContentManager cm) {

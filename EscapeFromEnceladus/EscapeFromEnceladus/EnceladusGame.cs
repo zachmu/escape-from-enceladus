@@ -196,6 +196,23 @@ namespace Enceladus {
         }
 
         /// <summary>
+        /// Returns a save state with all game state populated.
+        /// </summary>
+        public SaveState GetSaveState() {
+            return new SaveState(PlayerIndex.One, _visitationMap);
+        }
+
+        /// <summary>
+        /// Applies the save state to the game.
+        /// </summary>
+        public void ApplySaveState(SaveState saveState) {
+            saveState.ApplyToGameState(_visitationMap);
+            _cameraDirector.Update(null);            
+            _cameraDirector.TargetPlayer();
+            _cameraDirector.JumpToTarget();
+        }
+
+        /// <summary>
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
         public void DisposeRoom(Room oldRoom, Room newRoom) {

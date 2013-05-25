@@ -29,16 +29,17 @@ namespace Enceladus.Map {
         private const string InteractiveObjectsLayerName = "InteractiveObjects";
 
         public static int TileDisplaySize;
+        private readonly Map _levelMap;
+        private readonly World _world;
         private readonly Layer _collisionLayer;
         private readonly List<Room> _rooms = new List<Room>();
         private readonly Dictionary<Room, List<Door>> _doorsByRoom = new Dictionary<Room, List<Door>>(); 
         private readonly List<DestructionRegion> _destructionRegions = new List<DestructionRegion>();
-        private readonly List<Door> _doors = new List<Door>(); 
-        private readonly Map _levelMap;
-        private readonly World _world;
+        private readonly Dictionary<string, SaveStation> saveStationsById = new Dictionary<string, SaveStation>(); 
         private readonly HashSet<Tile> _tilesToRemove = new HashSet<Tile>();
         private readonly HashSet<Tile> _tilesToAdd = new HashSet<Tile>();
         private readonly Dictionary<string, Door> _namedDoors = new Dictionary<string, Door>();
+        private readonly Dictionary<string, Vector2> _saveStationLocations = new Dictionary<string, Vector2>();
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -76,6 +77,13 @@ namespace Enceladus.Map {
             }
 
             try {
+                ObjectGroup objectGroup = _levelMap.ObjectGroups[InteractiveObjectsLayerName];
+                InitializeSaveStationLocations(objectGroup);
+            } catch {
+                // no objects on this level (tests, mostly)
+            }
+
+            try {
                 ObjectGroup playerGroup = _levelMap.ObjectGroups["PlayerStart"];
                 foreach ( Object region in playerGroup.Objects ) {
                     var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
@@ -89,12 +97,21 @@ namespace Enceladus.Map {
             PlayerPositionMonitor.Instance.RoomChanged += SetCurrentRoom;
         }
 
+        private void InitializeSaveStationLocations(ObjectGroup objectGroup) {
+            foreach ( Object obj in objectGroup.Objects.Where(o => o.Type == InteractiveObjectFactory.Save) ) {
+                Vector2 pos = InteractiveObjectFactory.GetPosition(obj);
+                if ( _saveStationLocations.ContainsKey(obj.Name) ) {
+                    throw new Exception("Duplicate save station id " + obj.Name);
+                }
+                _saveStationLocations[obj.Name] = pos;
+            }
+        }
+
         private void InitializeDoors(ObjectGroup doorGroup) {
             foreach ( Object region in doorGroup.Objects ) {                
                 var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
                 var bottomRight = ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
-                Door door = new Door(_world, topLeft, bottomRight, region);
-                _doors.Add(door);
+                Door door = new Door(_world, topLeft, bottomRight, region);               
                 if ( door.Name != null ) {
                     _namedDoors[door.Name] = door;
                 }
@@ -787,10 +804,17 @@ namespace Enceladus.Map {
         }
 
         /// <summary>
-        /// Returns the door with the name given or null if there isn't one.
+        /// Returns the door with the name given.
         /// </summary>
         public Door DoorNamed(string name) {
             return _namedDoors[name];
+        }
+
+        /// <summary>
+        /// Returns the location of the save station with the ID given.
+        /// </summary>
+        public Vector2 SaveStationLocation(String saveStationId) {
+            return _saveStationLocations[saveStationId];
         }
 
         /// <summary>

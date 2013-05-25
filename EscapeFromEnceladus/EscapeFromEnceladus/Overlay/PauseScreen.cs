@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Enceladus.Control;
 using Enceladus.Entity;
+using Enceladus.Event;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,18 +15,27 @@ namespace Enceladus.Overlay {
     /// Pause menu overlay
     /// </summary>
     public class PauseScreen {
-        
-        private static readonly string[] MenuItems = new[]  {             
+
+        private static readonly string[] MenuItems = new[] {
             "Return to Game",
             "Restart From Last Save Point",
             "Exit Game"
+        };
+
+        private static readonly string[] LoadingMenuItems = new[] {
+            "",
+            "Loading...",
+            "",
         };
 
         private readonly Action[] MenuActions;
 
         private int _selectedIndex = 0;
         private double _timer = 0;
+        private double _loadTimer = 0;
         private bool _flash;
+        private bool _loadingSavedGame = false;
+        private SaveWaiter _saveWaiter;
 
         public PauseScreen() {
             MenuActions = new Action[] {
@@ -44,7 +55,8 @@ namespace Enceladus.Overlay {
             Vector2 screenCenter = new Vector2(screenWidth / 2f, screenHeight / 2f);
 
             StringBuilder sb = new StringBuilder();
-            foreach ( var s in MenuItems) {
+            string[] menuItems = _loadingSavedGame ? LoadingMenuItems : MenuItems;
+            foreach ( var s in menuItems) {
                 sb.Append(s).Append("\n");
             }
             Vector2 stringSize = dialogFont.MeasureString(sb);
@@ -61,14 +73,14 @@ namespace Enceladus.Overlay {
                                       new Vector2(menuStringSize.X / 2, stringSize.Y / 2 + dialogFont.LineSpacing * 2);
             DrawStringShadowed(spriteBatch, Color.White, "Pause Menu", displayPosition);
             
-            for ( int i = 0; i < MenuItems.Count(); i++ ) {
+            for ( int i = 0; i < menuItems.Count(); i++ ) {
                 Color color = Color.White;                     
                 if ( i == _selectedIndex ) {
                     color = _flash ? Color.Crimson : Color.White;
                 }
                 displayPosition = screenCenter -
                                           new Vector2(stringSize.X / 2, stringSize.Y / 2 - dialogFont.LineSpacing * i);
-                string text = MenuItems[i];
+                string text = menuItems[i];
                 DrawStringShadowed(spriteBatch, color, text, displayPosition);
             }
         }
@@ -84,6 +96,17 @@ namespace Enceladus.Overlay {
             if ( _timer >= MsUntilColorChange ) {
                 _timer %= MsUntilColorChange;
                 _flash = !_flash;
+            }
+
+            if ( _loadingSavedGame ) {
+                _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(50) ) {                    
+                    EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
+                    EnceladusGame.Instance.UnsetMode();
+                    _saveWaiter = null;
+                    _loadingSavedGame = false;
+                }
+                return;
             }
 
             if ( PlayerControl.Control.IsNewPause() ) {
@@ -130,7 +153,10 @@ namespace Enceladus.Overlay {
         }
 
         private void LoadLastSave() {
-            EnceladusGame.Instance.UnsetMode();
+            SaveState save = EnceladusGame.Instance.GetSaveState();
+            _loadingSavedGame = true;
+            _loadTimer = 0;
+            _saveWaiter = save.Load();
         }
 
         private void ExitGame() {

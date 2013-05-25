@@ -23,16 +23,13 @@ namespace Enceladus.Entity.InteractiveObject {
 
         private Body _body;
         private int _contactCount = 0;
-        private string _id;
 
-        public string Id {
-            get { return _id; }
-        }
+        public string Id { get; private set; }
 
         private bool _playerNearby = false;
         private bool _saving = false;
         private bool _saved = false;
-        private ManualResetEvent _saveHandle;
+        private SaveWaiter _saveWaiter;
         private double _timerMs;
 
         private const double _minSavingDisplayTimeMs = 1000;
@@ -40,7 +37,7 @@ namespace Enceladus.Entity.InteractiveObject {
         public SaveStation(World world, string name, Vector2 topLeft, Vector2 bottomRight)
             : base(topLeft, bottomRight) {
 
-            _id = name; 
+            Id = name; 
 
             _body = BodyFactory.CreateRectangle(world, Width, Height, 0f);
             _body.Position = Position;
@@ -121,9 +118,9 @@ namespace Enceladus.Entity.InteractiveObject {
 
                 // It's a bad experience to let players think things didn't save just 
                 // because it happens quickly, so fake a delay in that case.
-                if ( _timerMs >= _minSavingDisplayTimeMs && _saveHandle.WaitOne(20) ) {
+                if ( _timerMs >= _minSavingDisplayTimeMs && _saveWaiter.WaitHandle.WaitOne(20) ) {
                     _saving = false;
-                    _saveHandle = null;
+                    _saveWaiter = null;
                     _saved = true;
                     _timerMs = 0;
                     EnceladusGame.Instance.UnsetMode();
@@ -138,8 +135,9 @@ namespace Enceladus.Entity.InteractiveObject {
                     EnceladusGame.Instance.SetMode(Mode.Saving);
                     _saving = true;
                     _timerMs = 0;
-                    SaveState state = SaveState.Create(Id);
-                    _saveHandle = state.Persist();
+                    SaveState state = EnceladusGame.Instance.GetSaveState();
+                    state.SaveStationId = this.Id;
+                    _saveWaiter = state.Persist();
                 }
             }
         }

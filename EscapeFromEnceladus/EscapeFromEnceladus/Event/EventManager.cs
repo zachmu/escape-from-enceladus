@@ -108,11 +108,7 @@ namespace Enceladus.Event {
     /// </summary>
     public class GameState {
 
-        private static readonly HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
-
-        public static HashSet<GameMilestone> Milestones {
-            get { return _milestones; }
-        }
+        private static HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
 
         public static bool HasMilestoneOccurred(GameMilestone milestone) {
             return _milestones.Contains(milestone);
@@ -120,6 +116,14 @@ namespace Enceladus.Event {
 
         public static void MilestoneAcheived(GameMilestone milestone) {
             _milestones.Add(milestone);
+        }
+
+        public static void Save(SaveState save) {
+            save.Milestones = _milestones;
+        }
+
+        public static void LoadFromSave(SaveState save) {
+            _milestones = save.Milestones;
         }
     }
 
