@@ -14,6 +14,9 @@ namespace Enceladus.Entity.NPC {
 
         private readonly ContentManager _cm;
 
+        public event ConversationStartedHandle ConversationStarted;
+        public event ConversationEndedHandle ConversationEnded;
+
         private static ConversationManager _instance;
         public static ConversationManager Instance {
             get { return _instance; }
@@ -128,9 +131,9 @@ namespace Enceladus.Entity.NPC {
         /// <summary>
         /// Does the necessary bookkeeping to notify all interested parties that a conversation has started
         /// </summary>
-        private static void StartConversation(Conversation conversation) {
+        private void StartConversation(Conversation conversation) {
             conversation.NotifySpeakersConversationStarted();
-            EnceladusGame.Instance.ConversationStarted(conversation);
+            ConversationStarted(conversation);
         }
 
         /// <summary>
@@ -140,5 +143,11 @@ namespace Enceladus.Entity.NPC {
             StartConversation(new Conversation(_cm, conversationName));
         }
 
+        public void EndConversation(Conversation conversation) {
+            ConversationEnded(conversation);
+        }
     }
+
+    public delegate void ConversationEndedHandle(Conversation conversation);
+    public delegate void ConversationStartedHandle(Conversation conversation);
 }

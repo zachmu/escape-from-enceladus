@@ -49,6 +49,7 @@ namespace Enceladus.Event {
         /// </summary>
         private void Init() {
             LoadEvent(GameIntro.ID);
+            ConversationManager.Instance.ConversationEnded += NotifyConversationOver;
         }
 
         /// <summary>
@@ -93,8 +94,7 @@ namespace Enceladus.Event {
         }
 
         /// <summary>
-        /// Updates all active events. Called when some event takes place, such as 
-        /// collecting an important item, that might cause another event to be triggered.
+        /// Updates all active events.
         /// </summary>
         /// <param name="gameTime"></param>
         public void Update(GameTime gameTime) {

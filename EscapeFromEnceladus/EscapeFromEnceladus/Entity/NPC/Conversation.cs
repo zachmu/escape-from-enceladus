@@ -88,7 +88,8 @@ namespace Enceladus.Entity.NPC {
                 _currentLine++;
                 if ( _currentLine >= _lines.Count ) {
                     _characters.ForEach(npc => npc.StopConversation());
-                    EnceladusGame.Instance.EndConversation(this);
+                    ConversationManager.Instance.EndConversation(this);
+                    Dispose();
                 }
             }
         }

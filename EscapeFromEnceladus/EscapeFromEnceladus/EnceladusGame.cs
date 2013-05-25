@@ -30,6 +30,7 @@ namespace Enceladus {
         RoomTransition,
         Conversation,
         Saving,
+        Paused
     }
 
     public class EnceladusGame : Game {
@@ -133,13 +134,16 @@ namespace Enceladus {
 
             _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
+            _playerPositionMonitor.RoomChanged += DisposeRoom;
+
             _conversationManager = new ConversationManager(Content);
+            _conversationManager.ConversationStarted += ConversationStarted;
+            _conversationManager.ConversationEnded += conversation => UnsetMode();
+
             _backgroundManager = new BackgroundManager(Content);
             _eventManager = new EventManager();
             _doorState = new DoorState();
             _mode = Mode.NormalControl;
-
-            _playerPositionMonitor.RoomChanged += DisposeRoom;
 
             base.Initialize();
         }
@@ -167,15 +171,6 @@ namespace Enceladus {
         public void ConversationStarted(Conversation conversation) {
             SetMode(Mode.Conversation);
             Register(conversation);
-        }
-
-        /// <summary>
-        /// End this conversation
-        /// </summary>
-        public void EndConversation(Conversation conversation) {
-            UnsetMode();
-            _eventManager.NotifyConversationOver(conversation);
-            conversation.Dispose();
         }
 
         /// <summary>
