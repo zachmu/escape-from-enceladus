@@ -51,6 +51,7 @@ namespace Enceladus {
         private Mode _mode;
         private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
+        private PauseScreen _pauseScreen;
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
         private BackgroundManager _backgroundManager;
@@ -143,6 +144,8 @@ namespace Enceladus {
             _backgroundManager = new BackgroundManager(Content);
             _eventManager = new EventManager();
             _doorState = new DoorState();
+            _pauseScreen = new PauseScreen();
+
             _mode = Mode.NormalControl;
 
             base.Initialize();
@@ -284,7 +287,7 @@ namespace Enceladus {
         protected override void Update(GameTime gameTime) {
             
             KeyboardState keyboardState = Keyboard.GetState();
-            if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) )
+            if ( keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
 
             _entities.AddRange(_entitiesToAdd);
@@ -317,6 +320,9 @@ namespace Enceladus {
                     _nextSimStep = false;
                 }
 
+                _eventManager.Update(gameTime);
+                _visitationMap.Update(gameTime);
+
             } else {
                 InputHelper.Instance.Update(gameTime);
                 foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
@@ -328,9 +334,8 @@ namespace Enceladus {
 
             _camera.Update(gameTime);
             _playerPositionMonitor.Update(gameTime);
-            _visitationMap.Update(gameTime);
             _cameraDirector.Update(gameTime);
-            _eventManager.Update(gameTime);
+            _pauseScreen.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
@@ -462,20 +467,23 @@ namespace Enceladus {
                 _spriteBatch.End();
             }
 
-            // Draw overlays on top
-            _spriteBatch.Begin();
-            _healthStatus.Draw(_spriteBatch, _camera);
-            _visitationMap.Draw(_spriteBatch);
-            _spriteBatch.End();
-
-            // Conversation is considered an overlay
-            if ( _entities.Count > 0 ) {
+            // Some entities want to be drawn on top of everything else
+            if ( _entities.Any(entity => entity.DrawAsOverlay) ) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 foreach ( IGameEntity ent in _entities.Where(entity => entity.DrawAsOverlay) ) {
                     ent.Draw(_spriteBatch, _camera);
                 }
                 _spriteBatch.End();
             }
+
+            // Draw overlays on top
+            _spriteBatch.Begin();
+            _healthStatus.Draw(_spriteBatch, _camera);
+            _visitationMap.Draw(_spriteBatch);
+            if ( _mode == Mode.Paused ) {
+                _pauseScreen.Draw(_spriteBatch, _camera);
+            }
+            _spriteBatch.End();
 
             // Finally, debug info
             if (Constants.Get(DebugCamera) >= 1) {

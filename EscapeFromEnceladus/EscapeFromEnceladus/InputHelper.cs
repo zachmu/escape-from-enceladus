@@ -118,6 +118,20 @@ namespace Enceladus {
                     _currentGamePadState.IsButtonUp(button));
         }
 
+        public bool IsGamePadNewDirection(out Direction? direction) {
+            Vector2 prevStick = _lastGamePadState.ThumbSticks.Left;
+            Vector2 currStick = _currentGamePadState.ThumbSticks.Left;
+            Direction? prevDirection = GetStickDirection(prevStick);
+            Direction? currDirection = GetStickDirection(currStick);
+            if ( currDirection != null && currDirection != prevDirection ) {
+                direction = currDirection;
+                return true;
+            } else {
+                direction = null;
+                return false;
+            }
+        }
+
         /// <summary>
         /// Returns the octant being aimed in by the stick given, 
         /// or null if there is no aimed direction.

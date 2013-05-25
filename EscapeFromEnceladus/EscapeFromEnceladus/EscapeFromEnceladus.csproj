@@ -151,6 +151,7 @@
     <Compile Include="Map\TiledMapLoader.cs" />
     <Compile Include="Map\TileLevel.cs" />
     <Compile Include="InputHelper.cs" />
+    <Compile Include="Overlay\PauseScreen.cs" />
     <Compile Include="Overlay\SharedGraphicalAssets.cs" />
     <Compile Include="Weapon\Bomb.cs" />
     <Compile Include="Weapon\Missile.cs" />

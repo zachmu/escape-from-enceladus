@@ -21,6 +21,8 @@ namespace Enceladus.Control
         Direction? GetAimDirection();
         Direction? GetMovementDirection();
         bool IsNewAction();
+        bool IsNewPause();
+        bool IsNewDirection(out Direction? direction);
         bool IsKeyboardControl();
     }
 
@@ -78,6 +80,14 @@ namespace Enceladus.Control
 
         public bool IsNewAction() {
             return InputHelper.Instance.IsNewButtonPress(Buttons.Y);
+        }
+
+        public bool IsNewPause() {
+            return InputHelper.Instance.IsNewButtonPress(Buttons.Back);
+        }
+
+        public bool IsNewDirection(out Direction? direction) {
+            return InputHelper.Instance.IsGamePadNewDirection(out direction);
         }
 
         public bool IsKeyboardControl() {
@@ -160,6 +170,29 @@ namespace Enceladus.Control
 
         public bool IsNewAction() {
             return InputHelper.Instance.IsNewKeyPress(ActionKey);
+        }
+
+        public bool IsNewPause() {
+            return InputHelper.Instance.IsNewKeyPress(Keys.Enter);
+        }
+
+        public bool IsNewDirection(out Direction? direction) {
+            if ( InputHelper.Instance.IsNewKeyPress(Keys.Up) ) {
+                direction = Direction.Up;
+                return true;
+            } else if ( InputHelper.Instance.IsNewKeyPress(Keys.Down) ) {
+                direction = Direction.Down;
+                return true;
+            } else if ( InputHelper.Instance.IsNewKeyPress(Keys.Left) ) {
+                direction = Direction.Left;
+                return true;
+            } else if ( InputHelper.Instance.IsNewKeyPress(Keys.Right) ) {
+                direction = Direction.Right;
+                return true;
+            }
+            
+            direction = null;
+            return false;
         }
 
         public bool IsKeyboardControl() {
