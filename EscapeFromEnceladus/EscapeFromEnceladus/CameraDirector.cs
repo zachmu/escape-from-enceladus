@@ -284,5 +284,15 @@ namespace Enceladus {
                 }
             }
         }
+
+        /// <summary>
+        /// Forces the camera director to reset itself
+        /// </summary>
+        public void ForceRestart() {
+            _mode = Mode.TrackPlayer;
+            ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+            TargetPlayer();
+            JumpToTarget();
+        }
     }
 }

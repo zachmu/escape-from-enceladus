@@ -203,13 +203,12 @@ namespace Enceladus {
         }
 
         /// <summary>
-        /// Applies the save state to the game.
+        /// Applies the save state to the game, effectively loading it into memory.
         /// </summary>
         public void ApplySaveState(SaveState saveState) {
             saveState.ApplyToGameState(_visitationMap);
-            _cameraDirector.Update(null);            
-            _cameraDirector.TargetPlayer();
-            _cameraDirector.JumpToTarget();
+            _playerPositionMonitor.Update();
+            _cameraDirector.ForceRestart();
         }
 
         /// <summary>
@@ -254,12 +253,10 @@ namespace Enceladus {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Boostrap the map position and current room data
-            _playerPositionMonitor.Update(new GameTime());
+            _playerPositionMonitor.Update();
            
             // Bootstrap camera position
-            _cameraDirector.TargetPlayer();
-            _cameraDirector.JumpToTarget();
-            _cameraDirector.ClampCameraToRegion(_playerPositionMonitor.CurrentRegion);
+            _cameraDirector.ForceRestart();
 
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
@@ -350,7 +347,7 @@ namespace Enceladus {
             _backgroundManager.Update(gameTime);
 
             _camera.Update(gameTime);
-            _playerPositionMonitor.Update(gameTime);
+            _playerPositionMonitor.Update();
             _cameraDirector.Update(gameTime);
             _pauseScreen.Update(gameTime);
 
