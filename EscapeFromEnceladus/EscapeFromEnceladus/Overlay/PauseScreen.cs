@@ -20,9 +20,20 @@ namespace Enceladus.Overlay {
             "Exit Game"
         };
 
+        private readonly Action[] MenuActions;
+
         private int _selectedIndex = 0;
         private double _timer = 0;
         private bool _flash;
+
+        public PauseScreen() {
+            MenuActions = new Action[] {
+                ReturnToGame,
+                LoadLastSave,
+                ExitGame,
+            };
+        }
+
         private const double MsUntilColorChange = 250;
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -84,6 +95,15 @@ namespace Enceladus.Overlay {
                 }
             }
 
+            if ( EnceladusGame.Instance.Mode != Mode.Paused ) {
+                return;
+            }
+
+            if ( PlayerControl.Control.IsNewCancelButton() ) {
+                EnceladusGame.Instance.UnsetMode();
+                return;
+            }
+
             Direction? direction;
             if ( PlayerControl.Control.IsNewDirection(out direction) ) {
                 switch ( direction ) {
@@ -96,7 +116,25 @@ namespace Enceladus.Overlay {
                     default:
                         break;
                 }
+            } else if ( PlayerControl.Control.IsNewConfirmButton() ) {
+                ApplyMenuSelection();
             }
+        }
+
+        private void ApplyMenuSelection() {
+            MenuActions[_selectedIndex]();
+        }
+
+        private void ReturnToGame() {
+            EnceladusGame.Instance.UnsetMode();
+        }
+
+        private void LoadLastSave() {
+            EnceladusGame.Instance.UnsetMode();
+        }
+
+        private void ExitGame() {
+            EnceladusGame.Instance.Exit();
         }
     }
 }

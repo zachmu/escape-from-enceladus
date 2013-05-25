@@ -14,6 +14,7 @@ namespace Enceladus.Control
         bool IsNewJump();
         bool IsJumpButtonDown();
         bool IsRunButtonDown();
+        bool IsNewRunButton();
         bool IsNewShot();
         bool IsNewSonar();
         bool IsNewScooter();
@@ -24,6 +25,8 @@ namespace Enceladus.Control
         bool IsNewPause();
         bool IsNewDirection(out Direction? direction);
         bool IsKeyboardControl();
+        bool IsNewConfirmButton();
+        bool IsNewCancelButton();
     }
 
     /// <summary>
@@ -52,6 +55,10 @@ namespace Enceladus.Control
 
         public bool IsRunButtonDown() {
             return InputHelper.Instance.GamePadState.IsButtonDown(RunButton);
+        }
+
+        public bool IsNewRunButton() {
+            return InputHelper.Instance.IsNewButtonPress(RunButton);
         }
 
         public bool IsNewShot() {
@@ -93,6 +100,14 @@ namespace Enceladus.Control
         public bool IsKeyboardControl() {
             return false;
         }
+
+        public bool IsNewConfirmButton() {
+            return InputHelper.Instance.IsNewButtonPress(Buttons.A);
+        }
+
+        public bool IsNewCancelButton() {
+            return InputHelper.Instance.IsNewButtonPress(Buttons.B);
+        }
     }
 
     /// <summary>
@@ -116,6 +131,10 @@ namespace Enceladus.Control
 
         public bool IsRunButtonDown() {
             return InputHelper.Instance.KeyboardState.IsKeyDown(RunKey);
+        }
+
+        public bool IsNewRunButton() {
+            return InputHelper.Instance.IsNewKeyPress(RunKey);
         }
 
         public bool IsNewShot() {
@@ -197,6 +216,14 @@ namespace Enceladus.Control
 
         public bool IsKeyboardControl() {
             return true;
+        }
+
+        public bool IsNewConfirmButton() {
+            return InputHelper.Instance.IsNewKeyPress(Keys.Enter);
+        }
+
+        public bool IsNewCancelButton() {
+            return InputHelper.Instance.IsNewKeyPress(Keys.Back);
         }
     }
 }
