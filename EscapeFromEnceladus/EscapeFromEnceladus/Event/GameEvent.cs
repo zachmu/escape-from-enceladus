@@ -10,7 +10,7 @@ namespace Enceladus.Event {
     /// <summary>
     /// An in-game event, which must have certain circumstances met to occur
     /// </summary>
-    interface IGameEvent {
+    public interface IGameEvent : ISaveable {
 
         event EventTriggeredHandler Triggered;
 
@@ -58,10 +58,16 @@ namespace Enceladus.Event {
         public virtual void ConversationOver(Conversation conversation) {            
         }
 
-        public bool IsRemoveOnTrigger() {
+        public virtual bool IsRemoveOnTrigger() {
             return true;
+        }
+
+        public virtual void Save(SaveState save) {
+        }
+
+        public virtual void LoadFromSave(SaveState save) {
         }
     }
 
-    delegate void EventTriggeredHandler(IGameEvent sender);
+    public delegate void EventTriggeredHandler(IGameEvent sender);
 }

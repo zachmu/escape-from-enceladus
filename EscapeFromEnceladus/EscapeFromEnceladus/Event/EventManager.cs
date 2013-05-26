@@ -11,16 +11,12 @@ namespace Enceladus.Event {
     /// <summary>
     /// Responsible for maintaining global state about game-progress events
     /// </summary>
-    public class EventManager {
+    public class EventManager : ISaveable {
 
-        private static EventManager _instance;
-
-        public static EventManager Instance {
-            get { return _instance; }
-        }
+        public static EventManager Instance { get; private set; }
 
         public EventManager() {
-            _instance = this;
+            Instance = this;
         }
 
         private readonly Dictionary<string, IGameEvent> _events = new Dictionary<string, IGameEvent>();
@@ -30,7 +26,6 @@ namespace Enceladus.Event {
         /// Loads every possible event, along with any persisted state they might have. 
         /// Events aren't actively listening for changes until loaded via LoadEvent()
         /// </summary>
-        /// <param name="contentManager"></param>
         public void LoadContent(ContentManager contentManager) {
             IGameEvent[] allEvents = new IGameEvent[] { 
                 new GameIntro(),
@@ -64,24 +59,27 @@ namespace Enceladus.Event {
         /// Loads the event with the ID given and makes it receive notifications about in-game actions.
         /// </summary>
         /// <param name="eventId"></param>
-        public void LoadEvent(string eventId) {
+        public IGameEvent LoadEvent(string eventId) {
             IGameEvent gameEvent = _events[eventId];
             if ( gameEvent.IsRemoveOnTrigger() ) {
                 gameEvent.Triggered += GameEventOnTriggered;
             }
             _activeEvents.Add(gameEvent);
+            return gameEvent;
         }
 
         /// <summary>
         /// Delegate method called when an event is triggered to notify us it has happened.
-        /// </summary>
-        /// <param name="event"></param>
-        private void GameEventOnTriggered(IGameEvent @event) {            
-            UnloadEvent(@event.Id);
+        /// </summary>        
+        private void GameEventOnTriggered(IGameEvent @event) {
+            if ( @event.IsRemoveOnTrigger() ) {
+                UnloadEvent(@event.Id);
+            }
         }
 
         /// <summary>
-        /// Unloads the event with the ID given. It will no longer receive notifications about in-game actions.
+        /// Unloads the event with the ID given. 
+        /// It will no longer receive notifications about in-game actions.
         /// </summary>
         /// <param name="eventId"></param>
         public void UnloadEvent(string eventId) {
@@ -89,7 +87,7 @@ namespace Enceladus.Event {
             _events[eventId].Triggered -= GameEventOnTriggered;
         }
 
-        public void NotifyConversationOver(Conversation conversation) {
+        private void NotifyConversationOver(Conversation conversation) {
             _activeEvents.ForEach(@event => @event.ConversationOver(conversation));
         }
 
@@ -99,6 +97,18 @@ namespace Enceladus.Event {
         /// <param name="gameTime"></param>
         public void Update(GameTime gameTime) {
             _activeEvents.ForEach(@event => @event.Update(gameTime));
+        }
+
+        public void Save(SaveState save) {
+            save.ActiveEvents = new List<IGameEvent>();
+            _activeEvents.ForEach(@event => @event.Save(save));
+        }
+
+        public void LoadFromSave(SaveState save) {
+            _activeEvents.Clear();
+            foreach ( var gameEvent in save.ActiveEvents ) {
+                LoadEvent(gameEvent.Id).LoadFromSave(save);
+            }
         }
     }
 

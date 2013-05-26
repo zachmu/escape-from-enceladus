@@ -10,6 +10,7 @@ using Enceladus.Entity;
 using Enceladus.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Storage;
+using Newtonsoft.Json;
 
 namespace Enceladus.Event {
     /// <summary>
@@ -22,12 +23,13 @@ namespace Enceladus.Event {
         /*
          * Storage fields for game state
          */
-        public HashSet<GameMilestone> Milestones;
         public string SaveStationId;
         public List<int> VisitedScreensX;
         public List<int> VisitedScreensY;
         public List<int> KnownScreensX;
         public List<int> KnownScreensY;
+        public List<IGameEvent> ActiveEvents;
+        public HashSet<GameMilestone> Milestones;
 
         /*
          * Other fields
@@ -48,6 +50,7 @@ namespace Enceladus.Event {
             _slot = slot;
             GameState.Save(this);
             map.Save(this);
+            EventManager.Instance.Save(this);
         }
 
         /// <summary>
@@ -58,6 +61,7 @@ namespace Enceladus.Event {
             map.LoadFromSave(this);
             Vector2 saveStationLocation = TileLevel.CurrentLevel.SaveStationLocation(this.SaveStationId);
             Player.Instance.Position = saveStationLocation;
+            EventManager.Instance.LoadFromSave(this);
         }
 
         /// <summary>
@@ -99,9 +103,11 @@ namespace Enceladus.Event {
                 container.DeleteFile(filename);
 
             Stream stream = container.CreateFile(filename);
-            XmlSerializer serializer = new XmlSerializer(typeof ( SaveState ));
-            serializer.Serialize(stream, this);
-            stream.Close();
+            String json = JsonConvert.SerializeObject(this);
+            StreamWriter writer = new StreamWriter(stream);
+            writer.Write(json);
+            writer.Flush();
+            writer.Close();
 
             container.Dispose();
 
@@ -125,10 +131,10 @@ namespace Enceladus.Event {
             // Check to see whether the save exists.
             if ( container.FileExists(filename) ) {
                 Stream stream = container.OpenFile(filename, FileMode.Open);
-                XmlSerializer serializer = new XmlSerializer(typeof ( SaveState ));
-                _future.SaveState = (SaveState) serializer.Deserialize(stream);
-                //CopyFrom(loaded);
-                stream.Close();
+                StreamReader reader = new StreamReader(stream);
+                string json = reader.ReadToEnd();
+                _future.SaveState = JsonConvert.DeserializeObject<SaveState>(json);
+                reader.Close();
 
                 container.Dispose();
             }

@@ -134,6 +134,7 @@
     <Compile Include="Event\EventManager.cs" />
     <Compile Include="Event\GameEvent.cs" />
     <Compile Include="Event\GameIntro.cs" />
+    <Compile Include="Event\ISaveable.cs" />
     <Compile Include="Event\Prologue.cs" />
     <Compile Include="Event\SaveState.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />
@@ -184,6 +185,10 @@
     <ProjectReference Include="..\..\Farseer Physics Engine 3.3.1 Samples XNA\Samples XNA\Samples XNA\Samples XNA.csproj">
       <Project>{1681ADA2-B2F3-4157-A603-82C742379856}</Project>
       <Name>Samples XNA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Newtonsoft.Json\Newtonsoft.Json.Net40.csproj">
+      <Project>{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}</Project>
+      <Name>Newtonsoft.Json.Net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\EscapeFromEnceladusContent\EscapeFromEnceladus Content.contentproj">
       <Name>EscapeFromEnceladus Content %28Content%29</Name>
