@@ -5,6 +5,7 @@ using System.Text;
 using Enceladus.Entity.NPC;
 using Enceladus.Map;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace Enceladus.Event {
 
@@ -15,14 +16,16 @@ namespace Enceladus.Event {
         public const string ID = "GameIntro";
 
         private const int MillisecondsBeforeTrigger = 3000;
-        private double MsLeftUntilTrigger = MillisecondsBeforeTrigger; 
+        
+        [JsonPropertyAttribute(PropertyName = "msLeftUntilTrigger")]
+        private double _msLeftUntilTrigger = MillisecondsBeforeTrigger; 
 
         public override void ConversationOver(Conversation conversation) {
         }
 
         public override void Update(GameTime gameTime) {
-            MsLeftUntilTrigger -= gameTime.ElapsedGameTime.TotalMilliseconds;
-            if ( MsLeftUntilTrigger <= 0 ) {
+            _msLeftUntilTrigger -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            if ( _msLeftUntilTrigger <= 0 ) {
                 Apply();
             }
         }
@@ -40,8 +43,15 @@ namespace Enceladus.Event {
 
             base.Apply();
         }
-    }
 
+        public override void LoadFromSave(SaveState save) {
+            GameIntro savedCopy = save.ActiveEvents.First(@event => @event.Id == this.Id) as GameIntro;
+            if ( savedCopy != null ) {
+                _msLeftUntilTrigger = savedCopy._msLeftUntilTrigger;
+            }
+        }
+    }
+    
     /// <summary>
     /// After the captain's announcement on the loudspeaker, you should go talk to him.
     /// </summary>

@@ -41,10 +41,6 @@ namespace Enceladus.Event {
                 Apply();
         }
 
-        public override void Save(SaveState save) {
-            save.ActiveEvents.Add(this);
-        }
-
         public override void LoadFromSave(SaveState save) {
             Prologue savedCopy = save.ActiveEvents.First(@event => @event.Id == this.Id) as Prologue;
             if ( savedCopy != null ) {

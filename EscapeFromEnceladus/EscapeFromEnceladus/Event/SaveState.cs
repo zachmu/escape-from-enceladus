@@ -37,6 +37,12 @@ namespace Enceladus.Event {
         private SaveWaiter _future;
         private PlayerIndex _slot;
 
+        static SaveState() {
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
+            jsonSerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            JsonConvert.DefaultSettings = () => jsonSerializerSettings;
+        }
+
         /// <summary>
         /// Parameterless constructor only for xml persistence.
         /// </summary>
@@ -102,8 +108,9 @@ namespace Enceladus.Event {
                 // Delete it so that we can create one fresh.
                 container.DeleteFile(filename);
 
-            Stream stream = container.CreateFile(filename);
             String json = JsonConvert.SerializeObject(this);
+           
+            Stream stream = container.CreateFile(filename);
             StreamWriter writer = new StreamWriter(stream);
             writer.Write(json);
             writer.Flush();

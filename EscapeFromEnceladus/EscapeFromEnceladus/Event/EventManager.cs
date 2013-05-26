@@ -101,7 +101,7 @@ namespace Enceladus.Event {
 
         public void Save(SaveState save) {
             save.ActiveEvents = new List<IGameEvent>();
-            _activeEvents.ForEach(@event => @event.Save(save));
+            save.ActiveEvents.AddRange(_activeEvents);
         }
 
         public void LoadFromSave(SaveState save) {
