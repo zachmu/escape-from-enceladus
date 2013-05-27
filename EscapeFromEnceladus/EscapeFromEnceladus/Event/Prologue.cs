@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Enceladus.Entity.NPC;
 using Enceladus.Map;
+using Newtonsoft.Json;
 
 namespace Enceladus.Event {
 
@@ -13,6 +14,7 @@ namespace Enceladus.Event {
     internal class Prologue : GameEvent {
         public const string ID = "PrologueOnShip";
 
+        [JsonProperty(PropertyName = "toTalkTo")]
         private readonly HashSet<string> _toTalkTo = new HashSet<string>();
 
         public Prologue() {

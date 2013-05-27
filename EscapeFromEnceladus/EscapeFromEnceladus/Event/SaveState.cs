@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Xml.Serialization;
 using Enceladus.Entity;
 using Enceladus.Map;
 using Microsoft.Xna.Framework;
@@ -24,6 +23,7 @@ namespace Enceladus.Event {
          * Storage fields for game state
          */
         public string SaveStationId;
+        public HashSet<string> lockedDoors; 
         public List<int> VisitedScreensX;
         public List<int> VisitedScreensY;
         public List<int> KnownScreensX;
@@ -56,6 +56,7 @@ namespace Enceladus.Event {
             _slot = slot;
             GameState.Save(this);
             map.Save(this);
+            DoorState.Instance.Save(this);
             EventManager.Instance.Save(this);
         }
 
@@ -67,6 +68,7 @@ namespace Enceladus.Event {
             map.LoadFromSave(this);
             Vector2 saveStationLocation = TileLevel.CurrentLevel.SaveStationLocation(this.SaveStationId);
             Player.Instance.Position = saveStationLocation;
+            DoorState.Instance.LoadFromSave(this);
             EventManager.Instance.LoadFromSave(this);
         }
 
