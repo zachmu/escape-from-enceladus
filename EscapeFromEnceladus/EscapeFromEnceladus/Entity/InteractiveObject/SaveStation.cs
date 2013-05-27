@@ -21,7 +21,7 @@ namespace Enceladus.Entity.InteractiveObject {
         private const string Saving = "Saving...";
         private const string Saved = "Saved";
 
-        private Body _body;
+        private readonly Body _body;
         private int _contactCount = 0;
 
         public string Id { get; private set; }
@@ -96,9 +96,7 @@ namespace Enceladus.Entity.InteractiveObject {
                                            (int) (stringSize.X + 30 + imageWidth),
                                            (int) stringSize.Y), Color.Black * .65f);
 
-            Color shadow = Color.Lerp(Color.White, Color.Black, .5f);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, text, displayPosition + new Vector2(3), shadow);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, text, displayPosition, Color.White);
+            TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, Color.White, text, displayPosition);
 
             spriteBatch.Draw(button,
                              new Rectangle((int) (displayPosition.X - imageWidth + 10),

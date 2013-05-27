@@ -71,7 +71,7 @@ namespace Enceladus.Overlay {
             Vector2 menuStringSize = dialogFont.MeasureString("Pause Menu");
             Vector2 displayPosition = screenCenter -
                                       new Vector2(menuStringSize.X / 2, stringSize.Y / 2 + dialogFont.LineSpacing * 2);
-            DrawStringShadowed(spriteBatch, Color.White, "Pause Menu", displayPosition);
+            TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, Color.White, "Pause Menu", displayPosition);
             
             for ( int i = 0; i < menuItems.Count(); i++ ) {
                 Color color = Color.White;                     
@@ -81,14 +81,8 @@ namespace Enceladus.Overlay {
                 displayPosition = screenCenter -
                                           new Vector2(stringSize.X / 2, stringSize.Y / 2 - dialogFont.LineSpacing * i);
                 string text = menuItems[i];
-                DrawStringShadowed(spriteBatch, color, text, displayPosition);
+                TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, color, text, displayPosition);
             }
-        }
-
-        private static void DrawStringShadowed(SpriteBatch spriteBatch, Color color, string text, Vector2 displayPosition) {
-            Color shadow = Color.Lerp(color, Color.Black, .5f);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, text, displayPosition + new Vector2(3), shadow);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, text, displayPosition, color);
         }
 
         public void Update(GameTime gameTime) {

@@ -168,9 +168,10 @@ namespace Enceladus.Entity.NPC {
             // split the string with newlines to get the width right
             StringBuilder sb = new StringBuilder();
             int left = 0, right = text.Length - 1;
+            SpriteFont dialogFont = SharedGraphicalAssets.DialogFont;
             while ( left < right ) {
                 string substring = text.Substring(left, right - left + 1);
-                float width = SharedGraphicalAssets.DialogFont.MeasureString(substring).X;
+                float width = dialogFont.MeasureString(substring).X;
                 while ( width > MaxDialogWidth ) {
                     // look for a space to break the text up
                     for ( int i = right; i > left; i-- ) {
@@ -180,14 +181,14 @@ namespace Enceladus.Entity.NPC {
                         }
                     }
                     substring = text.Substring(left, right - left + 1);
-                    width = SharedGraphicalAssets.DialogFont.MeasureString(substring).X;
+                    width = dialogFont.MeasureString(substring).X;
                 }
                 sb.Append(substring).Append("\n");
                 left = right + 2;
                 right = text.Length - 1;
             }
 
-            Vector2 stringSize = SharedGraphicalAssets.DialogFont.MeasureString(sb);
+            Vector2 stringSize = dialogFont.MeasureString(sb);
             displayPosition -= stringSize / 2;
 
             // If we're still drawing off of the screen, nudge the draw boundary
@@ -215,10 +216,7 @@ namespace Enceladus.Entity.NPC {
                              new Rectangle((int) displayPosition.X - 10, (int) displayPosition.Y + 10, (int) stringSize.X + 20,
                                            (int) stringSize.Y - 30), Color.Black * .65f);
 
-            // Finally, draw the text shadowed. This involves drawing the text twice, darker then lighter.
-            Color shadow = Color.Lerp(color, Color.Black, .5f);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, sb, displayPosition + new Vector2(3), shadow);
-            spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, sb, displayPosition, color);
+            TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, color, sb.ToString(), displayPosition);
         }
 
         public void Update(GameTime gameTime) {

@@ -13,8 +13,6 @@ using Enceladus.Overlay;
 using Enceladus.Weapon;
 using FarseerPhysics;
 using FarseerPhysics.Collision;
-using FarseerPhysics.Collision.Shapes;
-using FarseerPhysics.Common;
 using FarseerPhysics.DebugViews;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
@@ -30,7 +28,8 @@ namespace Enceladus {
         RoomTransition,
         Conversation,
         Saving,
-        Paused
+        Paused,
+        TitleScreen,
     }
 
     public class EnceladusGame : Game {
