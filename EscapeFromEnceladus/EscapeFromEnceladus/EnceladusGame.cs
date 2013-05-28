@@ -51,6 +51,7 @@ namespace Enceladus {
         private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
         private PauseScreen _pauseScreen;
+        private TitleScreen _titleScreen;
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
         private BackgroundManager _backgroundManager;
@@ -144,8 +145,9 @@ namespace Enceladus {
             _eventManager = new EventManager();
             _doorState = new DoorState();
             _pauseScreen = new PauseScreen();
+            _titleScreen = new TitleScreen();
 
-            _mode = Mode.NormalControl;
+            _mode = Mode.TitleScreen;
 
             base.Initialize();
         }
@@ -349,6 +351,7 @@ namespace Enceladus {
             _playerPositionMonitor.Update();
             _cameraDirector.Update(gameTime);
             _pauseScreen.Update(gameTime);
+            _titleScreen.Update(gameTime);
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
@@ -417,12 +420,26 @@ namespace Enceladus {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
 
+            if ( _mode == Mode.TitleScreen ) {
+                _titleScreen.Draw(_spriteBatch);
+            } else {
+                DrawGame();                
+            }
+
+            DebugDraw();
+
+            base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Draws the main game world for most game modes.
+        /// </summary>
+        private void DrawGame() {
             using (
                 // Render first to a new back buffer
                 RenderTarget2D renderTarget = new RenderTarget2D(_graphics.GraphicsDevice,
                                                                  _graphics.PreferredBackBufferWidth,
                                                                  _graphics.PreferredBackBufferHeight) ) {
-
                 _graphics.GraphicsDevice.SetRenderTarget(renderTarget);
                 _graphics.GraphicsDevice.Clear(Color.Black);
 
@@ -480,7 +497,16 @@ namespace Enceladus {
                 _spriteBatch.End();
             }
 
-            // Some entities want to be drawn on top of everything else
+            DrawOverlayEntities();
+
+            DrawOverlays();
+        }
+
+        /// <summary>
+        /// Some game entities, such as those with textual prompts, 
+        /// need to be drawn on top of everything else.
+        /// </summary>
+        private void DrawOverlayEntities() {
             if ( _entities.Any(entity => entity.DrawAsOverlay) ) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 foreach ( IGameEntity ent in _entities.Where(entity => entity.DrawAsOverlay) ) {
@@ -488,8 +514,12 @@ namespace Enceladus {
                 }
                 _spriteBatch.End();
             }
+        }
 
-            // Draw overlays on top
+        /// <summary>
+        /// Draws all overlays on top of the game screen
+        /// </summary>
+        private void DrawOverlays() {
             _spriteBatch.Begin();
             _healthStatus.Draw(_spriteBatch, _camera);
             _visitationMap.Draw(_spriteBatch);
@@ -497,20 +527,19 @@ namespace Enceladus {
                 _pauseScreen.Draw(_spriteBatch, _camera);
             }
             _spriteBatch.End();
+        }
 
+        /// <summary>
+        /// Draws various debugging information
+        /// </summary>
+        private void DebugDraw() {
             // Finally, debug info
-            if (Constants.Get(DebugCamera) >= 1) {
+            if ( Constants.Get(DebugCamera) >= 1 ) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _camera.Draw(_spriteBatch);
                 _spriteBatch.End();
             }
 
-            DebugDraw();
-
-            base.Draw(gameTime);
-        }
-
-        private void DebugDraw() {
             _spriteBatch.Begin();
             Constants.Draw(_spriteBatch);
             _spriteBatch.End();

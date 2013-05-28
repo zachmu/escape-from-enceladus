@@ -942,6 +942,11 @@ namespace Enceladus.Entity {
         private readonly Texture2D[] _runAimUpAnimation = new Texture2D[NumRunAimFrames];
         private readonly Texture2D[] _runAimDiagonalUpAnimation = new Texture2D[NumRunAimFrames];
         private readonly Texture2D[] _runAimStraightAnimation = new Texture2D[NumRunAimStraightFrames];
+
+        public Texture2D[] RunAimStraightAnimation {
+            get { return _runAimStraightAnimation; }
+        }
+
         private readonly Texture2D[] _runAimDiagonalDownAnimation = new Texture2D[NumRunAimFrames];
         private readonly Texture2D[] _runAimDownAnimation = new Texture2D[NumRunAimFrames];
 

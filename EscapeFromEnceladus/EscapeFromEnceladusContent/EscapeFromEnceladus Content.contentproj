@@ -111,6 +111,11 @@
     <None Include="ButtonImages\Microsoft Permissive License.rtf">
       <Name>Microsoft Permissive License</Name>
     </None>
+    <Compile Include="Fonts\November128.spritefont">
+      <Name>November128</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
     <None Include="Maps\big_square.tmx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>big_square</Name>
