@@ -20,16 +20,23 @@ namespace Enceladus.Overlay {
         private double _loadTimer = 0;
         private bool _flash;
         private bool _loadingSavedGame;
-        private SaveWaiter _saveWaiter;        
+        private SaveWaiter _saveWaiter;
 
-        private const double MsUntilColorChange = 250;
+        private const double ColorChangeFrequency = .003;
+        private double _colorChangeTimer = 0;
+        private Color _rainbowColor = Color.White;
+
+        private int _frameNum = 0;
+        private double _frameChangeTimer = 0;
+        private const double FrameTimeMs = 70;
+
+        private const double MsBetweenFlash = 250;
         private const string Title = "E S C A P E";
         private const string SubTitle = "F R O M   E N C E L A D U S";
 
         public void Draw(SpriteBatch spriteBatch) {
 
             spriteBatch.GraphicsDevice.Clear(Color.Black);
-            spriteBatch.Begin();
 
             SpriteFont dialogFont = SharedGraphicalAssets.DialogFont;
             SpriteFont titleFont = SharedGraphicalAssets.TitleFont;
@@ -38,13 +45,21 @@ namespace Enceladus.Overlay {
             int screenHeight = spriteBatch.GraphicsDevice.Viewport.Height;
             Vector2 screenCenter = new Vector2(screenWidth / 2f, screenHeight / 2f);
 
+            // Draw the player
+            spriteBatch.Begin(0, null, null, null, null, SolidColorEffect.Effect);
+            Texture2D[] animation = Player.Instance.RunAimStraightAnimation;
+            spriteBatch.Draw(animation[_frameNum], screenCenter, null, _rainbowColor, 0f, new Vector2(animation[_frameNum].Width / 2, animation[_frameNum].Height / 2), 1f, SpriteEffects.None, 0f);
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+
             Vector2 titleSize = titleFont.MeasureString(Title);
             Vector2 titlePos = screenCenter - titleSize / 2 - new Vector2(0, 250);
-            TextDrawing.DrawStringShadowed(titleFont, spriteBatch, Color.White, Title, titlePos);
+            TextDrawing.DrawStringShadowed(titleFont, spriteBatch, _rainbowColor, Title, titlePos);
 
             Vector2 subtitleSize = dialogFont.MeasureString(SubTitle);
             Vector2 subtitlePos = new Vector2(screenCenter.X - subtitleSize.X / 2, titlePos.Y + titleFont.LineSpacing - 30);
-            TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, Color.White, SubTitle, subtitlePos);
+            TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, _rainbowColor, SubTitle, subtitlePos);
 
             StringBuilder sb = new StringBuilder();
             for ( int i = 1; i <= 3; i++) {
@@ -71,9 +86,20 @@ namespace Enceladus.Overlay {
                 return;
             }
 
+            _frameChangeTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if ( _frameChangeTimer >= FrameTimeMs ) {
+                _frameNum = (_frameNum + 1) % Player.Instance.RunAimStraightAnimation.Length;
+                _frameChangeTimer -= FrameTimeMs;
+            }
+
+            _colorChangeTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+            _rainbowColor = new Color((int) (127 + 128 * Math.Sin(_colorChangeTimer * ColorChangeFrequency)),
+                (int) (127 + 128 * Math.Sin(_colorChangeTimer * ColorChangeFrequency + 2 * Math.PI / 3)),
+                (int) (127 + 128 * Math.Sin(_colorChangeTimer * ColorChangeFrequency + 4 * Math.PI / 3)));
+
             _timer += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if ( _timer >= MsUntilColorChange ) {
-                _timer %= MsUntilColorChange;
+            if ( _timer >= MsBetweenFlash ) {
+                _timer %= MsBetweenFlash;
                 _flash = !_flash;
             }
 

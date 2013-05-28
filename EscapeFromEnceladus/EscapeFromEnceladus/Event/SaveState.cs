@@ -35,7 +35,9 @@ namespace Enceladus.Event {
          * Other fields
          */
         private SaveWaiter _future;
-        private PlayerIndex _slot;
+        private readonly PlayerIndex _slot;
+        private static StorageDevice _device;
+        private static object _lock;
 
         static SaveState() {
             JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
@@ -44,9 +46,16 @@ namespace Enceladus.Event {
         }
 
         /// <summary>
-        /// Parameterless constructor only for xml persistence.
+        /// Parameterless constructor only for persistence.
         /// </summary>
         public SaveState() {            
+        }
+
+        /// <summary>
+        /// Creates a blank save state with the given slot
+        /// </summary>
+        public SaveState(PlayerIndex slot) {
+            _slot = slot;
         }
 
         /// <summary>
@@ -92,17 +101,13 @@ namespace Enceladus.Event {
         }
 
         private void AsyncPersist() {
-            // Get a storage device
-            IAsyncResult selectStorageResult = StorageDevice.BeginShowSelector(_slot, null, null);
-            selectStorageResult.AsyncWaitHandle.WaitOne();
-            StorageDevice device = StorageDevice.EndShowSelector(selectStorageResult);
-            selectStorageResult.AsyncWaitHandle.Close();
+            GetDevice();
 
             // Open a storage container
             IAsyncResult openContainerResult =
-                device.BeginOpenContainer("Escape from Enceladus", null, null);
+                _device.BeginOpenContainer("Escape from Enceladus", null, null);
             openContainerResult.AsyncWaitHandle.WaitOne();
-            StorageContainer container = device.EndOpenContainer(openContainerResult);
+            StorageContainer container = _device.EndOpenContainer(openContainerResult);
             openContainerResult.AsyncWaitHandle.Close();
 
             // Check to see whether the save exists.
@@ -123,18 +128,25 @@ namespace Enceladus.Event {
             _future.WaitHandle.Set();
         }
 
+        private void GetDevice() {
+            lock ( _lock ) {
+                if ( _device == null ) {
+                    IAsyncResult selectStorageResult = StorageDevice.BeginShowSelector(_slot, null, null);
+                    selectStorageResult.AsyncWaitHandle.WaitOne();
+                    _device = StorageDevice.EndShowSelector(selectStorageResult);
+                    selectStorageResult.AsyncWaitHandle.Close();
+                }
+            }
+        }
+
         private void AsyncLoad() {
-            // Get a storage device
-            IAsyncResult selectStorageResult = StorageDevice.BeginShowSelector(_slot, null, null);
-            selectStorageResult.AsyncWaitHandle.WaitOne();
-            StorageDevice device = StorageDevice.EndShowSelector(selectStorageResult);
-            selectStorageResult.AsyncWaitHandle.Close();
+            GetDevice();
 
             // Open a storage container
             IAsyncResult openContainerResult =
-                device.BeginOpenContainer("Escape from Enceladus", null, null);
+                _device.BeginOpenContainer("Escape from Enceladus", null, null);
             openContainerResult.AsyncWaitHandle.WaitOne();
-            StorageContainer container = device.EndOpenContainer(openContainerResult);
+            StorageContainer container = _device.EndOpenContainer(openContainerResult);
             openContainerResult.AsyncWaitHandle.Close();
 
             // Check to see whether the save exists.
