@@ -83,18 +83,17 @@ namespace Enceladus.Map {
                 // no objects on this level (tests, mostly)
             }
 
-            try {
-                ObjectGroup playerGroup = _levelMap.ObjectGroups["PlayerStart"];
-                foreach ( Object region in playerGroup.Objects ) {
-                    var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
-                    Player.Instance.Position = topLeft;
-                    break;
-                }
-            } catch {
-                Player.Instance.Position = new Vector2(10, 10);
+            PlayerPositionMonitor.Instance.RoomChanged += SetCurrentRoom;
+        }
+
+        public Vector2? GetPlayerStartPosition() {
+            ObjectGroup playerGroup = _levelMap.ObjectGroups["PlayerStart"];
+            foreach ( Object region in playerGroup.Objects ) {
+                var topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
+                return topLeft;
             }
 
-            PlayerPositionMonitor.Instance.RoomChanged += SetCurrentRoom;
+            return null;
         }
 
         private void InitializeSaveStationLocations(ObjectGroup objectGroup) {

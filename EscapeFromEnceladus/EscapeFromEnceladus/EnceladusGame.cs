@@ -41,6 +41,7 @@ namespace Enceladus {
 
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
+        private PlayerIndex _slot;
         private Camera2D _camera;
         private PlayerPositionMonitor _playerPositionMonitor;
         private CameraDirector _cameraDirector;
@@ -128,7 +129,7 @@ namespace Enceladus {
 
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
-            _player = new Player(new Vector2(73, 28), _world); // TODO: start position unnecessary, set in tile level
+            _player = new Player(new Vector2(73, 28), _world); 
             _healthStatus = new HealthStatus();
             _inputHelper = new InputHelper();
             PlayerControl.Control = new PlayerGamepadControl();
@@ -147,7 +148,8 @@ namespace Enceladus {
             _pauseScreen = new PauseScreen();
             _titleScreen = new TitleScreen();
 
-            _mode = Mode.TitleScreen;
+            _mode = Mode.NormalControl;
+            SetMode(Mode.TitleScreen);
 
             base.Initialize();
         }
@@ -200,14 +202,25 @@ namespace Enceladus {
         /// Returns a save state with all game state populated.
         /// </summary>
         public SaveState GetSaveState() {
-            return new SaveState(PlayerIndex.One, _visitationMap);
+            return new SaveState(_slot, _visitationMap);
         }
 
         /// <summary>
         /// Applies the save state to the game, effectively loading it into memory.
         /// </summary>
         public void ApplySaveState(SaveState saveState) {
+            _slot = saveState.Slot;
             saveState.ApplyToGameState(_visitationMap);
+            _playerPositionMonitor.Update();
+            _cameraDirector.ForceRestart();
+        }
+
+        /// <summary>
+        /// Starts a new game with the player slot given.
+        /// </summary>
+        public void NewGame(PlayerIndex slot) {
+            _slot = slot;
+            _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
             _playerPositionMonitor.Update();
             _cameraDirector.ForceRestart();
         }

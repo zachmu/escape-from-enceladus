@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Enceladus.Control;
 using Enceladus.Entity;
 using Enceladus.Event;
@@ -19,8 +20,11 @@ namespace Enceladus.Overlay {
         private double _timer = 0;
         private double _loadTimer = 0;
         private bool _flash;
-        private bool _loadingSavedGame;
-        private SaveWaiter _saveWaiter;
+        private bool _saveGamesInitialized;
+        private bool _readingSavedGames;
+        private bool _startingGame;
+        private SaveWaiter[] _saveStates;
+        private WaitHandle[] _saveWaiters;
 
         private const double ColorChangeFrequency = .003;
         private double _colorChangeTimer = 0;
@@ -33,6 +37,7 @@ namespace Enceladus.Overlay {
         private const double MsBetweenFlash = 250;
         private const string Title = "E S C A P E";
         private const string SubTitle = "F R O M   E N C E L A D U S";
+        private const string Loading = "Loading...";
 
         public void Draw(SpriteBatch spriteBatch) {
 
@@ -78,6 +83,11 @@ namespace Enceladus.Overlay {
                 TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, color, text, displayPosition);
             }
 
+            if ( _readingSavedGames || _startingGame ) {
+                Vector2 loadingSize = dialogFont.MeasureString(Loading);
+                TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, Color.White, Loading, screenCenter - loadingSize / 2);
+            }
+
             spriteBatch.End();
         }
 
@@ -85,6 +95,8 @@ namespace Enceladus.Overlay {
             if ( EnceladusGame.Instance.Mode != Mode.TitleScreen ) {
                 return;
             }
+
+            InitializeSaveStates();
 
             _frameChangeTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
             if ( _frameChangeTimer >= FrameTimeMs ) {
@@ -103,28 +115,10 @@ namespace Enceladus.Overlay {
                 _flash = !_flash;
             }
 
-            if ( _loadingSavedGame ) {
-                _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(50) ) {
-                    EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
-                    EnceladusGame.Instance.UnsetMode();
-                    _saveWaiter = null;
-                    _loadingSavedGame = false;
+            if ( _readingSavedGames ) {
+                if ( WaitHandle.WaitAll(_saveWaiters, 50) ) {
+                    _readingSavedGames = false;
                 }
-                return;
-            }
-
-            if ( PlayerControl.Control.IsNewPause() ) {
-                if ( EnceladusGame.Instance.Mode == Mode.Paused ) {
-                    EnceladusGame.Instance.UnsetMode();
-                } else if ( EnceladusGame.Instance.Mode == Mode.NormalControl ||
-                            EnceladusGame.Instance.Mode == Mode.Conversation ) {
-                    EnceladusGame.Instance.SetMode(Mode.Paused);
-                }
-            }
-
-            if ( PlayerControl.Control.IsNewCancelButton() ) {
-                EnceladusGame.Instance.UnsetMode();
                 return;
             }
 
@@ -145,16 +139,27 @@ namespace Enceladus.Overlay {
             }
         }
 
-        private void ApplyMenuSelection() {
-            
+        private void InitializeSaveStates() {
+            if ( !_saveGamesInitialized ) {
+                _saveStates = new SaveWaiter[3];
+                _saveWaiters = new WaitHandle[3];
+                for ( int i = 0; i < 3; i++ ) {
+                    SaveState save = new SaveState((PlayerIndex) i);
+                    _saveStates[i] = save.Load();
+                    _saveWaiters[i] = _saveStates[i].WaitHandle;
+                }
+                _readingSavedGames = true;
+                _saveGamesInitialized = true;
+            }
         }
 
-        private void LoadLastSave() {
-            SaveState save = EnceladusGame.Instance.GetSaveState();
-            _loadingSavedGame = true;
-            _loadTimer = 0;
-            _saveWaiter = save.Load();
-        }
-   
+        private void ApplyMenuSelection() {
+            if ( _saveStates[_selectedIndex].SaveState != null ) {
+                EnceladusGame.Instance.ApplySaveState(_saveStates[_selectedIndex].SaveState);
+            } else {
+                EnceladusGame.Instance.NewGame((PlayerIndex) _selectedIndex);
+            }
+            EnceladusGame.Instance.UnsetMode();
+        }   
     }
 }

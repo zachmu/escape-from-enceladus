@@ -35,9 +35,14 @@ namespace Enceladus.Event {
          * Other fields
          */
         private SaveWaiter _future;
+
         private readonly PlayerIndex _slot;
+        public PlayerIndex Slot {
+            get { return _slot; }
+        }
+
         private static StorageDevice _device;
-        private static object _lock;
+        private static readonly object Lock = new object();
 
         static SaveState() {
             JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
@@ -52,7 +57,8 @@ namespace Enceladus.Event {
         }
 
         /// <summary>
-        /// Creates a blank save state with the given slot
+        /// Creates a blank save state with the given slot. 
+        /// Valid only for loading a save.
         /// </summary>
         public SaveState(PlayerIndex slot) {
             _slot = slot;
@@ -95,7 +101,7 @@ namespace Enceladus.Event {
         /// Loads this save state from disk.
         /// </summary>
         public SaveWaiter Load() {
-            _future = new SaveWaiter { SaveState = this };
+            _future = new SaveWaiter();
             new Thread(AsyncLoad).Start();
             return _future;
         }
@@ -129,7 +135,7 @@ namespace Enceladus.Event {
         }
 
         private void GetDevice() {
-            lock ( _lock ) {
+            lock ( Lock ) {
                 if ( _device == null ) {
                     IAsyncResult selectStorageResult = StorageDevice.BeginShowSelector(_slot, null, null);
                     selectStorageResult.AsyncWaitHandle.WaitOne();
@@ -149,15 +155,25 @@ namespace Enceladus.Event {
             StorageContainer container = _device.EndOpenContainer(openContainerResult);
             openContainerResult.AsyncWaitHandle.Close();
 
-            // Check to see whether the save exists.
-            if ( container.FileExists(filename) ) {
-                Stream stream = container.OpenFile(filename, FileMode.Open);
-                StreamReader reader = new StreamReader(stream);
-                string json = reader.ReadToEnd();
-                _future.SaveState = JsonConvert.DeserializeObject<SaveState>(json);
-                reader.Close();
+            // Console.WriteLine("Loading save for player " + _slot);
 
-                container.Dispose();
+            // Check to see whether the save exists.
+            lock ( Lock ) {
+                try {
+                    if ( container.FileExists(filename) ) {
+                        Stream stream = container.OpenFile(filename, FileMode.Open);
+                        StreamReader reader = new StreamReader(stream);
+                        string json = reader.ReadToEnd();
+                        _future.SaveState = JsonConvert.DeserializeObject<SaveState>(json);
+                        reader.Close();
+
+                        container.Dispose();
+                    }
+                } catch ( Exception e ) {
+                    Console.WriteLine("Failed to load save state");
+                    Console.WriteLine(e);
+                    return;
+                }
             }
 
             _future.WaitHandle.Set();
