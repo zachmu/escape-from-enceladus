@@ -66,12 +66,23 @@ namespace Enceladus.Overlay {
             Vector2 subtitlePos = new Vector2(screenCenter.X - subtitleSize.X / 2, titlePos.Y + titleFont.LineSpacing - 30);
             TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, _rainbowColor, SubTitle, subtitlePos);
 
-            StringBuilder sb = new StringBuilder();
-            for ( int i = 1; i <= 3; i++) {
-                sb.Append("Game " + i).Append("\n");
+            String[] games = new string[3];
+
+            for ( int i = 0; i < 3; i++) {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("Game " + (i + 1));
+                if ( _saveGamesInitialized && !_readingSavedGames ) {
+                    sb.Append(": ").Append(SummarizeSaveState(_saveStates[i].SaveState));
+                }
+                games[i] = sb.ToString();
             }
 
-            Vector2 stringSize = dialogFont.MeasureString(sb);
+            StringBuilder allText = new StringBuilder();
+            for ( int i = 0; i < 3; i++ ) {
+                allText.Append(games[0]).Append("\n");
+            }
+
+            Vector2 stringSize = dialogFont.MeasureString(allText);
 
             for ( int i = 0; i < 3; i++ ) {
                 Color color = Color.White;
@@ -79,7 +90,7 @@ namespace Enceladus.Overlay {
                     color = _flash ? Color.Crimson : Color.White;
                 }
                 Vector2 displayPosition = screenCenter - new Vector2(stringSize.X / 2, -250 + stringSize.Y / 2 - dialogFont.LineSpacing * i);
-                string text = "Game " + (i + 1);
+                string text = games[i];
                 TextDrawing.DrawStringShadowed(dialogFont, spriteBatch, color, text, displayPosition);
             }
 
@@ -136,6 +147,14 @@ namespace Enceladus.Overlay {
                 }
             } else if ( PlayerControl.Control.IsNewConfirmButton() ) {
                 ApplyMenuSelection();
+            }
+        }
+
+        private string SummarizeSaveState(SaveState state) {
+            if ( state == null || state.SaveTime == null ) {
+                return "New Game";
+            } else {
+                return state.SaveTime.ToString();
             }
         }
 

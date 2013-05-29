@@ -17,29 +17,24 @@ namespace Enceladus.Event {
     /// </summary>
     public class SaveState {
 
-        private const string filename = "savegame.sav";
-
         /*
          * Storage fields for game state
          */
         public string SaveStationId;
-        public HashSet<string> lockedDoors; 
+        public HashSet<string> LockedDoors; 
         public List<int> VisitedScreensX;
         public List<int> VisitedScreensY;
         public List<int> KnownScreensX;
         public List<int> KnownScreensY;
         public List<IGameEvent> ActiveEvents;
         public HashSet<GameMilestone> Milestones;
+        public DateTime? SaveTime = null;
 
         /*
          * Other fields
          */
         private SaveWaiter _future;
-
-        private readonly PlayerIndex _slot;
-        public PlayerIndex Slot {
-            get { return _slot; }
-        }
+        public PlayerIndex Slot { get; private set; }
 
         private static StorageDevice _device;
         private static readonly object Lock = new object();
@@ -53,7 +48,7 @@ namespace Enceladus.Event {
         /// <summary>
         /// Parameterless constructor only for persistence.
         /// </summary>
-        public SaveState() {            
+        public SaveState() {
         }
 
         /// <summary>
@@ -61,14 +56,15 @@ namespace Enceladus.Event {
         /// Valid only for loading a save.
         /// </summary>
         public SaveState(PlayerIndex slot) {
-            _slot = slot;
+            Slot = slot;
         }
 
         /// <summary>
         /// Creates a new save state using the current game state.
         /// </summary>
         public SaveState(PlayerIndex slot, VisitationMap map) {
-            _slot = slot;
+            Slot = slot;
+            SaveTime = DateTime.Now;
             GameState.Save(this);
             map.Save(this);
             DoorState.Instance.Save(this);
@@ -98,12 +94,17 @@ namespace Enceladus.Event {
         }
 
         /// <summary>
-        /// Loads this save state from disk.
+        /// Loads this save state from disk, returning a future with 
+        /// the result of the load and wait handle.
         /// </summary>
         public SaveWaiter Load() {
             _future = new SaveWaiter();
             new Thread(AsyncLoad).Start();
             return _future;
+        }
+
+        private string SaveFileName() {
+            return "savegame" + Slot + ".sav";
         }
 
         private void AsyncPersist() {
@@ -116,6 +117,7 @@ namespace Enceladus.Event {
             StorageContainer container = _device.EndOpenContainer(openContainerResult);
             openContainerResult.AsyncWaitHandle.Close();
 
+            string filename = SaveFileName();
             // Check to see whether the save exists.
             if ( container.FileExists(filename) )
                 // Delete it so that we can create one fresh.
@@ -137,7 +139,7 @@ namespace Enceladus.Event {
         private void GetDevice() {
             lock ( Lock ) {
                 if ( _device == null ) {
-                    IAsyncResult selectStorageResult = StorageDevice.BeginShowSelector(_slot, null, null);
+                    IAsyncResult selectStorageResult = StorageDevice.BeginShowSelector(null, null);
                     selectStorageResult.AsyncWaitHandle.WaitOne();
                     _device = StorageDevice.EndShowSelector(selectStorageResult);
                     selectStorageResult.AsyncWaitHandle.Close();
@@ -160,11 +162,13 @@ namespace Enceladus.Event {
             // Check to see whether the save exists.
             lock ( Lock ) {
                 try {
+                    string filename = SaveFileName();
                     if ( container.FileExists(filename) ) {
                         Stream stream = container.OpenFile(filename, FileMode.Open);
                         StreamReader reader = new StreamReader(stream);
                         string json = reader.ReadToEnd();
                         _future.SaveState = JsonConvert.DeserializeObject<SaveState>(json);
+                        _future.SaveState.Slot = this.Slot;
                         reader.Close();
 
                         container.Dispose();

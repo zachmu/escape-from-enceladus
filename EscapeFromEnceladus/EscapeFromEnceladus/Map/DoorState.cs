@@ -45,12 +45,12 @@ namespace Enceladus.Map {
         }
 
         public void Save(SaveState save) {
-            save.lockedDoors = _lockedDoors;
+            save.LockedDoors = _lockedDoors;
         }
 
         public void LoadFromSave(SaveState save) {
            _lockedDoors.Clear();
-           _lockedDoors.UnionWith(save.lockedDoors);
+           _lockedDoors.UnionWith(save.LockedDoors);
         }
     }
 }
