@@ -33,7 +33,7 @@ namespace Enceladus.Event {
 
         public override void Apply() {
             EventManager.Instance.LoadEvent(IapetusEscapes.ID);
-            GameState.MilestoneAcheived(GameMilestone.TalkedToEveryone);
+            GameMilestones.Instance.MilestoneAcheived(GameMilestone.TalkedToEveryone);
             base.Apply();
         }
 
@@ -88,7 +88,7 @@ namespace Enceladus.Event {
         public override void Apply() {
             ConversationManager.Instance.StartConversation("Prologue/Embarking.txt");
             TileLevel.CurrentLevel.DoorNamed("shipDoor").Unlock();
-            GameState.MilestoneAcheived(GameMilestone.Embarked);
+            GameMilestones.Instance.MilestoneAcheived(GameMilestone.Embarked);
             base.Apply();
         }
 

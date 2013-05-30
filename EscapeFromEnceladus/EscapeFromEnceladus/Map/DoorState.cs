@@ -12,7 +12,7 @@ namespace Enceladus.Map {
     /// </summary>
     public class DoorState : ISaveable {
 
-        private static DoorState _instance;
+        private static readonly DoorState _instance = new DoorState();
 
         public static DoorState Instance {
             get { return _instance; }
@@ -20,8 +20,7 @@ namespace Enceladus.Map {
 
         private readonly HashSet<string> _lockedDoors = new HashSet<string>();
 
-        public DoorState() {
-            _instance = this;
+        private DoorState() {
         }
 
         /// <summary>

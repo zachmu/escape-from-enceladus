@@ -56,7 +56,6 @@ namespace Enceladus {
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
         private BackgroundManager _backgroundManager;
-        private DoorState _doorState;
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -144,7 +143,6 @@ namespace Enceladus {
 
             _backgroundManager = new BackgroundManager(Content);
             _eventManager = new EventManager();
-            _doorState = new DoorState();
             _pauseScreen = new PauseScreen();
             _titleScreen = new TitleScreen();
 

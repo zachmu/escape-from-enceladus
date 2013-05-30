@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Map {
     
-    public class VisitationMap {
+    public class VisitationMap : ISaveable {
 
         private readonly TileLevel _level;
         private readonly bool[,] _visitedScreens;

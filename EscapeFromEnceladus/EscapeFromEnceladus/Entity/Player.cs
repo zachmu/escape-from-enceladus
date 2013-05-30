@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enceladus.Event;
+using Enceladus.Map;
 using Enceladus.Xbox;
 using Enceladus.Control;
 using Enceladus.Entity.Enemy;
@@ -20,7 +22,7 @@ using Microsoft.Xna.Framework.Input;
 using ConvertUnits = Enceladus.Farseer.ConvertUnits;
 
 namespace Enceladus.Entity {
-    public class Player : Entity, IGameEntity {
+    public class Player : Entity, IGameEntity, ISaveable {
 
         private static Player _instance;
         public static Player Instance {
@@ -131,6 +133,8 @@ namespace Enceladus.Entity {
             HealthCapacity = 650;
             Health = HealthCapacity;
 
+            Equipment = new Equipment();
+
             _world = world;
         }
 
@@ -155,6 +159,8 @@ namespace Enceladus.Entity {
 
         public int Health { get; private set; }
         public int HealthCapacity { get; private set; }
+
+        public Equipment Equipment { get; private set; }
 
         private Texture2D _image;
         private Texture2D Image {
@@ -1495,13 +1501,22 @@ namespace Enceladus.Entity {
         private bool _terrainChanged;
 
         /// <summary>
-        /// Unfortunately, we can't rely on Box2d to propertly notify us when we hit or 
+        /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 
         /// leave the ground or ceiling when bodies are being created or destroyed.  
         /// This method allows knowledgable callers to suggest updating the standing info 
         /// on the next update cycle.
         /// </summary>
         public void NotifyTerrainChange() {
             _terrainChanged = true;
+        }
+
+        public void Save(SaveState save) {
+            Equipment.Save(save);
+        }
+
+        public void LoadFromSave(SaveState save) {
+            Equipment.LoadFromSave(save);
+            Position = save.SaveStationLocation;
         }
     }
 

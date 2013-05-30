@@ -39,7 +39,6 @@ namespace Enceladus.Map {
         private readonly HashSet<Tile> _tilesToRemove = new HashSet<Tile>();
         private readonly HashSet<Tile> _tilesToAdd = new HashSet<Tile>();
         private readonly Dictionary<string, Door> _namedDoors = new Dictionary<string, Door>();
-        private readonly Dictionary<string, Vector2> _saveStationLocations = new Dictionary<string, Vector2>();
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -76,13 +75,6 @@ namespace Enceladus.Map {
                 // no doors on this level (tests, mostly)
             }
 
-            try {
-                ObjectGroup objectGroup = _levelMap.ObjectGroups[InteractiveObjectsLayerName];
-                InitializeSaveStationLocations(objectGroup);
-            } catch {
-                // no objects on this level (tests, mostly)
-            }
-
             PlayerPositionMonitor.Instance.RoomChanged += SetCurrentRoom;
         }
 
@@ -94,16 +86,6 @@ namespace Enceladus.Map {
             }
 
             return null;
-        }
-
-        private void InitializeSaveStationLocations(ObjectGroup objectGroup) {
-            foreach ( Object obj in objectGroup.Objects.Where(o => o.Type == InteractiveObjectFactory.Save) ) {
-                Vector2 pos = InteractiveObjectFactory.GetPosition(obj);
-                if ( _saveStationLocations.ContainsKey(obj.Name) ) {
-                    throw new Exception("Duplicate save station id " + obj.Name);
-                }
-                _saveStationLocations[obj.Name] = pos;
-            }
         }
 
         private void InitializeDoors(ObjectGroup doorGroup) {
@@ -807,13 +789,6 @@ namespace Enceladus.Map {
         /// </summary>
         public Door DoorNamed(string name) {
             return _namedDoors[name];
-        }
-
-        /// <summary>
-        /// Returns the location of the save station with the ID given.
-        /// </summary>
-        public Vector2 SaveStationLocation(String saveStationId) {
-            return _saveStationLocations[saveStationId];
         }
 
         /// <summary>

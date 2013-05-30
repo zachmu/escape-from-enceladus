@@ -20,7 +20,7 @@ namespace Enceladus.Event {
         /*
          * Storage fields for game state
          */
-        public string SaveStationId;
+        public Vector2 SaveStationLocation;
         public HashSet<string> LockedDoors; 
         public List<int> VisitedScreensX;
         public List<int> VisitedScreensY;
@@ -29,6 +29,8 @@ namespace Enceladus.Event {
         public List<IGameEvent> ActiveEvents;
         public HashSet<GameMilestone> Milestones;
         public DateTime? SaveTime = null;
+        public Equipment Equipment;
+        public HashSet<Vector2> CollectedItems; 
 
         /*
          * Other fields
@@ -65,22 +67,30 @@ namespace Enceladus.Event {
         public SaveState(PlayerIndex slot, VisitationMap map) {
             Slot = slot;
             SaveTime = DateTime.Now;
-            GameState.Save(this);
-            map.Save(this);
-            DoorState.Instance.Save(this);
-            EventManager.Instance.Save(this);
+
+            new ISaveable[] {
+                GameMilestones.Instance,
+                map, 
+                Player.Instance,
+                DoorState.Instance,
+                ItemCollectionState.Instance,
+                EventManager.Instance
+            }.ToList().ForEach(saveable => saveable.Save(this));
         }
 
         /// <summary>
         /// Populates the game state with the state from this save.
         /// </summary>
         public void ApplyToGameState(VisitationMap map) {
-            GameState.LoadFromSave(this);
-            map.LoadFromSave(this);
-            Vector2 saveStationLocation = TileLevel.CurrentLevel.SaveStationLocation(this.SaveStationId);
-            Player.Instance.Position = saveStationLocation;
-            DoorState.Instance.LoadFromSave(this);
-            EventManager.Instance.LoadFromSave(this);
+
+            new ISaveable[] {
+                GameMilestones.Instance,
+                map, 
+                Player.Instance,
+                DoorState.Instance,
+                ItemCollectionState.Instance,
+                EventManager.Instance
+            }.ToList().ForEach(saveable => saveable.LoadFromSave(this));
         }
 
         /// <summary>

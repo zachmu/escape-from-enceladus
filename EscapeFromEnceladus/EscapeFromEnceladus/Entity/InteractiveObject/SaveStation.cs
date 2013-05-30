@@ -134,7 +134,7 @@ namespace Enceladus.Entity.InteractiveObject {
                     _saving = true;
                     _timerMs = 0;
                     SaveState state = EnceladusGame.Instance.GetSaveState();
-                    state.SaveStationId = this.Id;
+                    state.SaveStationLocation = _body.Position;
                     _saveWaiter = state.Persist();
                 }
             }

@@ -120,6 +120,7 @@
     <Compile Include="Entity\Enemy\Beetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\Worm.cs" />
+    <Compile Include="Entity\Equipment.cs" />
     <Compile Include="Entity\InteractiveObject\InteractiveObjectFactory.cs" />
     <Compile Include="Entity\InteractiveObject\SaveStation.cs" />
     <Compile Include="Entity\NPC\Characters.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Farseer\FarseerExtensions.cs" />
     <Compile Include="Map\BackgroundManager.cs" />
     <Compile Include="Map\DoorState.cs" />
+    <Compile Include="Map\ItemCollectionState.cs" />
     <Compile Include="Map\MapConstants.cs" />
     <Compile Include="Map\DestructionRegion.cs" />
     <Compile Include="Map\Door.cs" />

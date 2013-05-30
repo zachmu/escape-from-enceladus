@@ -116,23 +116,31 @@ namespace Enceladus.Event {
     /// Class to store whether particular events have occurred or not, 
     /// as a shorthand to needing to keep all events and their status around all the time.
     /// </summary>
-    public class GameState {
+    public class GameMilestones  : ISaveable {
 
-        private static HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
+        private static readonly GameMilestones _instance = new GameMilestones();
+        public static GameMilestones Instance {
+            get { return _instance; }
+        }
 
-        public static bool HasMilestoneOccurred(GameMilestone milestone) {
+        private GameMilestones() {
+        }
+
+        private HashSet<GameMilestone> _milestones = new HashSet<GameMilestone>();
+
+        public bool HasMilestoneOccurred(GameMilestone milestone) {
             return _milestones.Contains(milestone);
         }
 
-        public static void MilestoneAcheived(GameMilestone milestone) {
+        public void MilestoneAcheived(GameMilestone milestone) {
             _milestones.Add(milestone);
         }
 
-        public static void Save(SaveState save) {
+        public void Save(SaveState save) {
             save.Milestones = _milestones;
         }
 
-        public static void LoadFromSave(SaveState save) {
+        public void LoadFromSave(SaveState save) {
             _milestones = save.Milestones;
         }
     }

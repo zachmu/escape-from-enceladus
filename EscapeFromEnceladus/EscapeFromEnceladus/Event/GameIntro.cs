@@ -38,7 +38,7 @@ namespace Enceladus.Event {
             TileLevel.CurrentLevel.DoorNamed("shipDoor").Lock();
 
             ConversationManager.Instance.StartConversation("Prologue/InitialCaptainAnnouncement.txt");
-            GameState.MilestoneAcheived(GameMilestone.GameStarted);
+            GameMilestones.Instance.MilestoneAcheived(GameMilestone.GameStarted);
             EventManager.Instance.LoadEvent(TalkToCaptain.ID);
 
             base.Apply();
@@ -69,7 +69,7 @@ namespace Enceladus.Event {
         }
 
         public override void Apply() {
-            GameState.MilestoneAcheived(GameMilestone.TalkedToCaptain);
+            GameMilestones.Instance.MilestoneAcheived(GameMilestone.TalkedToCaptain);
             EventManager.Instance.LoadEvent(Prologue.ID);
             base.Apply();
         }

@@ -22,6 +22,10 @@ namespace Enceladus.Entity.NPC {
             get { return _instance; }
         }
 
+        private GameMilestones GameMilestones {
+            get { return GameMilestones.Instance; }
+        }
+
         /// <summary>
         /// Creates a new conversation manager.
         /// </summary>
@@ -63,7 +67,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithProfessorIapetus() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ProfessorIapetusFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/ProfessorIapetusSecond.txt"));
@@ -71,7 +75,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithLieutenantForecastle() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/LieutenantForecastleFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/LieutenantForecastleSecond.txt"));
@@ -79,7 +83,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithEnsignLeeward() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/EnsignLeewardSecond.txt"));
@@ -87,7 +91,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithEnsignGibe() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/EnsignGibeFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/EnsignGibeSecond.txt"));
@@ -95,7 +99,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithChiefMizzen() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ChiefMizzenFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/ChiefMizzenSecond.txt"));
@@ -103,7 +107,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithCommanderTaffrail() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailSecond.txt"));
@@ -111,7 +115,7 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithChefHawser() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ChefHawserFirst.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/ChefHawserFirst.txt"));
@@ -119,9 +123,9 @@ namespace Enceladus.Entity.NPC {
         }
 
         private void StartConversationWithCaptainPurchase() {
-            if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
+            if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseFirst.txt"));
-            } else if ( !GameState.HasMilestoneOccurred(GameMilestone.TalkedToEveryone) ) {
+            } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToEveryone) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseSecond.txt"));
             } else {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseThird.txt"));
