@@ -521,7 +521,7 @@ namespace Enceladus {
         /// </summary>
         private void DrawOverlayEntities() {
             if ( _entities.Any(entity => entity.DrawAsOverlay) ) {
-                _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
+                _spriteBatch.Begin(0, null, null, null, null, SolidColorEffect.Effect, _camera.DisplayView);
                 foreach ( IGameEntity ent in _entities.Where(entity => entity.DrawAsOverlay) ) {
                     ent.Draw(_spriteBatch, _camera);
                 }

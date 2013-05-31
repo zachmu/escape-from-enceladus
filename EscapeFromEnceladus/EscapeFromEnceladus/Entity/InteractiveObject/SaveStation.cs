@@ -99,7 +99,7 @@ namespace Enceladus.Entity.InteractiveObject {
                                            button.Width / 2,
                                            button.Height / 2),
                              new Rectangle(0, 0, button.Width, button.Height),
-                             Color.White, 0f,
+                             SolidColorEffect.DisabledColor, 0f,
                              new Vector2(button.Width / 2f, button.Height / 2f),
                              SpriteEffects.None, 0);
         }

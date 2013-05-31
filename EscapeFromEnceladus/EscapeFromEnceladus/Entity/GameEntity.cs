@@ -24,6 +24,29 @@ namespace Enceladus.Entity {
     }
 
     /// <summary>
+    /// Basic adapter class for uncomplicated entities, 
+    /// such as static announcements on a timer.
+    /// </summary>
+    public abstract class GameEntityAdapter : IGameEntity {
+        public abstract void Dispose();
+        public abstract bool Disposed { get; }
+        public abstract void Draw(SpriteBatch spriteBatch, Camera2D camera);
+        public abstract void Update(GameTime gameTime);
+
+        public virtual Vector2 Position {
+            get { return Vector2.Zero; }
+        }
+
+        public virtual bool DrawAsOverlay {
+            get { return false; }
+        }
+
+        public virtual bool UpdateInMode(Mode mode) {
+            return true;
+        }
+    }
+
+    /// <summary>
     /// An IGameEntity that can collide with other game elements, so 
     /// that we need to track its boundaries.
     /// </summary>

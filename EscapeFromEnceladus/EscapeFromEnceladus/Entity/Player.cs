@@ -909,7 +909,7 @@ namespace Enceladus.Entity {
         private const int NumCrouchFrames = 11;
         private const int CrouchAimUpFrame = 1;
         private const int CrouchAimUpRightFrame = 3;
-        private const int CrouchAimStraightFrame = 5;
+        public const int CrouchAimStraightFrame = 5;
         private const int CrouchAimDownRightFrame = 7;
         private const int CrouchAimDownFrame = 9;
 
@@ -958,6 +958,10 @@ namespace Enceladus.Entity {
 
         private readonly Texture2D[] _jumpAnimation = new Texture2D[NumJumpFrames];
         private readonly Texture2D[] _crouchAnimation = new Texture2D[NumCrouchFrames];
+
+        public Texture2D[] CrouchAnimation {
+            get { return _crouchAnimation; }
+        }
 
         private readonly Texture2D[] _scooterAnimation = new Texture2D[NumScooterFrames];
 

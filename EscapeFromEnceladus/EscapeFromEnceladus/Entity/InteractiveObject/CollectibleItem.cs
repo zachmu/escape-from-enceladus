@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Enceladus.Farseer;
 using Enceladus.Map;
+using Enceladus.Overlay;
 using Enceladus.Weapon;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -51,6 +52,8 @@ namespace Enceladus.Entity.InteractiveObject {
         private void Collect() {
             Player.Instance.Equipment.Collected(_itemType);
             ItemCollectionState.Instance.Collected(TopLeft);
+            EnceladusGame.Instance.Register(new WheelAnnouncement());
+            EnceladusGame.Instance.SetMode(Mode.Conversation);
             Dispose();
         }
 
@@ -96,5 +99,86 @@ namespace Enceladus.Entity.InteractiveObject {
         Wheel,
         Bomb,
         Sonar,
+    }
+
+    class WheelAnnouncement : GameEntityAdapter, IGameEntity {
+
+        private bool _disposed = false;
+        private double _timer = 5000;
+
+        public override void Dispose() {
+            _disposed = true;
+            EnceladusGame.Instance.UnsetMode();
+        }
+
+        public override bool Disposed {
+            get { return _disposed; }
+        }
+
+        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            Vector2 position = camera.Position;
+            Vector2 screenCenter = ConvertUnits.ToDisplayUnits(position);
+
+            Texture2D crouchImage = Player.Instance.CrouchAnimation[Player.CrouchAimStraightFrame];
+            Texture2D lTriggerImage = SharedGraphicalAssets.LTrigger;
+            SpriteFont font = SharedGraphicalAssets.DialogFont;
+            Vector2 plusSignSize = font.MeasureString("+");
+
+            const int margin = 20;
+            const int spacing = 20;
+            String title = "Propulsion Wheel";
+            Vector2 titleSize = font.MeasureString(title);
+
+            Vector2 backdropSize =
+                new Vector2(Math.Max(2 * margin + titleSize.X,
+                                     margin + crouchImage.Width + spacing + plusSignSize.X + spacing +
+                                     lTriggerImage.Width / 2f + margin),
+                            margin + font.LineSpacing + Math.Max(crouchImage.Height, lTriggerImage.Height / 2f) + margin);
+            Vector2 topLeft = screenCenter - backdropSize / 2f;
+
+            spriteBatch.Draw(SharedGraphicalAssets.BlackBackdrop,
+                             new Rectangle((int) (topLeft.X), (int) topLeft.Y,
+                                           (int) (backdropSize.X),
+                                           (int) backdropSize.Y), Color.Black * .65f);
+
+            Vector2 titlePos = new Vector2(screenCenter.X - titleSize.X / 2, topLeft.Y + margin);
+            TextDrawing.DrawStringShadowed(font, spriteBatch, Color.White, title, titlePos);
+
+            Vector2 plusPos = new Vector2(topLeft.X + margin + crouchImage.Width + spacing,
+                                          topLeft.Y + margin + font.LineSpacing +
+                                          Math.Max(crouchImage.Height, lTriggerImage.Height / 2f) / 2);
+            TextDrawing.DrawStringShadowed(font, spriteBatch, Color.White, "+", plusPos);
+
+            Vector2 crouchPos = new Vector2(topLeft.X + margin, topLeft.Y + margin + font.LineSpacing);
+            spriteBatch.Draw(crouchImage, crouchPos, Player.Instance.Color);
+
+            Vector2 triggerPos =
+                new Vector2(
+                    topLeft.X + margin + crouchImage.Width + spacing + plusSignSize.X + spacing +
+                    lTriggerImage.Width / 4f,
+                    topLeft.Y + margin + font.LineSpacing + crouchImage.Height / 2f + 30);
+            spriteBatch.Draw(lTriggerImage,
+                             new Rectangle((int) (triggerPos.X),
+                                           (int) (triggerPos.Y),
+                                           lTriggerImage.Width / 2,
+                                           lTriggerImage.Height / 2),
+                             new Rectangle(0, 0, lTriggerImage.Width, lTriggerImage.Height),
+                             SolidColorEffect.DisabledColor, 0f,
+                             new Vector2(lTriggerImage.Width / 2f, lTriggerImage.Height / 2f),
+                             SpriteEffects.None, 0);
+        }
+
+        public override void Update(GameTime gameTime) {
+            _timer -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            if ( _timer <= 0 ) {
+                Dispose();
+            }
+        }
+
+        public override bool UpdateInMode(Mode mode) {
+            return mode == Mode.Conversation;
+        }
+
+        public override bool DrawAsOverlay { get { return true; } }
     }
 }

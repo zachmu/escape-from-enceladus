@@ -12,12 +12,14 @@ namespace Enceladus.Overlay {
     /// </summary>
     public class SharedGraphicalAssets {
         public static Texture2D YButton { get; private set; }
+        public static Texture2D LTrigger { get; private set; }
         public static SpriteFont DialogFont { get; private set; }
         public static Texture2D BlackBackdrop { get; private set; }
         public static SpriteFont TitleFont { get; private set; }
 
         public static void LoadContent(ContentManager cm) {
             YButton = cm.Load<Texture2D>("ButtonImages/xboxControllerButtonY");
+            LTrigger = cm.Load<Texture2D>("ButtonImages/xboxControllerLeftTrigger");
             DialogFont = cm.Load<SpriteFont>("Fonts/November");
             DialogFont.LineSpacing -= 10;
             TitleFont = cm.Load<SpriteFont>("Fonts/November128");
