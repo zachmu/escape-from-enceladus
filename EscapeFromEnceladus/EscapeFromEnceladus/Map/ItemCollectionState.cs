@@ -25,7 +25,9 @@ namespace Enceladus.Map {
 
         /// <summary>
         /// Returns whether the item with the given location has been collected. 
-        /// Since all item coordinates are unique, this is good enough.
+        /// Since all item coordinates are unique, this is good enough. 
+        /// Item coordinates correspond to sim location of their top-left corner 
+        /// (their tile coordinate).
         /// </summary>
         public bool IsItemCollected(Vector2 location) {
             return _collectedLocations.Contains(location);

@@ -64,7 +64,7 @@ namespace Enceladus.Entity {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             spriteBatch.Draw(Image,
                              new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null, SolidColorEffect.DisabledColor, 0f, new Vector2(Image.Width / 2, Image.Height / 2),
+                             null, SolidColorEffect.DisabledColor, 0f, new Vector2(Image.Width / 2f, Image.Height / 2f),
                              SpriteEffects.None, 0);
         }
 

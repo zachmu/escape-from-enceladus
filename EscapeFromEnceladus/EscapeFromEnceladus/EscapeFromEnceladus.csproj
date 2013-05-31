@@ -121,6 +121,7 @@
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\Worm.cs" />
     <Compile Include="Entity\Equipment.cs" />
+    <Compile Include="Entity\InteractiveObject\CollectibleItem.cs" />
     <Compile Include="Entity\InteractiveObject\InteractiveObjectFactory.cs" />
     <Compile Include="Entity\InteractiveObject\SaveStation.cs" />
     <Compile Include="Entity\NPC\Characters.cs" />

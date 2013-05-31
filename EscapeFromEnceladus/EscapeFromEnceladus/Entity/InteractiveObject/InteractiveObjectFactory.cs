@@ -14,6 +14,7 @@ namespace Enceladus.Entity.InteractiveObject {
     /// </summary>
     public class InteractiveObjectFactory {
         public const string Save = "save";
+        public const string Powerup = "powerup";
 
         public static IGameEntity Create(World world, Map.Object obj) {
             var topLeft = ConvertUnits.ToSimUnits(new Vector2(obj.X, obj.Y));
@@ -23,8 +24,19 @@ namespace Enceladus.Entity.InteractiveObject {
             switch ( obj.Type ) {
                 case Save:
                     return new SaveStation(world, obj.Name, topLeft, bottomRight);
+                case Powerup:
+                    return CreatePowerup(topLeft, bottomRight, world, obj);
                 default:
                     throw new ArgumentException("Unexpected type of object: %s", obj.Type);
+            }
+        }
+
+        private static IGameEntity CreatePowerup(Vector2 topLeft, Vector2 bottomRight, World world, Object o) {
+            switch ( o.Name ) {
+                case "Wheel":
+                    return new GenericCollectibleItem(CollectibleItem.Wheel, topLeft, bottomRight, world);
+                default:
+                    throw new ArgumentException("Unexpected object name: %s", o.Name);
             }
         }
 

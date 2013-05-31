@@ -1,6 +1,8 @@
 using System;
 using Enceladus.Entity;
 using FarseerPhysics.Collision;
+using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 
 namespace Enceladus.Map {
@@ -116,6 +118,19 @@ namespace Enceladus.Map {
         /// </summary>
         public Region Shift(Vector2 delta) {
             return new Region(_topLeft + delta, _bottomRight + delta);
+        }
+
+        /// <summary>
+        /// Creates a player sensor body with exactly the dimensions of this region.
+        /// </summary>
+        public Body CreatePlayerSensor(World world) {
+            Body body = BodyFactory.CreateRectangle(world, Width, Height, 0f);
+            body.Position = Position;
+            body.IsStatic = true;
+            body.IsSensor = true;
+            body.CollisionCategories = EnceladusGame.PlayerSensorCategory;
+            body.CollidesWith = EnceladusGame.PlayerCategory;
+            return body;
         }
     }
 }

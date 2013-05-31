@@ -196,7 +196,12 @@ namespace Enceladus.Map {
                 foreach ( Object region in objectGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
                     if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
-                        EnceladusGame.Instance.Register(InteractiveObjectFactory.Create(_world, region));
+                        // Technically this only applies to collectible items, 
+                        // not all interactive items. But since they don't overlap 
+                        // on the grid, it doesn't hurt.
+                        if ( !ItemCollectionState.Instance.IsItemCollected(Region.AdjustToTileBoundary(pos)) ) {
+                            EnceladusGame.Instance.Register(InteractiveObjectFactory.Create(_world, region));
+                        }
                     }
                 }
             }

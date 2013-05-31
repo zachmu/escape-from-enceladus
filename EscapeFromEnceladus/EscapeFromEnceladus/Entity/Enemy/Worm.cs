@@ -57,7 +57,7 @@ namespace Enceladus.Entity.Enemy {
                 position.X -= _width / 2f;
 
                 Vector2 scale = new Vector2(_width / BaseWidth, _height / BaseHeight);
-                Vector2 origin = new Vector2(1, Image.Height);
+                Vector2 origin = new Vector2(BaseWidth / 2f, Image.Height);
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
                 Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;

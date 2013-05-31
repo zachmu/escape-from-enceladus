@@ -37,14 +37,9 @@ namespace Enceladus.Entity.InteractiveObject {
         public SaveStation(World world, string name, Vector2 topLeft, Vector2 bottomRight)
             : base(topLeft, bottomRight) {
 
-            Id = name; 
+            Id = name;
 
-            _body = BodyFactory.CreateRectangle(world, Width, Height, 0f);
-            _body.Position = Position;
-            _body.IsStatic = true;
-            _body.IsSensor = true;
-            _body.CollisionCategories = EnceladusGame.PlayerSensorCategory;
-            _body.CollidesWith = EnceladusGame.PlayerCategory;
+            _body = CreatePlayerSensor(world);
 
             _body.OnCollision += (a, b, contact) => {
                 _contactCount++;

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Entity.InteractiveObject;
 using Enceladus.Event;
+using Enceladus.Map;
 
 namespace Enceladus.Entity {
     
@@ -11,25 +13,25 @@ namespace Enceladus.Entity {
     /// </summary>
     public class Equipment : ISaveable {
 
-        private readonly HashSet<Powerup> _powerups = new HashSet<Powerup>();
+        private readonly HashSet<CollectibleItem> _CollectibleItems = new HashSet<CollectibleItem>();
 
         public Equipment() {
-            _powerups.Add(Powerup.BasicGun);
+            _CollectibleItems.Add(CollectibleItem.BasicGun);
         }
 
         /// <summary>
-        /// Returns whether the player has collected the given powerup
+        /// Returns whether the player has collected the given CollectibleItem
         /// </summary>
-        public bool HasPowerup(Powerup powerup) {
-            return _powerups.Contains(powerup);
+        public bool HasCollectibleItem(CollectibleItem collectibleItem) {
+            return _CollectibleItems.Contains(collectibleItem);
         }
 
         /// <summary>
-        /// Add the given powerup to the set the player has collected. 
-        /// Some powerups can be collected more than once.
+        /// Add the given CollectibleItem to the set the player has collected. 
+        /// Some CollectibleItems can be collected more than once.
         /// </summary>
-        public void Collected(Powerup powerup) {
-            _powerups.Add(powerup);
+        public void Collected(CollectibleItem collectibleItem) {
+            _CollectibleItems.Add(collectibleItem);
         }
 
         public void Save(SaveState save) {
@@ -37,19 +39,8 @@ namespace Enceladus.Entity {
         }
 
         public void LoadFromSave(SaveState save) {
-            _powerups.Clear();
-            _powerups.UnionWith(save.Equipment._powerups);
+            _CollectibleItems.Clear();
+            _CollectibleItems.UnionWith(save.Equipment._CollectibleItems);
         }
-    }
-
-    /// <summary>
-    /// The set of all powerups that can be gotten in the game
-    /// </summary>
-    public enum Powerup {
-        BasicGun,
-        Missile,
-        Wheel,
-        Bomb,
-        Sonar,
     }
 }

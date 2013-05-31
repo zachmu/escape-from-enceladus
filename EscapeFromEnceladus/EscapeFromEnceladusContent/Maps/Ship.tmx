@@ -137,6 +137,7 @@
   <object name="save1" type="save" x="1850" y="604" width="264" height="94"/>
   <object name="save2" type="save" x="964" y="605" width="264" height="94"/>
   <object name="save3" type="save" x="130" y="607" width="264" height="94"/>
+  <object name="Wheel" type="powerup" x="3396" y="906" width="50" height="43"/>
  </objectgroup>
  <objectgroup name="PlayerStart" width="400" height="220">
   <object x="2417" y="388" width="54" height="60"/>

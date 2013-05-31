@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enceladus.Entity.InteractiveObject;
 using Enceladus.Xbox;
 using Enceladus.Control;
 using Enceladus.Entity;
@@ -283,6 +284,7 @@ namespace Enceladus {
             Shot.LoadContent(Content);
             Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);
+            GenericCollectibleItem.LoadContent(Content);
             Bomb.LoadContent(Content);
             Sonar.LoadContent(Content);
             SolidColorEffect.LoadContent(Content);
