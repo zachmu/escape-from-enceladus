@@ -260,10 +260,14 @@ namespace Enceladus.Map {
         }
 
         private void MakeDoorPassable() {
+            _body.Dispose();
+            CreateBody();
             _body.IsSensor = true;
         }
 
         private void MakeDoorSolid() {
+            _body.Dispose();
+            CreateBody();
             _body.IsSensor = false;
         }
 
