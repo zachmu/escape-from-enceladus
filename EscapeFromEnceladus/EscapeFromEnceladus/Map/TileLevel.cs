@@ -236,7 +236,10 @@ namespace Enceladus.Map {
                 foreach ( Object region in npcGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
                     if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
-                        EnceladusGame.Instance.Register(NPCFactory.Create(region, _world));
+                        NPC entity = NPCFactory.Create(region, _world);
+                        if ( entity != null ) {
+                            EnceladusGame.Instance.Register(entity);
+                        }
                     }
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Event;
 using Enceladus.Map;
 using System;
 using Enceladus.Farseer;
@@ -32,8 +33,7 @@ namespace Enceladus.Entity.NPC {
         private static readonly Dictionary<string, NPC> _activeNpcs = new Dictionary<string, NPC>(); 
 
         /// <summary>
-        /// Creates a new instance of the NPC map object given, 
-        /// storing that copy of the NPC for reference.
+        /// Creates a new instance of the NPC map object given. If the given character isn't in the scene, returns null.
         /// </summary>
         public static NPC Create(Map.Object npc, World world) {
             Vector2 pos = ConvertUnits.ToSimUnits(npc.X, npc.Y);
@@ -47,7 +47,7 @@ namespace Enceladus.Entity.NPC {
 
             switch ( npc.Name ) {
                 case CharProfessorIapetus:
-                    return _activeNpcs[CharProfessorIapetus] = new ProfessorIapetus(topLeft, bottomRight, world, sensorWidth);
+                    return CreateProfessorIapetus(world, topLeft, bottomRight, sensorWidth);
                 case CharLieutenantForecastle:
                     return _activeNpcs[CharLieutenantForecastle] = new EnsignForecastle(topLeft, bottomRight, world, sensorWidth);
                 case CharChefHawser:
@@ -57,7 +57,7 @@ namespace Enceladus.Entity.NPC {
                 case CharCaptainPurchase:
                     return _activeNpcs[CharCaptainPurchase] = new CaptainPurchase(topLeft, bottomRight, world, sensorWidth);
                 case CharEnsignGibe:
-                    return _activeNpcs[CharEnsignGibe] = new EnsignGibe(topLeft, bottomRight, world, sensorWidth);
+                    return CreateEnsignGibe(world, topLeft, bottomRight, sensorWidth);
                 case CharCommanderTaffrail:
                     return _activeNpcs[CharCommanderTaffrail] = new EnsignTaffrail(topLeft, bottomRight, world, sensorWidth);
                 case CharChiefMizzen:
@@ -65,6 +65,24 @@ namespace Enceladus.Entity.NPC {
                 default:
                     throw new ArgumentException("Unrecognized NPC name " + npc.Name);
             }
+        }
+
+        /*
+         * Some NPCs aren't always present in the scene, so those methods return null in that case.
+         */
+
+        private static NPC CreateEnsignGibe(World world, Vector2 topLeft, Vector2 bottomRight, float sensorWidth) {
+            if ( GameMilestones.Instance.HasMilestoneOccurred(GameMilestone.Embarked) ) {
+                return null;
+            }
+            return _activeNpcs[CharEnsignGibe] = new EnsignGibe(topLeft, bottomRight, world, sensorWidth);
+        }
+
+        private static NPC CreateProfessorIapetus(World world, Vector2 topLeft, Vector2 bottomRight, float sensorWidth) {
+            if ( GameMilestones.Instance.HasMilestoneOccurred(GameMilestone.Embarked) ) {
+                return null;
+            }
+            return _activeNpcs[CharProfessorIapetus] = new ProfessorIapetus(topLeft, bottomRight, world, sensorWidth);
         }
 
         /// <summary>

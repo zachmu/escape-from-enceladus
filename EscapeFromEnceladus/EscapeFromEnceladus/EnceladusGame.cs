@@ -158,7 +158,9 @@ namespace Enceladus {
         /// Entity will be removed when it is disposed.
         /// </summary>
         public void Register(params IGameEntity[] entities) {
-            _entitiesToAdd.AddRange(entities);
+            if ( entities != null ) {
+                _entitiesToAdd.AddRange(entities);
+            }
         }
 
         private readonly List<PostProcessingEffect> _postProcessorEffects = new List<PostProcessingEffect>();
