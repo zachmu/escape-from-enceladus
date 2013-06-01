@@ -2870,6 +2870,48 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\MainQuest\CaptainPurchaseFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>CaptainPurchaseFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\MainQuest\ChefHawserFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>ChefHawserFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\MainQuest\ChiefMizzenFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>ChiefMizzenFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\MainQuest\CommanderTaffrailFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>CommanderTaffrailFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\MainQuest\EnsignLeewardFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>EnsignLeewardFirst</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Conversations\MainQuest\LieutenantForecastleFirst.txt">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>LieutenantForecastleFirst</Name>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

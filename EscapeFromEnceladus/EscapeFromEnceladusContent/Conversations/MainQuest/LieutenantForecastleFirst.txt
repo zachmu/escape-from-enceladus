@@ -1,0 +1,5 @@
+﻿LieutenantForecastle: I think I should be able to keep the ship together with the current shield levels, sir.
+LieutenantForecastle: But we definitely can't lift off without full power, and for that we need that missing electron pump.
+Roark: Understood, lieutenant.
+LieutenantForecastle: The sooner you bring it back, the better off we'll be.
+LieutenantForecastle: Who knows where it is down on that moon...

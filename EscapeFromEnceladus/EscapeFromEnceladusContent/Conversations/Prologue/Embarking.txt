@@ -9,7 +9,7 @@ LieutenantForecastle: Professor Iapetus isn't in his cell. His laser cage is fun
 LieutenantForecastle: It's like he just disappeared!
 ChiefMizzen: Captain, I just figured out why the engines won't fire. The primary power coupling is just... gone. Vanished!
 EnsignLeeward: Same for the astrogation console. We're missing a holocube memory unit.
-CaptainPurchase: Communications, life support?
+CaptainPurchase: Communications, shields?
 CommanderTaffrail: Missing an antenna unit.
 LieutenantForecastle: And a high-volume electron pump.
 CaptainPurchase: Number three, your thoughts?

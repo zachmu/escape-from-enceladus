@@ -1,0 +1,5 @@
+﻿EnsignLeeward: Our astrogation won't work without that missing holocube unit, sir.
+Roark: What is its function, exactly, Ensign?
+EnsignLeeward: To tell you the truth, they mostly just teach us how to operate and service these consoles. You could try asking Chief Mizzen about the nuts and bolts...
+Roark: Chief Mizzen isn't the most patient teacher.
+EnsignLeeward: Just get it back to me as soon as you can, and I'll try to give you whatever I can to help you find the rest of the missing stuff!

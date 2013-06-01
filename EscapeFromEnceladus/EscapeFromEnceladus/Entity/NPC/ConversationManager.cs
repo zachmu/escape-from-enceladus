@@ -77,16 +77,20 @@ namespace Enceladus.Entity.NPC {
         private void StartConversationWithLieutenantForecastle() {
             if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/LieutenantForecastleFirst.txt"));
-            } else {
+            } else if (!GameMilestones.HasMilestoneOccurred(GameMilestone.Embarked)) {
                 StartConversation(new Conversation(_cm, "Prologue/LieutenantForecastleSecond.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "MainQuest/LieutenantForecastleFirst.txt"));
             }
         }
 
         private void StartConversationWithEnsignLeeward() {
             if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailFirst.txt"));
-            } else {
+            } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.Embarked) ) {
                 StartConversation(new Conversation(_cm, "Prologue/EnsignLeewardSecond.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "MainQuest/EnsignLeewardFirst.txt"));
             }
         }
 
@@ -101,24 +105,30 @@ namespace Enceladus.Entity.NPC {
         private void StartConversationWithChiefMizzen() {
             if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ChiefMizzenFirst.txt"));
-            } else {
+            } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.Embarked) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ChiefMizzenSecond.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "MainQuest/ChiefMizzenFirst.txt"));
             }
         }
 
         private void StartConversationWithCommanderTaffrail() {
             if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailFirst.txt"));
-            } else {
+            } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.Embarked) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CommanderTaffrailSecond.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "MainQuest/CommanderTaffrailFirst.txt"));
             }
         }
 
         private void StartConversationWithChefHawser() {
             if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToCaptain) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ChefHawserFirst.txt"));
-            } else {
+            } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.Embarked) ) {
                 StartConversation(new Conversation(_cm, "Prologue/ChefHawserFirst.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "MainQuest/ChefHawserFirst.txt"));
             }
         }
 
@@ -127,8 +137,10 @@ namespace Enceladus.Entity.NPC {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseFirst.txt"));
             } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.TalkedToEveryone) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseSecond.txt"));
-            } else {
+            } else if ( !GameMilestones.HasMilestoneOccurred(GameMilestone.Embarked) ) {
                 StartConversation(new Conversation(_cm, "Prologue/CaptainPurchaseThird.txt"));
+            } else {
+                StartConversation(new Conversation(_cm, "MainQuest/CaptainPurchaseFirst.txt"));
             }
         }
 

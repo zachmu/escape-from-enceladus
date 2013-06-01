@@ -1,0 +1,5 @@
+﻿CommanderTaffrail: As your commanding officer, I feel the need to tell you...
+CommanderTaffrail: You know that I would go out there in your place, but your nanomech suit is keyed to your genome alone.
+Roark: I understand, sir. You're very brave.
+CommanderTaffrail: Let me know as soon as you find that missing antenna unit! The sooner we get it repaired, the sooner we can signal for help.
+Roark: Roger that, commander. I won't let you down!
