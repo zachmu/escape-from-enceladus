@@ -17,6 +17,7 @@ using FarseerPhysics.Collision;
 using FarseerPhysics.DebugViews;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Path = System.IO.Path;
@@ -57,6 +58,8 @@ namespace Enceladus {
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
         private BackgroundManager _backgroundManager;
+        private AudioEngine _audioEngine;
+        private MusicManager _musicManager;
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -253,6 +256,14 @@ namespace Enceladus {
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _backgroundManager.LoadContent();
+            _audioEngine = new AudioEngine("Content/Music/game.xgs");
+            _musicManager = new MusicManager(_audioEngine);
+            _musicManager.LoadContent(Content);
+            
+            // Audio engine needs an initial update after loading songs
+            _audioEngine.Update();
+            _musicManager.SetMusicTrack("sanfran");
+
             //_background = Content.Load<Texture2D>("Background/rock02");
 
             if ( _debugView == null ) {
@@ -367,6 +378,8 @@ namespace Enceladus {
             _cameraDirector.Update(gameTime);
             _pauseScreen.Update(gameTime);
             _titleScreen.Update(gameTime);
+            _musicManager.Update();
+            _audioEngine.Update();
 
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);

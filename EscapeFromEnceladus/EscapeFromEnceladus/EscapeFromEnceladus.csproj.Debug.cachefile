@@ -513,6 +513,15 @@ Content\Sounds\land.xnb
 Content\Sounds\SonarHit.xnb
 Content\Sounds\SonarPing.xnb
 Content\Sounds\Bomb.xnb
+Content\Music\disaster.xnb
+Content\Music\exploration.xnb
+Content\Music\sanfran.xnb
+Content\Music\spur.xnb
+Content\Music\game.xgs
+Content\Music\Songs.xwb
+Content\Music\PlayerSounds.xwb
+Content\Music\PlayerSounds.xsb
+Content\Music\Songs.xsb
 Content\Maps\big_square.tmx
 Content\Maps\scratch.tmx
 Content\Maps\Ship.tmx

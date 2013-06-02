@@ -8,6 +8,10 @@ _Resharper.*/
 */*/*/bin/
 */*/*/*/bin/
 
+# Derived .wav files #
+######################
+EscapeFromEnceladus/EscapeFromEnceladusContent/Music/*.wav
+
 # Compiled source #
 ###################
 *.com
