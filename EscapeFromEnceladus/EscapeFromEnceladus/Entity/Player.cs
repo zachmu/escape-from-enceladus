@@ -928,7 +928,7 @@ namespace Enceladus.Entity {
         private const int JumpAimDownFrame = 8;
 
         private const int NumScooterFrames = 17;
-        private const int ScootFrame = 9;
+        public const int ScootFrame = 9;
         private const int NumScootFrames = NumScooterFrames - ScootFrame;
 
         private readonly Texture2D[] _standAimAnimation = new Texture2D[NumStandAimFrames];
@@ -964,6 +964,10 @@ namespace Enceladus.Entity {
         }
 
         private readonly Texture2D[] _scooterAnimation = new Texture2D[NumScooterFrames];
+
+        public Texture2D[] ScooterAnimation {
+            get { return _scooterAnimation; }
+        }
 
         /*
          * Unarmed animations

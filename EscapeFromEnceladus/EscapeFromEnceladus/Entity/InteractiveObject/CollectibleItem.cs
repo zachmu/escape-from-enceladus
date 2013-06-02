@@ -121,8 +121,10 @@ namespace Enceladus.Entity.InteractiveObject {
 
             Texture2D crouchImage = Player.Instance.CrouchAnimation[Player.CrouchAimStraightFrame];
             Texture2D lTriggerImage = SharedGraphicalAssets.LTrigger;
+            Texture2D scootImage = Player.Instance.ScooterAnimation[Player.ScootFrame];
             SpriteFont font = SharedGraphicalAssets.DialogFont;
             Vector2 plusSignSize = font.MeasureString("+");
+            Vector2 equalsSize = font.MeasureString("=");
 
             const int margin = 20;
             const int spacing = 20;
@@ -132,14 +134,14 @@ namespace Enceladus.Entity.InteractiveObject {
             Vector2 backdropSize =
                 new Vector2(Math.Max(2 * margin + titleSize.X,
                                      margin + crouchImage.Width + spacing + plusSignSize.X + spacing +
-                                     lTriggerImage.Width / 2f + margin),
+                                     lTriggerImage.Width / 2f + equalsSize.X + scootImage.Width + margin),
                             margin + font.LineSpacing + Math.Max(crouchImage.Height, lTriggerImage.Height / 2f) + margin);
             Vector2 topLeft = screenCenter - backdropSize / 2f;
 
             spriteBatch.Draw(SharedGraphicalAssets.BlackBackdrop,
                              new Rectangle((int) (topLeft.X), (int) topLeft.Y,
                                            (int) (backdropSize.X),
-                                           (int) backdropSize.Y), Color.Black * .65f);
+                                           (int) backdropSize.Y), Color.Black * .85f);
 
             Vector2 titlePos = new Vector2(screenCenter.X - titleSize.X / 2, topLeft.Y + margin);
             TextDrawing.DrawStringShadowed(font, spriteBatch, Color.White, title, titlePos);
@@ -166,6 +168,19 @@ namespace Enceladus.Entity.InteractiveObject {
                              SolidColorEffect.DisabledColor, 0f,
                              new Vector2(lTriggerImage.Width / 2f, lTriggerImage.Height / 2f),
                              SpriteEffects.None, 0);
+
+            Vector2 equalsPos = new Vector2(triggerPos.X + lTriggerImage.Width / 4f + spacing,
+                                            topLeft.Y + margin + font.LineSpacing +
+                                            Math.Max(crouchImage.Height, lTriggerImage.Height / 2f) / 2);
+            TextDrawing.DrawStringShadowed(font, spriteBatch, Color.White, "=", equalsPos);
+
+            Vector2 scooterPos =
+                new Vector2(
+                    equalsPos.X + equalsSize.X + spacing,
+                    topLeft.Y + margin + font.LineSpacing + crouchImage.Height / 2f);
+            spriteBatch.Draw(scootImage,
+                             scooterPos,
+                             Player.Instance.Color);
         }
 
         public override void Update(GameTime gameTime) {
