@@ -810,5 +810,12 @@ namespace Enceladus.Map {
             }
             return _doorsByRoom[room];
         }
+
+        /// <summary>
+        /// Unlocks every door on the map. Useful when resetting door lock state.
+        /// </summary>
+        public void UnlockAllDoors() {
+            _namedDoors.Values.ToList().ForEach(door => door.Unlock());
+        }
     }
 }
