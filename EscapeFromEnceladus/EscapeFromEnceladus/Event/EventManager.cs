@@ -30,7 +30,7 @@ namespace Enceladus.Event {
             IGameEvent[] allEvents = new IGameEvent[] { 
                 new GameIntro(),
                 new TalkToCaptain(),
-                new Prologue(),
+                new Prologue(this),
                 new IapetusEscapes(), 
                 new Embarking(), 
             };

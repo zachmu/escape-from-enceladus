@@ -15,9 +15,18 @@ namespace Enceladus.Event {
         public const string ID = "PrologueOnShip";
 
         [JsonProperty(PropertyName = "toTalkTo")]
-        private readonly HashSet<string> _toTalkTo = new HashSet<string>();
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+        private HashSet<string> _toTalkTo = new HashSet<string>();
+// ReSharper restore FieldCanBeMadeReadOnly.Local
 
-        public Prologue() {
+        public Prologue() {            
+        }
+
+        /// <summary>
+        /// The param is used to differentiate this from the nullary constructor, 
+        /// used by save-state persistence.
+        /// </summary>
+        public Prologue(EventManager parent) {
             _toTalkTo.Add(NPCFactory.CharChefHawser);
             _toTalkTo.Add(NPCFactory.CharChiefMizzen);
             _toTalkTo.Add(NPCFactory.CharLieutenantForecastle);
@@ -64,6 +73,7 @@ namespace Enceladus.Event {
 
         public override void Apply() {
             EventManager.Instance.LoadEvent(Embarking.ID);
+            MusicManager.Instance.SetMusicTrack("disaster");
             ConversationManager.Instance.StartConversation("Prologue/IapetusEscapes.txt");
             base.Apply();
         }
@@ -87,6 +97,7 @@ namespace Enceladus.Event {
 
         public override void Apply() {
             ConversationManager.Instance.StartConversation("Prologue/Embarking.txt");
+            MusicManager.Instance.ResumePrevTrack();
             TileLevel.CurrentLevel.DoorNamed("shipDoor").Unlock();
             GameMilestones.Instance.MilestoneAcheived(GameMilestone.Embarked);
             base.Apply();

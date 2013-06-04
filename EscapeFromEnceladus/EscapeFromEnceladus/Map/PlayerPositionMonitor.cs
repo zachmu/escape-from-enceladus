@@ -75,7 +75,7 @@ namespace Enceladus.Map {
         /// Updates the player's current and previous position, and notifies 
         /// the game of a room change as necessary.
         /// </summary>
-        public void Update() {
+        public void Update(bool notifyChanges) {
             _previousRegion = CurrentRegion;
             _previousRoom = CurrentRoom;
 
@@ -85,7 +85,7 @@ namespace Enceladus.Map {
                 _currentRegion = regions.First(r => r.Contains(_player.Position));
             }
 
-            if ( IsNewRoomChange() ) {
+            if ( notifyChanges && IsNewRoomChange() ) {
                 RoomChanged(_previousRoom, _currentRoom);
             }
         }

@@ -39,6 +39,7 @@ namespace Enceladus {
             _graphics = graphics;
             _inputHelper = inputHelper;
             _mode = Mode.TrackPlayer;
+            PlayerPositionMonitor.Instance.RoomChanged += RoomChanged;
         }
 
         /// <summary>
@@ -51,7 +52,6 @@ namespace Enceladus {
             switch (_mode) {
                 case Mode.TrackPlayer:
                     TrackPlayer();
-                    CheckForRoomTransition();
                     break;
                 case Mode.ManualControl:
                     break;
@@ -121,13 +121,11 @@ namespace Enceladus {
             _camera.MoveTarget(cameraDelta);
         }
 
-        private void CheckForRoomTransition() {
-
-            if ( PlayerPositionMonitor.Instance.IsNewRoomChange() ) {
-
+        public void RoomChanged(Room oldRoom, Room currentRoom) {
+            if ( oldRoom != null ) {
                 UnclampCamera();
-                EnceladusGame.Instance.SetMode(Enceladus.Mode.RoomTransition);
 
+                EnceladusGame.Instance.SetMode(Enceladus.Mode.RoomTransition);
                 _mode = Mode.SnapToGrid;
                 Direction directionOfTravel =
                     PlayerPositionMonitor.Instance.PreviousRegion.GetRelativeDirection(_player.Position);
@@ -192,10 +190,7 @@ namespace Enceladus {
                                                 ConvertUnits.ToSimUnits(halfScreenHeight));
                         break;
                 }
-            } 
-//            else if (PlayerPositionMonitor.Instance.IsNewRegionChange()) {
-//                ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
-//            }
+            }
         }
 
         /// <summary>

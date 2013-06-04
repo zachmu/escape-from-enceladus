@@ -137,9 +137,10 @@ namespace Enceladus {
             _inputHelper = new InputHelper();
             PlayerControl.Control = new PlayerGamepadControl();
 
-            _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
             _playerPositionMonitor = new PlayerPositionMonitor(_player);
-            _playerPositionMonitor.RoomChanged += DisposeRoom;
+            _playerPositionMonitor.RoomChanged += RoomChanged;
+
+            _cameraDirector = new CameraDirector(_camera, _player, _graphics, _inputHelper);
 
             _conversationManager = new ConversationManager(Content);
             _conversationManager.ConversationStarted += ConversationStarted;
@@ -215,7 +216,12 @@ namespace Enceladus {
         public void ApplySaveState(SaveState saveState) {
             _slot = saveState.Slot;
             saveState.ApplyToGameState(_visitationMap);
-            _playerPositionMonitor.Update();
+            _playerPositionMonitor.Update(false);
+            if ( _playerPositionMonitor.IsNewRoomChange() ) {
+                DisposeRoom(_playerPositionMonitor.PreviousRoom);
+                _musicManager.RoomChanged(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+            }
+            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
         }
 
@@ -225,14 +231,23 @@ namespace Enceladus {
         public void NewGame(PlayerIndex slot) {
             _slot = slot;
             _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
-            _playerPositionMonitor.Update();
+            _playerPositionMonitor.Update(false);
+            if ( _playerPositionMonitor.IsNewRoomChange() ) {
+                DisposeRoom(_playerPositionMonitor.PreviousRoom);
+                _musicManager.RoomChanged(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+            }
+            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
         }
 
         /// <summary>
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
-        public void DisposeRoom(Room oldRoom, Room newRoom) {
+        public void RoomChanged(Room oldRoom, Room newRoom) {
+            DisposeRoom(oldRoom);
+        }
+
+        private void DisposeRoom(Room oldRoom) {
             if ( oldRoom != null ) {
                 foreach ( IGameEntity gameEntity in _entities ) {
                     if ( oldRoom.Contains(gameEntity) && !_playerPositionMonitor.CurrentRoom.Contains(gameEntity) ) {
@@ -279,7 +294,7 @@ namespace Enceladus {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Boostrap the map position and current room data
-            _playerPositionMonitor.Update();
+            _playerPositionMonitor.Update(false);
            
             // Bootstrap camera position
             _cameraDirector.ForceRestart();
@@ -374,7 +389,7 @@ namespace Enceladus {
             _backgroundManager.Update(gameTime);
 
             _camera.Update(gameTime);
-            _playerPositionMonitor.Update();
+            _playerPositionMonitor.Update(true);
             _cameraDirector.Update(gameTime);
             _pauseScreen.Update(gameTime);
             _titleScreen.Update(gameTime);

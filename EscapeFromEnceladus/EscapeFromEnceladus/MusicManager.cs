@@ -23,7 +23,7 @@ namespace Enceladus {
         private WaveBank _waveBank;
         private Cue Cue { get; set; }
         private string CurrentTrack { get; set; }
-        private Cue PreviousCue { get; set; }
+        private string PreviousTrack { get; set; }
 
         public MusicManager(AudioEngine audioEngine) {
             _audioEngine = audioEngine;
@@ -37,25 +37,30 @@ namespace Enceladus {
         }
 
         public void Update() {
-            if ( Cue != null && !Cue.IsPlaying ) {
+            if ( Cue != null && !Cue.IsPlaying && !Cue.IsPreparing ) {
                 Cue.Play();
             }
         }
 
-        public void SetMusicTrack(string track) {            
+        public void SetMusicTrack(string track) {
             if ( Cue != null && Cue.IsPlaying ) {
                 Cue.Stop(AudioStopOptions.Immediate);
-                PreviousCue = Cue;
+                PreviousTrack = CurrentTrack;
             }
-            CurrentTrack = track;
-            Cue = _soundBank.GetCue(track);
+            if ( track.Length > 0 ) {
+                CurrentTrack = track;
+                Cue = _soundBank.GetCue(track);
+            } else {
+                Cue = null;
+            }
         }
 
         public void ResumePrevTrack() {
             if ( Cue != null && Cue.IsPlaying ) {
                 Cue.Stop(AudioStopOptions.Immediate);
             }
-            Cue = PreviousCue ?? Cue;
+            CurrentTrack = PreviousTrack ?? CurrentTrack;
+            Cue = _soundBank.GetCue(CurrentTrack);
         }
 
         public void RoomChanged(Room oldRoom, Room currentRoom) {
