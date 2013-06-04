@@ -179,6 +179,6 @@ namespace Enceladus.Overlay {
                 EnceladusGame.Instance.NewGame((PlayerIndex) _selectedIndex);
             }
             EnceladusGame.Instance.UnsetMode();
-        }   
+        }
     }
 }

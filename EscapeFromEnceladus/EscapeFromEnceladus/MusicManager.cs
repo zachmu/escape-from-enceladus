@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Map;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
@@ -21,27 +22,46 @@ namespace Enceladus {
         private SoundBank _soundBank;
         private WaveBank _waveBank;
         private Cue Cue { get; set; }
+        private string CurrentTrack { get; set; }
+        private Cue PreviousCue { get; set; }
 
         public MusicManager(AudioEngine audioEngine) {
             _audioEngine = audioEngine;
+            _instance = this;
         }
 
         public void LoadContent(ContentManager cm) {
             _waveBank = new WaveBank(_audioEngine, "Content/Music/Songs.xwb", 0, 16);
             _soundBank = new SoundBank(_audioEngine, "Content/Music/Songs.xsb");
+            PlayerPositionMonitor.Instance.RoomChanged += RoomChanged;
         }
 
         public void Update() {
-            if ( !Cue.IsPlaying ) {
+            if ( Cue != null && !Cue.IsPlaying ) {
                 Cue.Play();
             }
         }
 
-        public void SetMusicTrack(string track) {
+        public void SetMusicTrack(string track) {            
+            if ( Cue != null && Cue.IsPlaying ) {
+                Cue.Stop(AudioStopOptions.Immediate);
+                PreviousCue = Cue;
+            }
+            CurrentTrack = track;
+            Cue = _soundBank.GetCue(track);
+        }
+
+        public void ResumePrevTrack() {
             if ( Cue != null && Cue.IsPlaying ) {
                 Cue.Stop(AudioStopOptions.Immediate);
             }
-            Cue = _soundBank.GetCue(track);
+            Cue = PreviousCue ?? Cue;
+        }
+
+        public void RoomChanged(Room oldRoom, Room currentRoom) {
+            if ( currentRoom.MusicTrack != null && currentRoom.MusicTrack != CurrentTrack ) {
+                SetMusicTrack(currentRoom.MusicTrack);
+            }
         }
     }
 }

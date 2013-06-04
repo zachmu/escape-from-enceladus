@@ -14,8 +14,10 @@ namespace Enceladus.Map {
     /// It comprises one or more overlapping rectangular regions.
     /// </summary>
     public class Room {
-        private string _id;
-        private string _backgroundImage;
+        public string BackgroundImage { get; private set; }
+        public string MusicTrack { get; private set; }
+        public string Id { get; private set; }
+
         private readonly List<Region> _regions = new List<Region>();
 
         /// <summary>
@@ -46,20 +48,16 @@ namespace Enceladus.Map {
             bottomRight = Region.AdjustToTileBoundary(bottomRight);
 
             if ( region.Properties.ContainsKey("id") ) {
-                _id = region.Properties["id"];
+                Id = region.Properties["id"];
             }
             if ( region.Properties.ContainsKey("background") ) {
-                _backgroundImage = region.Properties["background"];
+                BackgroundImage = region.Properties["background"];
             }
+            if ( region.Properties.ContainsKey("musicTrack") ) {
+                MusicTrack = region.Properties["musicTrack"];
+            }
+
             _regions.Add(new Region(topLeft, bottomRight));
-        }
-
-        public String BackgroundImage {
-            get { return _backgroundImage; }
-        }
-
-        public String ID {
-            get { return _id; }
         }
 
         public bool Contains(IGameEntity entity) {

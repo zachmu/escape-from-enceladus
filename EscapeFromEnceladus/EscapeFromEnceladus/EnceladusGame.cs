@@ -262,7 +262,7 @@ namespace Enceladus {
             
             // Audio engine needs an initial update after loading songs
             _audioEngine.Update();
-            _musicManager.SetMusicTrack("sanfran");
+            _musicManager.SetMusicTrack("spur");
 
             //_background = Content.Load<Texture2D>("Background/rock02");
 
