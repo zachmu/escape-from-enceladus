@@ -54,7 +54,7 @@ namespace Enceladus.Map {
         /// Unlike almost all game objects, the background starts its own sprite batch.
         /// </summary>
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            if ( BackgroundAlpha <= .05 )
+            if ( BackgroundAlpha <= .06 )
                 return;
 
             // Background image
@@ -74,9 +74,6 @@ namespace Enceladus.Map {
             }
             if ( EnceladusGame.Instance.Mode == Mode.RoomTransition && _backgroundAlpha > 0 ) {
                 _backgroundAlpha -= .05f;
-                if ( _backgroundAlpha < .01f ) {
-                    _backgroundAlpha = 0f;
-                }
             } else if ( _backgroundAlpha < 1 ) {
                 _backgroundAlpha += .05f;
             }

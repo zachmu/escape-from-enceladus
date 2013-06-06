@@ -218,10 +218,10 @@ namespace Enceladus {
             saveState.ApplyToGameState(_visitationMap);
             _playerPositionMonitor.Update(false);
             if ( _playerPositionMonitor.IsNewRoomChange() ) {
-                DisposeRoom(_playerPositionMonitor.PreviousRoom);
-                _musicManager.RoomChanged(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+                DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);
+                _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
             }
-            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
         }
 
@@ -233,10 +233,10 @@ namespace Enceladus {
             _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
             _playerPositionMonitor.Update(false);
             if ( _playerPositionMonitor.IsNewRoomChange() ) {
-                DisposeRoom(_playerPositionMonitor.PreviousRoom);
-                _musicManager.RoomChanged(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+                DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);
             }
-            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
+            _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
         }
 

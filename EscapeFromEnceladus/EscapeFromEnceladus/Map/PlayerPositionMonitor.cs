@@ -18,6 +18,7 @@ namespace Enceladus.Map {
         private Region _previousRegion;
         private Room _currentRoom;
         private Room _previousRoom;
+        private Room _previousFrameRoom;
 
         public static PlayerPositionMonitor Instance { get { return _instance; } }
 
@@ -48,10 +49,18 @@ namespace Enceladus.Map {
         }
 
         /// <summary>
-        /// The room the player was in the last time update was called.
+        /// The room the player was in before this one. If the player has never 
+        /// been anywhere but the current room, returns the current room.
         /// </summary>
         public Room PreviousRoom {
-            get { return _previousRoom; }
+            get { return _previousRoom ?? _currentRoom; }
+        }
+
+        /// <summary>
+        /// The room the player was in the last time update was called.
+        /// </summary>
+        public Room PreviousFrameRoom {
+            get { return _previousFrameRoom; }
         }
 
         /// <summary>
@@ -59,7 +68,7 @@ namespace Enceladus.Map {
         /// </summary>
         /// <returns></returns>
         public bool IsNewRoomChange() {
-            return _currentRoom != _previousRoom;
+            return _currentRoom != _previousFrameRoom;
         }
 
         /// <summary>
@@ -77,7 +86,7 @@ namespace Enceladus.Map {
         /// </summary>
         public void Update(bool notifyChanges) {
             _previousRegion = CurrentRegion;
-            _previousRoom = CurrentRoom;
+            _previousFrameRoom = CurrentRoom;
 
             _currentRoom = TileLevel.CurrentLevel.RoomAt(_player.Position);
             List<Region> regions = CurrentRoom.RegionsAt(_player.Position);
@@ -86,7 +95,8 @@ namespace Enceladus.Map {
             }
 
             if ( notifyChanges && IsNewRoomChange() ) {
-                RoomChanged(_previousRoom, _currentRoom);
+                RoomChanged(_previousFrameRoom, _currentRoom);
+                _previousRoom = _previousFrameRoom;
             }
         }
 

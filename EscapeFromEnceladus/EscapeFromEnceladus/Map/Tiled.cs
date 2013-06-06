@@ -202,19 +202,47 @@ namespace Enceladus.Map {
             return GetTile((int) tile.Position.X - 1, (int) tile.Position.Y);
         }
 
-        public void Draw(SpriteBatch batch, ICollection<Tileset> tilesets, Rectangle visibleWorld) {
+        public void Draw(SpriteBatch batch, ICollection<Tileset> tilesets, Rectangle visibleWorld, TileLevel currentLevel) {
 
-            int minx = Math.Max(visibleWorld.Left - 1, 0);
-            int miny = Math.Max(visibleWorld.Top - 1, 0);
-            int maxx = Math.Min(visibleWorld.Right + 2, Width);
-            int maxy = Math.Min(visibleWorld.Bottom + 2, Height);
+            int minx = Math.Max(visibleWorld.Left, 0);
+            int miny = Math.Max(visibleWorld.Top, 0);
+            int maxx = Math.Min(visibleWorld.Right + 1, Width);
+            int maxy = Math.Min(visibleWorld.Bottom + 1, Height);
+
+            /*
+             * The regions that define a room are snapped to the tile grid, which means 
+             * that a tile with its top-left corner on the boundary can be said to be 
+             * "inside" the region even when it isn't. To fix that, add a fudge factor to 
+             * nudge the nominal position down and to the right. 
+             */
+            const float fudgeFactor = .05f;
 
             for ( int y = miny; y <= maxy; y++ ) {
                 for ( int x = minx; x <= maxx; x++ ) {
-                    var tile = GetTile(x, y);
-                    if ( tile != null )
-                        tile.Draw(batch);
+                    if ( EnceladusGame.Instance.Mode == Mode.RoomTransition ) {
+                        if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ||
+                             PlayerPositionMonitor.Instance.PreviousRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ) {
+                            DrawTile(batch, x, y);
+                        } else {
+                            var blackTile = GetTile(0, 0);
+                            blackTile.Draw(batch, ConvertUnits.ToDisplayUnits(new Vector2(x, y) + new Vector2(.5f)));
+                        }
+                    } else {
+                        if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ) {
+                            DrawTile(batch, x, y);
+                        } else {
+                            var blackTile = GetTile(0, 0);
+                            blackTile.Draw(batch, ConvertUnits.ToDisplayUnits(new Vector2(x, y) + new Vector2(.5f)));
+                        }
+                    }
                 }
+            }
+        }
+
+        private void DrawTile(SpriteBatch batch, int x, int y) {
+            var tile = GetTile(x, y);
+            if ( tile != null ) {
+                tile.Draw(batch, ConvertUnits.ToDisplayUnits(tile.Position + new Vector2(.5f)));
             }
         }
 
@@ -353,7 +381,7 @@ namespace Enceladus.Map {
             }
         }
 
-        public void Draw(SpriteBatch batch) {
+        public void Draw(SpriteBatch batch, Vector2 displayPosition) {
             if ( Disposed )
                 return;
 
@@ -362,7 +390,6 @@ namespace Enceladus.Map {
                 alpha = (float) Age / (float) FadeInTime;
             }
 
-            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(Position + new Vector2(.5f));
             TileInfo tileInfo = GetLayer()._map.GetTileInfoCache()[_tileInfoIndex];
 
             int index = ((int) Position.Y * GetLayer().Width) + (int) Position.X;
@@ -538,7 +565,7 @@ namespace Enceladus.Map {
                         !layer.Properties.ContainsKey("invisible") 
                         && !layer.Properties.ContainsKey(Layer.Foreground)
                         && layer.Name != "Blocks") ) {
-                layer.Draw(batch, Tilesets.Values, visibleWorld);
+                layer.Draw(batch, Tilesets.Values, visibleWorld, TileLevel.CurrentLevel);
             }
         }
 
@@ -547,7 +574,7 @@ namespace Enceladus.Map {
                 Layer layer in
                     Layers.Values.Where(
                         layer => layer.Properties.ContainsKey(Layer.Foreground) || layer.Name == "Blocks") ) {
-                layer.Draw(batch, Tilesets.Values, visibleWorld);
+                            layer.Draw(batch, Tilesets.Values, visibleWorld, TileLevel.CurrentLevel);
             }
         }
 

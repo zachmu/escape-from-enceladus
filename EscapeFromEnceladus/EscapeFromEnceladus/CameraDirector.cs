@@ -203,7 +203,7 @@ namespace Enceladus {
             Vector2 topLeft = Room.SnapToRoomGrid(region.TopLeft);
             Vector2 bottomRight = Room.SnapToRoomGrid(region.BottomRight + new Vector2(1));
 
-            Vector2 minPosition = topLeft + viewportCenter - new Vector2(0, .125f);
+            Vector2 minPosition = topLeft + viewportCenter -new Vector2(0, .125f);
             Vector2 maxPosition = bottomRight - viewportCenter + new Vector2(0, .125f);
 
             //Console.WriteLine("Max = {0}, min = {1}", maxPosition, minPosition);
