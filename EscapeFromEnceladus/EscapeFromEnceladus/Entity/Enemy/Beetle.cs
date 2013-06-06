@@ -243,7 +243,7 @@ namespace Enceladus.Entity.Enemy {
                     throw new ArgumentOutOfRangeException();
             }
 
-            Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Radius - .05f: -Radius + .05f, 0));
+            Vector2 frontBumper = _body.GetWorldPoint(new Vector2(_clockwise ? Radius - .05f: -Radius + .05f, -.1f));
             Vector2 inFront = _body.GetWorldVector(new Vector2(_clockwise ? .075f : -.075f, 0));
 
             bool wallSensed = false;

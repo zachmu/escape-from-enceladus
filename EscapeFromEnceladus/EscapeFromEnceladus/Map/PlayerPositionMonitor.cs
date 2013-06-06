@@ -15,7 +15,9 @@ namespace Enceladus.Map {
         private Player _player;
         private static PlayerPositionMonitor _instance;
         private Region _currentRegion;
+        private Region _previousFrameRegion;
         private Region _previousRegion;
+
         private Room _currentRoom;
         private Room _previousRoom;
         private Room _previousFrameRoom;
@@ -37,8 +39,16 @@ namespace Enceladus.Map {
         /// <summary>
         /// The region the player was in the last time update was called.
         /// </summary>
+        public Region PreviousFrameRegion {
+            get { return _previousFrameRegion; }
+        }
+
+        /// <summary>
+        /// The region the player was in before the current one, or the current 
+        /// one if that's the only one he's ever been in.
+        /// </summary>
         public Region PreviousRegion {
-            get { return _previousRegion; }
+            get { return _previousRegion ?? _currentRegion; }
         }
 
         /// <summary>
@@ -75,9 +85,8 @@ namespace Enceladus.Map {
         /// Returns whether a region change occurred on this update, whether in the 
         /// same room or as part of a room change.
         /// </summary>
-        /// <returns></returns>
         public bool IsNewRegionChange() {
-            return _currentRegion != _previousRegion;
+            return _currentRegion != _previousFrameRegion;
         }
 
         /// <summary>
@@ -85,7 +94,7 @@ namespace Enceladus.Map {
         /// the game of a room change as necessary.
         /// </summary>
         public void Update(bool notifyChanges) {
-            _previousRegion = CurrentRegion;
+            _previousFrameRegion = CurrentRegion;
             _previousFrameRoom = CurrentRoom;
 
             _currentRoom = TileLevel.CurrentLevel.RoomAt(_player.Position);
@@ -94,15 +103,25 @@ namespace Enceladus.Map {
                 _currentRegion = regions.First(r => r.Contains(_player.Position));
             }
 
-            if ( notifyChanges && IsNewRoomChange() ) {
-                RoomChanged(_previousFrameRoom, _currentRoom);
+            if ( IsNewRoomChange() ) {
                 _previousRoom = _previousFrameRoom;
+                if ( notifyChanges ) {
+                    RoomChanged(_previousFrameRoom, _currentRoom);
+                }
+            } else if ( IsNewRegionChange() ) {
+                _previousRegion = _previousFrameRegion;
+                if ( notifyChanges ) {
+                    RegionChanged(_previousFrameRegion, _currentRegion);
+                }
             }
         }
 
         public event RoomChangedHandle RoomChanged;
+        public event RegionChangedHandle RegionChanged;
 
     }
+
+    public delegate void RegionChangedHandle(Region oldRoom, Region newRegion);
 
     public delegate void RoomChangedHandle(Room oldRoom, Room newRoom);
 }

@@ -40,6 +40,7 @@ namespace Enceladus {
             _inputHelper = inputHelper;
             _mode = Mode.TrackPlayer;
             PlayerPositionMonitor.Instance.RoomChanged += RoomChanged;
+            PlayerPositionMonitor.Instance.RegionChanged += RegionChanged;
         }
 
         /// <summary>
@@ -66,8 +67,8 @@ namespace Enceladus {
                 case Mode.MoveBetweenRooms:
                     if ( _camera.IsAtTarget() && EnceladusGame.Instance.Mode == Enceladus.Mode.RoomTransition ) {
                         _mode = Mode.TrackPlayer;
-//                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
-                        _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);
+                        ClampCameraToRegion(PlayerPositionMonitor.Instance.CurrentRegion);
+ //                       _camera.ConstrainToRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         BackgroundManager.Instance.LoadRoom(PlayerPositionMonitor.Instance.CurrentRoom);
                         EnceladusGame.Instance.UnsetMode();
                     }
@@ -121,14 +122,20 @@ namespace Enceladus {
             _camera.MoveTarget(cameraDelta);
         }
 
-        public void RoomChanged(Room oldRoom, Room currentRoom) {
+        private void RegionChanged(Region oldRegion, Region newRegion) {
+            if ( oldRegion != null ) {
+                ClampCameraToRegion(newRegion);
+            }
+        }
+
+        private void RoomChanged(Room oldRoom, Room currentRoom) {
             if ( oldRoom != null ) {
                 UnclampCamera();
 
                 EnceladusGame.Instance.SetMode(Enceladus.Mode.RoomTransition);
                 _mode = Mode.SnapToGrid;
                 Direction directionOfTravel =
-                    PlayerPositionMonitor.Instance.PreviousRegion.GetRelativeDirection(_player.Position);
+                    PlayerPositionMonitor.Instance.PreviousFrameRegion.GetRelativeDirection(_player.Position);
 
                 float halfScreenWidth = _graphics.GraphicsDevice.Viewport.Width / 2f;
                 float halfScreenHeight = _graphics.GraphicsDevice.Viewport.Height / 2f;
