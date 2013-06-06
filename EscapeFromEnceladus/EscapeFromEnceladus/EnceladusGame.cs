@@ -268,6 +268,7 @@ namespace Enceladus {
 
             LoadStaticContent();
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
+            _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _backgroundManager.LoadContent();
