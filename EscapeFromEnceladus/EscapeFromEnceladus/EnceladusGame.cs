@@ -409,6 +409,7 @@ namespace Enceladus {
         /// <param name="gameTime"></param>
         internal void StepWorld(GameTime gameTime) {
             float totalSeconds = gameTime == null ? 1f / 60f : (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _debugView.ResetPointCount();
             _world.Step(Math.Min(totalSeconds, (1f / 30f)));
         }
 

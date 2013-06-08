@@ -143,6 +143,10 @@ namespace FarseerPhysics.DebugViews
             }
         }
 
+        public void ResetPointCount() {
+            _pointCount = 0;
+        }
+
         /// <summary>
         /// Call this to draw shapes and other debug draw data.
         /// </summary>
@@ -205,7 +209,6 @@ namespace FarseerPhysics.DebugViews
                         DrawSegment(p1, p2, new Color(0.4f, 0.9f, 0.4f));
                     }
                 }
-                _pointCount = 0;
             }
             if ((Flags & DebugViewFlags.PolygonPoints) == DebugViewFlags.PolygonPoints)
             {
