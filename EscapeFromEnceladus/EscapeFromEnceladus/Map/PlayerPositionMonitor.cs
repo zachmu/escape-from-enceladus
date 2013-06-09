@@ -121,7 +121,7 @@ namespace Enceladus.Map {
 
     }
 
-    public delegate void RegionChangedHandle(Region oldRoom, Region newRegion);
+    public delegate void RegionChangedHandle(Region oldRegion, Region newRegion);
 
     public delegate void RoomChangedHandle(Room oldRoom, Room newRoom);
 }
