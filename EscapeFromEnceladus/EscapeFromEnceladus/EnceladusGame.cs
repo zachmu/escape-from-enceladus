@@ -221,6 +221,7 @@ namespace Enceladus {
                 DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);
             }
             _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
+            _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
             _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
         }
@@ -236,6 +237,7 @@ namespace Enceladus {
                 DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);
             }
             _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
+            _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
             _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
         }
