@@ -217,7 +217,7 @@ namespace Enceladus {
             _slot = saveState.Slot;
             saveState.ApplyToGameState(_visitationMap);
 
-            TeleportPlayer();
+            TeleportPlayer(_player.Position);
         }
 
         /// <summary>
@@ -225,15 +225,16 @@ namespace Enceladus {
         /// </summary>
         public void NewGame(PlayerIndex slot) {
             _slot = slot;
-            _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
 
-            TeleportPlayer();
+            TeleportPlayer((Vector2) _tileLevel.GetPlayerStartPosition());
         }
 
         /// <summary>
         /// Instantly updates the game state to the player's current location without any room transition logic.
         /// </summary>
-        public void TeleportPlayer() {
+        /// <param name="position"></param>
+        public void TeleportPlayer(Vector2 position) {
+            _player.Position = position;
 
             _playerPositionMonitor.Update(false);
             if ( _playerPositionMonitor.IsNewRoomChange() ) {

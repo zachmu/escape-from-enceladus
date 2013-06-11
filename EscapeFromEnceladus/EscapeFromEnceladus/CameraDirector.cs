@@ -285,8 +285,7 @@ namespace Enceladus {
                         break;
                     case Keys.Home:
                         _mode = Mode.TrackPlayer;
-                        _player.Position = _camera.Position;
-                        EnceladusGame.Instance.TeleportPlayer();
+                        EnceladusGame.Instance.TeleportPlayer(_camera.Position);
                         break;
                 }
             }
