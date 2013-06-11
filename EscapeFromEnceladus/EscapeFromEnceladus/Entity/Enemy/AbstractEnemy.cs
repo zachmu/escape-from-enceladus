@@ -23,12 +23,14 @@ namespace Enceladus.Entity.Enemy {
         protected abstract Texture2D Image { get; set; }
         private bool _disposed;
         protected Direction _direction;
+        protected float _height;
 
         public bool Disposed {
             get { return _disposed; }
         }
 
         public AbstractEnemy(Vector2 position, World world, float width, float height) {
+            height = _height;
             CreateBody(position, world, width, height);
             ConfigureBody(position, height);
 

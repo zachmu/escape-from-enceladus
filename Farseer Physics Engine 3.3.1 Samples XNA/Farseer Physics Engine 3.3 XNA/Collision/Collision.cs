@@ -135,6 +135,7 @@ namespace FarseerPhysics.Collision
     /// All contact scenarios must be expressed in one of these types.
     /// This structure is stored across time steps, so we keep it small.
     /// </summary>
+    [DebuggerDisplay("{LocalNormal}@{LocalPoint}")]
     public struct Manifold
     {
         /// <summary>

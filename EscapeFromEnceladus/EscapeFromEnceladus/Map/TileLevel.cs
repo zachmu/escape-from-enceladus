@@ -301,7 +301,10 @@ namespace Enceladus.Map {
                     FindAdjacentSolidTiles(t).ForEach(tile => tile.DestroyAttachedBodies());
                     affectedTiles.Add(t);
                 }
-                RecreateEdges(affectedTiles.Where(tile => !tile.IsForeground()));
+
+                if ( affectedTiles.Any(tile => !tile.IsForeground()) ) {
+                    RecreateEdges(affectedTiles.Where(tile => !tile.IsForeground()));
+                }
 
                 _tilesToRemove.Clear();
                 safeToAdd.ForEach(tile => _tilesToAdd.Remove(tile));

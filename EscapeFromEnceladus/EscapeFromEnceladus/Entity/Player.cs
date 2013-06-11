@@ -151,10 +151,16 @@ namespace Enceladus.Entity {
             _body.FixtureList.First().UserData = "body";
 
             _body.OnCollision += (a, b, contact) => {
-                UpdateStanding();
+                if ( contact.IsTouching() ) {
+                  //  Console.WriteLine("hit!");
+                    UpdateStanding();
+                } 
                 return true;
             };
-            _body.OnSeparation += (a, b) => UpdateStanding();
+            _body.OnSeparation += (a, b) => {
+                // Console.WriteLine("separated!");
+                UpdateStanding();
+            };
         }
 
         public int Health { get; private set; }
@@ -210,6 +216,10 @@ namespace Enceladus.Entity {
                 }
                 _isStanding = value;
             }
+        }
+
+        protected override Vector2 GetStandingLocation() {
+            return _body.Position + new Vector2(0, Height / 2);
         }
 
         /// <summary>
@@ -398,7 +408,7 @@ namespace Enceladus.Entity {
                 _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
             }
 
-            if ( _terrainChanged ) {
+            if ( _terrainChanged && _ignoreTerrainCollisionsNextNumFrames == 0 ) {
                 UpdateStanding();
                 _terrainChanged = false;
             }

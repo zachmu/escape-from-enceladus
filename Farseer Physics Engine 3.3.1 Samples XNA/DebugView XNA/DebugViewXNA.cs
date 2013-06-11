@@ -160,25 +160,18 @@ namespace FarseerPhysics.DebugViews
                     b.GetTransform(out xf);
                     foreach (Fixture f in b.FixtureList)
                     {
-                        if (b.Enabled == false)
-                        {
-                            DrawShape(f, xf, InactiveShapeColor);
-                        }
-                        else if (b.BodyType == BodyType.Static)
-                        {
-                            DrawShape(f, xf, StaticShapeColor);
-                        }
-                        else if (b.BodyType == BodyType.Kinematic)
-                        {
-                            DrawShape(f, xf, KinematicShapeColor);
-                        }
-                        else if (b.Awake == false)
-                        {
-                            DrawShape(f, xf, SleepingShapeColor);
-                        }
-                        else
-                        {
-                            DrawShape(f, xf, DefaultShapeColor);
+                        if ( !f.IsSensor || (Flags & DebugViewFlags.Sensors) == DebugViewFlags.Sensors ) {
+                            if ( b.Enabled == false ) {
+                                DrawShape(f, xf, InactiveShapeColor);
+                            } else if ( b.BodyType == BodyType.Static ) {
+                                DrawShape(f, xf, StaticShapeColor);
+                            } else if ( b.BodyType == BodyType.Kinematic ) {
+                                DrawShape(f, xf, KinematicShapeColor);
+                            } else if ( b.Awake == false ) {
+                                DrawShape(f, xf, SleepingShapeColor);
+                            } else {
+                                DrawShape(f, xf, DefaultShapeColor);
+                            }
                         }
                     }
                 }

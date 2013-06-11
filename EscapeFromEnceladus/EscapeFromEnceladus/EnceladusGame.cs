@@ -430,7 +430,7 @@ namespace Enceladus {
                         EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
                         break;
                     case Keys.F3:
-                        EnableOrDisableFlag(DebugViewFlags.Joint);
+                        EnableOrDisableFlag(DebugViewFlags.Sensors);
                         break;
                     case Keys.F4:
                         EnableOrDisableFlag(DebugViewFlags.ContactPoints);

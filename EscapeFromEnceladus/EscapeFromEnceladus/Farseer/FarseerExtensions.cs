@@ -42,10 +42,7 @@ namespace Enceladus.Farseer {
             Vector2 normal;
             FixedArray2<Vector2> points;
             contact.GetWorldManifold(out normal, out points);
-            if (contact.FixtureA.Body == player) {
-                return normal * -1;
-            }
-            return normal;
+            return player == contact.FixtureA.Body ? normal*-1 : normal;
         }
 
     }

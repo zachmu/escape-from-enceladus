@@ -24,9 +24,11 @@
 */
 
 using System;
+using System.Diagnostics;
 
 namespace FarseerPhysics.Common
 {
+    [DebuggerDisplay("{_value0},{_value1}")]
     public struct FixedArray2<T>
     {
         private T _value0;

@@ -86,7 +86,13 @@ namespace FarseerPhysics
         /// <summary>
         /// Draws controllers.
         /// </summary>
-        Controllers = (1 << 10)
+        Controllers = (1 << 10),
+
+        /// <summary>
+        /// Draws sensors.
+        /// </summary>
+        Sensors = (1 << 11)
+
     }
 
     /// Implement and register this class with a World to provide debug drawing of physics

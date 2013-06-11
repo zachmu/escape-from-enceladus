@@ -75,6 +75,10 @@ namespace Enceladus.Entity.Enemy {
                 }
             }
         }
+
+        protected override Vector2 GetStandingLocation() {
+            return _body.Position + new Vector2(0, _height/2);
+        }
     }
 
 }

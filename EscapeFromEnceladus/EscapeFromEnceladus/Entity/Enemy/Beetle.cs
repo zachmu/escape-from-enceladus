@@ -455,5 +455,9 @@ namespace Enceladus.Entity.Enemy {
                 _direction = _clockwise ? Direction.Up : Direction.Down;
             }
         }
+
+        protected override Vector2 GetStandingLocation() {
+            return _body.GetWorldPoint(new Vector2(0, LegHeight));
+        }
     }
 }
