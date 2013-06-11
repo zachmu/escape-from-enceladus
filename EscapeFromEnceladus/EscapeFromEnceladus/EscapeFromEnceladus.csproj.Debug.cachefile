@@ -502,6 +502,9 @@ Content\Enemy\Beetle\Beetle0004.xnb
 Content\Debug\Cross0000.xnb
 Content\Debug\Cross0001.xnb
 Content\Pickups\Wheel0000.xnb
+Content\Maps\blocks64_padded.xnb
+Content\Background\stars1.xnb
+Content\Maps\surface_1_padded.xnb
 Content\Sounds\Bomb.xnb
 Content\Sounds\SonarHit.xnb
 Content\Sounds\SonarPing.xnb
@@ -517,9 +520,6 @@ Content\Fonts\November128.xnb
 Content\Effects\Effect1.xnb
 Content\Effects\Wave.xnb
 Content\Effects\SolidColor.xnb
-Content\Maps\blocks64_padded.xnb
-Content\Background\stars1.xnb
-Content\Maps\surface_1_padded.xnb
 Content\Maps\caveTiles1_64_padded.xnb
 Content\Maps\shipTiles1_64_padded.xnb
 Content\Maps\surface_1_64_padded.xnb

@@ -283,6 +283,11 @@ namespace Enceladus {
                     case Keys.LeftAlt:
                         _mode = Mode.TrackPlayer;
                         break;
+                    case Keys.Home:
+                        _mode = Mode.TrackPlayer;
+                        _player.Position = _camera.Position;
+                        EnceladusGame.Instance.TeleportPlayer();
+                        break;
                 }
             }
         }

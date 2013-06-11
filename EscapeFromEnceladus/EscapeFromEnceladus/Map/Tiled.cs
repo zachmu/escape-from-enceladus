@@ -216,11 +216,12 @@ namespace Enceladus.Map {
              * nudge the nominal position down and to the right. 
              */
             const float fudgeFactor = .05f;
+            bool drawTilesOutsideCurrentRoom = !PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(visibleWorld.Center.X, visibleWorld.Center.Y));
 
             for ( int y = miny; y <= maxy; y++ ) {
                 for ( int x = minx; x <= maxx; x++ ) {
                     if ( EnceladusGame.Instance.Mode == Mode.RoomTransition ) {
-                        if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ||
+                        if ( drawTilesOutsideCurrentRoom || PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ||
                              PlayerPositionMonitor.Instance.PreviousRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ) {
                             DrawTile(batch, x, y);
                         } else {
@@ -228,7 +229,8 @@ namespace Enceladus.Map {
                             blackTile.Draw(batch, ConvertUnits.ToDisplayUnits(new Vector2(x, y) + new Vector2(.5f)));
                         }
                     } else {
-                        if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ) {
+                        if ( drawTilesOutsideCurrentRoom ||
+                             PlayerPositionMonitor.Instance.CurrentRoom.Contains(new Vector2(x + fudgeFactor, y + fudgeFactor)) ) {
                             DrawTile(batch, x, y);
                         } else {
                             var blackTile = GetTile(0, 0);

@@ -216,14 +216,8 @@ namespace Enceladus {
         public void ApplySaveState(SaveState saveState) {
             _slot = saveState.Slot;
             saveState.ApplyToGameState(_visitationMap);
-            _playerPositionMonitor.Update(false);
-            if ( _playerPositionMonitor.IsNewRoomChange() ) {
-                DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);
-            }
-            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
-            _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
-            _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
-            _cameraDirector.ForceRestart();
+
+            TeleportPlayer();
         }
 
         /// <summary>
@@ -232,6 +226,15 @@ namespace Enceladus {
         public void NewGame(PlayerIndex slot) {
             _slot = slot;
             _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
+
+            TeleportPlayer();
+        }
+
+        /// <summary>
+        /// Instantly updates the game state to the player's current location without any room transition logic.
+        /// </summary>
+        public void TeleportPlayer() {
+
             _playerPositionMonitor.Update(false);
             if ( _playerPositionMonitor.IsNewRoomChange() ) {
                 DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);

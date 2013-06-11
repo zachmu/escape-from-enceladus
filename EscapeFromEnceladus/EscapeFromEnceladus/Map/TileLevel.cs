@@ -422,7 +422,7 @@ namespace Enceladus.Map {
                 }
             }
             watch.Stop();
-            //Console.WriteLine("Creating edges object took {0} ticks", watch.ElapsedTicks);
+            Console.WriteLine("Creating edges object took {0} ticks", watch.ElapsedTicks);
             watch.Reset();
 
             watch.Start();
@@ -467,7 +467,7 @@ namespace Enceladus.Map {
 
                 //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
-                //Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
+                Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
 
                 foreach ( Tile t in tile.Group ) {
                     t.Bodies.Add(loopShape);
@@ -476,7 +476,7 @@ namespace Enceladus.Map {
                 edges.Remove(processedEdges);
             }
             watch.Stop();
-            //Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
+            Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
         }
 
         private bool TileNullOrDisposed(Tile tile) {
