@@ -470,7 +470,7 @@ namespace Enceladus.Map {
 
                 //Console.WriteLine("Created body with id {0} ", RuntimeHelpers.GetHashCode(loopShape));
                 factoryWatch.Stop();
-                Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
+                //Console.WriteLine("Body factory took {0} ticks", factoryWatch.ElapsedTicks);
 
                 foreach ( Tile t in tile.Group ) {
                     t.Bodies.Add(loopShape);
@@ -566,13 +566,13 @@ namespace Enceladus.Map {
                     watch.Start();
                     FindConnectedTiles(tile, group, seenTiles);
                     watch.Stop();
-                    Console.WriteLine("Finding connected tiles took {0} ticks", watch.ElapsedTicks);
+                    //Console.WriteLine("Finding connected tiles took {0} ticks", watch.ElapsedTicks);
                     watch.Reset();
 
                     watch.Start();
                     CreateEdges(tile);
                     watch.Stop();
-                    Console.WriteLine("Creating edges took {0} ticks", watch.ElapsedTicks);
+                    //Console.WriteLine("Creating edges took {0} ticks", watch.ElapsedTicks);
                 }
             }
 

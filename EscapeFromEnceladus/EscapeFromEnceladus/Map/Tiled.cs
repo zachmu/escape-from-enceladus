@@ -376,7 +376,7 @@ namespace Enceladus.Map {
             if ( !Disposed )
                 return;
 
-            Console.WriteLine("Reviving tile at {0}", Position);
+            //Console.WriteLine("Reviving tile at {0}", Position);
             Disposed = false;
             if ( GetLayer().Name == "Blocks" ) {
                 GetLayer()._map.GetAttachedForegroundTiles(this).ForEach(tile => tile.Revive());

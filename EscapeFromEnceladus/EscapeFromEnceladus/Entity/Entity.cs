@@ -37,15 +37,12 @@ namespace Enceladus.Entity {
         // Returns where this entity is standing
         protected abstract Vector2 GetStandingLocation();
 
-        protected int _ignoreTerrainCollisionsNextNumFrames = 0;
+        protected int _ignoreStandingUpdatesNextNumFrames = 0;
 
         /// <summary>
         /// Updates the standing and ceiling status using the body's current contacts.
         /// </summary>
         protected void UpdateStanding() {
-            if ( _ignoreTerrainCollisionsNextNumFrames > 0 ) {
-                return;
-            }
 
             bool isStanding = false;
             bool isTouchingCeiling = false;
@@ -70,27 +67,23 @@ namespace Enceladus.Entity {
              * a newly created body (as when a tile reappears).  In that case, try to find the ground under our feet
              * with a ray cast.
              */
+            float delta = .1f;
             if ( !isStanding ) {
                 Vector2 feet = GetStandingLocation();
-                Vector2 start = feet + new Vector2(0, .01f);
+                Vector2 start = feet + new Vector2(0, -delta);
                 _world.RayCast((fixture, point, normal, fraction) => {
                     if ( fixture.GetUserData().IsTerrain ) {
                         isStanding = true;
                         return 0;
                     }
                     return -1;
-                }, start, new Vector2(0, .02f));
+                }, start, start + new Vector2(0, 2*delta));
             }
 
-            if ( this is Player && !isStanding ) {
-                int i = 0;
-                i++;
-            } else {
-                int j = 0;
-                j++;
+            if ( _ignoreStandingUpdatesNextNumFrames <= 0 ) {
+                IsStanding = isStanding;
             }
 
-            IsStanding = isStanding;
             IsTouchingCeiling = isTouchingCeiling;
         }
 

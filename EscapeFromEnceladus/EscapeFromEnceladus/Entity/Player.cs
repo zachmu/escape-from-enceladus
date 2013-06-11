@@ -154,7 +154,7 @@ namespace Enceladus.Entity {
                 if ( contact.IsTouching() ) {
                   //  Console.WriteLine("hit!");
                     UpdateStanding();
-                } 
+                }
                 return true;
             };
             _body.OnSeparation += (a, b) => {
@@ -408,13 +408,13 @@ namespace Enceladus.Entity {
                 _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
             }
 
-            if ( _terrainChanged && _ignoreTerrainCollisionsNextNumFrames == 0 ) {
+            if ( _terrainChanged && _ignoreStandingUpdatesNextNumFrames <= 0 ) {
                 UpdateStanding();
                 _terrainChanged = false;
             }
 
-            if ( _ignoreTerrainCollisionsNextNumFrames > 0 ) {
-                _ignoreTerrainCollisionsNextNumFrames--;
+            if ( _ignoreStandingUpdatesNextNumFrames > 0 ) {
+                _ignoreStandingUpdatesNextNumFrames--;
             }
         }
 
@@ -829,10 +829,11 @@ namespace Enceladus.Entity {
         /// Resizes the body while keeping the lower edge in the same position and the X position constant.
         /// </summary>
         private void ResizeBody(float width, float height, Vector2 positionalCorrection) {
-            _ignoreTerrainCollisionsNextNumFrames = 2;
+            _ignoreStandingUpdatesNextNumFrames = 2;
 
             float halfHeight = height / 2;
             var newPosition = GetNewBodyPosition(halfHeight, positionalCorrection);
+            
             _body.Position = newPosition;
 
             PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
@@ -1504,7 +1505,7 @@ namespace Enceladus.Entity {
             _flashTime = 150;
 
             // Make sure we're in the air or on the ground as necessary
-            _ignoreTerrainCollisionsNextNumFrames = 0;
+            _ignoreStandingUpdatesNextNumFrames = 0;
             UpdateStanding();
         }
 
