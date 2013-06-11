@@ -58,7 +58,7 @@ namespace Enceladus {
                     break;
                 case Mode.SnapToGrid:
                     if ( _camera.IsAtTarget() ) {
-                        if ( BackgroundManager.Instance.BackgroundAlpha <= 0 ) {
+                        if ( BackgroundManager.Instance.BackgroundAlpha <= 0 && EnceladusGame.Instance.RoomChangeComplete() ) {
                             _mode = Mode.MoveBetweenRooms;
                             _camera.Position = _nextCameraPosition;
                         }

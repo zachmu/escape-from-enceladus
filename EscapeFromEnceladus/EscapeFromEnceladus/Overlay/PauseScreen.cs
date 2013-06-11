@@ -36,6 +36,8 @@ namespace Enceladus.Overlay {
         private bool _flash;
         private bool _loadingSavedGame = false;
         private SaveWaiter _saveWaiter;
+        private bool _startingGame = false;
+        private WaitHandle _startingGameWaitHandle;
 
         public PauseScreen() {
             MenuActions = new Action[] {
@@ -55,7 +57,7 @@ namespace Enceladus.Overlay {
             Vector2 screenCenter = new Vector2(screenWidth / 2f, screenHeight / 2f);
 
             StringBuilder sb = new StringBuilder();
-            string[] menuItems = _loadingSavedGame ? LoadingMenuItems : MenuItems;
+            string[] menuItems = _loadingSavedGame || _startingGame ? LoadingMenuItems : MenuItems;
             foreach ( var s in menuItems) {
                 sb.Append(s).Append("\n");
             }
@@ -94,11 +96,20 @@ namespace Enceladus.Overlay {
 
             if ( _loadingSavedGame ) {
                 _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(50) ) {                    
-                    EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
-                    EnceladusGame.Instance.UnsetMode();
+                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(10) ) {                    
+                    _startingGameWaitHandle = EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
+                    _startingGame = true;
                     _saveWaiter = null;
                     _loadingSavedGame = false;
+                }
+                return;
+            }
+
+            if ( _startingGame ) {
+                if ( _startingGameWaitHandle.WaitOne(10) ) {
+                    EnceladusGame.Instance.UnsetMode();
+                    _startingGame = false;
+                    _startingGameWaitHandle = null;
                 }
                 return;
             }

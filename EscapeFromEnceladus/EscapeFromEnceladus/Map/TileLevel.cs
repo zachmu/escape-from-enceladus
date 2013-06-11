@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Enceladus.Xbox;
 using Enceladus.Entity;
 using Enceladus.Entity.Enemy;
@@ -39,6 +40,7 @@ namespace Enceladus.Map {
         private readonly HashSet<Tile> _tilesToRemove = new HashSet<Tile>();
         private readonly HashSet<Tile> _tilesToAdd = new HashSet<Tile>();
         private readonly Dictionary<string, Door> _namedDoors = new Dictionary<string, Door>();
+        private ManualResetEvent _roomChangeWaitHandle;
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -177,16 +179,73 @@ namespace Enceladus.Map {
         /// Tears down any managed resources associated with the old room and creates them for this one.
         /// </summary>
         public void SetCurrentRoom(Room oldRoom, Room newRoom) {
+            _roomChangeWaitHandle = new ManualResetEvent(false);
+            EnceladusGame.Instance.SetRoomChangeWaitHandle(_roomChangeWaitHandle);
+
+            new Thread(SetCurrentRoomAsync).Start();
+        }
+
+        private void SetCurrentRoomAsync() {
+
+            Stopwatch overallTimer = new Stopwatch();
+            overallTimer.Start();
+
+            Stopwatch watch = new Stopwatch();
+
+            watch.Start();
             TearDownEdges();
+            watch.Stop();
+            Console.WriteLine("Tear down old room took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             InitializeEdges();
+            watch.Stop();
+            Console.WriteLine("Create new edges took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             CreateEnemies();
+            watch.Stop();
+            Console.WriteLine("Create enemies took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             CreateNPCs();
+            watch.Stop();
+            Console.WriteLine("Create npcs took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             CreateDoors();
+            watch.Stop();
+            Console.WriteLine("Create doors took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             TearDownDestructionRegions();
+            watch.Stop();
+            Console.WriteLine("Tear down old destruction regions took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             InitializeDestructionRegions();
+            watch.Stop();
+            Console.WriteLine("Create destruction regions took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            watch.Start();
             CreateInteractiveObjects();
+            watch.Stop();
+            Console.WriteLine("Create interactive objects took {0} ms", watch.ElapsedMilliseconds);
+            watch.Reset();
+
+            overallTimer.Stop();
+            Console.WriteLine("Room change took {0} ms", overallTimer.ElapsedMilliseconds);
 
             EnceladusGame.Instance.StepWorld(null);
+
+            _roomChangeWaitHandle.Set();
         }
 
         private void CreateInteractiveObjects() {
@@ -425,7 +484,7 @@ namespace Enceladus.Map {
                 }
             }
             watch.Stop();
-            Console.WriteLine("Creating edges object took {0} ticks", watch.ElapsedTicks);
+            //Console.WriteLine("Creating edges object took {0} ms", watch.ElapsedMilliseconds);
             watch.Reset();
 
             watch.Start();
@@ -479,7 +538,7 @@ namespace Enceladus.Map {
                 edges.Remove(processedEdges);
             }
             watch.Stop();
-            Console.WriteLine("Processing edges into shape(s) took {0} ticks", watch.ElapsedTicks);
+            //Console.WriteLine("Processing edges into shape(s) took {0} ms", watch.ElapsedMilliseconds);
         }
 
         private bool TileNullOrDisposed(Tile tile) {

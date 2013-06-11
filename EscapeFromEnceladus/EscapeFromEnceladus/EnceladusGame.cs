@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Enceladus.Entity.InteractiveObject;
 using Enceladus.Xbox;
 using Enceladus.Control;
@@ -60,6 +61,7 @@ namespace Enceladus {
         private BackgroundManager _backgroundManager;
         private AudioEngine _audioEngine;
         private MusicManager _musicManager;
+        private WaitHandle _roomChangeWaitHandle;
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -212,28 +214,30 @@ namespace Enceladus {
 
         /// <summary>
         /// Applies the save state to the game, effectively loading it into memory.
+        /// Returns a wait handle to signal when the game can resume.
         /// </summary>
-        public void ApplySaveState(SaveState saveState) {
+        public WaitHandle ApplySaveState(SaveState saveState) {
             _slot = saveState.Slot;
             saveState.ApplyToGameState(_visitationMap);
 
-            TeleportPlayer(_player.Position);
+            return TeleportPlayer(_player.Position);
         }
 
         /// <summary>
         /// Starts a new game with the player slot given.
+        /// Returns a wait handle to signal when the game can start.
         /// </summary>
-        public void NewGame(PlayerIndex slot) {
+        public WaitHandle NewGame(PlayerIndex slot) {
             _slot = slot;
 
-            TeleportPlayer((Vector2) _tileLevel.GetPlayerStartPosition());
+            return TeleportPlayer((Vector2) _tileLevel.GetPlayerStartPosition());
         }
 
         /// <summary>
         /// Instantly updates the game state to the player's current location without any room transition logic.
         /// </summary>
         /// <param name="position"></param>
-        public void TeleportPlayer(Vector2 position) {
+        public WaitHandle TeleportPlayer(Vector2 position) {
             _player.Position = position;
 
             _playerPositionMonitor.Update(false);
@@ -244,6 +248,8 @@ namespace Enceladus {
             _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
             _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
             _cameraDirector.ForceRestart();
+
+            return _roomChangeWaitHandle;
         }
 
         /// <summary>
@@ -261,6 +267,13 @@ namespace Enceladus {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets a handle to wait on an asynch room change event. 
+        /// </summary>
+        public void SetRoomChangeWaitHandle(WaitHandle handle) {
+            _roomChangeWaitHandle = handle;
         }
 
         /// <summary>
@@ -633,6 +646,14 @@ namespace Enceladus {
         /// <value> </value>
         public bool IsInConversation {
             get { return _mode == Mode.Conversation; }
+        }
+
+
+        /// <summary>
+        /// Returns whether the current room change is complete.
+        /// </summary>
+        public bool RoomChangeComplete() {
+            return _roomChangeWaitHandle.WaitOne(10);
         }
     }
 }

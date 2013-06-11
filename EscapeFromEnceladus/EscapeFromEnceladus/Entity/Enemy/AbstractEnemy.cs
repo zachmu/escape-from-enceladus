@@ -30,7 +30,7 @@ namespace Enceladus.Entity.Enemy {
         }
 
         public AbstractEnemy(Vector2 position, World world, float width, float height) {
-            height = _height;
+            _height = height;
             CreateBody(position, world, width, height);
             ConfigureBody(position, height);
 

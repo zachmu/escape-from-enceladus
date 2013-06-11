@@ -24,7 +24,7 @@ namespace Enceladus.Overlay {
         private bool _readingSavedGames;
         private bool _startingGame;
         private SaveWaiter[] _saveStates;
-        private WaitHandle[] _saveWaiters;
+        private WaitHandle[] _waitHandles;
 
         private const double ColorChangeFrequency = .003;
         private double _colorChangeTimer = 0;
@@ -126,9 +126,13 @@ namespace Enceladus.Overlay {
                 _flash = !_flash;
             }
 
-            if ( _readingSavedGames ) {
-                if ( WaitHandle.WaitAll(_saveWaiters, 50) ) {
+            if ( _readingSavedGames || _startingGame ) {
+                if ( WaitHandle.WaitAll(_waitHandles, 10) ) {
                     _readingSavedGames = false;
+                    if ( _startingGame ) {
+                        EnceladusGame.Instance.UnsetMode();
+                        _startingGame = false;
+                    }
                 }
                 return;
             }
@@ -161,11 +165,11 @@ namespace Enceladus.Overlay {
         private void InitializeSaveStates() {
             if ( !_saveGamesInitialized ) {
                 _saveStates = new SaveWaiter[3];
-                _saveWaiters = new WaitHandle[3];
+                _waitHandles = new WaitHandle[3];
                 for ( int i = 0; i < 3; i++ ) {
                     SaveState save = new SaveState((PlayerIndex) i);
                     _saveStates[i] = save.Load();
-                    _saveWaiters[i] = _saveStates[i].WaitHandle;
+                    _waitHandles[i] = _saveStates[i].WaitHandle;
                 }
                 _readingSavedGames = true;
                 _saveGamesInitialized = true;
@@ -174,11 +178,11 @@ namespace Enceladus.Overlay {
 
         private void ApplyMenuSelection() {
             if ( _saveStates[_selectedIndex].SaveState != null ) {
-                EnceladusGame.Instance.ApplySaveState(_saveStates[_selectedIndex].SaveState);
+                _waitHandles = new[] { EnceladusGame.Instance.ApplySaveState(_saveStates[_selectedIndex].SaveState) };
             } else {
-                EnceladusGame.Instance.NewGame((PlayerIndex) _selectedIndex);
+                _waitHandles = new[] { EnceladusGame.Instance.NewGame((PlayerIndex) _selectedIndex) };
             }
-            EnceladusGame.Instance.UnsetMode();
+            _startingGame = true;
         }
     }
 }

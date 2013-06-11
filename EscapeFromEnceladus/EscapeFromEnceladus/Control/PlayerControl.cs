@@ -192,7 +192,7 @@ namespace Enceladus.Control
         }
 
         public bool IsNewPause() {
-            return InputHelper.Instance.IsNewKeyPress(Keys.Enter);
+            return InputHelper.Instance.IsNewKeyPress(Keys.P);
         }
 
         public bool IsNewDirection(out Direction? direction) {
