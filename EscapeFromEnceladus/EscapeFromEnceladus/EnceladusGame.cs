@@ -53,6 +53,7 @@ namespace Enceladus {
         private DebugViewXNA _debugView;
         private Player _player;
         private Mode _mode;
+        private Mode _drawMode;
         private readonly Stack<Mode> _modeStack = new Stack<Mode>(); 
         private InputHelper _inputHelper;
         private PauseScreen _pauseScreen;
@@ -194,6 +195,10 @@ namespace Enceladus {
         public void SetMode(Mode mode) {
             _modeStack.Push(_mode);
             _mode = mode;
+            // Teleport is a pseudo mode, since it doesn't affect drawing
+            if ( _mode != Mode.Teleport ) {
+                _drawMode = _mode;
+            }
         }
 
         /// <summary>
@@ -204,6 +209,7 @@ namespace Enceladus {
                 _mode = Mode.NormalControl;
             } else {
                 _mode = _modeStack.Pop();
+                _drawMode = _mode;
             }
         }
 
@@ -372,51 +378,59 @@ namespace Enceladus {
             _inputHelper.Update(gameTime);
             HandleDebugControl();
 
-            if ( _mode == Mode.NormalControl ) {
-                Constants.Update(_inputHelper);
+            switch ( _mode ) {
+                case Mode.NormalControl:
+                    Constants.Update(_inputHelper);
 
-                _world.Gravity = new Vector2(0, Constants.Get(Gravity));
+                    _world.Gravity = new Vector2(0, Constants.Get(Gravity));
 
-                // Step every simulation element
-                if ( !_simulationPaused || _nextSimStep ) {
+                    // Step every simulation element
+                    if ( !_simulationPaused || _nextSimStep ) {
+                        InputHelper.Instance.Update(gameTime);
+
+                        StepWorld(gameTime);
+
+                        foreach ( IGameEntity ent in _entities ) {
+                            ent.Update(gameTime);
+                        }
+
+                        // Make sure our game mode hasn't changed before giving the player a chance to respond
+                        if ( _mode == Mode.NormalControl ) {
+                            _player.Update(gameTime);
+                        }
+
+                        _tileLevel.Update(gameTime);
+                        _nextSimStep = false;
+                    }
+
+                    _playerPositionMonitor.Update(true);
+                    _eventManager.Update(gameTime);
+                    _visitationMap.Update(gameTime);
+                    break;
+                case Mode.TitleScreen:
                     InputHelper.Instance.Update(gameTime);
+                    _titleScreen.Update(gameTime);
+                    break;
+                case Mode.Teleport:
+                    if ( _roomChangeWaitHandle.WaitOne(0) ) {
+                        _player.Position = _nextPlayerPosition;
 
-                    StepWorld(gameTime);
+                        _playerPositionMonitor.Update(false);
+                        _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
+                        _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom,
+                                                  _playerPositionMonitor.CurrentRoom);
+                        _cameraDirector.ForceRestart();
 
-                    foreach ( IGameEntity ent in _entities ) {
+                        StepWorld(null);
+                        UnsetMode();
+                    }
+                    break;
+                default:
+                    InputHelper.Instance.Update(gameTime);
+                    foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
                         ent.Update(gameTime);
                     }
-
-                    // Make sure our game mode hasn't changed before giving the player a chance to respond
-                    if ( _mode == Mode.NormalControl ) {
-                        _player.Update(gameTime);
-                    }
-
-                    _tileLevel.Update(gameTime);
-                    _nextSimStep = false;
-                }
-
-                _playerPositionMonitor.Update(true);
-                _eventManager.Update(gameTime);
-                _visitationMap.Update(gameTime);
-
-            } else if ( _mode == Mode.Teleport) {
-                if ( _roomChangeWaitHandle.WaitOne(5) ) {
-                    _player.Position = _nextPlayerPosition;
-
-                    _playerPositionMonitor.Update(false);
-                    _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
-                    _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
-                    _cameraDirector.ForceRestart();
-
-                    StepWorld(null);
-                    UnsetMode();
-                }
-            } else {
-                InputHelper.Instance.Update(gameTime);
-                foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
-                    ent.Update(gameTime);
-                }
+                    break;
             }
 
             _backgroundManager.Update(gameTime);
@@ -428,7 +442,6 @@ namespace Enceladus {
             }
 
             _pauseScreen.Update(gameTime);
-            _titleScreen.Update(gameTime);
             _musicManager.Update();
             _audioEngine.Update();
 
@@ -500,10 +513,10 @@ namespace Enceladus {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
 
-            if ( _mode == Mode.TitleScreen ) {
+            if ( _drawMode == Mode.TitleScreen ) {
                 _titleScreen.Draw(_spriteBatch);
             } else {
-                DrawGame();                
+                DrawGame();
             }
 
             DebugDraw();

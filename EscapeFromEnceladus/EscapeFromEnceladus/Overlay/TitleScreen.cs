@@ -103,9 +103,6 @@ namespace Enceladus.Overlay {
         }
 
         public void Update(GameTime gameTime) {
-            if ( EnceladusGame.Instance.Mode != Mode.TitleScreen ) {
-                return;
-            }
 
             InitializeSaveStates();
 
@@ -140,7 +137,6 @@ namespace Enceladus.Overlay {
                 }
                 return;
             }
-
 
             Direction? direction;
             if ( PlayerControl.Control.IsNewDirection(out direction) ) {
