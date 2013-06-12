@@ -49,8 +49,8 @@ namespace Enceladus.Map {
 
         public void LoadFromSave(SaveState save) {
             _lockedDoors.Clear();
-            _lockedDoors.UnionWith(save.LockedDoors);
             TileLevel.CurrentLevel.UnlockAllDoors();
+            _lockedDoors.UnionWith(save.LockedDoors); 
             _lockedDoors.ToList().ForEach(s => TileLevel.CurrentLevel.DoorNamed(s).Lock());
         }
     }

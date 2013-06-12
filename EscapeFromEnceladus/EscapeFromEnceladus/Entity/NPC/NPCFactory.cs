@@ -29,6 +29,7 @@ namespace Enceladus.Entity.NPC {
         public const string CharCommanderTaffrail = "CommanderTaffrail";
         public const string CharChiefMizzen = "ChiefMizzen";
         public const string Announcement = "Announcement";
+        public const string CharRobotSentry = "RobotSentry";
 
         private static readonly Dictionary<string, NPC> _activeNpcs = new Dictionary<string, NPC>(); 
 
