@@ -126,16 +126,21 @@ namespace Enceladus.Overlay {
                 _flash = !_flash;
             }
 
-            if ( _readingSavedGames || _startingGame ) {
+            if ( _readingSavedGames ) {
                 if ( WaitHandle.WaitAll(_waitHandles, 10) ) {
                     _readingSavedGames = false;
-                    if ( _startingGame ) {
-                        EnceladusGame.Instance.UnsetMode();
-                        _startingGame = false;
-                    }
                 }
                 return;
             }
+
+            if ( _startingGame ) {
+                if ( EnceladusGame.Instance.Mode == Mode.TitleScreen ) {
+                    EnceladusGame.Instance.UnsetMode();
+                    _startingGame = false;
+                }
+                return;
+            }
+
 
             Direction? direction;
             if ( PlayerControl.Control.IsNewDirection(out direction) ) {
@@ -178,9 +183,9 @@ namespace Enceladus.Overlay {
 
         private void ApplyMenuSelection() {
             if ( _saveStates[_selectedIndex].SaveState != null ) {
-                _waitHandles = new[] { EnceladusGame.Instance.ApplySaveState(_saveStates[_selectedIndex].SaveState) };
+                EnceladusGame.Instance.ApplySaveState(_saveStates[_selectedIndex].SaveState);
             } else {
-                _waitHandles = new[] { EnceladusGame.Instance.NewGame((PlayerIndex) _selectedIndex) };
+                EnceladusGame.Instance.NewGame((PlayerIndex) _selectedIndex);
             }
             _startingGame = true;
         }

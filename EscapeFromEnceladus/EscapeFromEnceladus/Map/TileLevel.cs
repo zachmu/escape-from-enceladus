@@ -41,6 +41,7 @@ namespace Enceladus.Map {
         private readonly HashSet<Tile> _tilesToAdd = new HashSet<Tile>();
         private readonly Dictionary<string, Door> _namedDoors = new Dictionary<string, Door>();
         private ManualResetEvent _roomChangeWaitHandle;
+        private Room _currentRoom;
 
         public static TileLevel CurrentLevel { get; private set; }
 
@@ -115,7 +116,7 @@ namespace Enceladus.Map {
             ObjectGroup destructionRegion = _levelMap.ObjectGroups[DestructionLayerName];
             foreach ( Object region in destructionRegion.Objects ) {
                 Vector2 topLeft = ConvertUnits.ToSimUnits(new Vector2(region.X, region.Y));
-                if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(topLeft) ) {
+                if ( _currentRoom.Contains(topLeft) ) {
                     Vector2 bottomRight =
                         ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
 
@@ -179,6 +180,11 @@ namespace Enceladus.Map {
         /// Tears down any managed resources associated with the old room and creates them for this one.
         /// </summary>
         public void SetCurrentRoom(Room oldRoom, Room newRoom) {
+            if ( newRoom == _currentRoom ) {
+                return;
+            }
+            _currentRoom = newRoom;
+
             _roomChangeWaitHandle = new ManualResetEvent(false);
             EnceladusGame.Instance.SetRoomChangeWaitHandle(_roomChangeWaitHandle);
 
@@ -243,8 +249,6 @@ namespace Enceladus.Map {
             overallTimer.Stop();
             Console.WriteLine("Room change took {0} ms", overallTimer.ElapsedMilliseconds);
 
-            EnceladusGame.Instance.StepWorld(null);
-
             _roomChangeWaitHandle.Set();
         }
 
@@ -254,7 +258,7 @@ namespace Enceladus.Map {
                 ObjectGroup objectGroup = objectGroups[InteractiveObjectsLayerName];
                 foreach ( Object region in objectGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
-                    if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
+                    if ( _currentRoom.Contains(pos) ) {
                         // Technically this only applies to collectible items, 
                         // not all interactive items. But since they don't overlap 
                         // on the grid, it doesn't hurt.
@@ -278,8 +282,8 @@ namespace Enceladus.Map {
         }
 
         private void CreateDoors() {
-            if ( _doorsByRoom.ContainsKey(PlayerPositionMonitor.Instance.CurrentRoom) ) {
-                foreach ( Door door in _doorsByRoom[PlayerPositionMonitor.Instance.CurrentRoom] ) {
+            if ( _doorsByRoom.ContainsKey(_currentRoom) ) {
+                foreach ( Door door in _doorsByRoom[_currentRoom] ) {
                     if ( door.Disposed ) {
                         door.Create();
                         EnceladusGame.Instance.Register(door);
@@ -294,7 +298,7 @@ namespace Enceladus.Map {
                 ObjectGroup npcGroup = objectGroups[NPCLayerName];
                 foreach ( Object region in npcGroup.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(region.X, region.Y);
-                    if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
+                    if ( _currentRoom.Contains(pos) ) {
                         NPC entity = NPCFactory.Create(region, _world);
                         if ( entity != null ) {
                             EnceladusGame.Instance.Register(entity);
@@ -310,7 +314,7 @@ namespace Enceladus.Map {
                 ObjectGroup enemies = objectGroups["Enemies"];
                 foreach ( Object obj in enemies.Objects ) {
                     Vector2 pos = ConvertUnits.ToSimUnits(obj.X, obj.Y);
-                    if ( PlayerPositionMonitor.Instance.CurrentRoom.Contains(pos) ) {
+                    if ( _currentRoom.Contains(pos) ) {
                         EnceladusGame.Instance.Register(EnemyFactory.CreateEnemy(obj, _world));
                     }
                 }
@@ -497,7 +501,6 @@ namespace Enceladus.Map {
                 Vertices chain = new Vertices();
                 Edges processedEdges = new Edges();
 
-                int i = 0;
                 // work our way through the vertices, linking them together into a chain
                 do {
                     processedEdges.Add(currentEdge);
@@ -510,10 +513,6 @@ namespace Enceladus.Map {
                     currentVertex = currentEdge.GetOtherVertex(currentVertex);
                     prevEdge = currentEdge;
                     currentEdge = edge;
-
-                    if ( i++ > 10000 ) {
-                        i++;
-                    }
                 } while ( currentVertex != initialVertex );
 
                 Stopwatch factoryWatch = new Stopwatch();
@@ -822,7 +821,7 @@ namespace Enceladus.Map {
             return
                 adj =>
                 adj != null && !adj.Disposed &&
-                PlayerPositionMonitor.Instance.CurrentRoom.Contains(adj.Position, TileSize);
+                _currentRoom.Contains(adj.Position, TileSize);
         }
 
         /// <summary>

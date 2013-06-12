@@ -1535,7 +1535,6 @@ namespace Enceladus.Entity {
 
         public void LoadFromSave(SaveState save) {
             Equipment.LoadFromSave(save);
-            Position = save.SaveStationLocation;
         }
     }
 

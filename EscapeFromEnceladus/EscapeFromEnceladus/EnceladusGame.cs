@@ -33,6 +33,7 @@ namespace Enceladus {
         Saving,
         Paused,
         TitleScreen,
+        Teleport,
     }
 
     public class EnceladusGame : Game {
@@ -62,6 +63,7 @@ namespace Enceladus {
         private AudioEngine _audioEngine;
         private MusicManager _musicManager;
         private WaitHandle _roomChangeWaitHandle;
+        private Vector2 _nextPlayerPosition;
 
         private HealthStatus _healthStatus;
         private VisitationMap _visitationMap;
@@ -220,7 +222,7 @@ namespace Enceladus {
             _slot = saveState.Slot;
             saveState.ApplyToGameState(_visitationMap);
 
-            return TeleportPlayer(_player.Position);
+            return TeleportPlayer(saveState.SaveStationLocation);
         }
 
         /// <summary>
@@ -238,16 +240,14 @@ namespace Enceladus {
         /// </summary>
         /// <param name="position"></param>
         public WaitHandle TeleportPlayer(Vector2 position) {
-            _player.Position = position;
+            _nextPlayerPosition = position;
 
+            Room newRoom = _tileLevel.RoomAt(position);
             _playerPositionMonitor.Update(false);
-            if ( _playerPositionMonitor.IsNewRoomChange() ) {
-                DisposeRoom(_playerPositionMonitor.PreviousFrameRoom);
-            }
-            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
-            _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
-            _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
-            _cameraDirector.ForceRestart();
+            DisposeRoom(_playerPositionMonitor.CurrentRoom);
+            _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, newRoom);
+
+            SetMode(Mode.Teleport);
 
             return _roomChangeWaitHandle;
         }
@@ -382,7 +382,7 @@ namespace Enceladus {
                     InputHelper.Instance.Update(gameTime);
 
                     StepWorld(gameTime);
-    
+
                     foreach ( IGameEntity ent in _entities ) {
                         ent.Update(gameTime);
                     }
@@ -396,9 +396,22 @@ namespace Enceladus {
                     _nextSimStep = false;
                 }
 
+                _playerPositionMonitor.Update(true);
                 _eventManager.Update(gameTime);
                 _visitationMap.Update(gameTime);
 
+            } else if ( _mode == Mode.Teleport) {
+                if ( _roomChangeWaitHandle.WaitOne(5) ) {
+                    _player.Position = _nextPlayerPosition;
+
+                    _playerPositionMonitor.Update(false);
+                    _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
+                    _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom, _playerPositionMonitor.CurrentRoom);
+                    _cameraDirector.ForceRestart();
+
+                    StepWorld(null);
+                    UnsetMode();
+                }
             } else {
                 InputHelper.Instance.Update(gameTime);
                 foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
@@ -407,10 +420,13 @@ namespace Enceladus {
             }
 
             _backgroundManager.Update(gameTime);
-
             _camera.Update(gameTime);
-            _playerPositionMonitor.Update(true);
-            _cameraDirector.Update(gameTime);
+
+            // Don't update the camera direction if the player is on the move.
+            if ( _mode != Mode.Teleport ) {
+                _cameraDirector.Update(gameTime);                
+            }
+
             _pauseScreen.Update(gameTime);
             _titleScreen.Update(gameTime);
             _musicManager.Update();

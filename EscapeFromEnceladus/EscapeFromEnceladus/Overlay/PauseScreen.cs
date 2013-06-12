@@ -37,7 +37,6 @@ namespace Enceladus.Overlay {
         private bool _loadingSavedGame = false;
         private SaveWaiter _saveWaiter;
         private bool _startingGame = false;
-        private WaitHandle _startingGameWaitHandle;
 
         public PauseScreen() {
             MenuActions = new Action[] {
@@ -97,7 +96,7 @@ namespace Enceladus.Overlay {
             if ( _loadingSavedGame ) {
                 _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
                 if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(10) ) {                    
-                    _startingGameWaitHandle = EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
+                    EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
                     _startingGame = true;
                     _saveWaiter = null;
                     _loadingSavedGame = false;
@@ -106,10 +105,9 @@ namespace Enceladus.Overlay {
             }
 
             if ( _startingGame ) {
-                if ( _startingGameWaitHandle.WaitOne(10) ) {
+                if ( EnceladusGame.Instance.Mode == Mode.Paused ) {
                     EnceladusGame.Instance.UnsetMode();
                     _startingGame = false;
-                    _startingGameWaitHandle = null;
                 }
                 return;
             }

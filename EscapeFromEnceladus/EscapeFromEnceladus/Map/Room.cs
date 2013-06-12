@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Enceladus.Entity;
@@ -13,6 +14,7 @@ namespace Enceladus.Map {
     /// A room is a logical unit of the map bounded by one or more doors or secret passages.
     /// It comprises one or more overlapping rectangular regions.
     /// </summary>
+    [DebuggerDisplay("Room at {_regions.First().TopLeft}")]
     public class Room {
         public string BackgroundImage { get; private set; }
         public string MusicTrack { get; private set; }
