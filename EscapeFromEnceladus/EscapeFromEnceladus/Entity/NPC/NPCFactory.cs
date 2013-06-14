@@ -123,6 +123,8 @@ namespace Enceladus.Entity.NPC {
                         return new DisembodiedSpeaker(EnsignTaffrail.CharacterColor, CharCommanderTaffrail);
                     case CharChiefMizzen:
                         return new DisembodiedSpeaker(ChiefMizzen.CharacterColor, CharChiefMizzen);
+                    case CharRobotSentry:
+                        return new DisembodiedSpeaker(Speakers.RobotSentryColor, CharRobotSentry);
                     default:
                         throw new ArgumentException("Unrecognized NPC name " + npcName);
                 }

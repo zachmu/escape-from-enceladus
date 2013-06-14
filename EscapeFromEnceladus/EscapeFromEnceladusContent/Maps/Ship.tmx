@@ -30,6 +30,22 @@
  </tileset>
  <tileset firstgid="254" name="surface_1_64_padded" tilewidth="64" tileheight="64" spacing="2" margin="1">
   <image source="surface_1_64_padded.png" width="462" height="330"/>
+  <terraintypes>
+   <terrain name="Interior rock" tile="8"/>
+  </terraintypes>
+  <tile id="0" terrain=",,,0"/>
+  <tile id="1" terrain=",,0,0"/>
+  <tile id="2" terrain=",,0,"/>
+  <tile id="3" terrain="0,0,0,"/>
+  <tile id="4" terrain="0,0,,0"/>
+  <tile id="7" terrain=",0,,0"/>
+  <tile id="8" terrain="0,,,"/>
+  <tile id="9" terrain="0,,0,"/>
+  <tile id="10" terrain="0,,0,0"/>
+  <tile id="11" terrain=",0,0,0"/>
+  <tile id="14" terrain=",0,,"/>
+  <tile id="15" terrain="0,0,,"/>
+  <tile id="16" terrain="0,,,"/>
  </tileset>
  <tileset firstgid="289" name="shipTiles2_64_padded" tilewidth="64" tileheight="64" spacing="2" margin="1">
   <image source="shipTiles2_64_padded.png" width="1056" height="462"/>

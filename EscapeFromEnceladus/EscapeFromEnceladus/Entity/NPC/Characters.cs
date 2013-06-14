@@ -66,4 +66,8 @@ namespace Enceladus.Entity.NPC {
         }
     }
 
+    internal class Speakers {
+        public static readonly Color RobotSentryColor = Color.SlateGray;
+    }
+
 }
