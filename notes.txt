@@ -1,0 +1,68 @@
+Areas:
+Surface
+Research facilities
+Crystal caverns
+Uranium mines
+Robot manufactories
+Experimental biome
+
+Items:
+Sonar (ANTENNA UNIT)
+Scooter (pass one-tile passages)
+Bomb (break certain tiles)
+Hover boots (POWER COUPLING) (jump farther)
+Springboard (jump higher)
+Block placement beam (HOLOCUBE UNIT) (jump slightly higher, solve certain puzzles)
+Rapid fire modifier (shoot much faster, charge up and shoot)
+Shoulder rush (move faster, break certain tiles)
+Perimeter explorer (break certain tiles, hit out of reach switches)
+Beam weapon (break tiles, open certain doors)
+Two suit upgrades (take more damage, survive in some areas, illuminate dark areas)
+Shot upgrade (ELECTRON PUMP) (do more damage, open certain doors, break certain blocks)
+
+Game flow:
+
+SURFACE
+-------
+First boss
+
+RESEARCH FACILITIES
+-------------------
+ANTENNA UNIT ***
+SCOOTER
+BOMB
+
+CRYSTAL CAVERNS
+---------------
+BEAM WEAPON
+HOLOCUBE ***
+
+URANIUM MINES
+-------------
+RAPID FIRE
+SHOT UPGRADE 1
+
+CRYSTAL CAVERNS
+---------------
+PERIMETER EXPLORER
+SUIT UPGRADE
+
+URANIUM MINES
+-------------
+SPRINGBOARD
+POWER COUPLING (HOVER) ***
+
+SURFACE (MT FUCK)
+-----------------
+SHOULDER RUSH
+SHOT UPGRADE 2
+
+ROBOT MANUFACTORIES
+-------------------
+GLOW SUIT
+PERIMETER EXPLORER
+
+EXPERIMENTAL BIOME
+------------------
+HOVER UPGRADE
+SHOT UPGRADE 3 (ELECTRON PUMP) ***
