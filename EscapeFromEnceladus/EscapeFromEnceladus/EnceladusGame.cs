@@ -25,7 +25,6 @@ using Path = System.IO.Path;
 
 namespace Enceladus {
     
-    // TODO: this doesn't belong here
     public enum Mode {
         NormalControl,
         RoomTransition,
@@ -34,6 +33,7 @@ namespace Enceladus {
         Paused,
         TitleScreen,
         Teleport,
+        Death
     }
 
     public class EnceladusGame : Game {
@@ -406,6 +406,9 @@ namespace Enceladus {
                     _playerPositionMonitor.Update(true);
                     _eventManager.Update(gameTime);
                     _visitationMap.Update(gameTime);
+
+                    UpdateMode();
+
                     break;
                 case Mode.TitleScreen:
                     InputHelper.Instance.Update(gameTime);
@@ -425,6 +428,10 @@ namespace Enceladus {
                         UnsetMode();
                     }
                     break;
+                case Mode.Paused:
+                    InputHelper.Instance.Update(gameTime);
+                    _pauseScreen.Update(gameTime);
+                    break;
                 default:
                     InputHelper.Instance.Update(gameTime);
                     foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
@@ -441,7 +448,6 @@ namespace Enceladus {
                 _cameraDirector.Update(gameTime);                
             }
 
-            _pauseScreen.Update(gameTime);
             _musicManager.Update();
             _audioEngine.Update();
 
@@ -449,6 +455,15 @@ namespace Enceladus {
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
 
             base.Update(gameTime);
+        }
+
+        /// <summary>
+        /// Updates the current mode based on player input, only during normal control
+        /// </summary>
+        private void UpdateMode() {
+            if ( PlayerControl.Control.IsNewPause() ) {
+                SetMode(Mode.Paused);
+            }
         }
 
         /// <summary>

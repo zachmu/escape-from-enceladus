@@ -14,12 +14,8 @@ namespace Enceladus.Overlay {
     /// <summary>
     /// What you first see upon loading the game.
     /// </summary>
-    public class TitleScreen {
+    public class TitleScreen : MenuScreen {
 
-        private int _selectedIndex = 0;
-        private double _timer = 0;
-        private double _loadTimer = 0;
-        private bool _flash;
         private bool _saveGamesInitialized;
         private bool _readingSavedGames;
         private bool _startingGame;
@@ -34,7 +30,6 @@ namespace Enceladus.Overlay {
         private double _frameChangeTimer = 0;
         private const double FrameTimeMs = 70;
 
-        private const double MsBetweenFlash = 250;
         private const string Title = "E S C A P E";
         private const string SubTitle = "F R O M   E N C E L A D U S";
         private const string Loading = "Loading...";
@@ -103,6 +98,7 @@ namespace Enceladus.Overlay {
         }
 
         public void Update(GameTime gameTime) {
+            UpdateFlashTimer(gameTime);
 
             InitializeSaveStates();
 
@@ -116,12 +112,6 @@ namespace Enceladus.Overlay {
             _rainbowColor = new Color((int) (127 + 128 * Math.Sin(_colorChangeTimer * ColorChangeFrequency)),
                 (int) (127 + 128 * Math.Sin(_colorChangeTimer * ColorChangeFrequency + 2 * Math.PI / 3)),
                 (int) (127 + 128 * Math.Sin(_colorChangeTimer * ColorChangeFrequency + 4 * Math.PI / 3)));
-
-            _timer += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if ( _timer >= MsBetweenFlash ) {
-                _timer %= MsBetweenFlash;
-                _flash = !_flash;
-            }
 
             if ( _readingSavedGames ) {
                 if ( WaitHandle.WaitAll(_waitHandles, 10) ) {
@@ -138,21 +128,7 @@ namespace Enceladus.Overlay {
                 return;
             }
 
-            Direction? direction;
-            if ( PlayerControl.Control.IsNewDirection(out direction) ) {
-                switch ( direction ) {
-                    case Direction.Up:
-                        _selectedIndex = (_selectedIndex - 1) % 3;
-                        break;
-                    case Direction.Down:
-                        _selectedIndex = (_selectedIndex + 1) % 3;
-                        break;
-                    default:
-                        break;
-                }
-            } else if ( PlayerControl.Control.IsNewConfirmButton() ) {
-                ApplyMenuSelection();
-            }
+            HandleMovementControl();
         }
 
         private string SummarizeSaveState(SaveState state) {
@@ -177,7 +153,11 @@ namespace Enceladus.Overlay {
             }
         }
 
-        private void ApplyMenuSelection() {
+        protected override int NumMenuItems {
+            get { return 3; }
+        }
+
+        protected override void ApplyMenuSelection() {
             if ( _saveStates[_selectedIndex].SaveState != null ) {
                 EnceladusGame.Instance.ApplySaveState(_saveStates[_selectedIndex].SaveState);
             } else {

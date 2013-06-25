@@ -14,7 +14,7 @@ namespace Enceladus.Overlay {
     /// <summary>
     /// Pause menu overlay
     /// </summary>
-    public class PauseScreen {
+    public class PauseScreen : MenuScreen {
 
         private static readonly string[] MenuItems = new[] {
             "Return to Game",
@@ -30,10 +30,7 @@ namespace Enceladus.Overlay {
 
         private readonly Action[] MenuActions;
 
-        private int _selectedIndex = 0;
-        private double _timer = 0;
         private double _loadTimer = 0;
-        private bool _flash;
         private bool _loadingSavedGame = false;
         private SaveWaiter _saveWaiter;
         private bool _startingGame = false;
@@ -45,8 +42,6 @@ namespace Enceladus.Overlay {
                 ExitGame,
             };
         }
-
-        private const double MsUntilColorChange = 250;
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             SpriteFont dialogFont = SharedGraphicalAssets.DialogFont;
@@ -87,11 +82,7 @@ namespace Enceladus.Overlay {
         }
 
         public void Update(GameTime gameTime) {
-            _timer += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if ( _timer >= MsUntilColorChange ) {
-                _timer %= MsUntilColorChange;
-                _flash = !_flash;
-            }
+            UpdateFlashTimer(gameTime);
 
             if ( _loadingSavedGame ) {
                 _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -112,12 +103,9 @@ namespace Enceladus.Overlay {
                 return;
             }
 
-            if ( PlayerControl.Control.IsNewPause() ) {
+            if ( PlayerControl.Control.IsNewPause() || PlayerControl.Control.IsNewCancelButton() ) {
                 if ( EnceladusGame.Instance.Mode == Mode.Paused ) {
                     EnceladusGame.Instance.UnsetMode();
-                } else if ( EnceladusGame.Instance.Mode == Mode.NormalControl ||
-                            EnceladusGame.Instance.Mode == Mode.Conversation ) {
-                    EnceladusGame.Instance.SetMode(Mode.Paused);
                 }
             }
 
@@ -125,29 +113,14 @@ namespace Enceladus.Overlay {
                 return;
             }
 
-            if ( PlayerControl.Control.IsNewCancelButton() ) {
-                EnceladusGame.Instance.UnsetMode();
-                return;
-            }
-
-            Direction? direction;
-            if ( PlayerControl.Control.IsNewDirection(out direction) ) {
-                switch ( direction ) {
-                    case Direction.Up:
-                        _selectedIndex = (_selectedIndex - 1) % MenuItems.Count();
-                        break;
-                    case Direction.Down:
-                        _selectedIndex = (_selectedIndex + 1) % MenuItems.Count();
-                        break;
-                    default:
-                        break;
-                }
-            } else if ( PlayerControl.Control.IsNewConfirmButton() ) {
-                ApplyMenuSelection();
-            }
+            HandleMovementControl();
         }
 
-        private void ApplyMenuSelection() {
+        protected override int NumMenuItems {
+            get { return MenuItems.Count(); }
+        }
+
+        protected override void ApplyMenuSelection() {
             MenuActions[_selectedIndex]();
         }
 
