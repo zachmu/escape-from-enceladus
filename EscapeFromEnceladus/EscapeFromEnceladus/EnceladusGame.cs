@@ -58,6 +58,7 @@ namespace Enceladus {
         private InputHelper _inputHelper;
         private PauseScreen _pauseScreen;
         private TitleScreen _titleScreen;
+        private DeathScreen _deathScreen;
         private ConversationManager _conversationManager;
         private EventManager _eventManager;
         private BackgroundManager _backgroundManager;
@@ -155,6 +156,7 @@ namespace Enceladus {
             _eventManager = new EventManager();
             _pauseScreen = new PauseScreen();
             _titleScreen = new TitleScreen();
+            _deathScreen = new DeathScreen();
 
             _mode = Mode.NormalControl;
             SetMode(Mode.TitleScreen);
@@ -432,6 +434,16 @@ namespace Enceladus {
                     InputHelper.Instance.Update(gameTime);
                     _pauseScreen.Update(gameTime);
                     break;
+                case Mode.Death:
+                    InputHelper.Instance.Update(gameTime);
+                    
+                    StepWorld(gameTime);
+                    foreach ( IGameEntity ent in _entities ) {
+                        ent.Update(gameTime);
+                    }
+
+                    _deathScreen.Update(gameTime);
+                    break;
                 default:
                     InputHelper.Instance.Update(gameTime);
                     foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
@@ -528,15 +540,39 @@ namespace Enceladus {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
 
-            if ( _drawMode == Mode.TitleScreen ) {
-                _titleScreen.Draw(_spriteBatch);
-            } else {
-                DrawGame();
+            switch ( _drawMode ) {
+                case Mode.TitleScreen:
+                    _titleScreen.Draw(_spriteBatch);
+                    break;
+                case Mode.Death:
+                    _graphics.GraphicsDevice.Clear(Color.Black);
+                    _spriteBatch.Begin(0, null, null, null, null, SolidColorEffect.Effect, _camera.DisplayView);
+                    foreach ( IGameEntity ent in _entities.Where(entity => !entity.DrawAsOverlay) ) {
+                        ent.Draw(_spriteBatch, _camera);
+                    }
+                    _spriteBatch.End();
+
+                    _spriteBatch.Begin();
+                    _deathScreen.Draw(_spriteBatch, _camera);
+                    _spriteBatch.End();
+
+                    break;
+                default:
+                    DrawGame();
+                    break;
             }
 
             DebugDraw();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Kills the player and initiates the death screen
+        /// </summary>
+        public void Die() {
+            _entities.ForEach(entity => entity.Dispose());
+            SetMode(Mode.Death);
         }
 
         /// <summary>

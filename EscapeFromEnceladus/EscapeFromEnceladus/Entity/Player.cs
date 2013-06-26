@@ -131,7 +131,7 @@ namespace Enceladus.Entity {
             ConfigureBody(position);
             
             HealthCapacity = 650;
-            Health = HealthCapacity;
+            Health = 10;
 
             Equipment = new Equipment();
 
@@ -1497,16 +1497,27 @@ namespace Enceladus.Entity {
         #endregion
 
         public void HitBy(AbstractEnemy enemy) {
+            Health -= 10;
+            if ( Health <= 0 ) {
+                Health = 0;
+                EnceladusGame.Instance.Die();
+                EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, Color, null, _body.Position, 8, 10f));
+                _body.Dispose();
+                return;
+            }
+
             Vector2 diff = Position - enemy.Position;
             _body.LinearVelocity = new Vector2(0);
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
-            _timeUntilRegainControl = (long) (Constants[PlayerKnockbackTime] * 1000);
-            Health -= 10;
+            _timeUntilRegainControl = (long)(Constants[PlayerKnockbackTime] * 1000);
+
             _flashTime = 150;
 
             // Make sure we're in the air or on the ground as necessary
             _ignoreStandingUpdatesNextNumFrames = 0;
             UpdateStanding();
+
+            
         }
 
         public void Dispose() {

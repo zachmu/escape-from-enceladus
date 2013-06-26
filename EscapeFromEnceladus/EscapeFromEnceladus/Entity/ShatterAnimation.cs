@@ -21,6 +21,7 @@ namespace Enceladus.Entity {
         private readonly Rectangle _originRectangle;
         private readonly Vector2 _originLocation;
         private Piece[] _pieces;
+        private Color _color;
 
         private readonly int _displayPieceWidth;
         private readonly int _displayPieceHeight;
@@ -42,8 +43,9 @@ namespace Enceladus.Entity {
         /// <param name="position">The center of the original image</param>
         /// <param name="numPieces">The number of horizontal and vertical pieces to split the image into</param>
         public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces) 
-            : this(world, image, originRectangle, position, numPieces, defaultMaxVelocity) {        
+            : this(world, image, SolidColorEffect.DisabledColor, originRectangle, position, numPieces, defaultMaxVelocity) {        
         }
+
 
         /// <summary>
         /// Begins a new destruction animation for the image given.
@@ -54,12 +56,13 @@ namespace Enceladus.Entity {
         /// <param name="position">The center of the original image</param>
         /// <param name="numPieces">The number of horizontal and vertical pieces to split the image into</param>
         /// <param name="maxVelocity">The maximum velocity of any individual piece</param>
-        public ShatterAnimation(World world, Texture2D image, Rectangle? originRectangle, Vector2 position, int numPieces, float maxVelocity) {
+        public ShatterAnimation(World world, Texture2D image, Color color, Rectangle? originRectangle, Vector2 position, int numPieces, float maxVelocity) {
             _image = image;
             _originRectangle = originRectangle ?? new Rectangle(0, 0, 0, 0);
             _originLocation = position;
             _pieces = new Piece[numPieces * numPieces];
             _maxVelocity = maxVelocity;
+            _color = color;
 
             int width = originRectangle == null ? _image.Width : originRectangle.Value.Width;
             int height = originRectangle == null ? _image.Height : originRectangle.Value.Height;
@@ -135,7 +138,7 @@ namespace Enceladus.Entity {
         }
 
         public bool UpdateInMode(Mode mode) {
-            return mode == Mode.NormalControl; 
+            return mode == Mode.NormalControl || mode == Mode.Death; 
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -151,11 +154,9 @@ namespace Enceladus.Entity {
                                                _displayPieceHeight),
                                  new Rectangle(xOffset + _displayPieceWidth * piece.X, yOffset + _displayPieceHeight * piece.Y, _displayPieceWidth,
                                                _displayPieceHeight),
-                                 Color.Black * alpha, rotation, origin,
+                                 _color * alpha, rotation, origin,
                                  SpriteEffects.None, 0);
-
             }
-
         }
 
         public void Update(GameTime gameTime) {
