@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Enceladus.Control;
+using Enceladus.Entity;
 using Enceladus.Event;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,11 +38,30 @@ namespace Enceladus.Overlay {
             };
         }
 
+        private const double FadeTimeMs = 1500;
+        private const double MenuDelayMs = 3000;
+        private double _fadeTimer = 0;
         private double _loadTimer = 0;
         private bool _loadingSavedGame = false;
         private SaveWaiter _saveWaiter;
         private bool _startingGame = false;
 
+        /// <summary>
+        /// Resets the death screen to its beginning values
+        /// </summary>
+        public void Reset() {
+            _fadeTimer = 0;
+        }
+
+        /// <summary>
+        /// Gets the appropriate alpha to draw the game scene (excluding the player)
+        /// </summary>
+        /// <returns></returns>
+        public float GetScreenAlpha() {
+            if ( _fadeTimer > FadeTimeMs )
+                return 0;
+            return (float) (1d - _fadeTimer / FadeTimeMs);
+        }
 
         protected override int NumMenuItems {
             get { return MenuItems.Count(); }
@@ -68,6 +88,9 @@ namespace Enceladus.Overlay {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            if ( _fadeTimer < MenuDelayMs )
+                return;
+
             SpriteFont dialogFont = SharedGraphicalAssets.DialogFont;
 
             int screenWidth = spriteBatch.GraphicsDevice.Viewport.Width;
@@ -107,6 +130,18 @@ namespace Enceladus.Overlay {
         }
 
         public void Update(GameTime gameTime) {
+            _fadeTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            if ( _fadeTimer < FadeTimeMs ) {
+                return;
+            }
+
+            if ( !Player.Instance.Disposed ) {
+                Player.Instance.Destroy();
+            } else {
+                EnceladusGame.Instance.StepWorld(gameTime);
+            }
+
             UpdateFlashTimer(gameTime);
 
             if ( _loadingSavedGame ) {

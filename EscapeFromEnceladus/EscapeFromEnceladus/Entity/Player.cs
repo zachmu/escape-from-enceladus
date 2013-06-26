@@ -101,7 +101,7 @@ namespace Enceladus.Entity {
         public Color Color { get { return _color; } }
 
         public bool Disposed {
-            get { return false; }
+            get { return _body.IsDisposed; }
         }
 
         public Vector2 Position {
@@ -187,17 +187,22 @@ namespace Enceladus.Entity {
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            // Draw origin is character's feet
-            Vector2 position = _body.Position;
-            position.Y += Height / 2;
-            position += _imageDrawOffset;
-                        
-            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-            Color color = _drawSolidColor ? _flashColor : _color;
-            spriteBatch.Draw(Image,
-                             new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
-                             null, color, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
-                             _facingDirection == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);            
+            if ( !Disposed ) {
+                // Draw origin is character's feet
+                Vector2 position = _body.Position;
+                position.Y += Height/2;
+                position += _imageDrawOffset;
+
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+                Color color = _drawSolidColor ? _flashColor : _color;
+                spriteBatch.Draw(Image,
+                                 new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
+                                               Image.Height),
+                                 null, color, 0f, new Vector2(Image.Width/2, Image.Height - 1),
+                                 _facingDirection == Direction.Right
+                                     ? SpriteEffects.None
+                                     : SpriteEffects.FlipHorizontally, 0);
+            }
         }
 
         /// <summary>
@@ -1501,8 +1506,6 @@ namespace Enceladus.Entity {
             if ( Health <= 0 ) {
                 Health = 0;
                 EnceladusGame.Instance.Die();
-                EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, Color, null, _body.Position, 8, 10f));
-                _body.Dispose();
                 return;
             }
 
@@ -1546,6 +1549,14 @@ namespace Enceladus.Entity {
 
         public void LoadFromSave(SaveState save) {
             Equipment.LoadFromSave(save);
+        }
+
+        /// <summary>
+        /// Destroys the player and disposes of his simulation body
+        /// </summary>
+        public void Destroy() {
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, Color, null, _body.Position, 8, 30f));
+            _body.Dispose();
         }
     }
 

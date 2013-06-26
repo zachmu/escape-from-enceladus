@@ -436,13 +436,10 @@ namespace Enceladus {
                     break;
                 case Mode.Death:
                     InputHelper.Instance.Update(gameTime);
-                    
-                    StepWorld(gameTime);
+                    _deathScreen.Update(gameTime);
                     foreach ( IGameEntity ent in _entities ) {
                         ent.Update(gameTime);
                     }
-
-                    _deathScreen.Update(gameTime);
                     break;
                 default:
                     InputHelper.Instance.Update(gameTime);
@@ -545,11 +542,13 @@ namespace Enceladus {
                     _titleScreen.Draw(_spriteBatch);
                     break;
                 case Mode.Death:
-                    _graphics.GraphicsDevice.Clear(Color.Black);
+                    DrawGameWorld(_deathScreen.GetScreenAlpha());
+
                     _spriteBatch.Begin(0, null, null, null, null, SolidColorEffect.Effect, _camera.DisplayView);
                     foreach ( IGameEntity ent in _entities.Where(entity => !entity.DrawAsOverlay) ) {
                         ent.Draw(_spriteBatch, _camera);
                     }
+                    _player.Draw(_spriteBatch, _camera);
                     _spriteBatch.End();
 
                     _spriteBatch.Begin();
@@ -568,17 +567,30 @@ namespace Enceladus {
         }
 
         /// <summary>
-        /// Kills the player and initiates the death screen
+        /// Initiates the death screen
         /// </summary>
         public void Die() {
             _entities.ForEach(entity => entity.Dispose());
+            _deathScreen.Reset();
             SetMode(Mode.Death);
         }
 
         /// <summary>
-        /// Draws the main game world for most game modes.
+        /// Draws the game for most game modes.
         /// </summary>
         private void DrawGame() {
+            DrawGameWorld(1f);
+
+            DrawOverlayEntities();
+
+            DrawOverlays();
+        }
+
+        /// <summary>
+        /// Draws the game world and all entities, using the specified alpha
+        /// </summary>
+        private void DrawGameWorld(float alpha) {
+
             using (
                 // Render first to a new back buffer
                 RenderTarget2D renderTarget = new RenderTarget2D(_graphics.GraphicsDevice,
@@ -600,7 +612,9 @@ namespace Enceladus {
                 foreach ( IGameEntity ent in _entities.Where(entity => !entity.DrawAsOverlay) ) {
                     ent.Draw(_spriteBatch, _camera);
                 }
-                _player.Draw(_spriteBatch, _camera);
+                if ( !_player.Disposed ) {
+                    _player.Draw(_spriteBatch, _camera);
+                }
                 _spriteBatch.End();
 
                 // Foreground content
@@ -637,13 +651,9 @@ namespace Enceladus {
                 _graphics.GraphicsDevice.Clear(Color.Black);
                 _spriteBatch.Begin();
                 _spriteBatch.Draw(renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height),
-                                  Color.White);
+                                  Color.White*alpha);
                 _spriteBatch.End();
             }
-
-            DrawOverlayEntities();
-
-            DrawOverlays();
         }
 
         /// <summary>
