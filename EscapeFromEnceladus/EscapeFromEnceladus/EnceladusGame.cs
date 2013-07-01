@@ -265,7 +265,6 @@ namespace Enceladus {
             _nextPlayerPosition = position;
 
             Room newRoom = _tileLevel.RoomAt(position);
-            _entities.ForEach(entity => entity.Dispose());
             _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, newRoom);
 
             SetMode(Mode.Teleport);
@@ -277,13 +276,16 @@ namespace Enceladus {
         /// Dispose of all the entities in the room mentioned.
         /// </summary>
         public void RoomChanged(Room oldRoom, Room newRoom) {
-            DisposeRoom(oldRoom);
+            DisposeRoom(oldRoom, newRoom);
         }
 
-        private void DisposeRoom(Room oldRoom) {
+        /// <summary>
+        /// Disposes all entities in the room given that aren't also in the current room
+        /// </summary>
+        private void DisposeRoom(Room oldRoom, Room currentRoom) {
             if ( oldRoom != null ) {
                 foreach ( IGameEntity gameEntity in _entities ) {
-                    if ( oldRoom.Contains(gameEntity) && !_playerPositionMonitor.CurrentRoom.Contains(gameEntity) ) {
+                    if ( oldRoom.Contains(gameEntity) && !currentRoom.Contains(gameEntity) ) {
                         gameEntity.Dispose();
                     }
                 }
@@ -426,6 +428,8 @@ namespace Enceladus {
                         _player.CreateBody(_nextPlayerPosition);
 
                         _playerPositionMonitor.Update(false);
+                        DisposeRoom(_playerPositionMonitor.PreviousRoom, _playerPositionMonitor.CurrentRoom);
+
                         _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
                         _musicManager.RoomChanged(_playerPositionMonitor.PreviousFrameRoom,
                                                   _playerPositionMonitor.CurrentRoom);
