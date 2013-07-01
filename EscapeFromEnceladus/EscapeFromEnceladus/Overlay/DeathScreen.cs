@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Enceladus.Control;
 using Enceladus.Entity;
 using Enceladus.Event;
@@ -44,7 +45,8 @@ namespace Enceladus.Overlay {
         private double _loadTimer = 0;
         private bool _loadingSavedGame = false;
         private SaveWaiter _saveWaiter;
-        private bool _startingGame = false;
+        private bool _waitingForSaveGameToApply;
+        private WaitHandle _applySaveStateWaitHandle;
 
         /// <summary>
         /// Resets the death screen to its beginning values
@@ -68,8 +70,7 @@ namespace Enceladus.Overlay {
         }
 
         private void ReturnToTitle() {
-            EnceladusGame.Instance.UnsetMode();
-            EnceladusGame.Instance.SetMode(Mode.TitleScreen);
+            EnceladusGame.Instance.GoToTitleScreen();
         }
 
         private void LoadLastSave() {
@@ -98,7 +99,7 @@ namespace Enceladus.Overlay {
             Vector2 screenCenter = new Vector2(screenWidth/2f, screenHeight/2f);
 
             StringBuilder sb = new StringBuilder();
-            string[] menuItems = _loadingSavedGame || _startingGame ? LoadingMenuItems : MenuItems;
+            string[] menuItems = _loadingSavedGame || _waitingForSaveGameToApply ? LoadingMenuItems : MenuItems;
             foreach ( var s in menuItems ) {
                 sb.Append(s).Append("\n");
             }
@@ -136,7 +137,7 @@ namespace Enceladus.Overlay {
                 return;
             }
 
-            if ( !Player.Instance.Disposed ) {
+            if ( !Player.Instance.Disposed && !_waitingForSaveGameToApply ) {
                 Player.Instance.Destroy();
             } else {
                 EnceladusGame.Instance.StepWorld(gameTime);
@@ -146,19 +147,20 @@ namespace Enceladus.Overlay {
 
             if ( _loadingSavedGame ) {
                 _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(10) ) {
-                    EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
-                    _startingGame = true;
+                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(0) ) {
+                    _applySaveStateWaitHandle = EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
                     _saveWaiter = null;
                     _loadingSavedGame = false;
+                    _waitingForSaveGameToApply = true;
                 }
                 return;
             }
 
-            if ( _startingGame ) {
-                if ( EnceladusGame.Instance.Mode == Mode.Death ) {
+            if ( _waitingForSaveGameToApply ) {
+                if ( _applySaveStateWaitHandle.WaitOne(0) ) {
+                    _waitingForSaveGameToApply = false;
+                    _applySaveStateWaitHandle = null;
                     EnceladusGame.Instance.UnsetMode();
-                    _startingGame = false;
                 }
                 return;
             }

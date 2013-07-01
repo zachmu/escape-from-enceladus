@@ -101,7 +101,7 @@ namespace Enceladus.Entity {
         public Color Color { get { return _color; } }
 
         public bool Disposed {
-            get { return _body.IsDisposed; }
+            get { return _body == null || _body.IsDisposed; }
         }
 
         public Vector2 Position {
@@ -123,12 +123,6 @@ namespace Enceladus.Entity {
 
         public Player(Vector2 position, World world) {
             _instance = this;
-
-            _body = BodyFactory.CreateRectangle(world, CharacterStandingWidth, CharacterStandingHeight, 10f);
-            _body.FixtureList.First().UserData = "body";
-            Height = CharacterStandingHeight;
-            Width = CharacterStandingWidth;
-            ConfigureBody(position);
             
             HealthCapacity = 650;
             Health = 10;
@@ -136,6 +130,19 @@ namespace Enceladus.Entity {
             Equipment = new Equipment();
 
             _world = world;
+        }
+
+        // Creates the simulated body at the specified position
+        public void CreateBody(Vector2 position) {
+            if ( !Disposed ) {
+                Dispose();
+            }
+
+            _body = BodyFactory.CreateRectangle(_world, CharacterStandingWidth, CharacterStandingHeight, 10f);
+            _body.FixtureList.First().UserData = "body";
+            Height = CharacterStandingHeight;
+            Width = CharacterStandingWidth;
+            ConfigureBody(position);            
         }
 
         private void ConfigureBody(Vector2 position) {
@@ -1524,7 +1531,9 @@ namespace Enceladus.Entity {
         }
 
         public void Dispose() {
-            throw new NotImplementedException();
+            if ( _body != null ) {
+                _body.Dispose();
+            }
         }
 
         public void Pickup(HealthPickup healthPickup) {
@@ -1556,7 +1565,7 @@ namespace Enceladus.Entity {
         /// </summary>
         public void Destroy() {
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, Color, null, _body.Position, 8, 30f));
-            _body.Dispose();
+            Dispose();
         }
     }
 

@@ -157,9 +157,9 @@ namespace Enceladus {
             _pauseScreen = new PauseScreen();
             _titleScreen = new TitleScreen();
             _deathScreen = new DeathScreen();
+            _musicManager = new MusicManager();           
 
-            _mode = Mode.NormalControl;
-            SetMode(Mode.TitleScreen);
+            GoToTitleScreen();
 
             base.Initialize();
         }
@@ -195,12 +195,26 @@ namespace Enceladus {
         /// Sets the game mode to the one given.
         /// </summary>
         public void SetMode(Mode mode) {
-            _modeStack.Push(_mode);
-            _mode = mode;
-            // Teleport is a pseudo mode, since it doesn't affect drawing
-            if ( _mode != Mode.Teleport ) {
-                _drawMode = _mode;
+            if ( mode != _mode ) {
+                _modeStack.Push(_mode);
+                _mode = mode;
+
+                // Teleport is a pseudo mode, since it doesn't affect drawing
+                if ( _mode != Mode.Teleport ) {
+                    _drawMode = _mode;
+                }
             }
+        }
+
+        /// <summary>
+        /// Immediately returns to the title screen.
+        /// </summary>
+        public void GoToTitleScreen() {
+            _modeStack.Clear();
+            _mode = Mode.NormalControl;
+            SetMode(Mode.TitleScreen);
+            _titleScreen.Reset();
+            _musicManager.SetMusicTrack("spur");
         }
 
         /// <summary>
@@ -239,7 +253,7 @@ namespace Enceladus {
         /// </summary>
         public WaitHandle NewGame(PlayerIndex slot) {
             _slot = slot;
-
+;
             return TeleportPlayer((Vector2) _tileLevel.GetPlayerStartPosition());
         }
 
@@ -251,8 +265,7 @@ namespace Enceladus {
             _nextPlayerPosition = position;
 
             Room newRoom = _tileLevel.RoomAt(position);
-            _playerPositionMonitor.Update(false);
-            DisposeRoom(_playerPositionMonitor.CurrentRoom);
+            _entities.ForEach(entity => entity.Dispose());
             _tileLevel.SetCurrentRoom(_playerPositionMonitor.PreviousFrameRoom, newRoom);
 
             SetMode(Mode.Teleport);
@@ -295,17 +308,14 @@ namespace Enceladus {
 
             LoadStaticContent();
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
-            _player.Position = (Vector2) _tileLevel.GetPlayerStartPosition();
             _visitationMap = new VisitationMap(_tileLevel);
             _healthStatus.LoadContent(Content);
             _backgroundManager.LoadContent();
             _audioEngine = new AudioEngine("Content/Music/game.xgs");
-            _musicManager = new MusicManager(_audioEngine);
-            _musicManager.LoadContent(Content);
-            
+            _musicManager.LoadContent(_audioEngine, Content);
+
             // Audio engine needs an initial update after loading songs
             _audioEngine.Update();
-            _musicManager.SetMusicTrack("spur");
 
             //_background = Content.Load<Texture2D>("Background/rock02");
 
@@ -320,13 +330,7 @@ namespace Enceladus {
 
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Boostrap the map position and current room data
-            _playerPositionMonitor.Update(false);
            
-            // Bootstrap camera position
-            _cameraDirector.ForceRestart();
-
             //EnableOrDisableFlag(DebugViewFlags.DebugPanel);
             //EnableOrDisableFlag(DebugViewFlags.PerformanceGraph);
         }
@@ -408,6 +412,7 @@ namespace Enceladus {
                     _playerPositionMonitor.Update(true);
                     _eventManager.Update(gameTime);
                     _visitationMap.Update(gameTime);
+                    _cameraDirector.Update(gameTime);
 
                     UpdateMode();
 
@@ -418,7 +423,7 @@ namespace Enceladus {
                     break;
                 case Mode.Teleport:
                     if ( _roomChangeWaitHandle.WaitOne(0) ) {
-                        _player.Position = _nextPlayerPosition;
+                        _player.CreateBody(_nextPlayerPosition);
 
                         _playerPositionMonitor.Update(false);
                         _backgroundManager.LoadRoom(_playerPositionMonitor.CurrentRoom);
@@ -441,6 +446,9 @@ namespace Enceladus {
                         ent.Update(gameTime);
                     }
                     break;
+                case Mode.RoomTransition:
+                    _cameraDirector.Update(gameTime);
+                    break;
                 default:
                     InputHelper.Instance.Update(gameTime);
                     foreach ( IGameEntity ent in _entities.Where(entity => entity.UpdateInMode(_mode)) ) {
@@ -451,12 +459,6 @@ namespace Enceladus {
 
             _backgroundManager.Update(gameTime);
             _camera.Update(gameTime);
-
-            // Don't update the camera direction if the player is on the move.
-            if ( _mode != Mode.Teleport ) {
-                _cameraDirector.Update(gameTime);                
-            }
-
             _musicManager.Update();
             _audioEngine.Update();
 

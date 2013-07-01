@@ -139,6 +139,10 @@ namespace Enceladus.Overlay {
             }
         }
 
+        public void Reset() {
+            _saveGamesInitialized = false;
+        }
+
         private void InitializeSaveStates() {
             if ( !_saveGamesInitialized ) {
                 _saveStates = new SaveWaiter[3];

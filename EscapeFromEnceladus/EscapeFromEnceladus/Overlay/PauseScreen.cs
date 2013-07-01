@@ -33,7 +33,8 @@ namespace Enceladus.Overlay {
         private double _loadTimer = 0;
         private bool _loadingSavedGame = false;
         private SaveWaiter _saveWaiter;
-        private bool _startingGame = false;
+        private bool _waitingForSaveGameToApply;
+        private WaitHandle _applySaveStateWaitHandle;
 
         public PauseScreen() {
             MenuActions = new Action[] {
@@ -51,7 +52,7 @@ namespace Enceladus.Overlay {
             Vector2 screenCenter = new Vector2(screenWidth / 2f, screenHeight / 2f);
 
             StringBuilder sb = new StringBuilder();
-            string[] menuItems = _loadingSavedGame || _startingGame ? LoadingMenuItems : MenuItems;
+            string[] menuItems = _loadingSavedGame || _waitingForSaveGameToApply ? LoadingMenuItems : MenuItems;
             foreach ( var s in menuItems) {
                 sb.Append(s).Append("\n");
             }
@@ -86,19 +87,20 @@ namespace Enceladus.Overlay {
 
             if ( _loadingSavedGame ) {
                 _loadTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(0) ) {                    
-                    EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
-                    _startingGame = true;
+                if ( _loadTimer >= 1000 && _saveWaiter.WaitHandle.WaitOne(0) ) {
+                    _applySaveStateWaitHandle = EnceladusGame.Instance.ApplySaveState(_saveWaiter.SaveState);
                     _saveWaiter = null;
                     _loadingSavedGame = false;
+                    _waitingForSaveGameToApply = true;
                 }
                 return;
             }
 
-            if ( _startingGame ) {
-                if ( EnceladusGame.Instance.Mode == Mode.Paused ) {
+            if ( _waitingForSaveGameToApply ) {
+                if ( _applySaveStateWaitHandle.WaitOne(0) ) {
+                    _waitingForSaveGameToApply = false;
+                    _applySaveStateWaitHandle = null;
                     EnceladusGame.Instance.UnsetMode();
-                    _startingGame = false;
                 }
                 return;
             }
@@ -107,6 +109,7 @@ namespace Enceladus.Overlay {
                 if ( EnceladusGame.Instance.Mode == Mode.Paused ) {
                     EnceladusGame.Instance.UnsetMode();
                 }
+                return;
             }
 
             if ( EnceladusGame.Instance.Mode != Mode.Paused ) {

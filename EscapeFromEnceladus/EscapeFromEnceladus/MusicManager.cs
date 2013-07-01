@@ -18,27 +18,30 @@ namespace Enceladus {
             get { return _instance; }
         }
 
-        private readonly AudioEngine _audioEngine;
+        private AudioEngine _audioEngine;
         private SoundBank _soundBank;
         private WaveBank _waveBank;
+        private bool _playNextTrack;
         private Cue Cue { get; set; }
         private string CurrentTrack { get; set; }
         private string PreviousTrack { get; set; }
 
-        public MusicManager(AudioEngine audioEngine) {
-            _audioEngine = audioEngine;
+        public MusicManager() {
             _instance = this;
         }
 
-        public void LoadContent(ContentManager cm) {
+        public void LoadContent(AudioEngine audioEngine, ContentManager cm) {
+            _audioEngine = audioEngine;
             _waveBank = new WaveBank(_audioEngine, "Content/Music/Songs.xwb", 0, 16);
             _soundBank = new SoundBank(_audioEngine, "Content/Music/Songs.xsb");
             PlayerPositionMonitor.Instance.RoomChanged += RoomChanged;
         }
 
         public void Update() {
-            if ( Cue != null && !Cue.IsPlaying && !Cue.IsPreparing ) {
+            if ( _playNextTrack ) {
+                Cue = _soundBank.GetCue(CurrentTrack);
                 Cue.Play();
+                _playNextTrack = false;
             }
         }
 
@@ -49,7 +52,7 @@ namespace Enceladus {
             }
             if ( track.Length > 0 ) {
                 CurrentTrack = track;
-                Cue = _soundBank.GetCue(track);
+                _playNextTrack = true;
             } else {
                 Cue = null;
             }
