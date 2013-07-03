@@ -30,8 +30,14 @@ namespace Enceladus.Entity {
     public abstract class GameEntityAdapter : IGameEntity {
         public abstract void Dispose();
         public abstract bool Disposed { get; }
-        public abstract void Draw(SpriteBatch spriteBatch, Camera2D camera);
-        public abstract void Update(GameTime gameTime);
+        
+        public virtual void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            
+        }
+
+        public virtual void Update(GameTime gameTime) {
+            
+        }
 
         public virtual Vector2 Position {
             get { return Vector2.Zero; }

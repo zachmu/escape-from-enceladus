@@ -170,7 +170,11 @@ namespace Enceladus {
         /// </summary>
         public void Register(params IGameEntity[] entities) {
             if ( entities != null ) {
-                _entitiesToAdd.AddRange(entities);
+                foreach ( IGameEntity e in entities ) {
+                    if ( e != null ) {
+                        _entitiesToAdd.Add(e);
+                    }
+                }
             }
         }
 

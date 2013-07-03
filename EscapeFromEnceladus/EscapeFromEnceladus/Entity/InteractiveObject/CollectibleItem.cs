@@ -17,7 +17,7 @@ namespace Enceladus.Entity.InteractiveObject {
     /// <summary>
     /// A collectible item can be collected once.
     /// </summary>
-    public class GenericCollectibleItem : Region, IGameEntity{
+    public class GenericCollectibleItem : Region, IGameEntity {
 
         private CollectibleItem _itemType;
         private Body _body;
@@ -101,7 +101,7 @@ namespace Enceladus.Entity.InteractiveObject {
         Sonar,
     }
 
-    class WheelAnnouncement : GameEntityAdapter, IGameEntity {
+    class WheelAnnouncement : GameEntityAdapter {
 
         private bool _disposed = false;
         private double _timer = 5000;

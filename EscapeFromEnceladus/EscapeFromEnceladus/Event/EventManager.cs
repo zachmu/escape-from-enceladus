@@ -145,5 +145,5 @@ namespace Enceladus.Event {
         }
     }
 
-    public enum GameMilestone {GameStarted, TalkedToCaptain, TalkedToEveryone, Embarked}
+    public enum GameMilestone {GameStarted, TalkedToCaptain, TalkedToEveryone, Embarked, DefeatedRobotSentry}
 }

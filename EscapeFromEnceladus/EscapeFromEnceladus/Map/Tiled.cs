@@ -101,9 +101,9 @@ namespace Enceladus.Map {
             if ( index < 0 )
                 return false;
 
-            int rowSize = _TexWidth / TileWidth;
+            int rowSize = _TexWidth / (TileWidth + Spacing);
             int row = index / rowSize;
-            int numRows = _TexHeight / TileHeight;
+            int numRows = _TexHeight / (TileHeight + Spacing);
             if ( row >= numRows )
                 return false;
 

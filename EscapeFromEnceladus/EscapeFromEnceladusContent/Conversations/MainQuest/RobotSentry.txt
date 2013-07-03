@@ -1,1 +1,11 @@
-﻿CaptainPurchase: We're all counting on you, Lieutenant Commander. Don't let us down!
+﻿RobotSentry: THIS IS A RESTRICTED AREA. REMOVE YOURSELF OR FACE PUNITIVE MEASURES.
+CaptainPurchase: Lieutenant Commander Roark, do you read me?
+Roark: Captain, there seems to be some kind of robotic sentry device guarding the door to the lab.
+RobotSentry: THIS IS A RESTRICTED AREA. YOU HAVE 10 SECONDS TO COMPLY.
+CaptainPurchase: You need to get into that lab, Lieutenant Commander. Neutralize it!
+Roark: This guy doesn't seem so tough, I guess...
+RobotSentry: THREAT ANALYSIS COMPLETED. ONE HUMAN IN NANOMECHANICAL COMBAT SUIT. THREAT LEVEL: LOW.
+Roark: Not an encouraging sign.
+RobotSentry: DOORS LOCKED PENDING REMOVAL OF HOSTILE THREAT.
+RobotSentry: WEAPONS ARMED. SHIELDS ACTIVE.
+RobotSentry: PUNITIVE MEASURES INITIATED.
