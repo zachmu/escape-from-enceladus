@@ -202,7 +202,11 @@
   <object name="beetle" x="23438" y="2335" width="36" height="25"/>
   <object name="beetle" x="25032" y="1810" width="36" height="25"/>
   <object name="beetle" x="25288" y="2404" width="36" height="25"/>
-  <object name="turret" type="Boss" x="30666" y="3250" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30415" y="3021" width="47" height="49">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
   <object name="turret" type="Boss" x="30670" y="3023" width="47" height="49"/>
   <object name="turret" type="Boss" x="30675" y="2828" width="47" height="49"/>
   <object name="turret" type="Boss" x="30679" y="2593" width="47" height="49"/>
@@ -221,6 +225,7 @@
     <property name="direction" value="down"/>
    </properties>
   </object>
+  <object name="turret" type="Boss" x="30685" y="3250" width="47" height="49"/>
  </objectgroup>
  <objectgroup name="InteractiveObjects" width="1000" height="1000" visible="0">
   <object name="save1" type="save" x="14650" y="604" width="264" height="94"/>

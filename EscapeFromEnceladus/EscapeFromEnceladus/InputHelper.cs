@@ -130,7 +130,7 @@ namespace Enceladus {
                 direction = null;
                 return false;
             }
-        }
+        }        
 
         /// <summary>
         /// Returns the octant being aimed in by the stick given, 
@@ -157,7 +157,7 @@ namespace Enceladus {
                 }
             }
             // QII
-            if ( angle >= 0 && angle >= Projectile.PiOverTwo ) {
+            if ( angle >= Projectile.PiOverTwo ) {
                 if ( angle <= Projectile.FivePiOverEight ) {
                     return Direction.Up;
                 } else if ( angle <= Projectile.SevenPiOverEight ) {
@@ -167,7 +167,7 @@ namespace Enceladus {
                 }
             }
             // QIII
-            if ( angle <= 0 && angle <= -Projectile.PiOverTwo ) {
+            if ( angle <= -Projectile.PiOverTwo ) {
                 if ( angle >= -Projectile.FivePiOverEight ) {
                     return Direction.Down;
                 } else if ( angle >= -Projectile.SevenPiOverEight ) {

@@ -32,6 +32,9 @@ namespace Enceladus.Entity.Enemy {
                     Direction facing = Direction.Left;
                     if ( obj.Properties.ContainsKey("direction") ) {
                         switch ( obj.Properties["direction"] ) {
+                            case "left":
+                                facing = Direction.Left;
+                                break;
                             case "right":
                                 facing = Direction.Right;
                                 break;
@@ -48,6 +51,6 @@ namespace Enceladus.Entity.Enemy {
                 default:
                     return new PacingEnemy(pos, world);
             }
-        } 
+        }
     }
 }
