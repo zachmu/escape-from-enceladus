@@ -38,7 +38,28 @@ namespace Enceladus.Entity.Enemy {
         public Turret(Vector2 position, World world, Direction facing) {
             _facingDirection = facing;
             
-            _body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 12, Radius, Vector2.Zero, Projectile.PiOverTwo);
+            _body = BodyFactory.CreateSolidArc(world, 1f, (float) Math.PI, 8, Radius, Vector2.Zero, Projectile.PiOverTwo);
+
+            switch ( _facingDirection ) {
+                case Direction.Left:
+                    position += new Vector2(0, Height / 2);
+                    break;
+                case Direction.Right:
+                    position += new Vector2(0, Height / 2);
+                    _body.Rotation = (float) (-Math.PI);
+                    break;
+                case Direction.Up:
+                    position += new Vector2(Height / 2, 0);
+                    _body.Rotation = Projectile.PiOverTwo;
+                    break;
+                case Direction.Down:
+                    position += new Vector2(Height / 2, 0);
+                    _body.Rotation = -Projectile.PiOverTwo;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             _body.IsStatic = true;
             _body.IgnoreGravity = true;
             _body.Position = position;
@@ -62,14 +83,18 @@ namespace Enceladus.Entity.Enemy {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
             Color color = SolidColorEffect.DisabledColor;
 
-            spriteBatch.Draw(Animation[Barrel], displayPosition, null, color, _body.Rotation, origin, 1f,
-                             _facingDirection == Direction.Left ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-            spriteBatch.Draw(Animation[WeakSpot], displayPosition, null, color, _body.Rotation, origin, 1f,
-                             _facingDirection == Direction.Left ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-            spriteBatch.Draw(Animation[Hatch], displayPosition, null, color, _body.Rotation, origin, 1f,
-                             _facingDirection == Direction.Left ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
-            spriteBatch.Draw(Animation[Cover], displayPosition, null, color, _body.Rotation, origin, 1f,
-                             _facingDirection == Direction.Left ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
+            float bodyRotation = -_body.Rotation;
+            if ( _facingDirection == Direction.Up || _facingDirection == Direction.Down ) {
+                bodyRotation = _body.Rotation;
+            }
+            spriteBatch.Draw(Animation[Barrel], displayPosition, null, color, bodyRotation, origin, 1f,
+                             SpriteEffects.None, 0);
+            spriteBatch.Draw(Animation[WeakSpot], displayPosition, null, color, bodyRotation, origin, 1f,
+                             SpriteEffects.None, 0);
+            spriteBatch.Draw(Animation[Hatch], displayPosition, null, color, bodyRotation, origin, 1f,
+                             SpriteEffects.None, 0);
+            spriteBatch.Draw(Animation[Cover], displayPosition, null, color, bodyRotation, origin, 1f,
+                             SpriteEffects.None, 0);
         }
 
         public override void Update(GameTime gameTime) {

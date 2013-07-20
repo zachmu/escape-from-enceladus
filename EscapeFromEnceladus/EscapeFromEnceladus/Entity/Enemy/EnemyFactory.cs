@@ -15,8 +15,9 @@ namespace Enceladus.Entity.Enemy {
         /// Creates an appropriate enemy from the descriptor given.
         /// </summary>
         public static IGameEntity CreateEnemy(Map.Object obj, World world) {
-            // We use the lower-left corner for objects, aligned to the nearest tile boundary. 
-            // this is to start enemies off with their feet on the ground.
+            
+            // The default position is the lower-left corner for objects, aligned to the nearest tile boundary. 
+            // This is to start enemies off with their feet on the ground.
             Vector2 pos = Region.AdjustToTileBoundary(ConvertUnits.ToSimUnits(obj.X, obj.Y + obj.Height));            
 
             switch(obj.Name ?? "") {
@@ -28,7 +29,22 @@ namespace Enceladus.Entity.Enemy {
                     return new Beetle(pos, world, clockwise);
                     break;
                 case "turret":
-                    return new Turret(pos, world, Direction.Left);
+                    Direction facing = Direction.Left;
+                    if ( obj.Properties.ContainsKey("direction") ) {
+                        switch ( obj.Properties["direction"] ) {
+                            case "right":
+                                facing = Direction.Right;
+                                break;
+                            case "down":
+                                facing = Direction.Down;
+                                break;
+                            case "up":
+                                facing = Direction.Up;
+                                break;
+                        }
+                    }
+                    pos = Region.AdjustToTileBoundary(ConvertUnits.ToSimUnits(obj.X + obj.Width / 2, obj.Y + obj.Height / 2));
+                    return new Turret(pos, world, facing);
                 default:
                     return new PacingEnemy(pos, world);
             }
