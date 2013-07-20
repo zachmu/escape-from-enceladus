@@ -348,6 +348,7 @@ namespace Enceladus {
             Worm.LoadContent(Content);
             Beetle.LoadContent(Content);
             Shot.LoadContent(Content);
+            Turret.LoadContent(Content);
             Missile.LoadContent(Content);
             HealthPickup.LoadContent(Content);
             GenericCollectibleItem.LoadContent(Content);

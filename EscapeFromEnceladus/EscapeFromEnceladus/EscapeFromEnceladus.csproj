@@ -119,6 +119,7 @@
     <Compile Include="Entity\Enemy\AbstractEnemy.cs" />
     <Compile Include="Entity\Enemy\Beetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
+    <Compile Include="Entity\Enemy\Turret.cs" />
     <Compile Include="Entity\Enemy\Worm.cs" />
     <Compile Include="Entity\Equipment.cs" />
     <Compile Include="Entity\InteractiveObject\CollectibleItem.cs" />

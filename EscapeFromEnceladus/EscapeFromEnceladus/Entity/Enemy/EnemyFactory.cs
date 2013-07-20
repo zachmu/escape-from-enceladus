@@ -14,7 +14,7 @@ namespace Enceladus.Entity.Enemy {
         /// <summary>
         /// Creates an appropriate enemy from the descriptor given.
         /// </summary>
-        public static AbstractEnemy CreateEnemy(Map.Object obj, World world) {
+        public static IGameEntity CreateEnemy(Map.Object obj, World world) {
             // We use the lower-left corner for objects, aligned to the nearest tile boundary. 
             // this is to start enemies off with their feet on the ground.
             Vector2 pos = Region.AdjustToTileBoundary(ConvertUnits.ToSimUnits(obj.X, obj.Y + obj.Height));            
@@ -27,6 +27,8 @@ namespace Enceladus.Entity.Enemy {
                     bool clockwise = obj.Properties.ContainsKey("clockwise");
                     return new Beetle(pos, world, clockwise);
                     break;
+                case "turret":
+                    return new Turret(pos, world, Direction.Left);
                 default:
                     return new PacingEnemy(pos, world);
             }

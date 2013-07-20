@@ -202,12 +202,13 @@
   <object name="beetle" x="23438" y="2335" width="36" height="25"/>
   <object name="beetle" x="25032" y="1810" width="36" height="25"/>
   <object name="beetle" x="25288" y="2404" width="36" height="25"/>
-  <object name="RobotSentry:Turret" type="Boss" x="30340" y="2707" width="47" height="49"/>
-  <object name="RobotSentry:Turret" type="Boss" x="30270" y="2884" width="47" height="49"/>
-  <object name="RobotSentry:Turret" type="Boss" x="30669" y="2781" width="47" height="49"/>
-  <object name="RobotSentry:Turret" type="Boss" x="30662" y="3266" width="47" height="49"/>
-  <object name="RobotSentry:Turret" type="Boss" x="30670" y="2995" width="47" height="49"/>
-  <object name="RobotSentry:Turret" type="Boss" x="30667" y="2560" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30666" y="3250" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30670" y="3023" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30662" y="2837" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30666" y="2593" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30346" y="2692" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30279" y="2889" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30017" y="2952" width="47" height="49"/>
  </objectgroup>
  <objectgroup name="InteractiveObjects" width="1000" height="1000" visible="0">
   <object name="save1" type="save" x="14650" y="604" width="264" height="94"/>
