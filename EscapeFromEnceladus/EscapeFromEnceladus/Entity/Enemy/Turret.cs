@@ -25,6 +25,7 @@ namespace Enceladus.Entity.Enemy {
         private const float Height = 1f;
         private const float Width = .5f;
         private const float Radius = Width;
+        private const float TurretSpeedRPS = .25f;
 
         private readonly Body _body;
         private readonly Direction _facingDirection;
@@ -34,7 +35,7 @@ namespace Enceladus.Entity.Enemy {
         public static void LoadContent(ContentManager content) {
             for ( int i = 0; i < NumFrames; i++ ) {
                 Animation[i] = content.Load<Texture2D>(String.Format("Enemy/Turret/Turret{0:0000}", i));
-            }           
+            }
         }
 
         public Turret(Vector2 position, World world, Direction facing) {
@@ -105,7 +106,72 @@ namespace Enceladus.Entity.Enemy {
         }
 
         private void UpdateBarrelAngle(GameTime gameTime) {
-            _barrelAimRadians = _barrelTargetRadians;
+            float diff = 0;
+            float target;
+            float current;
+            float maxMovement = (float) (TurretSpeedRPS * gameTime.ElapsedGameTime.TotalSeconds * Math.PI * 2);
+
+            switch ( _facingDirection ) {
+                case Direction.Left: // angle > pi/2 || angle < -pi/2
+                    target = NormalizeAngle(_barrelTargetRadians);
+                    current = NormalizeAngle(_barrelAimRadians);
+                    diff = target - current;
+                    if ( diff >= 0 ) {
+                        diff = Math.Min(diff, maxMovement);
+                    } else {
+                        diff = Math.Max(diff, -maxMovement);
+                    }
+                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff);
+                    break;
+                case Direction.Right: // angle < pi/2 && angle > -pi/2
+                    target = NormalizeAngle(_barrelTargetRadians + Projectile.PiOverTwo);
+                    current = NormalizeAngle(_barrelAimRadians + Projectile.PiOverTwo);
+                    diff = target - current;
+                    if ( diff >= 0 ) {
+                        diff = Math.Min(diff, maxMovement);
+                    } else {
+                        diff = Math.Max(diff, -maxMovement);
+                    }
+                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff - Projectile.PiOverTwo);
+                    break;
+                case Direction.Up: // angle > 0 && angle < pi/2
+                case Direction.Down: // angle < 0 && angle > -pi/2
+                    target = _barrelTargetRadians;
+                    current = _barrelAimRadians;
+                    diff = target - current;
+                    if ( diff >= 0 ) {
+                        diff = Math.Min(diff, maxMovement);
+                    } else {
+                        diff = Math.Max(diff, -maxMovement);
+                    }
+                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff);
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        /// <summary>
+        /// Returns an angle in the range [0,2pi)
+        /// </summary>
+        private float NormalizeAngle(float angle) {
+            angle += (float) Math.PI / 2;
+            if ( angle >= (float) Math.PI * 2 ) {
+                angle -= (float) Math.PI * 2;
+            }
+            return angle;
+        }
+
+        /// <summary>
+        /// Returns an angle in the range (-pi,pi]
+        /// </summary>
+        private float DenormalizeAngle(float angle) {
+            if ( angle <= Math.PI ) {
+                return angle;
+            } else {
+                return (float) (angle - Math.PI * 2);
+            }
         }
 
         private void DetermineTargetAngle() {
