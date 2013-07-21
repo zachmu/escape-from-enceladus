@@ -19,6 +19,7 @@ namespace Enceladus.Weapon {
     public abstract class Projectile {
         
         // Important angles in our aiming system (sorry, tau)
+        public const float Pi = (float) Math.PI;
         public const float PiOverTwo = (float) (Math.PI / 2f);
         public const float PiOverFour = (float) (Math.PI / 4f);
         public const float PiOverEight = (float) (Math.PI / 8f);
