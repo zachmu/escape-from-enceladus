@@ -25,7 +25,7 @@ namespace Enceladus.Entity.Enemy {
         private const float Height = 1f;
         private const float Width = .5f;
         private const float Radius = Width;
-        private const float TurretSpeedRPS = .25f;
+        private const float TurretSpeedRPS = .20f;
 
         private readonly Body _body;
         private readonly Direction _facingDirection;
@@ -113,7 +113,6 @@ namespace Enceladus.Entity.Enemy {
         }
 
         private void UpdateBarrelAngle(GameTime gameTime) {
-            float diff = 0;
             float target;
             float current;
             float maxMovement = (float) (TurretSpeedRPS * gameTime.ElapsedGameTime.TotalSeconds * Projectile.Pi * 2);
@@ -122,36 +121,11 @@ namespace Enceladus.Entity.Enemy {
                 case Direction.Left: // angle > pi/2 || angle < -pi/2
                     target = NormalizeAngle(_barrelTargetRadians);
                     current = NormalizeAngle(_barrelAimRadians);
-                    diff = target - current;
-                    if ( diff >= 0 ) {
-                        diff = Math.Min(diff, maxMovement);
-                    } else {
-                        diff = Math.Max(diff, -maxMovement);
-                    }
-                    _barrelAimRadians = DenormalizeAngle(current + diff);
                     break;
                 case Direction.Right: // angle < pi/2 && angle > -pi/2
-                    target = _barrelTargetRadians;
-                    current = _barrelAimRadians;
-                    diff = target - current;
-                    if ( diff >= 0 ) {
-                        diff = Math.Min(diff, maxMovement);
-                    } else {
-                        diff = Math.Max(diff, -maxMovement);
-                    }
-                    _barrelAimRadians = DenormalizeAngle(current + diff);
-                    //Console.WriteLine("Setting barrel angle to {0}", _barrelAimRadians);
-                    break;
                 case Direction.Up: // angle > 0 && angle < pi/2
                     target = _barrelTargetRadians;
                     current = _barrelAimRadians;
-                    diff = target - current;
-                    if ( diff >= 0 ) {
-                        diff = Math.Min(diff, maxMovement);
-                    } else {
-                        diff = Math.Max(diff, -maxMovement);
-                    }
-                    _barrelAimRadians = DenormalizeAngle(current + diff);
                     break;
                 case Direction.Down: // angle < 0 && angle > -pi/2
                     target = _barrelTargetRadians;
@@ -161,17 +135,19 @@ namespace Enceladus.Entity.Enemy {
                         target = -Projectile.Pi;
                     }
                     current = _barrelAimRadians;
-                    diff = target - current;
-                    if ( diff >= 0 ) {
-                        diff = Math.Min(diff, maxMovement);
-                    } else {
-                        diff = Math.Max(diff, -maxMovement);
-                    }
-                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            float diff = target - current;
+            if ( diff >= 0 ) {
+                diff = Math.Min(diff, maxMovement);
+            } else {
+                diff = Math.Max(diff, -maxMovement);
+            }
+            _barrelAimRadians = DenormalizeAngle(current + diff);
+
         }
 
         /// <summary>
