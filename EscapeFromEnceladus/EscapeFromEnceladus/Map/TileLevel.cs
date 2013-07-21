@@ -345,9 +345,9 @@ namespace Enceladus.Map {
 #else
                     int numPieces = 4;
 #endif
-                    EnceladusGame.Instance.Register(new ShatterAnimation(_world, tileInfo.Texture, Color.White, tileInfo.Rectangle,
+                    EnceladusGame.Instance.Register(new ShatterAnimation(_world, tileInfo.Texture, tileInfo.Rectangle,
                                                                  t.Position + new Vector2(TileSize / 2, TileSize / 2),
-                                                                 numPieces, 20f));
+                                                                 numPieces));
                 }
 
                 // When recreating tiles, we need to be careful not to recreate 

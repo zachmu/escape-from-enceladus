@@ -25,7 +25,7 @@ namespace Enceladus.Entity.Enemy {
         private const float Height = 1f;
         private const float Width = .5f;
         private const float Radius = Width;
-        private const float TurretSpeedRPS = .20f;
+        private const float TurretSpeedRps = .20f;
 
         private readonly Body _body;
         private readonly Direction _facingDirection;
@@ -115,7 +115,7 @@ namespace Enceladus.Entity.Enemy {
         private void UpdateBarrelAngle(GameTime gameTime) {
             float target;
             float current;
-            float maxMovement = (float) (TurretSpeedRPS * gameTime.ElapsedGameTime.TotalSeconds * Projectile.Pi * 2);
+            float maxMovement = (float) (TurretSpeedRps * gameTime.ElapsedGameTime.TotalSeconds * Projectile.Pi * 2);
 
             switch ( _facingDirection ) {
                 case Direction.Left: // angle > pi/2 || angle < -pi/2

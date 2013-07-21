@@ -1,5 +1,6 @@
 ﻿using Enceladus.Entity;
 using Enceladus.Farseer;
+using Enceladus.Overlay;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -21,12 +22,12 @@ namespace Enceladus.Weapon {
         public const int Flags = 1;
 
         public Shot(Vector2 position, World world, Direction direction)
-            : base(position, world, direction, Speed, .05f, .05f) {
+            : base(position, world, direction, Speed, ConvertUnits.ToSimUnits(16), ConvertUnits.ToSimUnits(6)) {
             Sfx.Play();
         }
 
         public static void LoadContent(ContentManager content) {
-            Image = content.Load<Texture2D>("star");
+            Image = SharedGraphicalAssets.Projectiles[SharedGraphicalAssets.ProjectilePlayerBasic];
             Sfx = content.Load<SoundEffect>("Sounds/laser");
         }
 

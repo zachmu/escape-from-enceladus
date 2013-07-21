@@ -16,6 +16,9 @@ namespace Enceladus.Overlay {
         public static SpriteFont DialogFont { get; private set; }
         public static Texture2D BlackBackdrop { get; private set; }
         public static SpriteFont TitleFont { get; private set; }
+        public static Texture2D[] Projectiles { get; private set; }
+        public const int ProjectileSphere16 = 0;
+        public const int ProjectilePlayerBasic = 1;
 
         public static void LoadContent(ContentManager cm) {
             YButton = cm.Load<Texture2D>("ButtonImages/xboxControllerButtonY");
@@ -24,6 +27,13 @@ namespace Enceladus.Overlay {
             DialogFont.LineSpacing -= 10;
             TitleFont = cm.Load<SpriteFont>("Fonts/November128");
             BlackBackdrop = cm.Load<Texture2D>("BlackBackdrop");
+
+            Projectiles = new Texture2D[2];
+            for ( int i = 0; i < Projectiles.Length; i++ ) {
+                Projectiles[i] = cm.Load<Texture2D>(String.Format("Projectile/Projectile{0:0000}", i));
+            }
         }
+
+
     }
 }
