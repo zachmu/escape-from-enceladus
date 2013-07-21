@@ -90,8 +90,15 @@ namespace Enceladus.Entity.Enemy {
             if ( _facingDirection == Direction.Up || _facingDirection == Direction.Down ) {
                 bodyRotation = _body.Rotation;
             }
-            spriteBatch.Draw(Animation[Barrel], displayPosition, null, color, _barrelAimRadians, origin, 1f,
+
+            float barrelRotation = (float) (Math.PI - _barrelAimRadians);
+            if ( _facingDirection == Direction.Up || _facingDirection == Direction.Down ) {
+                //barrelRotation = _barrelAimRadians + _barrelAimRadians;
+            }
+
+            spriteBatch.Draw(Animation[Barrel], displayPosition, null, color, barrelRotation, origin, 1f,
                              SpriteEffects.None, 0);
+
             spriteBatch.Draw(Animation[WeakSpot], displayPosition, null, color, bodyRotation, origin, 1f,
                              SpriteEffects.None, 0);
             spriteBatch.Draw(Animation[Hatch], displayPosition, null, color, bodyRotation, origin, 1f,
@@ -132,9 +139,20 @@ namespace Enceladus.Entity.Enemy {
                     } else {
                         diff = Math.Max(diff, -maxMovement);
                     }
-                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff - Projectile.PiOverTwo);
+                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff);
+                    //Console.WriteLine("Setting barrel angle to {0}", _barrelAimRadians);
                     break;
                 case Direction.Up: // angle > 0 && angle < pi/2
+                    target = _barrelTargetRadians;
+                    current = _barrelAimRadians;
+                    diff = target - current;
+                    if ( diff >= 0 ) {
+                        diff = Math.Min(diff, maxMovement);
+                    } else {
+                        diff = Math.Max(diff, -maxMovement);
+                    }
+                    _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff);
+                    break;
                 case Direction.Down: // angle < 0 && angle > -pi/2
                     target = _barrelTargetRadians;
                     current = _barrelAimRadians;
@@ -145,7 +163,6 @@ namespace Enceladus.Entity.Enemy {
                         diff = Math.Max(diff, -maxMovement);
                     }
                     _barrelAimRadians = DenormalizeAngle(_barrelAimRadians + diff);
-
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -174,22 +191,25 @@ namespace Enceladus.Entity.Enemy {
             }
         }
 
+        /// <summary>
+        /// Determines where the aim target should be, constrained to turret's range
+        /// </summary>
         private void DetermineTargetAngle() {
-            Vector2 diff = Position - Player.Instance.Position;
-            float angle = (float) Math.Atan2(diff.Y, diff.X);
+            Vector2 diff = Player.Instance.Position - Position;
+            float angle = (float) Math.Atan2(-diff.Y, diff.X);
 
             // Depending on our facing direction, we need to determine if the player
             // is in our 180 degree range and adjust the target accordingly.
             switch ( _facingDirection ) {
                 case Direction.Left:
-                    if ( angle <= Projectile.PiOverTwo && angle >= -Projectile.PiOverTwo ) {
+                    if ( angle >= Projectile.PiOverTwo || angle <= -Projectile.PiOverTwo ) {
                         _barrelTargetRadians = angle;
                     } else {
                         _barrelTargetRadians = angle > 0 ? Projectile.PiOverTwo : -Projectile.PiOverTwo;
                     }
                     break;
                 case Direction.Right:
-                    if ( angle >= Projectile.PiOverTwo || angle <= -Projectile.PiOverTwo ) {
+                    if ( angle >= -Projectile.PiOverTwo && angle <= Projectile.PiOverTwo ) {
                         _barrelTargetRadians = angle;
                     } else {
                         _barrelTargetRadians = angle > 0 ? Projectile.PiOverTwo : -Projectile.PiOverTwo;
@@ -199,14 +219,14 @@ namespace Enceladus.Entity.Enemy {
                     if ( angle >= 0 ) {
                         _barrelTargetRadians = angle;
                     } else {
-                        _barrelTargetRadians = (float) (angle > -Projectile.PiOverTwo ? 0 : -Math.PI);
+                        _barrelTargetRadians = (float) (angle > -Projectile.PiOverTwo ? 0 : Math.PI);
                     }
                     break;
                 case Direction.Down:
                     if ( angle <= 0 ) {
                         _barrelTargetRadians = angle;
                     } else {
-                        _barrelTargetRadians = (float) (angle > Projectile.PiOverTwo ? 0 : Math.PI);
+                        _barrelTargetRadians = (float) (angle < Projectile.PiOverTwo ? 0 : Math.PI);
                     }
                     break;
                 default:
