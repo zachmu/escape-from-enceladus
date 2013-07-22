@@ -140,6 +140,7 @@
     <Compile Include="Entity\GameEntity.cs" />
     <Compile Include="Entity\HealthPickup.cs" />
     <Compile Include="Entity\SolidColorEffect.cs" />
+    <Compile Include="Entity\StandingMonitor.cs" />
     <Compile Include="Event\EventManager.cs" />
     <Compile Include="Event\GameEvent.cs" />
     <Compile Include="Event\GameIntro.cs" />

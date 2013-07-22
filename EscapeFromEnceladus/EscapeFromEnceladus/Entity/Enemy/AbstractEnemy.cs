@@ -114,5 +114,12 @@ namespace Enceladus.Entity.Enemy {
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
             Dispose();
         }
+
+        /// <summary>
+        /// Updates the standing and ceiling status using the body's current contacts.
+        /// </summary>
+        protected void UpdateStanding() {
+            _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation());
+        }
     }
 }

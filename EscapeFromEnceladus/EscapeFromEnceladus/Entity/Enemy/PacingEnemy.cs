@@ -67,7 +67,7 @@ namespace Enceladus.Entity.Enemy {
         public override void Update(GameTime gameTime) {
             base.Update(gameTime);
 
-            if ( IsStanding ) {
+            if ( _standingMonitor.IsStanding ) {
                 if ( _direction == Direction.Left ) {
                     _body.LinearVelocity = new Vector2(-Constants.Get(EnemySpeed), 0);
                 } else {

@@ -159,15 +159,11 @@ namespace Enceladus.Entity {
 
             _body.OnCollision += (a, b, contact) => {
                 if ( contact.IsTouching() ) {
-                  //  Console.WriteLine("hit!");
                     UpdateStanding();
                 }
                 return true;
             };
-            _body.OnSeparation += (a, b) => {
-                // Console.WriteLine("separated!");
-                UpdateStanding();
-            };
+            _body.OnSeparation += (a, b) => UpdateStanding();
         }
 
         public int Health { get; private set; }
@@ -215,7 +211,8 @@ namespace Enceladus.Entity {
         /// <summary>
         /// Whether or not the character is standing on solid ground.
         /// </summary>
-        protected override bool IsStanding {
+        private bool _isStanding;
+        protected bool IsStanding {
             get { return _isStanding; }
             set {
                 if ( value && !_isStanding ) {
@@ -420,14 +417,12 @@ namespace Enceladus.Entity {
                 _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
             }
 
-            if ( _terrainChanged && _ignoreStandingUpdatesNextNumFrames <= 0 ) {
+            if ( _terrainChanged && _standingMonitor.IgnoreStandingUpdatesNextNumFrames <= 0 ) {
                 UpdateStanding();
                 _terrainChanged = false;
             }
 
-            if ( _ignoreStandingUpdatesNextNumFrames > 0 ) {
-                _ignoreStandingUpdatesNextNumFrames--;
-            }
+            _standingMonitor.UpdateCounters();
         }
 
         /// <summary>
@@ -794,7 +789,7 @@ namespace Enceladus.Entity {
                     _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
                 }
             } else if ( PlayerControl.Control.IsJumpButtonDown() ) {
-                if ( IsTouchingCeiling ) {
+                if ( _standingMonitor.IsTouchingCeiling ) {
                     _airBoostTime = -1;
                 } else if ( _airBoostTime >= 0
                     && _airBoostTime < Constants[PlayerAirBoostTime] * 1000 ) {
@@ -841,7 +836,7 @@ namespace Enceladus.Entity {
         /// Resizes the body while keeping the lower edge in the same position and the X position constant.
         /// </summary>
         private void ResizeBody(float width, float height, Vector2 positionalCorrection) {
-            _ignoreStandingUpdatesNextNumFrames = 2;
+            _standingMonitor.IgnoreStandingUpdatesNextNumFrames = 2;
 
             float halfHeight = height / 2;
             var newPosition = GetNewBodyPosition(halfHeight, positionalCorrection);
@@ -1524,10 +1519,8 @@ namespace Enceladus.Entity {
             _flashAnimation.SetFlashTime(150);
 
             // Make sure we're in the air or on the ground as necessary
-            _ignoreStandingUpdatesNextNumFrames = 0;
+            _standingMonitor.IgnoreStandingUpdatesNextNumFrames = 0;
             UpdateStanding();
-
-            
         }
 
         public void Dispose() {
@@ -1566,6 +1559,14 @@ namespace Enceladus.Entity {
         public void Destroy() {
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, Color, null, _body.Position, 8, 30f));
             Dispose();
+        }
+
+        /// <summary>
+        /// Updates the standing and ceiling status using the body's current contacts.
+        /// </summary>
+        protected void UpdateStanding() {
+            _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation());
+            IsStanding = _standingMonitor.IsStanding;
         }
     }
 
