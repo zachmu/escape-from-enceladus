@@ -116,7 +116,7 @@
     <Compile Include="CameraDirector.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Control\PlayerControl.cs" />
-    <Compile Include="Entity\Enemy\AbstractEnemy.cs" />
+    <Compile Include="Entity\Enemy\AbstractWalkingEnemy.cs" />
     <Compile Include="Entity\Enemy\Beetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\Turret.cs" />
@@ -136,7 +136,6 @@
     <Compile Include="Entity\NPC\NPC.cs" />
     <Compile Include="Entity\NPC\NPCFactory.cs" />
     <Compile Include="Entity\ShatterAnimation.cs" />
-    <Compile Include="Entity\Entity.cs" />
     <Compile Include="Entity\GameEntity.cs" />
     <Compile Include="Entity\HealthPickup.cs" />
     <Compile Include="Entity\SolidColorEffect.cs" />

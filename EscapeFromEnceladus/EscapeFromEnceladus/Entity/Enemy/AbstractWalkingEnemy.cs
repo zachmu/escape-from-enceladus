@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Entity.Enemy {
 
-    public abstract class AbstractEnemy : Entity, IGameEntity {
+    public abstract class AbstractWalkingEnemy : IGameEntity {
 
         protected const string EnemySpeed = "Enemy speed (m/s)";
 
@@ -24,12 +24,16 @@ namespace Enceladus.Entity.Enemy {
         private bool _disposed;
         protected Direction _direction;
         protected float _height;
+        protected World _world;
+        protected Body _body;
+        protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
+        protected readonly StandingMonitor _standingMonitor = new StandingMonitor();
 
         public bool Disposed {
             get { return _disposed; }
         }
 
-        public AbstractEnemy(Vector2 position, World world, float width, float height) {
+        public AbstractWalkingEnemy(Vector2 position, World world, float width, float height) {
             _height = height;
             CreateBody(position, world, width, height);
             ConfigureBody(position, height);
@@ -95,6 +99,8 @@ namespace Enceladus.Entity.Enemy {
             get { return false; }
         }
 
+        public Vector2 Position { get { return _body.Position; } }
+
         public bool UpdateInMode(Mode mode) {
             return mode == Mode.NormalControl; 
         }
@@ -120,6 +126,13 @@ namespace Enceladus.Entity.Enemy {
         /// </summary>
         protected void UpdateStanding() {
             _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation());
+        }
+
+        // Returns where the enemy is standing
+        protected abstract Vector2 GetStandingLocation();
+
+        protected void UpdateFlash(GameTime gameTime) {
+            _flashAnimation.UpdateFlash(gameTime);
         }
     }
 }

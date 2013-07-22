@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Entity.Enemy {
 
-    public class Beetle : AbstractEnemy {
+    public class Beetle : AbstractWalkingEnemy {
 
         private Texture2D _image;
         private int _animationFrame = 0;

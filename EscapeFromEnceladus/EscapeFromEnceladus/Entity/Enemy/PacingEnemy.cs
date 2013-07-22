@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Enceladus.Entity.Enemy {
 
-    public class PacingEnemy : AbstractEnemy, IGameEntity {
+    public class PacingEnemy : AbstractWalkingEnemy, IGameEntity {
 
         static PacingEnemy() {
             Constants.Register(new Constant(EnemySpeed, 3f, Keys.E));

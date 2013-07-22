@@ -22,7 +22,7 @@ using Microsoft.Xna.Framework.Input;
 using ConvertUnits = Enceladus.Farseer.ConvertUnits;
 
 namespace Enceladus.Entity {
-    public class Player : Entity, IGameEntity, ISaveable {
+    public class Player : IGameEntity, ISaveable {
 
         private static Player _instance;
         public static Player Instance {
@@ -227,7 +227,7 @@ namespace Enceladus.Entity {
             }
         }
 
-        protected override Vector2 GetStandingLocation() {
+        protected Vector2 GetStandingLocation() {
             return _body.Position + new Vector2(0, Height / 2);
         }
 
@@ -1503,7 +1503,7 @@ namespace Enceladus.Entity {
 
         #endregion
 
-        public void HitBy(AbstractEnemy enemy) {
+        public void HitBy(AbstractWalkingEnemy enemy) {
             Health -= 10;
             if ( Health <= 0 ) {
                 Health = 0;
@@ -1534,6 +1534,10 @@ namespace Enceladus.Entity {
         }
 
         private bool _terrainChanged;
+        protected World _world;
+        protected Body _body;
+        protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
+        protected readonly StandingMonitor _standingMonitor = new StandingMonitor();
 
         /// <summary>
         /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 
@@ -1567,6 +1571,10 @@ namespace Enceladus.Entity {
         protected void UpdateStanding() {
             _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation());
             IsStanding = _standingMonitor.IsStanding;
+        }
+
+        protected void UpdateFlash(GameTime gameTime) {
+            _flashAnimation.UpdateFlash(gameTime);
         }
     }
 
