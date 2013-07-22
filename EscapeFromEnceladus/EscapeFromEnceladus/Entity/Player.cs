@@ -125,7 +125,7 @@ namespace Enceladus.Entity {
             _instance = this;
             
             HealthCapacity = 650;
-            Health = 10;
+            Health = 100;
 
             Equipment = new Equipment();
 
@@ -201,7 +201,7 @@ namespace Enceladus.Entity {
                 position += _imageDrawOffset;
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-                Color color = _drawSolidColor ? _flashColor : _color;
+                Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : _color;
                 spriteBatch.Draw(Image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
                                                Image.Height),
@@ -1521,7 +1521,7 @@ namespace Enceladus.Entity {
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
             _timeUntilRegainControl = (long)(Constants[PlayerKnockbackTime] * 1000);
 
-            _flashTime = 150;
+            _flashAnimation.SetFlashTime(150);
 
             // Make sure we're in the air or on the ground as necessary
             _ignoreStandingUpdatesNextNumFrames = 0;

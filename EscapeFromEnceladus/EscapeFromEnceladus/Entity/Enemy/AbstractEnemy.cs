@@ -101,7 +101,7 @@ namespace Enceladus.Entity.Enemy {
 
         public void HitBy(Projectile shot) {
             _hitPoints -= shot.BaseDamage;
-            _flashTime = 150;
+            _flashAnimation.SetFlashTime(150);
         }
 
         public void Dispose() {

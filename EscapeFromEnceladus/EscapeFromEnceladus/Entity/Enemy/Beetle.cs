@@ -141,7 +141,7 @@ namespace Enceladus.Entity.Enemy {
                 Vector2 origin = new Vector2(Image.Width / 2f, Image.Height);
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
+                Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : SolidColorEffect.DisabledColor;
 
                 spriteBatch.Draw(Image, displayPosition, null, color, _body.Rotation, origin, 1f,
                                  _clockwise ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
@@ -151,7 +151,7 @@ namespace Enceladus.Entity.Enemy {
         /// <summary>
         /// Event handler for when the beetle runs into a solid object.  We only care about the player interaction
         /// </summary>
-        protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
+        protected override void HitSolidObject(Contact contact, Fixture b) {
             if ( b.GetUserData().IsPlayer ) {
                 bool reverseDirection = false;
                 switch ( _direction ) {

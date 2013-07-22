@@ -22,11 +22,7 @@ namespace Enceladus.Entity {
             set { _isStanding = value; }
         }
 
-        protected Color _flashColor = Color.OrangeRed;
-        protected bool _drawSolidColor;
-        protected int _flashTime;
-        private const int flashChangeMs = 32;
-
+        protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
         protected bool _isTouchingCeiling;
 
         protected virtual bool IsTouchingCeiling {
@@ -88,13 +84,7 @@ namespace Enceladus.Entity {
         }
 
         protected void UpdateFlash(GameTime gameTime) {
-            if ( _flashTime > 0 ) {
-                _flashTime -= gameTime.ElapsedGameTime.Milliseconds;
-                _drawSolidColor = (_flashTime / flashChangeMs) % 2 == 1;
-            }
-            if ( _flashTime <= 0 ) {
-                _drawSolidColor = false;
-            }
+            _flashAnimation.UpdateFlash(gameTime);
         }
     }
 }

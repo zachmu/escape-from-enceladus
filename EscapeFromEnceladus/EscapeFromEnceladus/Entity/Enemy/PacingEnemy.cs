@@ -53,7 +53,7 @@ namespace Enceladus.Entity.Enemy {
                 position.Y -= 1 / 2f;
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
+                Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : SolidColorEffect.DisabledColor;
                 spriteBatch.Draw(Image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
                                                Image.Height),

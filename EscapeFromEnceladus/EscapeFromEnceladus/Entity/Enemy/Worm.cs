@@ -60,7 +60,7 @@ namespace Enceladus.Entity.Enemy {
                 Vector2 origin = new Vector2(BaseWidth / 2f, Image.Height);
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-                Color color = _drawSolidColor ? _flashColor : SolidColorEffect.DisabledColor;
+                Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : SolidColorEffect.DisabledColor;
 
                 spriteBatch.Draw(Image, displayPosition, null, color, 0f, origin, scale,
                                  _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
