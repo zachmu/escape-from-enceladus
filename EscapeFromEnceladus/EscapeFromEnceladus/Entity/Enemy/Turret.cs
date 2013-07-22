@@ -92,9 +92,6 @@ namespace Enceladus.Entity.Enemy {
             }
 
             float barrelRotation = (float) (Projectile.Pi - _barrelAimRadians);
-            if ( _facingDirection == Direction.Up || _facingDirection == Direction.Down ) {
-                //barrelRotation = _barrelAimRadians + _barrelAimRadians;
-            }
 
             spriteBatch.Draw(Animation[Barrel], displayPosition, null, color, barrelRotation, origin, 1f,
                              SpriteEffects.None, 0);
