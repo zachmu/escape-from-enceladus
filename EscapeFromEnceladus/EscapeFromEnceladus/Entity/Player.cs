@@ -76,12 +76,12 @@ namespace Enceladus.Entity {
             Constants.Register(new Constant(PlayerAirBoostTime, .4f, Keys.D4));
             Constants.Register(new Constant(PlayerKnockbackTime, .3f, Keys.K));
             Constants.Register(new Constant(PlayerKnockbackAmt, 5f, Keys.L));
-            Constants.Register(new Constant(PlayerJogSpeedMultiplier, .5f, Keys.B, .01f));
-            Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .5f, Keys.N));
-            Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, 1.0f, null));
-            Constants.Register(new Constant(PlayerScooterOffset, 0f, Keys.P));
-            Constants.Register(new Constant(ProjectileOffsetX, 0f, Keys.X, .01f));
-            Constants.Register(new Constant(ProjectileOffsetY, 0f, Keys.Y, .01f));
+            Constants.Register(new Constant(PlayerJogSpeedMultiplier, .46f, Keys.B, .01f));
+            Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .4f, Keys.N));
+            Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, .57f, null, .01f));
+            Constants.Register(new Constant(PlayerScooterOffset, 0f, null));
+            Constants.Register(new Constant(ProjectileOffsetX, 0f, null, .01f));
+            Constants.Register(new Constant(ProjectileOffsetY, 0f, null, .01f));
         }
 
         #endregion
@@ -175,12 +175,13 @@ namespace Enceladus.Entity {
         private Texture2D _image;
         private Texture2D Image {
             get { return _image; }
-            set {
-                if ( _image != value ) {
-                    _timeSinceLastAnimationUpdate = 0;
-                }
-                _image = value;
+        }
+
+        private void SetImage(Texture2D image, double timeSinceLastUpdate) {
+            if ( _image != image ) {
+                _timeSinceLastAnimationUpdate = timeSinceLastUpdate;
             }
+            _image = image;
         }
 
         private SoundEffect LandSound { get; set; }
@@ -922,7 +923,7 @@ namespace Enceladus.Entity {
         };
 
         private int _animationFrame;
-        private long _timeSinceLastAnimationUpdate;
+        private double _timeSinceLastAnimationUpdate;
         private bool _jumpInitiated;
         private bool _scooterInitiated;
         private bool _endScooterInitiated;
@@ -1058,7 +1059,7 @@ namespace Enceladus.Entity {
                 _scooterAnimation[i] = content.Load<Texture2D>(String.Format("Character/Scooter/Scooter{0:0000}", i));
             }
 
-            Image = _standAimAnimation[AimRightFrame];
+            SetImage(_standAimAnimation[AimRightFrame], 0);
 
             for ( int i = 0; i < NumUnarmedJogFrames; i++ ) {
                 _unarmedJogAnimation[i] = content.Load<Texture2D>(String.Format("Character/JogRight/jog_right{0:0000}", i));
@@ -1122,7 +1123,7 @@ namespace Enceladus.Entity {
                 }
 
                 if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
-                    Image = _scooterAnimation[_animationFrame++];
+                    SetImage(_scooterAnimation[_animationFrame++], 0);
                     if ( _animationFrame >= ScootFrame ) {
                         _scooterInitiated = false;
                         if ( _abortScooting ) {
@@ -1136,7 +1137,7 @@ namespace Enceladus.Entity {
                     _animationFrame = ScootFrame;
                 }
                 if ( _timeSinceLastAnimationUpdate > 0 || _currentAnimation != _prevAnimation ) {
-                    Image = _scooterAnimation[_animationFrame--];
+                    SetImage(_scooterAnimation[_animationFrame--], 0);
                     if ( !_abortScooting ) {
                         if ( _facingDirection == Direction.Right ) {
                             _imageDrawOffset = new Vector2(ScooterNudge, 0);
@@ -1152,13 +1153,14 @@ namespace Enceladus.Entity {
             } else {
                 _currentAnimation = Animation.Scoot;
                 float speed = Math.Abs(_body.LinearVelocity.X) * Constants[PlayerWheelSpinSpeedMultiplier];
-                if ( _timeSinceLastAnimationUpdate > 1000 / NumScootFrames / speed
+                float timeTillUpdate = 1000 / NumScootFrames / speed;
+                if ( _timeSinceLastAnimationUpdate > timeTillUpdate
                     || _prevAnimation != _currentAnimation ) {
                     _animationFrame %= NumScooterFrames;
                     if ( _animationFrame == 0 ) {
                         _animationFrame = ScootFrame;
                     }
-                    Image = _scooterAnimation[_animationFrame++];
+                    SetImage(_scooterAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTillUpdate);
                 }
             }
         }
@@ -1170,7 +1172,7 @@ namespace Enceladus.Entity {
                 if ( _currentAnimation != _prevAnimation ) {
                     _animationFrame = 0;
                 }
-                Image = _jumpAnimation[_animationFrame++];
+                SetImage(_jumpAnimation[_animationFrame++], 0);
                 if ( _animationFrame >= JumpAimUpFrame ) {
                     _jumpInitiated = false;
                 }
@@ -1180,26 +1182,26 @@ namespace Enceladus.Entity {
                     case Direction.Right:
                         _currentAnimation = Animation.JumpAimStraight;
                         if ( _currentAnimation != _prevAnimation ) {
-                            Image = _jumpAnimation[JumpAimStraightFrame];
+                            SetImage(_jumpAnimation[JumpAimStraightFrame], 0);
                         }
                         break;
                     case Direction.Up:
                         _currentAnimation = Animation.JumpAimUp;
                         if ( _currentAnimation != _prevAnimation ) {
-                            Image = _jumpAnimation[JumpAimUpFrame];
+                            SetImage(_jumpAnimation[JumpAimUpFrame], 0);
                         }
                         break;
                     case Direction.Down:
                         _currentAnimation = Animation.JumpAimDown;
                         if ( _currentAnimation != _prevAnimation ) {
-                            Image = _jumpAnimation[JumpAimDownFrame];
+                            SetImage(_jumpAnimation[JumpAimDownFrame], 0);
                         }
                         break;
                     case Direction.UpLeft:
                     case Direction.UpRight:
                         _currentAnimation = Animation.JumpAimDiagonalUp;
                         if ( _currentAnimation != _prevAnimation ) {
-                            Image = _jumpAnimation[JumpAimUpRightFrame];
+                            SetImage(_jumpAnimation[JumpAimUpRightFrame], 0);
                         }
 
                         break;
@@ -1207,7 +1209,7 @@ namespace Enceladus.Entity {
                     case Direction.DownRight:
                         _currentAnimation = Animation.JumpAimDiagonalDown;
                         if ( _currentAnimation != _prevAnimation ) {
-                            Image = _jumpAnimation[JumpAimDownRightFrame];
+                            SetImage(_jumpAnimation[JumpAimDownRightFrame], 0);
                         }
                         break;
                     default:
@@ -1219,48 +1221,49 @@ namespace Enceladus.Entity {
         private void AnimateRunning(Direction aimDirection) {
             float runSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerJogSpeedMultiplier]);
 
+            float timeTilAnimationUpdate = 1000f / NumRunAimStraightFrames / runSpeed;
             switch ( aimDirection ) {
                 case Direction.Left:
                 case Direction.Right:
                     _currentAnimation = Animation.RunAimStraight;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumRunAimStraightFrames;
-                        Image = _runAimStraightAnimation[_animationFrame++];
+                        SetImage(_runAimStraightAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.Up:
                     _currentAnimation = Animation.RunAimUp;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumRunAimFrames;
-                        Image = _runAimUpAnimation[_animationFrame++];
+                        SetImage(_runAimUpAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.Down:
                     _currentAnimation = Animation.RunAimDown;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumRunAimFrames;
-                        Image = _runAimDownAnimation[_animationFrame++];
+                        SetImage(_runAimDownAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.UpLeft:
                 case Direction.UpRight:
                     _currentAnimation = Animation.RunAimDiagonalUp;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumRunAimFrames;
-                        Image = _runAimDiagonalUpAnimation[_animationFrame++];
+                        SetImage(_runAimDiagonalUpAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.DownLeft:
                 case Direction.DownRight:
                     _currentAnimation = Animation.RunAimDiagonalDown;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumRunAimStraightFrames / runSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumRunAimFrames;
-                        Image = _runAimDiagonalDownAnimation[_animationFrame++];
+                        SetImage(_runAimDiagonalDownAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 default:
@@ -1271,48 +1274,50 @@ namespace Enceladus.Entity {
         private void AnimateJogging(Direction aimDirection) {
             float jogSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerJogSpeedMultiplier]);
 
+            float timeTillAnimationUpdate = 1000f / NumJogFrames / jogSpeed;
+            double residualTime = _timeSinceLastAnimationUpdate % timeTillAnimationUpdate;
             switch ( aimDirection ) {
                 case Direction.Left:
                 case Direction.Right:
                     _currentAnimation = Animation.JogAimStraight;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumJogFrames;
-                        Image = _jogAimStraightAnimation[_animationFrame++];
+                        SetImage(_jogAimStraightAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.Up:
                     _currentAnimation = Animation.JogAimUp;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumJogFrames;
-                        Image = _jogAimUpAnimation[_animationFrame++];
+                        SetImage(_jogAimUpAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.Down:
                     _currentAnimation = Animation.JogAimDown;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumJogFrames;
-                        Image = _jogAimDownAnimation[_animationFrame++];
+                        SetImage(_jogAimDownAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.UpLeft:
                 case Direction.UpRight:
                     _currentAnimation = Animation.JogAimDiagonalUp;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumJogFrames;
-                        Image = _jogAimDiagonalUpAnimation[_animationFrame++];
+                        SetImage(_jogAimDiagonalUpAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.DownLeft:
                 case Direction.DownRight:
                     _currentAnimation = Animation.JogAimDiagonalDown;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumJogFrames / jogSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumJogFrames;
-                        Image = _jogAimDiagonalDownAnimation[_animationFrame++];
+                        SetImage(_jogAimDiagonalDownAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 default:
@@ -1323,48 +1328,50 @@ namespace Enceladus.Entity {
         private void AnimateWalking(Direction aimDirection) {
             float walkSpeed = Math.Abs(_body.LinearVelocity.X * Constants[PlayerWalkSpeedMultiplier]);
 
+            float timeTillAnimationUpdate = 1000f / NumWalkAimStraightFrames / walkSpeed;
+            double residualTime = _timeSinceLastAnimationUpdate % timeTillAnimationUpdate;
             switch ( aimDirection ) {
                 case Direction.Left:
                 case Direction.Right:
                     _currentAnimation = Animation.WalkAimStraight;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumWalkAimStraightFrames;
-                        Image = _walkAimStraightAnimation[_animationFrame++];
+                        SetImage(_walkAimStraightAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.Up:
                     _currentAnimation = Animation.WalkAimUp;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumWalkAimFrames;
-                        Image = _walkAimUpAnimation[_animationFrame++];
+                        SetImage(_walkAimUpAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.Down:
                     _currentAnimation = Animation.WalkAimDown;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumWalkAimFrames;
-                        Image = _walkAimDownAnimation[_animationFrame++];
+                        SetImage(_walkAimDownAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.UpLeft:
                 case Direction.UpRight:
                     _currentAnimation = Animation.WalkAimDiagonalUp;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumWalkAimFrames;
-                        Image = _walkAimDiagonalUpAnimation[_animationFrame++];
+                        SetImage(_walkAimDiagonalUpAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 case Direction.DownLeft:
                 case Direction.DownRight:
                     _currentAnimation = Animation.WalkAimDiagonalDown;
-                    if ( _timeSinceLastAnimationUpdate > 1000f / NumWalkAimStraightFrames / walkSpeed
+                    if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
                         _animationFrame %= NumWalkAimFrames;
-                        Image = _walkAimDiagonalDownAnimation[_animationFrame++];
+                        SetImage(_walkAimDiagonalDownAnimation[_animationFrame++], residualTime);
                     }
                     break;
                 default:
@@ -1373,64 +1380,66 @@ namespace Enceladus.Entity {
         }
 
         private void AnimateStandingStill(Direction aimDirection) {
+            float timeTillAnimationChange = 500f;
+            double residualTime = _timeSinceLastAnimationUpdate % timeTillAnimationChange;
             if ( !IsDucking ) {
                 switch ( aimDirection ) {
                     case Direction.Left:
                     case Direction.Right:
                         _currentAnimation = Animation.AimStraight;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < AimRightFrame
                                  || _animationFrame > AimRightFrame + 1 ) {
                                 _animationFrame = AimRightFrame;
                             }
-                            Image = _standAimAnimation[_animationFrame++];
+                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.Up:
                         _currentAnimation = Animation.AimUp;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < AimUpFrame
                                  || _animationFrame > AimUpFrame + 1 ) {
                                 _animationFrame = AimUpFrame;
                             }
-                            Image = _standAimAnimation[_animationFrame++];
+                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.Down:
                         _currentAnimation = Animation.AimDown;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < AimDownFrame
                                  || _animationFrame > AimDownFrame + 1 ) {
                                 _animationFrame = AimDownFrame;
                             }
-                            Image = _standAimAnimation[_animationFrame++];
+                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.UpLeft:
                     case Direction.UpRight:
                         _currentAnimation = Animation.AimDiagonalUp;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < AimUpRightFrame
                                  || _animationFrame > AimUpRightFrame + 1 ) {
                                 _animationFrame = AimUpRightFrame;
                             }
-                            Image = _standAimAnimation[_animationFrame++];
+                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.DownLeft:
                     case Direction.DownRight:
                         _currentAnimation = Animation.AimDiagonalDown;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < AimDownRightFrame
                                  || _animationFrame > AimDownRightFrame + 1 ) {
                                 _animationFrame = AimDownRightFrame;
                             }
-                            Image = _standAimAnimation[_animationFrame++];
+                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     default:
@@ -1441,59 +1450,59 @@ namespace Enceladus.Entity {
                     case Direction.Left:
                     case Direction.Right:
                         _currentAnimation = Animation.CrouchAimStraight;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < CrouchAimStraightFrame
                                  || _animationFrame > CrouchAimStraightFrame + 1 ) {
                                 _animationFrame = CrouchAimStraightFrame;
                             }
-                            Image = _crouchAnimation[_animationFrame++];
+                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.Up:
                         _currentAnimation = Animation.CrouchAimUp;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < CrouchAimUpFrame
                                  || _animationFrame > CrouchAimUpFrame + 1 ) {
                                 _animationFrame = CrouchAimUpFrame;
                             }
-                            Image = _crouchAnimation[_animationFrame++];
+                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.Down:
                         _currentAnimation = Animation.CrouchAimDown;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < CrouchAimDownFrame
                                  || _animationFrame > CrouchAimDownFrame + 1 ) {
                                 _animationFrame = CrouchAimDownFrame;
                             }
-                            Image = _crouchAnimation[_animationFrame++];
+                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.UpLeft:
                     case Direction.UpRight:
                         _currentAnimation = Animation.CrouchAimDiagonalUp;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < CrouchAimUpRightFrame
                                  || _animationFrame > CrouchAimUpRightFrame + 1 ) {
                                 _animationFrame = CrouchAimUpRightFrame;
                             }
-                            Image = _crouchAnimation[_animationFrame++];
+                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     case Direction.DownLeft:
                     case Direction.DownRight:
                         _currentAnimation = Animation.CrouchAimDiagonalDown;
-                        if ( _timeSinceLastAnimationUpdate > 500f
+                        if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
                             if ( _animationFrame < CrouchAimDownRightFrame
                                  || _animationFrame > CrouchAimDownRightFrame + 1 ) {
                                 _animationFrame = CrouchAimDownRightFrame;
                             }
-                            Image = _crouchAnimation[_animationFrame++];
+                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
                         }
                         break;
                     default:
