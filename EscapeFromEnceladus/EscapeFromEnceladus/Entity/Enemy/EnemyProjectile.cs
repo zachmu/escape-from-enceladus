@@ -19,19 +19,27 @@ namespace Enceladus.Entity.Enemy {
         public event ProjectileDisposed ProjectileDisposed;
 
         protected Texture2D _image;
+        private double _timeToLiveMs = 5000;
 
         public EnemyProjectile(Texture2D image, World world, Vector2 location, Vector2 velocity, float angle, float radius) {
             _body = BodyFactory.CreateCircle(world, radius, 10, location);
             _body.Rotation = angle;
-            _body.LinearVelocity = velocity;
             _body.IsStatic = false;
             _body.IgnoreGravity = true;
-
             _body.UserData = UserData.NewEnemy(this);
+
 
             _body.CollisionCategories = EnceladusGame.EnemyCategory;
             _body.CollidesWith = EnceladusGame.PlayerCategory | EnceladusGame.PlayerProjectileCategory | EnceladusGame.TerrainCategory;
 
+            _body.LinearVelocity = velocity;
+
+            _body.OnCollision += (a, b, contact) => {
+                if ( b.GetUserData().IsPlayer )
+                    Player.Instance.HitBy(this);
+                Dispose();
+                return true;
+            };
             _image = image;
         }
 
@@ -43,9 +51,18 @@ namespace Enceladus.Entity.Enemy {
             Dispose();
         }
 
+        public override void Update(GameTime gameTime) {
+            _timeToLiveMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            if ( _timeToLiveMs <= 0 ) {
+                Dispose();
+            }
+        }
+
         public override void Dispose() {
-            ProjectileDisposed(this);
-            base.Dispose();
+            if ( !Disposed ) {
+                ProjectileDisposed(this);
+                base.Dispose();
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {

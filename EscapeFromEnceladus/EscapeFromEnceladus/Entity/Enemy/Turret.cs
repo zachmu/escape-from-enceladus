@@ -40,6 +40,8 @@ namespace Enceladus.Entity.Enemy {
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
         protected int _hitPoints;
         private int _numProjectilesInAir = 0;
+        private const double MinimumTimeBetweenShotsMs = 3000;
+        private double _timeSinceLastShotMs = MinimumTimeBetweenShotsMs;
 
         public static void LoadContent(ContentManager content) {
             for ( int i = 0; i < NumFrames; i++ ) {
@@ -144,6 +146,8 @@ namespace Enceladus.Entity.Enemy {
                 return;
             }
 
+            _timeSinceLastShotMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+
             DetermineTargetAngle();
             UpdateBarrelAngle(gameTime);
             ShootPlayer();
@@ -155,25 +159,33 @@ namespace Enceladus.Entity.Enemy {
         /// unless there is already a bullet in the air.
         /// </summary>
         private void ShootPlayer() {
-            if ( _numProjectilesInAir > 0 )
+            if ( _numProjectilesInAir > 0 || _timeSinceLastShotMs < MinimumTimeBetweenShotsMs ) {
                 return;
+            }
 
-            bool playerVisible = false;
+            bool playerInRange = false;
             Vector2 angle = new Vector2((float) (Math.Cos(_barrelAimRadians)), (float) -(Math.Sin(_barrelAimRadians)));
-            Vector2 start = Position + (Radius + ProjectileRadius) * angle;
+            Vector2 start = Position + (Radius + ProjectileRadius + .1f) * angle;
+            float closestFraction = 1;
+            Fixture closestFixture = null;
             _world.RayCast((fixture, point, normal, fraction) => {
+                if ( fraction < closestFraction ) {
+                    closestFraction = fraction;
+                    closestFixture = fixture;
+                }
                 if ( fixture.GetUserData().IsPlayer )
-                    playerVisible = true;
-                return 0;
+                    playerInRange = true;
+                return fraction;
             }, start, start + Range * angle);
 
-            if ( playerVisible ) {
+            if ( playerInRange && closestFixture.GetUserData().IsPlayer ) {
                 EnemyProjectile proj = new EnemyProjectile(_projectileImage, _world, start, angle * ProjectileSpeed, _barrelAimRadians, ProjectileRadius);
                 proj.ProjectileDisposed += projectile => {
                     _numProjectilesInAir--;
                 };
                 EnceladusGame.Instance.Register(proj);
                 _numProjectilesInAir++;
+                _timeSinceLastShotMs = 0;
             }
 
             // TODO: sound effect
