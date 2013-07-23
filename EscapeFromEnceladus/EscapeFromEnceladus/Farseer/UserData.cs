@@ -17,7 +17,7 @@ namespace Enceladus.Farseer {
         public bool IsDoor { get; private set; }
         public bool IsDestructibleRegion { get; private set; }
 
-        public AbstractWalkingEnemy Enemy { get; private set; }
+        public IEnemy Enemy { get; private set; }
         public Projectile Projectile { get; private set; }
         public Door Door { get; private set; }
         public DestructionRegion Destruction { get; private set; }
@@ -26,7 +26,7 @@ namespace Enceladus.Farseer {
             return new UserData() { IsTerrain = true };
         }
 
-        public static UserData NewEnemy(AbstractWalkingEnemy enemy) {
+        public static UserData NewEnemy(IEnemy enemy) {
             return new UserData() { IsEnemy = true, Enemy = enemy };
         }
 

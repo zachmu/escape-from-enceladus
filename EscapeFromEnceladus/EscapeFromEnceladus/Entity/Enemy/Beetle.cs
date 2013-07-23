@@ -459,5 +459,9 @@ namespace Enceladus.Entity.Enemy {
         protected override Vector2 GetStandingLocation() {
             return _body.GetWorldPoint(new Vector2(0, LegHeight));
         }
+
+        public override int BaseDamage {
+            get { return 5; }
+        }
     }
 }

@@ -151,7 +151,7 @@ namespace Enceladus.Weapon {
             }
         }
 
-        protected void HitEnemy(AbstractWalkingEnemy enemy) {
+        protected void HitEnemy(IEnemy enemy) {
             enemy.HitBy(this);
         }
 

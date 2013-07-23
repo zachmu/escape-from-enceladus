@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Entity.Enemy {
 
-    public abstract class AbstractWalkingEnemy : IGameEntity {
+    public abstract class AbstractWalkingEnemy : IGameEntity, IEnemy {
 
         protected const string EnemySpeed = "Enemy speed (m/s)";
 
@@ -134,5 +134,7 @@ namespace Enceladus.Entity.Enemy {
         protected void UpdateFlash(GameTime gameTime) {
             _flashAnimation.UpdateFlash(gameTime);
         }
+
+        public abstract int BaseDamage { get; }
     }
 }

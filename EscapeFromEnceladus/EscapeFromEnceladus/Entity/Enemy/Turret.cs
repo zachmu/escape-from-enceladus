@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Entity.Enemy {
-    public class Turret : GameEntityAdapter, IGameEntity {
+    public class Turret : GameEntityAdapter, IGameEntity, IEnemy {
 
         protected const int NumFrames = 4;
         private static readonly Texture2D[] Animation = new Texture2D[NumFrames];
@@ -27,10 +27,14 @@ namespace Enceladus.Entity.Enemy {
         private const float Radius = Width;
         private const float TurretSpeedRps = .20f;
 
+        protected World _world;
         private readonly Body _body;
         private readonly Direction _facingDirection;
         private float _barrelTargetRadians;
         private float _barrelAimRadians;
+
+        protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
+        protected int _hitPoints;
 
         public static void LoadContent(ContentManager content) {
             for ( int i = 0; i < NumFrames; i++ ) {
@@ -40,6 +44,7 @@ namespace Enceladus.Entity.Enemy {
 
         public Turret(Vector2 position, World world, Direction facing) {
             _facingDirection = facing;
+            _world = world;
             
             _body = BodyFactory.CreateSolidArc(world, 1f, Projectile.Pi, 8, Radius, Vector2.Zero, Projectile.PiOverTwo);
 
@@ -68,6 +73,17 @@ namespace Enceladus.Entity.Enemy {
             _body.Position = position;
             _body.CollisionCategories = EnceladusGame.EnemyCategory;
             _body.CollidesWith = Category.All;
+
+            _body.UserData = UserData.NewEnemy(this);
+
+            _body.OnCollision += (a, b, contact) => {
+                if ( b.Body.GetUserData().IsPlayer ) {
+                    Player.Instance.HitBy(this);
+                }
+                return true;
+            };
+
+            _hitPoints = 8;
         }
 
         public override void Dispose() {
@@ -78,21 +94,31 @@ namespace Enceladus.Entity.Enemy {
             get { return _body.IsDisposed; }
         }
 
+        /// <summary>
+        /// We hang on to the sprite batch so that we can use it to draw on for the death animation.
+        /// </summary>
+        private SpriteBatch _spriteBatch;
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+
             Vector2 position = _body.Position;
-
-            Vector2 origin = new Vector2(ImageWidth, ImageHeight / 2f);
-
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
-            Color color = SolidColorEffect.DisabledColor;
+
+            Draw(spriteBatch, camera, displayPosition);
+
+            _spriteBatch = spriteBatch;
+        }
+
+        private void Draw(SpriteBatch spriteBatch, Camera2D camera, Vector2 displayPosition) {
+            Vector2 origin = new Vector2(ImageWidth, ImageHeight / 2f);
 
             float bodyRotation = -_body.Rotation;
             if ( _facingDirection == Direction.Up || _facingDirection == Direction.Down ) {
                 bodyRotation = _body.Rotation;
             }
 
-            float barrelRotation = (float) (Projectile.Pi - _barrelAimRadians);
+            float barrelRotation = Projectile.Pi - _barrelAimRadians;
 
+            Color color = camera == null ? Color.White : _flashAnimation.IsActive ? _flashAnimation.FlashColor : SolidColorEffect.DisabledColor;
             spriteBatch.Draw(Animation[Barrel], displayPosition, null, color, barrelRotation, origin, 1f,
                              SpriteEffects.None, 0);
 
@@ -105,8 +131,48 @@ namespace Enceladus.Entity.Enemy {
         }
 
         public override void Update(GameTime gameTime) {
+            if ( _hitPoints <= 0 ) {
+                Destroyed();
+                return;
+            }
+
             DetermineTargetAngle();
             UpdateBarrelAngle(gameTime);
+            _flashAnimation.UpdateFlash(gameTime);
+        }
+
+        private void Destroyed() {
+            _body.Dispose();
+
+            // Draw all our composite parts onto a buffer
+            GraphicsDevice graphics = _spriteBatch.GraphicsDevice;
+            RenderTarget2D renderTarget = new RenderTarget2D(graphics,
+                                                             ImageWidth,
+                                                             ImageHeight);
+            graphics.SetRenderTarget(renderTarget);
+            graphics.Clear(Color.Transparent);
+            _spriteBatch.Begin();
+            Vector2 displayPosition = Vector2.Zero;
+            switch ( _facingDirection ) {
+                case Direction.Left:
+                    displayPosition = new Vector2(ImageWidth, ImageHeight / 2);
+                    break;
+                case Direction.Right:
+                    displayPosition = new Vector2(0, ImageHeight / 2);
+                    break;
+                case Direction.Up:
+                    displayPosition = new Vector2(ImageWidth / 2, ImageHeight);
+                    break;
+                case Direction.Down:
+                    displayPosition = new Vector2(ImageWidth / 2, 0);
+                    break;
+            }
+            Draw(_spriteBatch, null, displayPosition);
+            _spriteBatch.End();
+            graphics.SetRenderTarget(null);
+
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, renderTarget, null,
+                                                                 _body.Position + _body.GetWorldVector(new Vector2(-Radius - .05f, 0)), 8));
         }
 
         private void UpdateBarrelAngle(GameTime gameTime) {
@@ -214,6 +280,15 @@ namespace Enceladus.Entity.Enemy {
 
         public override Vector2 Position {
             get { return _body.Position; }
+        }
+
+        public int BaseDamage {
+            get { return 10; }
+        }
+
+        public void HitBy(Projectile projectile) {
+            _hitPoints -= projectile.BaseDamage;
+            _flashAnimation.SetFlashTime(150);
         }
     }
 }

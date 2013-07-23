@@ -1503,8 +1503,9 @@ namespace Enceladus.Entity {
 
         #endregion
 
-        public void HitBy(AbstractWalkingEnemy enemy) {
-            Health -= 10;
+        public void HitBy(IEnemy enemy) {
+            // TODO: adjust based on equipment
+            Health -= enemy.BaseDamage;
             if ( Health <= 0 ) {
                 Health = 0;
                 EnceladusGame.Instance.Die();
