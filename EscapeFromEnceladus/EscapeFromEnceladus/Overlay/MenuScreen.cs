@@ -1,5 +1,6 @@
 ﻿using Enceladus.Control;
 using Enceladus.Entity;
+using Enceladus.Util;
 using Microsoft.Xna.Framework;
 
 namespace Enceladus.Overlay {
@@ -11,15 +12,12 @@ namespace Enceladus.Overlay {
 
         protected const double MsUntilColorChange = 250;
         protected int _selectedIndex = 0;
-        protected double _flashTimer = 0;
+        protected Oscillator _flashTimer = new Oscillator(MsUntilColorChange, true);
         protected bool _flash;
 
         public void UpdateFlashTimer(GameTime gameTime) {
-            _flashTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if ( _flashTimer >= MsUntilColorChange ) {
-                _flashTimer %= MsUntilColorChange;
-                _flash = !_flash;
-            }
+            _flashTimer.Update(gameTime);
+            _flash = _flashTimer.IsActiveState;
         }
 
         protected void HandleMovementControl() {
