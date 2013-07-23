@@ -171,6 +171,7 @@
     <Compile Include="Overlay\SharedGraphicalAssets.cs" />
     <Compile Include="Overlay\TextDrawing.cs" />
     <Compile Include="Overlay\TitleScreen.cs" />
+    <Compile Include="Util\Timer.cs" />
     <Compile Include="Weapon\Bomb.cs" />
     <Compile Include="Weapon\Missile.cs" />
     <Compile Include="Weapon\Projectile.cs" />
@@ -236,6 +237,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

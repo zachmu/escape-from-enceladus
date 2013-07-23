@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Enceladus.Event;
 using Enceladus.Map;
+using Enceladus.Util;
 using Enceladus.Xbox;
 using Enceladus.Control;
 using Enceladus.Entity.Enemy;
@@ -198,10 +199,11 @@ namespace Enceladus.Entity {
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
                 Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : _color;
+                float alpha = _invulnerabilityTimer == null ? 1.0f : .65f;
                 spriteBatch.Draw(Image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
                                                Image.Height),
-                                 null, color, 0f, new Vector2(Image.Width/2, Image.Height - 1),
+                                 null, color * alpha, 0f, new Vector2(Image.Width/2, Image.Height - 1),
                                  _facingDirection == Direction.Right
                                      ? SpriteEffects.None
                                      : SpriteEffects.FlipHorizontally, 0);
@@ -407,6 +409,17 @@ namespace Enceladus.Entity {
             HandleSonar(gameTime);
 
             UpdateFlash(gameTime);
+
+            UpdateInvulnerable(gameTime);
+        }
+
+        private void UpdateInvulnerable(GameTime gameTime) {
+            if ( _invulnerabilityTimer != null ) {
+                _invulnerabilityTimer.Update(gameTime);
+                if ( _invulnerabilityTimer.IsTimeUp() ) {
+                    RemoveInvulnerability();
+                }
+            }
         }
 
         /// <summary>
@@ -1517,11 +1530,29 @@ namespace Enceladus.Entity {
             _body.ApplyLinearImpulse(diff * Constants[PlayerKnockbackAmt] * _body.Mass);
             _timeUntilRegainControl = (long)(Constants[PlayerKnockbackTime] * 1000);
 
-            _flashAnimation.SetFlashTime(150);
+            _flashAnimation.SetFlashTime(1500);
+            MakeInvulnerable(1500);
 
             // Make sure we're in the air or on the ground as necessary
             _standingMonitor.IgnoreStandingUpdatesNextNumFrames = 0;
             UpdateStanding();
+        }
+
+        /// <summary>
+        /// Makes the player invulnerable for the given time, 
+        /// during which they will only collide with terrain.
+        /// </summary>
+        public void MakeInvulnerable(int timeMs) {
+            _body.CollidesWith = EnceladusGame.TerrainCategory;
+            _invulnerabilityTimer = new Timer(timeMs);
+        }
+
+        /// <summary>
+        /// Immediately end the player's invulerability.
+        /// </summary>
+        public void RemoveInvulnerability() {
+            _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory | EnceladusGame.PlayerSensorCategory;
+            _invulnerabilityTimer = null;
         }
 
         public void Dispose() {
@@ -1539,6 +1570,7 @@ namespace Enceladus.Entity {
         protected Body _body;
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
         protected readonly StandingMonitor _standingMonitor = new StandingMonitor();
+        private Timer _invulnerabilityTimer;
 
         /// <summary>
         /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 
