@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Collision.Shapes;
+using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,10 +54,21 @@ namespace Enceladus.Entity {
     }
 
     /// <summary>
-    /// An IGameEntity that can collide with other game elements, so 
-    /// that we need to track its boundaries.
+    /// Basic adapter class for uncomplicated entities comprising a single body.
     /// </summary>
-    public interface ICollidableEntity : IGameEntity {
-        AABB Aabb { get; }
+    public abstract class BodyEntityAdapter : GameEntityAdapter {
+        protected Body _body;
+
+        public override void Dispose() {
+            _body.Dispose();
+        }
+
+        public override bool Disposed {
+            get { return _body.IsDisposed; }
+        }
+
+        public override Vector2 Position {
+            get { return _body.Position; }
+        }
     }
 }

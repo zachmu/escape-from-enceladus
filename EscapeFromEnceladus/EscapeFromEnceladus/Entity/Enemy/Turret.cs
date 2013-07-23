@@ -19,6 +19,7 @@ namespace Enceladus.Entity.Enemy {
         private const int Cover = 1;
         private const int WeakSpot = 2;
         private const int Hatch = 3;
+        private static Texture2D _projectileImage;
 
         private const int ImageHeight = 64;
         private const int ImageWidth = 64;
@@ -26,6 +27,9 @@ namespace Enceladus.Entity.Enemy {
         private const float Width = .5f;
         private const float Radius = Width;
         private const float TurretSpeedRps = .20f;
+        private const int Range = 20;
+        private const int ProjectileSpeed = 5;
+        private const float ProjectileRadius = .125f;
 
         protected World _world;
         private readonly Body _body;
@@ -35,11 +39,14 @@ namespace Enceladus.Entity.Enemy {
 
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
         protected int _hitPoints;
+        private int _numProjectilesInAir = 0;
 
         public static void LoadContent(ContentManager content) {
             for ( int i = 0; i < NumFrames; i++ ) {
                 Animation[i] = content.Load<Texture2D>(String.Format("Enemy/Turret/Turret{0:0000}", i));
             }
+
+            _projectileImage = content.Load<Texture2D>("Projectile/Projectile0000");
         }
 
         public Turret(Vector2 position, World world, Direction facing) {
@@ -98,6 +105,7 @@ namespace Enceladus.Entity.Enemy {
         /// We hang on to the sprite batch so that we can use it to draw on for the death animation.
         /// </summary>
         private SpriteBatch _spriteBatch;
+
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
 
             Vector2 position = _body.Position;
@@ -138,7 +146,37 @@ namespace Enceladus.Entity.Enemy {
 
             DetermineTargetAngle();
             UpdateBarrelAngle(gameTime);
+            ShootPlayer();
             _flashAnimation.UpdateFlash(gameTime);
+        }
+
+        /// <summary>
+        /// Shoots the player if there is a line of sight, 
+        /// unless there is already a bullet in the air.
+        /// </summary>
+        private void ShootPlayer() {
+            if ( _numProjectilesInAir > 0 )
+                return;
+
+            bool playerVisible = false;
+            Vector2 angle = new Vector2((float) (Math.Cos(_barrelAimRadians)), (float) -(Math.Sin(_barrelAimRadians)));
+            Vector2 start = Position + (Radius + ProjectileRadius) * angle;
+            _world.RayCast((fixture, point, normal, fraction) => {
+                if ( fixture.GetUserData().IsPlayer )
+                    playerVisible = true;
+                return 0;
+            }, start, start + Range * angle);
+
+            if ( playerVisible ) {
+                EnemyProjectile proj = new EnemyProjectile(_projectileImage, _world, start, angle * ProjectileSpeed, _barrelAimRadians, ProjectileRadius);
+                proj.ProjectileDisposed += projectile => {
+                    _numProjectilesInAir--;
+                };
+                EnceladusGame.Instance.Register(proj);
+                _numProjectilesInAir++;
+            }
+
+            // TODO: sound effect
         }
 
         private void Destroyed() {

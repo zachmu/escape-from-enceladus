@@ -23,6 +23,7 @@ namespace Enceladus.Weapon {
 
         public Shot(Vector2 position, World world, Direction direction)
             : base(position, world, direction, Speed, ConvertUnits.ToSimUnits(16), ConvertUnits.ToSimUnits(6)) {
+            _body.Rotation = GetSpriteRotation();
             Sfx.Play();
         }
 

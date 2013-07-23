@@ -47,6 +47,7 @@ namespace Enceladus.Weapon {
             _body.Restitution = .2f;
             _body.Friction = 0f;
             _body.Position = position;
+            _body.IsBullet = true;
             _body.FixedRotation = true;
             _body.IgnoreGravity = true;
             _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory;
