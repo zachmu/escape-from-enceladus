@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Util;
 using Microsoft.Xna.Framework;
 
 namespace Enceladus.Entity {
@@ -13,8 +14,8 @@ namespace Enceladus.Entity {
     public class FlashAnimation {
         private readonly Color _flashColor = Color.OrangeRed;
         private bool _drawSolidColor;
-        private double _flashTime;
-        private double _flashTimer;
+        private Timer _timer;
+        private Oscillator _flash;
 
         private const double FlashChangeMs = 32;
 
@@ -36,20 +37,16 @@ namespace Enceladus.Entity {
         /// Sets the flash effect to be active for the given millisecond interval
         /// </summary>
         public void SetFlashTime(int flashTimeMs) {
-            _flashTime = flashTimeMs;
-            _flashTimer = 0;
+            _timer = new Timer(flashTimeMs);
+            _flash = new Oscillator(FlashChangeMs, true);
         }
 
         public void UpdateFlash(GameTime gameTime) {
-            if ( _flashTime > 0 ) {
-                _flashTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
-                _flashTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                if ( _flashTimer >= FlashChangeMs ) {
-                    _flashTimer %= FlashChangeMs;
-                    _drawSolidColor = !_drawSolidColor;
-                }
-            }
-            if ( _flashTime <= 0 ) {
+            if ( _timer != null && !_timer.IsTimeUp() ) {
+                _timer.Update(gameTime);
+                _flash.Update(gameTime);
+                _drawSolidColor = _flash.IsActiveState;
+            } else {
                 _drawSolidColor = false;
             }
         }
