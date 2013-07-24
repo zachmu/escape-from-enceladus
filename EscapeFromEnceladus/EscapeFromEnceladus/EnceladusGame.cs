@@ -386,6 +386,7 @@ namespace Enceladus {
                 this.Exit();
 
             _entities.AddRange(_entitiesToAdd);
+            _entitiesToAdd.FindAll(entity => entity is IEnemy).ForEach(entity => EnemyMonitor.Instance.EnemyAdded((IEnemy) entity));
             _entitiesToAdd.Clear();
 
             _inputHelper.Update(gameTime);
@@ -471,6 +472,7 @@ namespace Enceladus {
             _musicManager.Update();
             _audioEngine.Update();
 
+            _entities.FindAll(entity => entity.Disposed && entity is IEnemy).ForEach(entity => EnemyMonitor.Instance.EnemyRemoved((IEnemy) entity));
             _entities.RemoveAll(entity => entity.Disposed);
             _postProcessorEffects.RemoveAll(effect => effect.Disposed);
 

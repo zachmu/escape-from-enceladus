@@ -119,6 +119,7 @@
     <Compile Include="Entity\Enemy\AbstractWalkingEnemy.cs" />
     <Compile Include="Entity\Enemy\Beetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
+    <Compile Include="Entity\Enemy\EnemyMonitor.cs" />
     <Compile Include="Entity\Enemy\EnemyProjectile.cs" />
     <Compile Include="Entity\Enemy\IEnemy.cs" />
     <Compile Include="Entity\Enemy\Turret.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Event\GameEvent.cs" />
     <Compile Include="Event\GameIntro.cs" />
     <Compile Include="Event\ISaveable.cs" />
+    <Compile Include="Event\MainQuest.cs" />
     <Compile Include="Event\Prologue.cs" />
     <Compile Include="Event\SaveState.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />

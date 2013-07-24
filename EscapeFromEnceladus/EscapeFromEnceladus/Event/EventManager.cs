@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Entity.Enemy;
 using Enceladus.Entity.NPC;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -45,6 +46,8 @@ namespace Enceladus.Event {
         private void Init() {
             LoadEvent(GameIntro.ID);
             ConversationManager.Instance.ConversationEnded += NotifyConversationOver;
+            EnemyMonitor.Instance.OnEnemyAdded += NotifyEnemyAdded;
+            EnemyMonitor.Instance.OnEnemyRemoved += NotifyEnemyRemoved;
         }
 
         /// <summary>
@@ -61,6 +64,13 @@ namespace Enceladus.Event {
         /// <param name="eventId"></param>
         public IGameEvent LoadEvent(string eventId) {
             IGameEvent gameEvent = _events[eventId];
+            return LoadEvent(gameEvent);
+        }
+
+        /// <summary>
+        /// Loads the event given and makes it receive notifications about in-game actions.
+        /// </summary>
+        public IGameEvent LoadEvent(IGameEvent gameEvent) {
             if ( gameEvent.IsRemoveOnTrigger() ) {
                 gameEvent.Triggered += GameEventOnTriggered;
             }
@@ -73,7 +83,7 @@ namespace Enceladus.Event {
         /// </summary>        
         private void GameEventOnTriggered(IGameEvent @event) {
             if ( @event.IsRemoveOnTrigger() ) {
-                UnloadEvent(@event.Id);
+                UnloadEvent(@event);
             }
         }
 
@@ -83,12 +93,29 @@ namespace Enceladus.Event {
         /// </summary>
         /// <param name="eventId"></param>
         public void UnloadEvent(string eventId) {
-            _activeEvents.RemoveAll(@event => @event.Id == eventId);
-            _events[eventId].Triggered -= GameEventOnTriggered;
+            IGameEvent gameEvent = _events[eventId];
+            UnloadEvent(gameEvent);
+        }
+
+        /// <summary>
+        /// Unloads the event given. 
+        /// It will no longer receive notifications about in-game actions.
+        /// </summary>
+        public void UnloadEvent(IGameEvent gameEvent) {
+            gameEvent.Triggered -= GameEventOnTriggered;
+            _activeEvents.RemoveAll(@event => @event.Id == gameEvent.Id);
         }
 
         private void NotifyConversationOver(Conversation conversation) {
             _activeEvents.ForEach(@event => @event.ConversationOver(conversation));
+        }
+
+        private void NotifyEnemyAdded(IEnemy enemy) {
+            _activeEvents.ForEach(@event => @event.EnemyAdded(enemy));
+        }
+
+        private void NotifyEnemyRemoved(IEnemy enemy) {
+            _activeEvents.ForEach(@event => @event.EnemyRemoved(enemy));
         }
 
         /// <summary>

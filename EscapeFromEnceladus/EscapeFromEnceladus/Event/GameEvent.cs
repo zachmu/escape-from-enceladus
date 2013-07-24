@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Entity.Enemy;
 using Enceladus.Entity.NPC;
 using Microsoft.Xna.Framework;
 
@@ -37,13 +38,28 @@ namespace Enceladus.Event {
         void ConversationOver(Conversation conversation);
 
         /// <summary>
+        /// Notifies this event that the given enemy was just added to the simulation.
+        /// </summary>
+        /// <param name="enemy"></param>
+        void EnemyAdded(IEnemy enemy);
+
+        /// <summary>
+        /// Notifies this event that the given enemy was just removed from the simulation.
+        /// </summary>
+        /// <param name="enemy"></param>
+        void EnemyRemoved(IEnemy enemy);
+
+        /// <summary>
         /// Whether to remove this event when it's triggered
         /// </summary>
         /// <returns></returns>
         bool IsRemoveOnTrigger();
     }
 
-    abstract class GameEvent : IGameEvent {
+    /// <summary>
+    /// 
+    /// </summary>
+    public abstract class GameEvent : IGameEvent {
         
         public event EventTriggeredHandler Triggered;
         public abstract string Id { get; }
@@ -55,11 +71,17 @@ namespace Enceladus.Event {
         public virtual void Update(GameTime gameTime) {            
         }
 
-        public virtual void ConversationOver(Conversation conversation) {            
+        public virtual void ConversationOver(Conversation conversation) {
         }
 
         public virtual bool IsRemoveOnTrigger() {
             return true;
+        }
+
+        public virtual void EnemyAdded(IEnemy enemy) {
+        }
+
+        public virtual void EnemyRemoved(IEnemy enemy) {
         }
 
         public virtual void Save(SaveState save) {

@@ -33,7 +33,7 @@ namespace Enceladus.Entity.Enemy {
             get { return _disposed; }
         }
 
-        public AbstractWalkingEnemy(Vector2 position, World world, float width, float height) {
+        protected AbstractWalkingEnemy(Vector2 position, World world, float width, float height) {
             _height = height;
             CreateBody(position, world, width, height);
             ConfigureBody(position, height);

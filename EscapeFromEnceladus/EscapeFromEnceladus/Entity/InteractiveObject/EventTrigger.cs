@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Entity.Enemy;
 using Enceladus.Entity.NPC;
+using Enceladus.Event;
 using Enceladus.Map;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
@@ -43,7 +45,37 @@ namespace Enceladus.Entity.InteractiveObject {
             MusicManager.Instance.SetMusicTrack("disaster");
             ConversationManager.Instance.StartConversation("MainQuest/RobotSentry.txt");
             Dispose();
+            EventManager.Instance.LoadEvent(new RobotSentryDefeated());
+            TileLevel.CurrentLevel.DoorNamed("RobotSentryExit").Lock();
+            TileLevel.CurrentLevel.DoorNamed("LabDoor").Lock();
+        }
+
+        /// <summary>
+        /// Event to monitor for when the robot sentry is defeated
+        /// </summary>
+        class RobotSentryDefeated : GameEvent {
+            public override string Id {
+                get { return "RobotSentryDefeated"; }
+            }
+
+            private int _numTurrets = 8;
+
+            public override void EnemyRemoved(IEnemy enemy) {
+                if ( enemy is Turret ) {
+                    if ( --_numTurrets <= 0 ) {
+                        Apply();
+                    }
+                }
+            }
+
+            public override void Apply() {
+                GameMilestones.Instance.MilestoneAcheived(GameMilestone.DefeatedRobotSentry);
+                MusicManager.Instance.ResumePrevTrack();
+                ConversationManager.Instance.StartConversation("MainQuest/RobotSentryDefeated.txt");
+                TileLevel.CurrentLevel.DoorNamed("RobotSentryExit").Unlock();
+                TileLevel.CurrentLevel.DoorNamed("LabDoor").Unlock();
+                base.Apply();
+            }
         }
     }
-
 }
