@@ -63,7 +63,7 @@ namespace Enceladus {
                 Cue.Stop(AudioStopOptions.Immediate);
             }
             CurrentTrack = PreviousTrack ?? CurrentTrack;
-            Cue = _soundBank.GetCue(CurrentTrack);
+            _playNextTrack = true;
         }
 
         public void RoomChanged(Room oldRoom, Room currentRoom) {

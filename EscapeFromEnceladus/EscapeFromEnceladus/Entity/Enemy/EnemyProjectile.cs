@@ -20,8 +20,11 @@ namespace Enceladus.Entity.Enemy {
 
         protected Texture2D _image;
         private double _timeToLiveMs = 5000;
+        private World _world;
 
         public EnemyProjectile(Texture2D image, World world, Vector2 location, Vector2 velocity, float angle, float radius) {
+            _world = world;
+
             _body = BodyFactory.CreateCircle(world, radius, 10, location);
             _body.Rotation = angle;
             _body.IsStatic = false;
@@ -48,6 +51,7 @@ namespace Enceladus.Entity.Enemy {
         }
 
         public void HitBy(Projectile projectile) {
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, _image, SolidColorEffect.DisabledColor, null, _body.Position, 3, 3));
             Dispose();
         }
 
