@@ -6,6 +6,7 @@ using Enceladus.Entity.Enemy;
 using Enceladus.Entity.NPC;
 using Enceladus.Event;
 using Enceladus.Map;
+using Enceladus.Util;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -59,10 +60,22 @@ namespace Enceladus.Entity.InteractiveObject {
             }
 
             private int _numTurrets = 8;
+            private bool _delayActivated;
+            private readonly Timer _countdown = new Timer(500);
 
             public override void EnemyRemoved(IEnemy enemy) {
                 if ( enemy is Turret ) {
                     if ( --_numTurrets <= 0 ) {
+                        _delayActivated = true;
+                    }
+                }
+            }
+
+            // Once the event is triggered, wait 500 ms to take action
+            public override void Update(GameTime gameTime) {
+                if ( _delayActivated ) {
+                    _countdown.Update(gameTime);
+                    if ( _countdown.IsTimeUp() ) {
                         Apply();
                     }
                 }

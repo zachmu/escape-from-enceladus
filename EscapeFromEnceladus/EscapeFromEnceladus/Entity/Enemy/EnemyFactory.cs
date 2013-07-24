@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Event;
 using Enceladus.Farseer;
 using Enceladus.Map;
 using FarseerPhysics.Dynamics;
@@ -19,7 +20,21 @@ namespace Enceladus.Entity.Enemy {
             // The default position is the lower-left corner for objects, aligned to the nearest tile boundary. 
             // This is to start enemies off with their feet on the ground.
             Vector2 pos = Region.AdjustToTileBoundary(ConvertUnits.ToSimUnits(obj.X, obj.Y + obj.Height));            
+            
+            // Some enemies (like bosses) are predicated on a particular milestone not being met yet           
+            if ( obj.Properties.ContainsKey("milestoneNotMet") ) {
+                string milestone = obj.Properties["milestoneNotMet"];
+                GameMilestone m;
+                if ( GameMilestone.TryParse(milestone, true, out m) ) {
+                    if ( GameMilestones.Instance.HasMilestoneOccurred(m) ) {
+                        return null;
+                    }
+                } else {
+                    throw new ArgumentException(string.Format("no milestone called {0}", milestone));
+                }
+            }
 
+            // The name field of the object determines its type
             switch(obj.Name ?? "") {
                 case "worm":
                     return new Worm(pos, world);

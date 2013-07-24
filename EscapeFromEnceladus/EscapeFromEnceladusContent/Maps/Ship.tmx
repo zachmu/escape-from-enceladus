@@ -177,6 +177,9 @@
   <object name="EnsignGibe" x="18879" y="961" width="122" height="187"/>
  </objectgroup>
  <objectgroup name="Enemies" width="1000" height="1000">
+  <properties>
+   <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
+  </properties>
   <object name="beetle" x="17206" y="2397" width="36" height="25"/>
   <object name="beetle" x="17102" y="2395" width="36" height="25">
    <properties>
@@ -205,49 +208,58 @@
   <object name="turret" type="Boss" x="30415" y="3021" width="47" height="49">
    <properties>
     <property name="direction" value="up"/>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
    </properties>
   </object>
-  <object name="turret" type="Boss" x="30670" y="3023" width="47" height="49"/>
-  <object name="turret" type="Boss" x="30675" y="2828" width="47" height="49"/>
-  <object name="turret" type="Boss" x="30679" y="2593" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30670" y="3023" width="47" height="49">
+   <properties>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
+   </properties>
+  </object>
+  <object name="turret" type="Boss" x="30675" y="2828" width="47" height="49">
+   <properties>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
+   </properties>
+  </object>
+  <object name="turret" type="Boss" x="30679" y="2593" width="47" height="49">
+   <properties>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
+   </properties>
+  </object>
   <object name="turret" type="Boss" x="30332" y="2701" width="47" height="49">
    <properties>
     <property name="direction" value="right"/>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
    </properties>
   </object>
   <object name="turret" type="Boss" x="30020" y="2934" width="47" height="49">
    <properties>
     <property name="direction" value="down"/>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
    </properties>
   </object>
-  <object name="turret" type="Boss" x="30685" y="3250" width="47" height="49"/>
+  <object name="turret" type="Boss" x="30685" y="3250" width="47" height="49">
+   <properties>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
+   </properties>
+  </object>
   <object name="turret" type="Boss" x="30270" y="2886" width="47" height="49">
    <properties>
     <property name="direction" value="right"/>
-   </properties>
-  </object>
-  <object name="turret" type="Boss" x="27198" y="3685" width="47" height="49">
-   <properties>
-    <property name="direction" value="right"/>
+    <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
    </properties>
   </object>
   <object name="turret" type="Boss" x="26940" y="2828" width="47" height="49">
    <properties>
+    <property name="" value=""/>
     <property name="direction" value="up"/>
-   </properties>
-  </object>
-  <object name="turret" type="Boss" x="27076" y="3824" width="47" height="49">
-   <properties>
-    <property name="direction" value="down"/>
-   </properties>
-  </object>
-  <object name="turret" type="Boss" x="26985" y="3697" width="47" height="49">
-   <properties>
-    <property name="direction" value="left"/>
    </properties>
   </object>
  </objectgroup>
  <objectgroup name="InteractiveObjects" width="1000" height="1000" visible="0">
+  <properties>
+   <property name="milestoneNotMet" value="DefeatedRobotSentry"/>
+  </properties>
   <object name="save1" type="save" x="14650" y="604" width="264" height="94"/>
   <object name="save2" type="save" x="13764" y="605" width="264" height="94"/>
   <object name="save3" type="save" x="12930" y="607" width="264" height="94"/>

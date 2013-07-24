@@ -147,7 +147,6 @@
     <Compile Include="Event\GameEvent.cs" />
     <Compile Include="Event\GameIntro.cs" />
     <Compile Include="Event\ISaveable.cs" />
-    <Compile Include="Event\MainQuest.cs" />
     <Compile Include="Event\Prologue.cs" />
     <Compile Include="Event\SaveState.cs" />
     <Compile Include="Farseer\ConvertUnits.cs" />
