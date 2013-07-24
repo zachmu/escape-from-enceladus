@@ -37,6 +37,17 @@ namespace Enceladus.Entity.Enemy {
         private float _barrelTargetRadians;
         private float _barrelAimRadians;
 
+        // The guns don't quite have 180 degrees of vision
+        private const float MaxAngleOffset = Projectile.Pi / 16;
+        private const float LeftTopAngle = Projectile.PiOverTwo + MaxAngleOffset;
+        private const float LeftBottomAngle = -Projectile.PiOverTwo - MaxAngleOffset;
+        private const float RightBottomAngle = -Projectile.PiOverTwo + MaxAngleOffset;
+        private const float RightTopAngle = Projectile.PiOverTwo - MaxAngleOffset;
+        private const float UpRightAngle = MaxAngleOffset;
+        private const float UpLeftAngle = Projectile.Pi - MaxAngleOffset;
+        private const float DownRightAngle = -MaxAngleOffset;
+        private const float DownLeftAngle = -Projectile.Pi + MaxAngleOffset;
+
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
         protected int _hitPoints;
         private int _numProjectilesInAir = 0;
@@ -296,31 +307,39 @@ namespace Enceladus.Entity.Enemy {
             // is in our 180 degree range and adjust the target accordingly.
             switch ( _facingDirection ) {
                 case Direction.Left:
-                    if ( angle >= Projectile.PiOverTwo || angle <= -Projectile.PiOverTwo ) {
+                    if ( angle >= LeftTopAngle || angle <= LeftBottomAngle) {
                         _barrelTargetRadians = angle;
                     } else {
-                        _barrelTargetRadians = angle > 0 ? Projectile.PiOverTwo : -Projectile.PiOverTwo;
+                        _barrelTargetRadians = angle > 0 ? LeftTopAngle : LeftBottomAngle;
                     }
                     break;
                 case Direction.Right:
-                    if ( angle >= -Projectile.PiOverTwo && angle <= Projectile.PiOverTwo ) {
+                    if ( angle >= RightBottomAngle && angle <= RightTopAngle) {
                         _barrelTargetRadians = angle;
                     } else {
-                        _barrelTargetRadians = angle > 0 ? Projectile.PiOverTwo : -Projectile.PiOverTwo;
+                        _barrelTargetRadians = angle > 0 ? RightTopAngle : RightBottomAngle;
                     }
                     break;
                 case Direction.Up:
-                    if ( angle >= 0 ) {
+                    if ( angle >= UpRightAngle && angle <= UpLeftAngle ) {
                         _barrelTargetRadians = angle;
                     } else {
-                        _barrelTargetRadians = angle > -Projectile.PiOverTwo ? 0 : Projectile.Pi;
+                        if ( angle >= 0 ) {
+                            _barrelTargetRadians = angle > Projectile.PiOverTwo ? UpLeftAngle : UpRightAngle;
+                        } else {
+                            _barrelTargetRadians = angle > -Projectile.PiOverTwo ? UpRightAngle : UpLeftAngle;
+                        }
                     }
                     break;
                 case Direction.Down:
-                    if ( angle <= 0 ) {
+                    if ( angle <= DownRightAngle && angle >= DownLeftAngle ) {
                         _barrelTargetRadians = angle;
                     } else {
-                        _barrelTargetRadians = angle < Projectile.PiOverTwo ? 0 : Projectile.Pi;
+                        if ( angle < 0 ) {
+                            _barrelTargetRadians = angle < -Projectile.PiOverTwo ? DownLeftAngle : DownRightAngle;
+                        } else {
+                            _barrelTargetRadians = angle > Projectile.PiOverTwo ? DownLeftAngle : DownRightAngle;
+                        }
                     }
                     break;
                 default:

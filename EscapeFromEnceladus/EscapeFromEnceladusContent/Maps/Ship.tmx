@@ -255,6 +255,24 @@
     <property name="direction" value="up"/>
    </properties>
   </object>
+  <object name="turret" type="Boss" x="27067" y="2951" width="47" height="49">
+   <properties>
+    <property name="" value=""/>
+    <property name="direction" value="right"/>
+   </properties>
+  </object>
+  <object name="turret" type="Boss" x="26952" y="3079" width="47" height="49">
+   <properties>
+    <property name="" value=""/>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object name="turret" type="Boss" x="26843" y="2966" width="47" height="49">
+   <properties>
+    <property name="" value=""/>
+    <property name="direction" value="left"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="InteractiveObjects" width="1000" height="1000" visible="0">
   <properties>
