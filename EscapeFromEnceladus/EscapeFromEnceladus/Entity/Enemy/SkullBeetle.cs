@@ -54,6 +54,7 @@ namespace Enceladus.Entity.Enemy {
         }
        
         private int LinearVelocity = 2;
+        private SpriteBatch _spriteBatch;
 
         public static void LoadContent(ContentManager content) {
             for ( int i = 0; i < NumFrames; i++ ) {
@@ -124,27 +125,58 @@ namespace Enceladus.Entity.Enemy {
                 Vector2 position = _body.Position;
 
                 //Vector2 origin = new Vector2();
-                Rectangle sourceRectangle = Sprites[_animationFrame];
-                Vector2 origin = new Vector2(sourceRectangle.Width / 2, sourceRectangle.Height - LegImageHeight);
-
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position) + new Vector2(0, -LegImageHeight + 2);
                 Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : SolidColorEffect.DisabledColor;
+                
+                Draw(spriteBatch, displayPosition, color);
 
-                bool flip = false;
-                switch ( _mode ) {
-                    case Mode.Walking:
-                    case Mode.Turned:
-                        flip = _direction != Direction.Right;
-                        break;
-                    case Mode.Turning:
-                        flip = _direction != Direction.Left;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-                spriteBatch.Draw(Image, displayPosition, sourceRectangle, color, _body.Rotation, origin, 1f,
-                    flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None , 0);
+                _spriteBatch = spriteBatch;
             }
+        }
+
+        private void Draw(SpriteBatch spriteBatch, Vector2 displayPosition, Color color) {
+            Rectangle sourceRectangle = Sprites[_animationFrame];
+            Vector2 origin = new Vector2(sourceRectangle.Width / 2, sourceRectangle.Height - LegImageHeight);
+            var flip = IsFlippedHorizontally();
+            spriteBatch.Draw(Image, displayPosition, sourceRectangle, color, _body.Rotation, origin, 1f,
+                             flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0);
+        }
+
+        private bool IsFlippedHorizontally() {
+            bool flip = false;
+            switch ( _mode ) {
+                case Mode.Walking:
+                case Mode.Turned:
+                    flip = _direction != Direction.Right;
+                    break;
+                case Mode.Turning:
+                    flip = _direction != Direction.Left;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return flip;
+        }
+
+        protected override void Destroyed() {
+            Dispose();
+
+            // Draw ourselves onto a buffer to make the shatter image
+            GraphicsDevice graphics = _spriteBatch.GraphicsDevice;
+            Rectangle sprite = Sprites[_animationFrame];
+            RenderTarget2D renderTarget = new RenderTarget2D(graphics,
+                                                             sprite.Width,
+                                                             sprite.Height);
+            graphics.SetRenderTarget(renderTarget);
+            graphics.Clear(Color.Transparent);
+            _spriteBatch.Begin();
+            Vector2 displayPosition = new Vector2(sprite.Width / 2f, sprite.Height - LegImageHeight);
+            Draw(_spriteBatch, displayPosition, Color.White);
+            _spriteBatch.End();
+            graphics.SetRenderTarget(null);
+
+            ShatterAnimation shatterAnimation = new ShatterAnimation(_world, renderTarget, SolidColorEffect.DisabledColor, null, GetStandingLocation() - new Vector2(0, Height / 2f + LegHeight), 4, 10);
+            EnceladusGame.Instance.Register(shatterAnimation);
         }
 
         protected override Texture2D Image {

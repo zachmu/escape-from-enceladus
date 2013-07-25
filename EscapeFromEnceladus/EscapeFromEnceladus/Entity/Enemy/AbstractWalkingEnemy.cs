@@ -116,6 +116,7 @@ namespace Enceladus.Entity.Enemy {
         }
 
         protected virtual void Destroyed() {
+            // TODO: move this responsibility into pickup generator
             EnceladusGame.Instance.Register(new HealthPickup(_body.Position, _world));
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
             Dispose();
