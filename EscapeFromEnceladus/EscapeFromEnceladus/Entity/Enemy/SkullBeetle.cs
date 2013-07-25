@@ -15,30 +15,42 @@ namespace Enceladus.Entity.Enemy {
 
     public class SkullBeetle : AbstractWalkingEnemy {
 
-        private static Texture2D _image;
-        private int _animationFrame = 0;
-        private int _timeSinceLastUpdate;
-
         private static readonly float Height = ConvertUnits.ToSimUnits(64f);
         private static readonly float Width = ConvertUnits.ToSimUnits(112f);
-        private static readonly float LegHeight = ConvertUnits.ToSimUnits(8f);
+        private const float LegImageHeight = 16;
+        private static readonly float LegHeight = ConvertUnits.ToSimUnits(LegImageHeight);
         private static readonly float Radius = Width / 2f;
 
         private const int NumFrames = 7;
         private const int TurningFrame = 7;
+        private const double FrameTimeMs = 50;
+        private const double TurnTimeMs = 200;
+
+        private static Texture2D _image;
+        private int _animationFrame = NumFrames - 1;
+        private double _timeSinceLastUpdate;
+
         private static readonly Rectangle[] Sprites = new Rectangle[NumFrames + 1];
 
+        private enum Mode {
+            Walking, Turning, Turned,
+        }
+
+        private Mode _mode;
+
         static SkullBeetle() {
-            int marginLeft = 117;
-            int marginTop = 2;
-            int padding = 16;
-            int width = 112;
-            int height = 64;
+            const int marginLeft = 117;
+            const int marginTop = 2;
+            const int padding = 16;
+            const int width = 112;
+            const int height = 64;
+            const int turningMarginLeft = 1;
+            const int turningWidth = 88;
 
             for ( int i = 0; i < NumFrames; i++ ) {
                 Sprites[i] = new Rectangle(marginLeft + width * i + padding * i, marginTop, width, height);
             }
-            Sprites[TurningFrame] = new Rectangle(marginLeft, marginTop, 88, height);
+            Sprites[TurningFrame] = new Rectangle(turningMarginLeft, marginTop, turningWidth, height);
         }
        
         private int LinearVelocity = 2;
@@ -52,10 +64,11 @@ namespace Enceladus.Entity.Enemy {
         public SkullBeetle(Vector2 position, World world)
             : base(position, world, Width, Height) {
             _hitPoints = 10;
+            _mode = Mode.Walking;
         }
 
         protected override void CreateBody(Vector2 position, World world, float width, float height) {
-            _body = BodyFactory.CreateSolidArc(world, 1f, Projectile.SevenPiOverEight, 12, Radius, Vector2.Zero, (float) Math.PI);
+            _body = BodyFactory.CreateSolidArc(world, 1f, Projectile.SevenPiOverEight, 12, Radius, new Vector2(0, -LegHeight / 4), (float) Math.PI);
             FixtureFactory.AttachRectangle(Width - .05f, LegHeight, 1f, new Vector2(0, -LegHeight / 2), _body);
         }
 
@@ -63,7 +76,7 @@ namespace Enceladus.Entity.Enemy {
             base.ConfigureBody(position, height);
             _body.IgnoreGravity = false;
             _body.Friction = .5f;
-            _body.Position = position;
+            _body.Position = position - new Vector2(0, LegHeight);
         }
 
         public override void Update(GameTime gameTime) {
@@ -80,8 +93,28 @@ namespace Enceladus.Entity.Enemy {
 
         private void UpdateAnimation(GameTime gameTime) {
             _timeSinceLastUpdate += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_timeSinceLastUpdate > 20) {
-                _animationFrame = (_animationFrame + 1) % NumFrames;
+            switch ( _mode ) {
+                case Mode.Walking:
+                    if ( _timeSinceLastUpdate > FrameTimeMs ) {
+                        _animationFrame = (_animationFrame + 1) % NumFrames;
+                        _timeSinceLastUpdate %= FrameTimeMs;
+                    }
+                    break;
+                case Mode.Turning:
+                    _animationFrame = TurningFrame;
+                    if ( _timeSinceLastUpdate >= TurnTimeMs / 2 ) {
+                        _mode = Mode.Turned;
+                    }
+                    break;
+                case Mode.Turned:
+                    _animationFrame = TurningFrame;
+                    if ( _timeSinceLastUpdate >= TurnTimeMs ) {
+                        _mode = Mode.Walking;
+                        _timeSinceLastUpdate = 0;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -92,13 +125,25 @@ namespace Enceladus.Entity.Enemy {
 
                 //Vector2 origin = new Vector2();
                 Rectangle sourceRectangle = Sprites[_animationFrame];
-                Vector2 origin = new Vector2(sourceRectangle.Width / 2, sourceRectangle.Height - 8);
+                Vector2 origin = new Vector2(sourceRectangle.Width / 2, sourceRectangle.Height - LegImageHeight);
 
-                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position) + new Vector2(0, -LegImageHeight + 2);
                 Color color = _flashAnimation.IsActive ? _flashAnimation.FlashColor : SolidColorEffect.DisabledColor;
 
+                bool flip = false;
+                switch ( _mode ) {
+                    case Mode.Walking:
+                    case Mode.Turned:
+                        flip = _direction != Direction.Right;
+                        break;
+                    case Mode.Turning:
+                        flip = _direction != Direction.Left;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
                 spriteBatch.Draw(Image, displayPosition, sourceRectangle, color, _body.Rotation, origin, 1f,
-                                 _direction == Direction.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);
+                    flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None , 0);
             }
         }
 
@@ -110,14 +155,21 @@ namespace Enceladus.Entity.Enemy {
         /// <summary>
         /// Event handler for when the beetle runs into a solid object
         /// </summary>
-        protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
+        protected override void HitSolidObject(Contact contact, Fixture b) {
             if ( b.Body.GetUserData().IsPlayer || b.Body.GetUserData().IsTerrain || b.Body.GetUserData().IsDoor ) {
-                if ( contact.Manifold.LocalNormal.X > .9 ) {
+                if ( contact.GetPlayerNormal(_body).X > .9 && _direction == Direction.Left ) {
                     _direction = Direction.Right;
-                } else if ( contact.Manifold.LocalNormal.X < -.9 ) {
+                    Turning();
+                } else if ( contact.GetPlayerNormal(_body).X < -.9 && _direction == Direction.Right ) {
                     _direction = Direction.Left;
+                    Turning();
                 }
             }
+        }
+
+        private void Turning() {
+            _mode = Mode.Turning;
+            _timeSinceLastUpdate = 0;
         }
 
         /// <summary>
