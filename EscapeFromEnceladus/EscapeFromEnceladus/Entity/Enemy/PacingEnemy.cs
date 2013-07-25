@@ -3,6 +3,7 @@ using Enceladus.Weapon;
 using Enceladus.Farseer;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -36,7 +37,7 @@ namespace Enceladus.Entity.Enemy {
             set { throw new System.NotImplementedException(); }
         }
 
-        protected override void HitSolidObject(FarseerPhysics.Dynamics.Contacts.Contact contact, Fixture b) {
+        protected override void HitSolidObject(Contact contact, Fixture b) {
             if ( b.Body.GetUserData().IsPlayer || b.Body.GetUserData().IsTerrain || b.Body.GetUserData().IsDoor ) {
                 if ( contact.Manifold.LocalNormal.X > .9 ) {
                     _direction = Direction.Right;

@@ -347,6 +347,7 @@ namespace Enceladus {
             PacingEnemy.LoadContent(Content);
             Worm.LoadContent(Content);
             Beetle.LoadContent(Content);
+            SkullBeetle.LoadContent(Content);
             Shot.LoadContent(Content);
             Turret.LoadContent(Content);
             Missile.LoadContent(Content);

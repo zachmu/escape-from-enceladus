@@ -32,6 +32,8 @@ namespace Enceladus.Map {
         private readonly string _name;
         private Body _body;
         private bool _locked;
+        // Door are disposed until created.
+        private bool _disposed = true;
 
         static Door() {
             Constants.Register(new Constant(DoorOpenTime, .2f, Keys.V));
@@ -69,10 +71,11 @@ namespace Enceladus.Map {
         /// </summary>
         public void Dispose() {
             _body.Dispose();
+            _disposed = true;
         }
 
         public bool Disposed {
-            get { return _body == null || _body.IsDisposed; }
+            get { return _disposed; }
         }
 
         /// <summary>
@@ -284,6 +287,7 @@ namespace Enceladus.Map {
         public void Create() {
             CreateBody();
             CloseDoorFully();
+            _disposed = false;
         }
     }
 }

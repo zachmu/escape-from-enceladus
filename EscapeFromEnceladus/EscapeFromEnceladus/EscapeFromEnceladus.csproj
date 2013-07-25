@@ -118,6 +118,7 @@
     <Compile Include="Control\PlayerControl.cs" />
     <Compile Include="Entity\Enemy\AbstractWalkingEnemy.cs" />
     <Compile Include="Entity\Enemy\Beetle.cs" />
+    <Compile Include="Entity\Enemy\SkullBeetle.cs" />
     <Compile Include="Entity\Enemy\EnemyFactory.cs" />
     <Compile Include="Entity\Enemy\EnemyMonitor.cs" />
     <Compile Include="Entity\Enemy\EnemyProjectile.cs" />

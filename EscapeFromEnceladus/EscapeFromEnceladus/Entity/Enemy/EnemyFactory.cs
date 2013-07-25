@@ -43,6 +43,9 @@ namespace Enceladus.Entity.Enemy {
                     bool clockwise = obj.Properties.ContainsKey("clockwise");
                     return new Beetle(pos, world, clockwise);
                     break;
+                case "skullBeetle":
+                    return new SkullBeetle(pos, world);
+                    break;
                 case "turret":
                     Direction facing = Direction.Left;
                     if ( obj.Properties.ContainsKey("direction") ) {

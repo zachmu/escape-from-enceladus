@@ -273,6 +273,7 @@
     <property name="direction" value="left"/>
    </properties>
   </object>
+  <object name="skullBeetle" type="enemy" x="15645" y="2775" width="64" height="36"/>
  </objectgroup>
  <objectgroup name="InteractiveObjects" width="1000" height="1000" visible="0">
   <properties>

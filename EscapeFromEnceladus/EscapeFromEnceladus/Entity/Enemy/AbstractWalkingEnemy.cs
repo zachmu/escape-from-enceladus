@@ -115,7 +115,7 @@ namespace Enceladus.Entity.Enemy {
             _body.Dispose();
         }
 
-        private void Destroyed() {
+        protected virtual void Destroyed() {
             EnceladusGame.Instance.Register(new HealthPickup(_body.Position, _world));
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
             Dispose();

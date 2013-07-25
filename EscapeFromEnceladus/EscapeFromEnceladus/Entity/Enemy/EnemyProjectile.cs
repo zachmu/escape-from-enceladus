@@ -31,7 +31,6 @@ namespace Enceladus.Entity.Enemy {
             _body.IgnoreGravity = true;
             _body.UserData = UserData.NewEnemy(this);
 
-
             _body.CollisionCategories = EnceladusGame.EnemyCategory;
             _body.CollidesWith = EnceladusGame.PlayerCategory | EnceladusGame.PlayerProjectileCategory | EnceladusGame.TerrainCategory;
 
