@@ -40,8 +40,6 @@ namespace Enceladus.Weapon {
             }
         }
 
-        private static SoundEffect _boom;
-
         public const int Flags = 4;
 
         public Bomb(Vector2 position, World world, Direction direction)
@@ -59,7 +57,6 @@ namespace Enceladus.Weapon {
             for ( int i = 0; i < NumFrames; i++ ) {
                 Animation[i] = content.Load<Texture2D>(String.Format("Character/Bomb/Bomb{0:0000}", i));
             }
-            _boom = content.Load<SoundEffect>("Sounds/Bomb");
         }
 
         public override int DestructionFlags {
@@ -130,7 +127,7 @@ namespace Enceladus.Weapon {
                 return true;
             }, ref aabb);
 
-            _boom.Play();
+            SoundEffectManager.Instance.PlaySoundEffect("bomb");
             _body.IgnoreGravity = true;
 
             _exploded = true;

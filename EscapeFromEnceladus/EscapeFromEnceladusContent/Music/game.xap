@@ -226,6 +226,12 @@ Wave Bank
     Streaming = 1;
     Seek Tables = 1;
     Compression Preset Name = <none>;
+    Xbox Bank Last Modified Low = 0;
+    Xbox Bank Last Modified High = 0;
+    PC Bank Last Modified Low = 0;
+    PC Bank Last Modified High = 0;
+    Header Last Modified Low = 0;
+    Header Last Modified High = 0;
     Bank Last Revised Low = 1836800528;
     Bank Last Revised High = 30301998;
 
@@ -324,15 +330,15 @@ Wave Bank
 
 Wave Bank
 {
-    Name = PlayerSounds;
-    Xbox File = Xbox\PlayerSounds.xwb;
-    Windows File = Win\PlayerSounds.xwb;
+    Name = SoundEffects;
+    Xbox File = Xbox\SoundEffects.xwb;
+    Windows File = Win\SoundEffects.xwb;
     Xbox Bank Path Edited = 0;
     Windows Bank Path Edited = 0;
     Seek Tables = 1;
     Compression Preset Name = <none>;
-    Bank Last Revised Low = 2030513418;
-    Bank Last Revised High = 30302003;
+    Bank Last Revised Low = 2049719568;
+    Bank Last Revised High = 30313011;
 
     Wave
     {
@@ -448,20 +454,227 @@ Wave Bank
             Last Modified High = 30302002;
         }
     }
+
+    Wave
+    {
+        Name = doorClose;
+        File = ..\Sounds\doorClose.wav;
+        Build Settings Last Modified Low = 214666247;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 30638;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 1924645690;
+            Last Modified High = 30313009;
+        }
+    }
+
+    Wave
+    {
+        Name = doorOpen;
+        File = ..\Sounds\doorOpen.wav;
+        Build Settings Last Modified Low = 214666247;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 30638;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 1538003575;
+            Last Modified High = 30313009;
+        }
+    }
+
+    Wave
+    {
+        Name = bulletBounce;
+        File = ..\Sounds\bulletBounce.wav;
+        Build Settings Last Modified Low = 214676247;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 5766;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 73079786;
+            Last Modified High = 30313009;
+        }
+    }
+
+    Wave
+    {
+        Name = blockBreak;
+        File = ..\Sounds\blockBreak.wav;
+        Build Settings Last Modified Low = 214676247;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 38994;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 2249685919;
+            Last Modified High = 30313008;
+        }
+    }
+
+    Wave
+    {
+        Name = turretShoot;
+        File = ..\Sounds\turretShoot.wav;
+        Build Settings Last Modified Low = 214676247;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 27954;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 1307682039;
+            Last Modified High = 30313008;
+        }
+    }
+
+    Wave
+    {
+        Name = hurt;
+        File = ..\Sounds\hurt.wav;
+        Build Settings Last Modified Low = 214686248;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 10972;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 628983220;
+            Last Modified High = 30313008;
+        }
+    }
+
+    Wave
+    {
+        Name = pickup;
+        File = ..\Sounds\pickup.wav;
+        Build Settings Last Modified Low = 214686248;
+        Build Settings Last Modified High = 30313010;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 44408;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 4109163913;
+            Last Modified High = 30313007;
+        }
+    }
+
+    Wave
+    {
+        Name = enemyExplode;
+        File = ..\Sounds\enemyExplode.wav;
+        Build Settings Last Modified Low = 1218882047;
+        Build Settings Last Modified High = 30313011;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 70342;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 895953576;
+            Last Modified High = 30313011;
+        }
+    }
+
+    Wave
+    {
+        Name = enemyHit;
+        File = ..\Sounds\enemyHit.wav;
+        Build Settings Last Modified Low = 1218882047;
+        Build Settings Last Modified High = 30313011;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 5666;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 4199114144;
+            Last Modified High = 30313010;
+        }
+    }
 }
 
 Sound Bank
 {
-    Name = PlayerSounds;
-    Xbox File = Xbox\PlayerSounds.xsb;
-    Windows File = Win\PlayerSounds.xsb;
+    Name = SoundEffects;
+    Xbox File = Xbox\SoundEffects.xsb;
+    Windows File = Win\SoundEffects.xsb;
     Xbox Bank Path Edited = 0;
     Windows Bank Path Edited = 0;
 
     Sound
     {
-        Name = SonarPing;
-        Volume = -1200;
+        Name = sonarPing;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -494,7 +707,7 @@ Sound Bank
 
                 Wave Entry
                 {
-                    Bank Name = PlayerSounds;
+                    Bank Name = SoundEffects;
                     Bank Index = 1;
                     Entry Name = SonarPing;
                     Entry Index = 4;
@@ -507,8 +720,8 @@ Sound Bank
 
     Sound
     {
-        Name = SonarHit;
-        Volume = -1200;
+        Name = sonarHit;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -541,7 +754,7 @@ Sound Bank
 
                 Wave Entry
                 {
-                    Bank Name = PlayerSounds;
+                    Bank Name = SoundEffects;
                     Bank Index = 1;
                     Entry Name = SonarHit;
                     Entry Index = 3;
@@ -555,7 +768,7 @@ Sound Bank
     Sound
     {
         Name = laser;
-        Volume = -1200;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -588,7 +801,7 @@ Sound Bank
 
                 Wave Entry
                 {
-                    Bank Name = PlayerSounds;
+                    Bank Name = SoundEffects;
                     Bank Index = 1;
                     Entry Name = laser;
                     Entry Index = 2;
@@ -602,7 +815,7 @@ Sound Bank
     Sound
     {
         Name = land;
-        Volume = -1200;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -635,7 +848,7 @@ Sound Bank
 
                 Wave Entry
                 {
-                    Bank Name = PlayerSounds;
+                    Bank Name = SoundEffects;
                     Bank Index = 1;
                     Entry Name = land;
                     Entry Index = 1;
@@ -648,8 +861,8 @@ Sound Bank
 
     Sound
     {
-        Name = Bomb;
-        Volume = -1200;
+        Name = bomb;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -682,7 +895,7 @@ Sound Bank
 
                 Wave Entry
                 {
-                    Bank Name = PlayerSounds;
+                    Bank Name = SoundEffects;
                     Bank Index = 1;
                     Entry Name = Bomb;
                     Entry Index = 0;
@@ -693,9 +906,432 @@ Sound Bank
         }
     }
 
+    Sound
+    {
+        Name = pickup;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = pickup;
+                    Entry Index = 11;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = hurt;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = hurt;
+                    Entry Index = 10;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = turretShoot;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = turretShoot;
+                    Entry Index = 9;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = blockBreak;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = blockBreak;
+                    Entry Index = 8;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = bulletBounce;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = bulletBounce;
+                    Entry Index = 7;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = doorOpen;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = doorOpen;
+                    Entry Index = 6;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = doorClose;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = doorClose;
+                    Entry Index = 5;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = enemyExplode;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = enemyExplode;
+                    Entry Index = 12;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = enemyHit;
+        Volume = 0;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = enemyHit;
+                    Entry Index = 13;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
     Cue
     {
-        Name = SonarPing;
+        Name = sonarPing;
 
         Variation
         {
@@ -706,7 +1342,7 @@ Sound Bank
 
         Sound Entry
         {
-            Name = SonarPing;
+            Name = sonarPing;
             Index = 0;
             Weight Min = 0;
             Weight Max = 255;
@@ -715,7 +1351,7 @@ Sound Bank
 
     Cue
     {
-        Name = SonarHit;
+        Name = sonarHit;
 
         Variation
         {
@@ -726,7 +1362,7 @@ Sound Bank
 
         Sound Entry
         {
-            Name = SonarHit;
+            Name = sonarHit;
             Index = 1;
             Weight Min = 0;
             Weight Max = 255;
@@ -775,7 +1411,7 @@ Sound Bank
 
     Cue
     {
-        Name = Bomb;
+        Name = bomb;
 
         Variation
         {
@@ -786,8 +1422,188 @@ Sound Bank
 
         Sound Entry
         {
-            Name = Bomb;
+            Name = bomb;
             Index = 4;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = pickup;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = pickup;
+            Index = 5;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = hurt;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = hurt;
+            Index = 6;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = turretShoot;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = turretShoot;
+            Index = 7;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = blockBreak;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = blockBreak;
+            Index = 8;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = bulletBounce;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = bulletBounce;
+            Index = 9;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = doorOpen;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = doorOpen;
+            Index = 10;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = doorClose;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = doorClose;
+            Index = 11;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = enemyExplode;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = enemyExplode;
+            Index = 12;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = enemyHit;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = enemyHit;
+            Index = 13;
             Weight Min = 0;
             Weight Max = 255;
         }
@@ -807,7 +1623,7 @@ Sound Bank
     Sound
     {
         Name = disaster;
-        Volume = -1200;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -855,7 +1671,7 @@ Sound Bank
     Sound
     {
         Name = sanfran;
-        Volume = -1200;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -903,7 +1719,7 @@ Sound Bank
     Sound
     {
         Name = exploration;
-        Volume = -1200;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 
@@ -951,7 +1767,7 @@ Sound Bank
     Sound
     {
         Name = spur;
-        Volume = -1200;
+        Volume = 0;
         Pitch = 0;
         Priority = 0;
 

@@ -15,8 +15,7 @@ namespace Enceladus.Weapon {
     public class Shot : Projectile, IGameEntity {
         private const int Speed = 25;
 
-        private static Texture2D Image { get; set; }
-        private static SoundEffect Sfx { get; set; }
+        private static Texture2D Image { get; set; }       
 
         // Destruction flags
         public const int Flags = 1;
@@ -24,12 +23,11 @@ namespace Enceladus.Weapon {
         public Shot(Vector2 position, World world, Direction direction)
             : base(position, world, direction, Speed, ConvertUnits.ToSimUnits(16), ConvertUnits.ToSimUnits(6)) {
             _body.Rotation = GetSpriteRotation();
-            Sfx.Play();
+            SoundEffectManager.Instance.PlaySoundEffect("laser");
         }
 
         public static void LoadContent(ContentManager content) {
             Image = SharedGraphicalAssets.Projectiles[SharedGraphicalAssets.ProjectilePlayerBasic];
-            Sfx = content.Load<SoundEffect>("Sounds/laser");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {

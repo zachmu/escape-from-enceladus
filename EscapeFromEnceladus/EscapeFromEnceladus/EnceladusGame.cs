@@ -64,6 +64,7 @@ namespace Enceladus {
         private BackgroundManager _backgroundManager;
         private AudioEngine _audioEngine;
         private MusicManager _musicManager;
+        private SoundEffectManager _soundEffectManager;
         private WaitHandle _roomChangeWaitHandle;
         private Vector2 _nextPlayerPosition;
 
@@ -72,6 +73,7 @@ namespace Enceladus {
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
+        private readonly object _entityLock = new object();
 
         private static EnceladusGame _instance;
 
@@ -157,7 +159,8 @@ namespace Enceladus {
             _pauseScreen = new PauseScreen();
             _titleScreen = new TitleScreen();
             _deathScreen = new DeathScreen();
-            _musicManager = new MusicManager();           
+            _musicManager = new MusicManager();
+            _soundEffectManager = new SoundEffectManager();
 
             GoToTitleScreen();
 
@@ -172,7 +175,9 @@ namespace Enceladus {
             if ( entities != null ) {
                 foreach ( IGameEntity e in entities ) {
                     if ( e != null ) {
-                        _entitiesToAdd.Add(e);
+                        lock ( _entityLock ) {
+                            _entitiesToAdd.Add(e);
+                        }
                     }
                 }
             }
@@ -319,6 +324,7 @@ namespace Enceladus {
             _backgroundManager.LoadContent();
             _audioEngine = new AudioEngine("Content/Music/game.xgs");
             _musicManager.LoadContent(_audioEngine, Content);
+            _soundEffectManager.LoadContent(_audioEngine, Content);
 
             // Audio engine needs an initial update after loading songs
             _audioEngine.Update();
@@ -386,9 +392,14 @@ namespace Enceladus {
             if ( keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
 
-            _entities.AddRange(_entitiesToAdd);
-            _entitiesToAdd.FindAll(entity => entity is IEnemy).ForEach(entity => EnemyMonitor.Instance.EnemyAdded((IEnemy) entity));
-            _entitiesToAdd.Clear();
+            // Entities get added asynchronously on room creation, 
+            // as well as synchronously during gameplay (e.g. projectiles)
+            lock ( _entityLock ) {
+                _entities.AddRange(_entitiesToAdd);
+                _entitiesToAdd.FindAll(entity => entity is IEnemy)
+                              .ForEach(entity => EnemyMonitor.Instance.EnemyAdded((IEnemy) entity));
+                _entitiesToAdd.Clear();
+            }
 
             _inputHelper.Update(gameTime);
             HandleDebugControl();
@@ -471,6 +482,7 @@ namespace Enceladus {
             _backgroundManager.Update(gameTime);
             _camera.Update(gameTime);
             _musicManager.Update();
+            _soundEffectManager.Update();
             _audioEngine.Update();
 
             _entities.FindAll(entity => entity.Disposed && entity is IEnemy).ForEach(entity => EnemyMonitor.Instance.EnemyRemoved((IEnemy) entity));

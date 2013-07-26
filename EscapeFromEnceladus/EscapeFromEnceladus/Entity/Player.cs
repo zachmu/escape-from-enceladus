@@ -184,11 +184,8 @@ namespace Enceladus.Entity {
             _image = image;
         }
 
-        private SoundEffect LandSound { get; set; }
-
         public void LoadContent(ContentManager content) {
             LoadAnimations(content);
-            LandSound = content.Load<SoundEffect>("Sounds/land");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -219,7 +216,7 @@ namespace Enceladus.Entity {
             get { return _isStanding; }
             set {
                 if ( value && !_isStanding ) {
-                    LandSound.Play();
+                    SoundEffectManager.Instance.PlaySoundEffect("land");
                     ResizeBody(CharacterStandingWidth, CharacterStandingHeight);
                 } else if ( !value && _isStanding ) {
                     ResizeBody(CharacterJumpingWidth, CharacterJumpingHeight);
