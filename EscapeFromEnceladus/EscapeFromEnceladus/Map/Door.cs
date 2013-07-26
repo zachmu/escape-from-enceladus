@@ -276,10 +276,17 @@ namespace Enceladus.Map {
             _body.IsSensor = false;
         }
 
-        public void HitBy(Projectile shot) {
+        /// <summary>
+        /// Notifies the door that it was hit by a projectile, and returns 
+        /// whether the door was opened by the projectile.
+        /// </summary>
+        /// <param name="shot"></param>
+        public bool HitBy(Projectile shot) {
             if ( !_locked ) {
                 OpenDoor();
+                return true;
             }
+            return false;
         }
 
         /// <summary>

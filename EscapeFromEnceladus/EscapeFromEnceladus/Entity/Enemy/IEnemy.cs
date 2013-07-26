@@ -13,8 +13,9 @@ namespace Enceladus.Entity.Enemy {
         int BaseDamage { get; }
 
         /// <summary>
-        /// Handles being hit by the projectile given
+        /// Handles being hit by the projectile given, 
+        /// returning whether it did any damage.
         /// </summary>
-        void HitBy(Projectile projectile);
+        bool HitBy(Projectile projectile);
     }
 }

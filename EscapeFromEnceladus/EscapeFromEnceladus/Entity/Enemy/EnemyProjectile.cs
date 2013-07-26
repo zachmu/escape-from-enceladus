@@ -49,10 +49,11 @@ namespace Enceladus.Entity.Enemy {
             get { return 8; }
         }
 
-        public void HitBy(Projectile projectile) {
+        public bool HitBy(Projectile projectile) {
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, _image, SolidColorEffect.DisabledColor, null, _body.Position, 3, 3));
             Dispose();
             SoundEffectManager.Instance.PlaySoundEffect("enemyExplode");
+            return true;
         }
 
         public override void Update(GameTime gameTime) {

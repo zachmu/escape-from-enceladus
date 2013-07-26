@@ -355,9 +355,10 @@ namespace Enceladus.Entity.Enemy {
             get { return 10; }
         }
 
-        public void HitBy(Projectile projectile) {
+        public bool HitBy(Projectile projectile) {
             _hitPoints -= projectile.BaseDamage;
             _flashAnimation.SetFlashTime(150);
+            return true;
         }
     }
 }

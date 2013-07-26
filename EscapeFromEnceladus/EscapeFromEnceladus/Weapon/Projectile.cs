@@ -31,7 +31,10 @@ namespace Enceladus.Weapon {
         protected Body _body;
         private bool _disposed;
         protected Direction _direction;
-        protected int _timeToLiveMs = 10000;
+        protected double _timeToLiveMs = 10000;
+        protected bool _defunct = false;
+
+        private static Random random = new Random();
 
         public bool Disposed {
             get { return _disposed; }
@@ -121,14 +124,17 @@ namespace Enceladus.Weapon {
         protected virtual OnCollisionEventHandler CollisionHandler() {
             return (a, b, contact) => {
                        _body.IgnoreGravity = false;
-                       _timeToLiveMs = 0;
 
-                       if ( b.Body.GetUserData().IsEnemy ) {
-                           HitEnemy(b.Body.GetUserData().Enemy);
-                       } else if ( b.Body.GetUserData().IsTerrain ) {
-                           HitTerrain(contact);
-                       } else if ( b.Body.GetUserData().IsDoor ) {
-                           HitDoor(b.Body.GetUserData().Door);
+                       if ( !_defunct ) {
+                           if ( b.Body.GetUserData().IsEnemy ) {
+                               HitEnemy(b.Body.GetUserData().Enemy);
+                           } else if ( b.Body.GetUserData().IsTerrain ) {
+                               HitTerrain(contact);
+                           } else if ( b.Body.GetUserData().IsDoor ) {
+                               HitDoor(b.Body.GetUserData().Door);
+                           } else {
+                               _timeToLiveMs = 0;
+                           }
                        }
 
                        return true;
@@ -136,24 +142,59 @@ namespace Enceladus.Weapon {
         }
 
         protected void HitDoor(Door door) {
-            door.HitBy(this);
+            bool openedBy = door.HitBy(this);
+            if ( !openedBy ) {
+                BounceOff();
+            } else {
+                _timeToLiveMs = 0;
+            }
+        }
+
+        private void BounceOff() {
+            _body.IgnoreGravity = false;
+            _body.FixedRotation = false;
+            _body.Friction = .8f;
+            _body.ApplyAngularImpulse(-20 + 40 * (float) random.NextDouble());
+            _timeToLiveMs = 1000;
+            SoundEffectManager.Instance.PlaySoundEffect("bulletBounce");
+            _defunct = true;
+        }
+
+        protected float GetAlpha() {
+            if ( _defunct ) {
+                return (float) (_timeToLiveMs / 1000f);
+            } else {
+                return 1.0f;
+            }
         }
 
         protected void HitTerrain(Contact contact) {
+            if ( _defunct ) {
+                return;
+            }
             FixedArray2<Vector2> points;
             Vector2 normal;
             contact.GetWorldManifold(out normal, out points);
             var hitTile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
             if ( hitTile != null ) {
-                TileLevel.CurrentLevel.TileHitBy(hitTile, this);
+                bool tileDestroyed = TileLevel.CurrentLevel.TileHitBy(hitTile, this);
+                if ( !tileDestroyed ) {
+                    BounceOff();
+                } else {
+                    _timeToLiveMs = 0;
+                }
             } else {
-                Console.WriteLine("Missed a tile.  Collision was {0},{1} with normal {2}",
+                Console.WriteLine("Missed a tile. Collision was {0},{1} with normal {2}",
                                   points[0], points[1], normal);
             }
         }
 
         protected void HitEnemy(IEnemy enemy) {
-            enemy.HitBy(this);
+            if ( enemy.HitBy(this) ) {
+                _timeToLiveMs = 0;
+            } else {
+                BounceOff();
+            }
         }
 
         public virtual void Update(GameTime gameTime) {

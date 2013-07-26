@@ -32,7 +32,7 @@ namespace Enceladus.Weapon {
                 spriteBatch.Draw(Image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
                                                Image.Height),
-                                 null, SolidColorEffect.DisabledColor, GetSpriteRotation(), new Vector2(Image.Width / 2, Image.Height / 2),
+                                 null, SolidColorEffect.DisabledColor * GetAlpha(), _body.Rotation, new Vector2(Image.Width / 2, Image.Height / 2),
                                  SpriteEffects.None, 0);
             }
         }

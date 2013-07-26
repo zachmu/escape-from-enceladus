@@ -565,12 +565,15 @@ namespace Enceladus.Map {
         }
 
         /// <summary>
-        /// Notify the level that a tile was hit by a shot
+        /// Notify the level that a tile was hit by a shot, 
+        /// and return whether it was destroyed.
         /// </summary>
-        public void TileHitBy(Tile hitTile, Projectile shot) {
-            if ( hitTile != null && IsTileDestroyedBy(hitTile, shot) ) {
+        public bool TileHitBy(Tile hitTile, Projectile shot) {
+            if ( hitTile != null && !hitTile.Disposed && IsTileDestroyedBy(hitTile, shot) ) {
                 DestroyTile(hitTile);
+                return true;
             }
+            return false;
         }
 
         /// <summary>
