@@ -588,10 +588,11 @@ namespace Enceladus.Map {
             if ( !t.Disposed ) {
                 _tilesToRemove.Add(t);
                 _levelMap.GetAttachedForegroundTiles(t).ForEach(tile => {
-                                                                      if ( !tile.Disposed ) {
-                                                                          _tilesToRemove.Add(tile);
-                                                                      }
-                                                                  });
+                    if ( !tile.Disposed ) {
+                        _tilesToRemove.Add(tile);
+                    }
+                });
+                SoundEffectManager.Instance.PlaySoundEffect("blockBreak");
             }
         }
 

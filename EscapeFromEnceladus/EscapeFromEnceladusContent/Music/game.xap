@@ -674,7 +674,7 @@ Sound Bank
     Sound
     {
         Name = sonarPing;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -721,7 +721,7 @@ Sound Bank
     Sound
     {
         Name = sonarHit;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -768,7 +768,7 @@ Sound Bank
     Sound
     {
         Name = laser;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -815,7 +815,7 @@ Sound Bank
     Sound
     {
         Name = land;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -862,7 +862,7 @@ Sound Bank
     Sound
     {
         Name = bomb;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -909,7 +909,7 @@ Sound Bank
     Sound
     {
         Name = pickup;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -956,7 +956,7 @@ Sound Bank
     Sound
     {
         Name = hurt;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1003,7 +1003,7 @@ Sound Bank
     Sound
     {
         Name = turretShoot;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1050,7 +1050,7 @@ Sound Bank
     Sound
     {
         Name = blockBreak;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1097,7 +1097,7 @@ Sound Bank
     Sound
     {
         Name = bulletBounce;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1144,7 +1144,7 @@ Sound Bank
     Sound
     {
         Name = doorOpen;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1191,7 +1191,7 @@ Sound Bank
     Sound
     {
         Name = doorClose;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1238,7 +1238,7 @@ Sound Bank
     Sound
     {
         Name = enemyExplode;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1285,7 +1285,7 @@ Sound Bank
     Sound
     {
         Name = enemyHit;
-        Volume = 0;
+        Volume = -1200;
         Pitch = 0;
         Priority = 0;
 
@@ -1623,7 +1623,7 @@ Sound Bank
     Sound
     {
         Name = disaster;
-        Volume = 0;
+        Volume = -1000;
         Pitch = 0;
         Priority = 0;
 
@@ -1671,7 +1671,7 @@ Sound Bank
     Sound
     {
         Name = sanfran;
-        Volume = 0;
+        Volume = -1000;
         Pitch = 0;
         Priority = 0;
 
@@ -1719,7 +1719,7 @@ Sound Bank
     Sound
     {
         Name = exploration;
-        Volume = 0;
+        Volume = -1000;
         Pitch = 0;
         Priority = 0;
 
@@ -1767,7 +1767,7 @@ Sound Bank
     Sound
     {
         Name = spur;
-        Volume = 0;
+        Volume = -1000;
         Pitch = 0;
         Priority = 0;
 

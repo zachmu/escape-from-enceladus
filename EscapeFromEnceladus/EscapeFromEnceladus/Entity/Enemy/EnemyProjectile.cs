@@ -52,6 +52,7 @@ namespace Enceladus.Entity.Enemy {
         public void HitBy(Projectile projectile) {
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, _image, SolidColorEffect.DisabledColor, null, _body.Position, 3, 3));
             Dispose();
+            SoundEffectManager.Instance.PlaySoundEffect("enemyExplode");
         }
 
         public override void Update(GameTime gameTime) {

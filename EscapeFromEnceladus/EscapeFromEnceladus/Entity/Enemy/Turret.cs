@@ -197,9 +197,8 @@ namespace Enceladus.Entity.Enemy {
                 EnceladusGame.Instance.Register(proj);
                 _numProjectilesInAir++;
                 _timeSinceLastShotMs = 0;
-            }
-
-            // TODO: sound effect
+                SoundEffectManager.Instance.PlaySoundEffect("turretShoot");
+            }            
         }
 
         private void Destroyed() {
@@ -234,6 +233,7 @@ namespace Enceladus.Entity.Enemy {
 
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, renderTarget, null,
                                                                  _body.Position + _body.GetWorldVector(new Vector2(-Radius - .05f, 0)), 8));
+            SoundEffectManager.Instance.PlaySoundEffect("enemyExplode");
         }
 
         private void UpdateBarrelAngle(GameTime gameTime) {

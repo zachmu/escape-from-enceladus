@@ -177,6 +177,8 @@ namespace Enceladus.Entity.Enemy {
 
             ShatterAnimation shatterAnimation = new ShatterAnimation(_world, renderTarget, SolidColorEffect.DisabledColor, null, GetStandingLocation() - new Vector2(0, Height / 2f + LegHeight), 4, 10);
             EnceladusGame.Instance.Register(shatterAnimation);
+
+            SoundEffectManager.Instance.PlaySoundEffect("enemyExplode");
         }
 
         protected override Texture2D Image {

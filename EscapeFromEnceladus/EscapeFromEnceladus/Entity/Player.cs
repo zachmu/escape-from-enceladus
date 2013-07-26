@@ -1539,6 +1539,8 @@ namespace Enceladus.Entity {
             _flashAnimation.SetFlashTime(1500);
             MakeInvulnerable(1500);
 
+            SoundEffectManager.Instance.PlaySoundEffect("hurt");
+
             // Make sure we're in the air or on the ground as necessary
             _standingMonitor.IgnoreStandingUpdatesNextNumFrames = 0;
             UpdateStanding();
@@ -1569,6 +1571,7 @@ namespace Enceladus.Entity {
 
         public void Pickup(HealthPickup healthPickup) {
             Health += 10;
+            SoundEffectManager.Instance.PlaySoundEffect("pickup");
         }
 
         private bool _terrainChanged;

@@ -233,11 +233,13 @@ namespace Enceladus.Map {
                     _msSinceLastStateChange = (int) (Constants.Get(DoorOpenTime) * 1000 - _msSinceLastStateChange);
                     break;
             }
+            SoundEffectManager.Instance.PlaySoundEffect("doorOpen");
         }
 
         private void CloseDoor() {
             _state = State.Closing;
             _msSinceLastStateChange = 0;
+            SoundEffectManager.Instance.PlaySoundEffect("doorClose");
         }
 
         private void CloseDoorFully() {

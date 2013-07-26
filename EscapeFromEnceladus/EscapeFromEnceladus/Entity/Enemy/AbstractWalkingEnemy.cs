@@ -108,6 +108,7 @@ namespace Enceladus.Entity.Enemy {
         public void HitBy(Projectile shot) {
             _hitPoints -= shot.BaseDamage;
             _flashAnimation.SetFlashTime(150);
+            SoundEffectManager.Instance.PlaySoundEffect("enemyHit");
         }
 
         public void Dispose() {
@@ -116,10 +117,11 @@ namespace Enceladus.Entity.Enemy {
         }
 
         protected virtual void Destroyed() {
+            Dispose();
             // TODO: move this responsibility into pickup generator
             EnceladusGame.Instance.Register(new HealthPickup(_body.Position, _world));
             EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image, null, _body.Position, 8));
-            Dispose();
+            SoundEffectManager.Instance.PlaySoundEffect("enemyExplode");
         }
 
         /// <summary>
