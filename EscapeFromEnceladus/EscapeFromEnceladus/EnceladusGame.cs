@@ -357,6 +357,7 @@ namespace Enceladus {
             Shot.LoadContent(Content);
             Turret.LoadContent(Content);
             Missile.LoadContent(Content);
+            Beam.LoadContent(Content);
             HealthPickup.LoadContent(Content);
             GenericCollectibleItem.LoadContent(Content);
             Bomb.LoadContent(Content);

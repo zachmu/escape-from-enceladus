@@ -176,6 +176,7 @@
     <Compile Include="Overlay\TitleScreen.cs" />
     <Compile Include="Util\Oscillator.cs" />
     <Compile Include="Util\Timer.cs" />
+    <Compile Include="Weapon\Beam.cs" />
     <Compile Include="Weapon\Bomb.cs" />
     <Compile Include="Weapon\Missile.cs" />
     <Compile Include="Weapon\Projectile.cs" />

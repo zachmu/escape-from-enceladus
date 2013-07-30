@@ -19,7 +19,7 @@ namespace Enceladus.Weapon {
 
         public Missile(Vector2 position, World world, Direction direction)
             : base(position, world, direction, Speed, Width, Height) {
-            _body.Rotation = GetSpriteRotation();
+            _body.Rotation = GetSpriteRotation(_direction);
         }
 
         public static void LoadContent(ContentManager content) {

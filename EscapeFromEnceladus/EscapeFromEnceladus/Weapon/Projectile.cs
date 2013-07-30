@@ -95,8 +95,8 @@ namespace Enceladus.Weapon {
         /// Returns the angle, in radians, to rotate this projectile's 
         /// sprite due to its direction.
         /// </summary>
-        protected float GetSpriteRotation() {
-            switch ( _direction ) {
+        public static float GetSpriteRotation(Direction direction) {
+            switch ( direction ) {
                 case Direction.Left:
                     return (float) Math.PI;
                 case Direction.Right:
@@ -117,6 +117,35 @@ namespace Enceladus.Weapon {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        /// <summary>
+        /// Returns the angle corresponding to the given direction.
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        public static float GetAngle(Direction direction) {
+            switch ( direction ) {
+                case Direction.Left:
+                    return Pi;
+                case Direction.Right:
+                    return 0;
+                case Direction.Up:
+                    return Pi / 2;
+                case Direction.Down:
+                    return -Pi / 2;
+                case Direction.UpLeft:
+                    return 3f * Pi / 4f;
+                case Direction.UpRight:
+                    return Pi / 4f;
+                case Direction.DownLeft:
+                    return -3f * Pi / 4f;
+                case Direction.DownRight:
+                    return -Pi / 4f;
+                default:
+                    throw new ArgumentOutOfRangeException("direction");
+            }
+        }
+
 
         /// <summary>
         /// Returns the collision handler for this projectile.

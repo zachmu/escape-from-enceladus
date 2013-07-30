@@ -84,7 +84,7 @@ namespace Enceladus.Weapon {
 
         public Sonar(World world, Vector2 waveEffectCenter, Direction direction) {
             _waveEffectCenter = waveEffectCenter;
-            DetermineAngle(direction);
+            _angle = Projectile.GetAngle(direction);
             DetermineIntersectedRegions(world, waveEffectCenter);
             EnceladusGame.Instance.Register(new WaveEffect(this));
             _ping.Play();
@@ -98,37 +98,6 @@ namespace Enceladus.Weapon {
                 terminus.Y -= (float) Math.Sin(angle) * ScanRadius;
 
                 world.RayCast(FindDestructibleSurfaces, waveEffectCenter, terminus);
-            }
-        }
-
-        private void DetermineAngle(Direction direction) {
-            switch ( direction ) {
-                case Direction.Left:
-                    _angle = Math.PI;
-                    break;
-                case Direction.Right:
-                    _angle = 0;
-                    break;
-                case Direction.Up:
-                    _angle = Math.PI / 2;
-                    break;
-                case Direction.Down:
-                    _angle = -Math.PI / 2;
-                    break;
-                case Direction.UpLeft:
-                    _angle = 3f * Math.PI / 4f;
-                    break;
-                case Direction.UpRight:
-                    _angle = Math.PI / 4f;
-                    break;
-                case Direction.DownLeft:
-                    _angle = -3f * Math.PI / 4f;
-                    break;
-                case Direction.DownRight:
-                    _angle = -Math.PI / 4f;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("direction");
             }
         }
 

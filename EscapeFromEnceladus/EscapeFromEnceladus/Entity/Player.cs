@@ -98,6 +98,11 @@ namespace Enceladus.Entity {
         /// </summary>
         private long _timeUntilRegainControl;
 
+        /// <summary>
+        /// The player's beam weapon when active, or null if none is active.
+        /// </summary>
+        private Beam _beam;
+
         private Color _color = Color.SteelBlue;
         public Color Color { get { return _color; } }
 
@@ -398,6 +403,8 @@ namespace Enceladus.Entity {
 
             HandleShot(gameTime);
 
+            HandleBeam(gameTime);
+
             HandleMovement(gameTime);
 
             HandleScooter(gameTime);
@@ -409,6 +416,19 @@ namespace Enceladus.Entity {
             UpdateFlash(gameTime);
 
             UpdateInvulnerable(gameTime);
+        }
+
+        private void HandleBeam(GameTime gameTime) {
+            if ( _beam == null ) {
+                if ( PlayerControl.Control.IsNewBeam() ) {
+                    Direction direction;
+                    Vector2 position = GetShotParameters(out direction);                    
+                    EnceladusGame.Instance.Register(_beam = new Beam(_world, position, direction));
+                }
+            } else if ( !PlayerControl.Control.IsBeamButtonDown() ) {
+                _beam.Dispose();
+                _beam = null;
+            }
         }
 
         private void UpdateInvulnerable(GameTime gameTime) {

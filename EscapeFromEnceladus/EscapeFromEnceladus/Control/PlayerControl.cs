@@ -27,6 +27,8 @@ namespace Enceladus.Control
         bool IsKeyboardControl();
         bool IsNewConfirmButton();
         bool IsNewCancelButton();
+        bool IsNewBeam();
+        bool IsBeamButtonDown();
     }
 
     /// <summary>
@@ -43,6 +45,7 @@ namespace Enceladus.Control
         private const Buttons JumpButton = Buttons.A;
         private const Buttons RunButton = Buttons.B;
         private const Buttons ShootButton = Buttons.X;
+        private const Buttons AltShootButton = Buttons.RightTrigger;
         private const Buttons SonarButton = Buttons.Y;
 
         public bool IsNewJump() {
@@ -62,7 +65,7 @@ namespace Enceladus.Control
         }
 
         public bool IsNewShot() {
-            return InputHelper.Instance.IsNewButtonPress(ShootButton);
+            return InputHelper.Instance.IsNewButtonPress(ShootButton) || InputHelper.Instance.IsNewButtonPress(AltShootButton);
         }
 
         public bool IsNewSonar() {
@@ -107,6 +110,14 @@ namespace Enceladus.Control
 
         public bool IsNewCancelButton() {
             return InputHelper.Instance.IsNewButtonPress(Buttons.B);
+        }
+
+        public bool IsNewBeam() {
+            return InputHelper.Instance.IsNewButtonPress(Buttons.RightShoulder);
+        }
+
+        public bool IsBeamButtonDown() {
+            return InputHelper.Instance.GamePadState.IsButtonDown(Buttons.RightShoulder);
         }
     }
 
@@ -224,6 +235,14 @@ namespace Enceladus.Control
 
         public bool IsNewCancelButton() {
             return InputHelper.Instance.IsNewKeyPress(Keys.Back);
+        }
+
+        public bool IsNewBeam() {
+            return InputHelper.Instance.IsNewKeyPress(Keys.B);
+        }
+
+        public bool IsBeamButtonDown() {
+            return InputHelper.Instance.KeyboardState.IsKeyDown(Keys.B);
         }
     }
 }
