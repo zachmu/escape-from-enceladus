@@ -177,19 +177,10 @@ namespace Enceladus.Entity.Enemy {
             bool playerInRange = false;
             Vector2 angle = new Vector2((float) (Math.Cos(_barrelAimRadians)), (float) -(Math.Sin(_barrelAimRadians)));
             Vector2 start = Position + (Radius + ProjectileRadius + .1f) * angle;
-            float closestFraction = 1;
-            Fixture closestFixture = null;
-            _world.RayCast((fixture, point, normal, fraction) => {
-                if ( fraction < closestFraction ) {
-                    closestFraction = fraction;
-                    closestFixture = fixture;
-                }
-                if ( fixture.GetUserData().IsPlayer )
-                    playerInRange = true;
-                return fraction;
-            }, start, start + Range * angle);
+            
+            Fixture closestFixture = _world.RayCastClosest(start, start + Range * angle);
 
-            if ( playerInRange && closestFixture.GetUserData().IsPlayer ) {
+            if ( closestFixture.GetUserData().IsPlayer ) {
                 EnemyProjectile proj = new EnemyProjectile(_projectileImage, _world, start, angle * ProjectileSpeed, _barrelAimRadians, ProjectileRadius);
                 proj.ProjectileDisposed += projectile => {
                     _numProjectilesInAir--;
