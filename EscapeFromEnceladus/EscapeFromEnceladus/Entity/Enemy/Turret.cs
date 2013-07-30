@@ -49,7 +49,7 @@ namespace Enceladus.Entity.Enemy {
         private const float DownLeftAngle = -Projectile.Pi + MaxAngleOffset;
 
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
-        protected int _hitPoints;
+        protected float _hitPoints;
         private int _numProjectilesInAir = 0;
         private const double MinimumTimeBetweenShotsMs = 3000;
         private double _timeSinceLastShotMs = MinimumTimeBetweenShotsMs;
@@ -346,10 +346,14 @@ namespace Enceladus.Entity.Enemy {
             get { return 10; }
         }
 
-        public bool HitBy(IWeapon projectile) {
-            _hitPoints -= projectile.BaseDamage;
-            _flashAnimation.SetFlashTime(150);
+        public bool HitBy(IWeapon weapon) {
+            DoDamage(weapon.BaseDamage);
             return true;
+        }
+
+        public void DoDamage(float damage) {
+            _hitPoints -= damage;
+            _flashAnimation.SetFlashTime(150);
         }
     }
 }

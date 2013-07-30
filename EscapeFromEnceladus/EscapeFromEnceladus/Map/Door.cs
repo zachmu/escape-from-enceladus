@@ -215,6 +215,13 @@ namespace Enceladus.Map {
             return mode == Mode.NormalControl; 
         }
 
+        /// <summary>
+        /// Returns whether the door is open.
+        /// </summary>
+        public bool IsOpen() {
+            return _state == State.Open || _state == State.Opening;
+        }
+
         private void OpenDoorFully() {
             MakeDoorPassable();
             _state = State.Open;
@@ -282,7 +289,7 @@ namespace Enceladus.Map {
         /// </summary>
         /// <param name="shot"></param>
         public bool HitBy(IWeapon shot) {
-            if ( !_locked ) {
+            if ( !_locked && !IsOpen() ) {
                 OpenDoor();
                 return true;
             }

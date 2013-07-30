@@ -33,7 +33,7 @@ namespace Enceladus.Weapon {
         protected double _timeToLiveMs = 10000;
         protected bool _defunct = false;
 
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
 
         public bool Disposed {
             get { return _disposed; }
@@ -151,22 +151,26 @@ namespace Enceladus.Weapon {
         /// </summary>
         protected virtual OnCollisionEventHandler CollisionHandler() {
             return (a, b, contact) => {
-                       _body.IgnoreGravity = false;
+                _body.IgnoreGravity = false;
 
-                       if ( !_defunct ) {
-                           if ( b.Body.GetUserData().IsEnemy ) {
-                               HitEnemy(b.Body.GetUserData().Enemy);
-                           } else if ( b.Body.GetUserData().IsTerrain ) {
-                               HitTerrain(contact);
-                           } else if ( b.Body.GetUserData().IsDoor ) {
-                               HitDoor(b.Body.GetUserData().Door);
-                           } else {
-                               _timeToLiveMs = 0;
-                           }
-                       }
+                if ( !_defunct ) {
+                    if ( b.GetUserData().IsEnemy ) {
+                        HitEnemy(b.GetUserData().Enemy);
+                    } else if ( b.GetUserData().IsTerrain ) {
+                        HitTerrain(contact);
+                    } else if ( b.GetUserData().IsDoor ) {
+                        if ( b.GetUserData().Door.IsOpen() ) {
+                            return false;
+                        } else {
+                            HitDoor(b.GetUserData().Door);
+                        }
+                    } else {
+                        _timeToLiveMs = 0;
+                    }
+                }
 
-                       return true;
-                   };
+                return true;
+            };
         }
 
         protected void HitDoor(Door door) {
@@ -237,14 +241,7 @@ namespace Enceladus.Weapon {
             _body.Dispose();
         }
 
-        /// <summary>
-        /// Returns the destruction flags for this projectile.
-        /// </summary>
         public abstract int DestructionFlags { get; }
-
-        /// <summary>
-        /// Returns the base damage for this projectile.
-        /// </summary>
-        public abstract int BaseDamage { get; }
+        public abstract float BaseDamage { get; }
     }
 }

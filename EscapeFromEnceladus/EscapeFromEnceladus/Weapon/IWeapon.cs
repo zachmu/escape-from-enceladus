@@ -11,6 +11,6 @@ namespace Enceladus.Weapon {
         /// <summary>
         /// Returns the base damage for this projectile.
         /// </summary>
-        int BaseDamage { get; }
+        float BaseDamage { get; }
     }
 }

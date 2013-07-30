@@ -56,6 +56,10 @@ namespace Enceladus.Entity.Enemy {
             return true;
         }
 
+        public void DoDamage(float damage) {
+            HitBy(null);
+        }
+
         public override void Update(GameTime gameTime) {
             _timeToLiveMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
             if ( _timeToLiveMs <= 0 ) {

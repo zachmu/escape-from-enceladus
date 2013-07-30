@@ -19,7 +19,7 @@ namespace Enceladus.Entity.Enemy {
 
         protected const string EnemySpeed = "Enemy speed (m/s)";
 
-        protected int _hitPoints;
+        protected float _hitPoints;
         protected abstract Texture2D Image { get; set; }
         private bool _disposed;
         protected Direction _direction;
@@ -106,10 +106,18 @@ namespace Enceladus.Entity.Enemy {
         }
 
         public bool HitBy(IWeapon shot) {
-            _hitPoints -= shot.BaseDamage;
+            DoDamage(shot.BaseDamage);
+            return true;
+        }
+
+        private void DamageTaken() {
             _flashAnimation.SetFlashTime(150);
             SoundEffectManager.Instance.PlaySoundEffect("enemyHit");
-            return true;
+        }
+
+        public void DoDamage(float damage) {
+            DamageTaken();
+            _hitPoints -= damage;
         }
 
         public void Dispose() {

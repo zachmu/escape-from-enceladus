@@ -29,6 +29,7 @@ namespace Enceladus.Weapon {
         private const int ImageHeight = 16;
         private const int ImageWidth = 16;
         private const int MaxRange = 30;
+        private const float DamagePerSecond = 50;
 
         public override void Dispose() {
             _disposed = true;
@@ -63,7 +64,8 @@ namespace Enceladus.Weapon {
             float closestFraction = 1;
             Vector2 closestPoint = end;
             _world.RayCast((fixture, point, normal, fraction) => {
-                if ( (fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain) && fraction < closestFraction ) {
+                if ( ((fixture.GetUserData().IsDoor && !fixture.GetUserData().Door.IsOpen())
+                      || fixture.GetUserData().IsTerrain) && fraction < closestFraction ) {
                     closestFraction = fraction;
                     closestPoint = point;
                 }
@@ -94,7 +96,7 @@ namespace Enceladus.Weapon {
                 if ( (fixture.GetUserData().IsDoor) ) {
                     fixture.GetUserData().Door.HitBy(this);
                 } else if ( fixture.GetUserData().IsEnemy ) {
-                    fixture.GetUserData().Enemy.HitBy(this);
+                    fixture.GetUserData().Enemy.DoDamage((float) (gameTime.ElapsedGameTime.TotalSeconds * DamagePerSecond));
                 }
                 return -1;
             }, _start, _end);
@@ -106,7 +108,7 @@ namespace Enceladus.Weapon {
             get { return Flags; }
         }
 
-        public int BaseDamage {
+        public float BaseDamage {
             get { return 1; }
         }
     }

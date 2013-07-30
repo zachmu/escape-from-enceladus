@@ -54,7 +54,7 @@ namespace Enceladus.Weapon {
             get { return Flags; }
         }
 
-        public override int BaseDamage {
+        public override float BaseDamage {
             get { return 1; }
         }
     }

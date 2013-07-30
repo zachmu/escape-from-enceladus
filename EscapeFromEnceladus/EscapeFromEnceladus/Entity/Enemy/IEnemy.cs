@@ -17,5 +17,7 @@ namespace Enceladus.Entity.Enemy {
         /// returning whether it did any damage.
         /// </summary>
         bool HitBy(IWeapon projectile);
+
+        void DoDamage(float damage);
     }
 }
