@@ -12,11 +12,10 @@ using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 
 namespace Enceladus.Weapon {
-
     /// <summary>
     /// Base class for projectiles
     /// </summary>
-    public abstract class Projectile {
+    public abstract class Projectile : IWeapon {
         
         // Important angles in our aiming system (sorry, tau)
         public const float Pi = (float) Math.PI;

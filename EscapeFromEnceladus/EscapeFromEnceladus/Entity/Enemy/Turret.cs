@@ -346,7 +346,7 @@ namespace Enceladus.Entity.Enemy {
             get { return 10; }
         }
 
-        public bool HitBy(Projectile projectile) {
+        public bool HitBy(IWeapon projectile) {
             _hitPoints -= projectile.BaseDamage;
             _flashAnimation.SetFlashTime(150);
             return true;

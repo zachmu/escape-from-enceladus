@@ -105,7 +105,7 @@ namespace Enceladus.Entity.Enemy {
             return mode == Mode.NormalControl; 
         }
 
-        public bool HitBy(Projectile shot) {
+        public bool HitBy(IWeapon shot) {
             _hitPoints -= shot.BaseDamage;
             _flashAnimation.SetFlashTime(150);
             SoundEffectManager.Instance.PlaySoundEffect("enemyHit");

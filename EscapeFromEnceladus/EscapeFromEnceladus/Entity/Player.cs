@@ -425,7 +425,11 @@ namespace Enceladus.Entity {
                     Vector2 position = GetShotParameters(out direction);                    
                     EnceladusGame.Instance.Register(_beam = new Beam(_world, position, direction));
                 }
-            } else if ( !PlayerControl.Control.IsBeamButtonDown() ) {
+            } else if ( PlayerControl.Control.IsBeamButtonDown() ) {
+                Direction direction;
+                Vector2 position = GetShotParameters(out direction);
+                _beam.Update(_world, position, direction);
+            } else {
                 _beam.Dispose();
                 _beam = null;
             }

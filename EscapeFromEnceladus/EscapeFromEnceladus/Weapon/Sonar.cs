@@ -5,6 +5,7 @@ using System.Text;
 using Enceladus.Entity;
 using Enceladus.Farseer;
 using Enceladus.Map;
+using Enceladus.Overlay;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -22,11 +23,11 @@ namespace Enceladus.Weapon {
     public class Sonar : IGameEntity {
 
         private const string WaveSpeed = "Wave speed (m/s)";
-        private const string SonarLocationDebug = "Sonar location debug";
+        public const string WeaponDrawDebug = "Draw weapon debug";
 
         static Sonar() {
             Constants.Register(new Constant(WaveSpeed, 12.0f, Keys.Q));
-            Constants.Register(new Constant(SonarLocationDebug, .9f, Keys.D0));
+            Constants.Register(new Constant(WeaponDrawDebug, .9f, Keys.D0));
         }
 
         private bool _disposed;
@@ -51,23 +52,21 @@ namespace Enceladus.Weapon {
             return mode == Mode.NormalControl; 
         }
 
-        private static Texture2D _debugLocation;
         private static SoundEffect _ping;
         private static SoundEffect _pong;
 
         public static void LoadContent(ContentManager cm) {
             _waveEffect = cm.Load<Effect>("Effects/wave");
-            _debugLocation = cm.Load<Texture2D>("welcome16");
             _pong = cm.Load<SoundEffect>("Sounds/SonarHit");
             _ping = cm.Load<SoundEffect>("Sounds/SonarPing");
         }
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            if ( Constants.Get(SonarLocationDebug) >= 1 ) {
+            if ( Constants.Get(WeaponDrawDebug) >= 1 ) {
                 foreach ( FoundDestructibleRegion region in _foundDestructionRegions.Values ) {
                     foreach ( Vector2 location in region._locations ) {
                         Vector2 displayPosition = ConvertUnits.ToDisplayUnits(location);
-                        spriteBatch.Draw(_debugLocation, displayPosition, Color.White);
+                        spriteBatch.Draw(SharedGraphicalAssets.DebugMarker, displayPosition, Color.White);
                     }
                 }
             }

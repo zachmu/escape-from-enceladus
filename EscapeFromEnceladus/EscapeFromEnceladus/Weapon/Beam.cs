@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Enceladus.Entity;
 using Enceladus.Farseer;
+using Enceladus.Overlay;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -15,15 +16,19 @@ namespace Enceladus.Weapon {
     /// <summary>
     /// The beam weapon, which burns a continuous path through enemies.
     /// </summary>
-    public class Beam : GameEntityAdapter {
+    public class Beam : GameEntityAdapter, IWeapon {
 
         private bool _disposed;
         private static Texture2D _image;
         private Direction _direction;
         private Vector2 _start;
+        private Vector2 _end;
         private float _angle;
+        private World _world;
+
         private const int ImageHeight = 16;
-        private const int ImageWidth = 16;        
+        private const int ImageWidth = 16;
+        private const int MaxRange = 30;
 
         public override void Dispose() {
             _disposed = true;
@@ -38,25 +43,71 @@ namespace Enceladus.Weapon {
         }
 
         public Beam(World world, Vector2 start, Direction direction) {
+            Update(world, start, direction);
+        }
+
+        public void Update(World world, Vector2 start, Direction direction) {
             _start = start;
             _direction = direction;
             _angle = Projectile.GetAngle(direction);
+            _world = world;
+            DetermineLength();
+        }
+
+        private void DetermineLength() {
+
+            // Don't forget to invert the y coordinate because of the differing y axes
+            Vector2 end = _start + new Vector2((float) Math.Cos(_angle) * MaxRange,
+                                               (float) -Math.Sin(_angle) * MaxRange);
+
+            float closestFraction = 1;
+            Vector2 closestPoint = end;
+            _world.RayCast((fixture, point, normal, fraction) => {
+                if ( (fixture.GetUserData().IsDoor || fixture.GetUserData().IsTerrain) && fraction < closestFraction ) {
+                    closestFraction = fraction;
+                    closestPoint = point;
+                }
+                return 1;
+            }, _start, end);
+
+            _end = closestPoint;
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_start);
             Vector2 origin = new Vector2(0, ImageHeight / 2);
-            Rectangle drawRectangle = new Rectangle((int) displayPosition.X,
-                                                    (int) (displayPosition.Y - ImageHeight * 10), ImageWidth * 10,
-                                                    ImageHeight * 10);
+            float unitLegth = ConvertUnits.ToSimUnits(ImageWidth);
+            float lengthRatio = (_end - _start).Length() / unitLegth;
 
             spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor,
-                             Projectile.GetSpriteRotation(_direction), origin, new Vector2(10f, 1f), SpriteEffects.None, 1.0f);
-//            spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor, Projectile.GetSpriteRotation(_direction), origin,
-//                             SpriteEffects.None, 0);
+                             Projectile.GetSpriteRotation(_direction), origin, new Vector2(lengthRatio, 1.0f),
+                             SpriteEffects.None, 1.0f);
+
+            if ( Constants.Get(Sonar.WeaponDrawDebug) >= 1 ) {
+                Vector2 debugLocation = ConvertUnits.ToDisplayUnits(_end);
+                spriteBatch.Draw(SharedGraphicalAssets.DebugMarker, debugLocation, SolidColorEffect.DisabledColor);
+            }
         }
 
         public override void Update(GameTime gameTime) {
+            _world.RayCast((fixture, point, normal, fraction) => {
+                if ( (fixture.GetUserData().IsDoor) ) {
+                    fixture.GetUserData().Door.HitBy(this);
+                } else if ( fixture.GetUserData().IsEnemy ) {
+                    fixture.GetUserData().Enemy.HitBy(this);
+                }
+                return -1;
+            }, _start, _end);
+        }
+
+        public const int Flags = 4;
+
+        public int DestructionFlags {
+            get { return Flags; }
+        }
+
+        public int BaseDamage {
+            get { return 1; }
         }
     }
 

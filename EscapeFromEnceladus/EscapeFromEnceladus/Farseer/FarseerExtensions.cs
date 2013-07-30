@@ -49,7 +49,7 @@ namespace Enceladus.Farseer {
                 return fraction;
             }, start, end);
             return closestFixture;
-        }
+        }      
 
         /// <summary>
         /// Returns the normal on the player's body resulting from the contact given, 
