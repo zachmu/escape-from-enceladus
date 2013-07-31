@@ -80,8 +80,8 @@ namespace Enceladus.Entity {
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .4f, Keys.N));
             Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, .57f, null, .01f));
             Constants.Register(new Constant(PlayerScooterOffset, 0f, null));
-            Constants.Register(new Constant(ProjectileOffsetX, 0f, null, .01f));
-            Constants.Register(new Constant(ProjectileOffsetY, 0f, null, .01f));
+            Constants.Register(new Constant(ProjectileOffsetX, 0f, Keys.X, .01f));
+            Constants.Register(new Constant(ProjectileOffsetY, 0f, Keys.Y, .01f));
         }
 
         #endregion
@@ -662,9 +662,9 @@ namespace Enceladus.Entity {
 
         #region ShotAdjustments
 
-        private static readonly Vector2 ShotAdjustmentStandingRight = new Vector2(-.08f, .08f);
+        private static readonly Vector2 ShotAdjustmentStandingRight = new Vector2(-.08f, .09f);
         private static readonly Vector2 ShotAdjustmentStandingUp = new Vector2(.1f, 0f);
-        private static readonly Vector2 ShotAdjustmentStandingUpRight = new Vector2(-.02f, .22f);
+        private static readonly Vector2 ShotAdjustmentStandingUpRight = new Vector2(-.02f, .26f);
         private static readonly Vector2 ShotAdjustmentStandingDownRight = new Vector2(-.02f, .24f);
         private static readonly Vector2 ShotAdjustmentStandingDown = new Vector2(.18f, -.36f);
         private static readonly Vector2 ShotAdjustmentDuckingRight = new Vector2(-.02f, -.25f);
