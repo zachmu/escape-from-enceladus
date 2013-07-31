@@ -10,6 +10,7 @@ using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace Enceladus.Weapon {
     /// <summary>
@@ -26,6 +27,9 @@ namespace Enceladus.Weapon {
         public const float ThreePiOverEight = (float) (3f * (Math.PI / 8f));
         public const float FivePiOverEight = (float) (5f * (Math.PI / 8f));
         public const float SevenPiOverEight = (float) (7f * (Math.PI / 8f));
+
+        public const string ProjectileOffsetX = "Projectile offset X";
+        public const string ProjectileOffsetY = "Projectile offset Y";
 
         protected Body _body;
         private bool _disposed;

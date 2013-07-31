@@ -238,11 +238,11 @@ namespace Enceladus.Control
         }
 
         public bool IsNewBeam() {
-            return InputHelper.Instance.IsNewKeyPress(Keys.B);
+            return InputHelper.Instance.IsNewKeyPress(Keys.V);
         }
 
         public bool IsBeamButtonDown() {
-            return InputHelper.Instance.KeyboardState.IsKeyDown(Keys.B);
+            return InputHelper.Instance.KeyboardState.IsKeyDown(Keys.V);
         }
     }
 }

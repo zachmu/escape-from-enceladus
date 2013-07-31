@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Enceladus.Event;
 using Enceladus.Map;
+using Enceladus.Overlay;
 using Enceladus.Util;
 using Enceladus.Xbox;
 using Enceladus.Control;
@@ -63,8 +64,6 @@ namespace Enceladus.Entity {
         private const string PlayerWalkSpeedMultiplier = "Player walk speed multiplier";
         private const string PlayerWheelSpinSpeedMultiplier = "Player wheel spin speed multipler";
         private const string PlayerScooterOffset = "Player scooter offset";
-        private const string ProjectileOffsetX = "Projectile offset X";
-        private const string ProjectileOffsetY = "Projectile offset Y";
 
         static Player() {
             Constants.Register(new Constant(PlayerInitSpeedMs, 3.5f, Keys.I));
@@ -81,8 +80,8 @@ namespace Enceladus.Entity {
             Constants.Register(new Constant(PlayerWalkSpeedMultiplier, .4f, Keys.N));
             Constants.Register(new Constant(PlayerWheelSpinSpeedMultiplier, .57f, null, .01f));
             Constants.Register(new Constant(PlayerScooterOffset, 0f, null));
-            Constants.Register(new Constant(ProjectileOffsetX, 0f, Keys.X, .01f));
-            Constants.Register(new Constant(ProjectileOffsetY, 0f, Keys.Y, .01f));
+            Constants.Register(new Constant(Projectile.ProjectileOffsetX, 0f, Keys.X, 1f));
+            Constants.Register(new Constant(Projectile.ProjectileOffsetY, 0f, Keys.Y, 1f));
         }
 
         #endregion
@@ -216,6 +215,12 @@ namespace Enceladus.Entity {
                                  _facingDirection == Direction.Right
                                      ? SpriteEffects.None
                                      : SpriteEffects.FlipHorizontally, 0);
+
+                // drawing the frame number on top of the character
+                if ( Constants[Sonar.WeaponDrawDebug] >= 1 ) {
+                    spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, "" + _animationFrame,
+                                           displayPosition - new Vector2(0, 100), Color.White);
+                }   
             }
         }
 
@@ -579,7 +584,8 @@ namespace Enceladus.Entity {
             }
 
             // tuning params
-            position += new Vector2(Constants[ProjectileOffsetX], Constants[ProjectileOffsetY]);
+//            position += new Vector2(ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetX]), 
+//                ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetY]));
 
             if ( IsDucking && shotDirection != Direction.Down ) {
                 position += new Vector2(0, CharacterStandingHeight / 3f);
@@ -623,6 +629,7 @@ namespace Enceladus.Entity {
                     break;
                 case Direction.Down:
                     if ( IsDucking ) {
+
                         tuning = ShotAdjustmentDuckingDown;
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingDown;
@@ -638,7 +645,9 @@ namespace Enceladus.Entity {
                         tuning = ShotAdjustmentStandingUpRight;
                         if ( !IsStandingStill() ) {
                             if ( IsWalkingSpeed() ) {
-                                tuning += new Vector2(0, .06f);
+                               tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
+                            } else if ( IsJoggingSpeed() ) {
+
                             } else {
                                 tuning += new Vector2(0, -.07f);
                             }
@@ -771,6 +780,25 @@ namespace Enceladus.Entity {
             ConvertUnits.ToSimUnits(-4),
             ConvertUnits.ToSimUnits(-4),
             ConvertUnits.ToSimUnits(-5),            
+        };
+
+        private static readonly float[] WalkingAimUpRightAdjustments = new[] {
+            ConvertUnits.ToSimUnits(-2),
+            ConvertUnits.ToSimUnits(-3),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-3),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-3),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-2),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-2),
         };
 
         private static readonly float[] StandingAdjustments = new[] {

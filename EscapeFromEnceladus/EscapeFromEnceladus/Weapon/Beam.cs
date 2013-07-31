@@ -75,20 +75,33 @@ namespace Enceladus.Weapon {
             _end = closestPoint;
         }
 
+        private static readonly Constants Constants = Constants.Instance;
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_start);
+
+            Vector2 drawStart = _start;
+            Vector2 drawEnd = _end;
+
+            if ( Constants.Get(Sonar.WeaponDrawDebug) >= 1 ) {
+                drawStart +=
+                    new Vector2(ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetX]),
+                                ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetY]));
+                drawEnd +=
+                    new Vector2(ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetX]),
+                                ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetY]));
+
+                Vector2 debugLocation = ConvertUnits.ToDisplayUnits(drawEnd);
+                spriteBatch.Draw(SharedGraphicalAssets.DebugMarker, debugLocation, SolidColorEffect.DisabledColor);
+            }
+
+            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(drawStart);
             Vector2 origin = new Vector2(0, ImageHeight / 2);
+
             float unitLegth = ConvertUnits.ToSimUnits(ImageWidth);
-            float lengthRatio = (_end - _start).Length() / unitLegth;
+            float lengthRatio = (drawEnd - drawStart).Length() / unitLegth;
 
             spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor,
                              Projectile.GetSpriteRotation(_direction), origin, new Vector2(lengthRatio, 1.0f),
                              SpriteEffects.None, 1.0f);
-
-            if ( Constants.Get(Sonar.WeaponDrawDebug) >= 1 ) {
-                Vector2 debugLocation = ConvertUnits.ToDisplayUnits(_end);
-                spriteBatch.Draw(SharedGraphicalAssets.DebugMarker, debugLocation, SolidColorEffect.DisabledColor);
-            }
         }
 
         public override void Update(GameTime gameTime) {
