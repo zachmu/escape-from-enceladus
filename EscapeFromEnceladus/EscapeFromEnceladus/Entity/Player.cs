@@ -26,6 +26,7 @@ namespace Enceladus.Entity {
     public class Player : IGameEntity, ISaveable {
 
         private static Player _instance;
+
         public static Player Instance {
             get { return _instance; }
         }
@@ -46,7 +47,7 @@ namespace Enceladus.Entity {
 
         public float Height { get; private set; }
         public float Width { get; private set; }
-        
+
         private static readonly Constants Constants = Constants.Instance;
         private const string PlayerInitSpeedMs = "Player initial walk speed (m/s)";
         private const string PlayerInitRunSpeedMs = "Player initial run speed (m/s)";
@@ -104,7 +105,10 @@ namespace Enceladus.Entity {
         private Beam _beam;
 
         private Color _color = Color.SteelBlue;
-        public Color Color { get { return _color; } }
+
+        public Color Color {
+            get { return _color; }
+        }
 
         public bool Disposed {
             get { return _body == null || _body.IsDisposed; }
@@ -120,7 +124,7 @@ namespace Enceladus.Entity {
         }
 
         public bool UpdateInMode(Mode mode) {
-            return mode == Mode.NormalControl; 
+            return mode == Mode.NormalControl;
         }
 
         public Vector2 LinearVelocity {
@@ -129,7 +133,7 @@ namespace Enceladus.Entity {
 
         public Player(Vector2 position, World world) {
             _instance = this;
-            
+
             HealthCapacity = 650;
             Health = 100;
 
@@ -148,7 +152,7 @@ namespace Enceladus.Entity {
             _body.FixtureList.First().UserData = "body";
             Height = CharacterStandingHeight;
             Width = CharacterStandingWidth;
-            ConfigureBody(position);            
+            ConfigureBody(position);
         }
 
         private void ConfigureBody(Vector2 position) {
@@ -158,7 +162,8 @@ namespace Enceladus.Entity {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
-            _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory | EnceladusGame.PlayerSensorCategory;
+            _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory |
+                                 EnceladusGame.PlayerSensorCategory;
             _body.CollisionCategories = EnceladusGame.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
             _body.FixtureList.First().UserData = "body";
@@ -178,6 +183,7 @@ namespace Enceladus.Entity {
         public Equipment Equipment { get; private set; }
 
         private Texture2D _image;
+
         private Texture2D Image {
             get { return _image; }
         }
@@ -197,7 +203,7 @@ namespace Enceladus.Entity {
             if ( !Disposed ) {
                 // Draw origin is character's feet
                 Vector2 position = _body.Position;
-                position.Y += Height/2;
+                position.Y += Height / 2;
                 position += _imageDrawOffset;
 
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
@@ -206,7 +212,7 @@ namespace Enceladus.Entity {
                 spriteBatch.Draw(Image,
                                  new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width,
                                                Image.Height),
-                                 null, color * alpha, 0f, new Vector2(Image.Width/2, Image.Height - 1),
+                                 null, color * alpha, 0f, new Vector2(Image.Width / 2, Image.Height - 1),
                                  _facingDirection == Direction.Right
                                      ? SpriteEffects.None
                                      : SpriteEffects.FlipHorizontally, 0);
@@ -217,6 +223,7 @@ namespace Enceladus.Entity {
         /// Whether or not the character is standing on solid ground.
         /// </summary>
         private bool _isStanding;
+
         protected bool IsStanding {
             get { return _isStanding; }
             set {
@@ -240,6 +247,7 @@ namespace Enceladus.Entity {
         /// Whether or not the character is ducking, on the ground
         /// </summary>
         private bool _isDucking;
+
         public bool IsDucking {
             get { return _isDucking; }
             private set {
@@ -347,9 +355,11 @@ namespace Enceladus.Entity {
                     List<Vector2> startRays = new List<Vector2>();
                     if ( _facingDirection == Direction.Right ) {
                         startRays.Add(_body.Position +
-                                      new Vector2(-ScooterNudge - CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
+                                      new Vector2(-ScooterNudge - CharacterDuckingWidth / 2f,
+                                                  CharacterScootingHeight / 2));
                         startRays.Add(_body.Position +
-                                      new Vector2(-ScooterNudge + CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
+                                      new Vector2(-ScooterNudge + CharacterDuckingWidth / 2f,
+                                                  CharacterScootingHeight / 2));
                     } else {
                         startRays.Add(_body.Position +
                                       new Vector2(ScooterNudge + CharacterDuckingWidth / 2f, CharacterScootingHeight / 2));
@@ -399,22 +409,18 @@ namespace Enceladus.Entity {
 
             UpdateBookkeepingCounters(gameTime);
 
-            HandleJump(gameTime);
-
-            HandleShot(gameTime);
-
-            HandleBeam(gameTime);
-
             HandleMovement(gameTime);
-
+            HandleJump(gameTime);
             HandleScooter(gameTime);
-
             UpdateImage(gameTime);
 
+            // Some moves rely on a proper animation info, 
+            // so we do them after the image update.
+            HandleShot(gameTime);
+            HandleBeam(gameTime);
             HandleSonar(gameTime);
 
             UpdateFlash(gameTime);
-
             UpdateInvulnerable(gameTime);
         }
 
@@ -422,12 +428,12 @@ namespace Enceladus.Entity {
             if ( _beam == null ) {
                 if ( PlayerControl.Control.IsNewBeam() ) {
                     Direction direction;
-                    Vector2 position = GetShotParameters(out direction);                    
+                    Vector2 position = GetShotPlacement(out direction);
                     EnceladusGame.Instance.Register(_beam = new Beam(_world, position, direction));
                 }
             } else if ( PlayerControl.Control.IsBeamButtonDown() ) {
                 Direction direction;
-                Vector2 position = GetShotParameters(out direction);
+                Vector2 position = GetShotPlacement(out direction);
                 _beam.Update(_world, position, direction);
             } else {
                 _beam.Dispose();
@@ -467,20 +473,22 @@ namespace Enceladus.Entity {
             if ( PlayerControl.Control.IsNewShot() ) {
                 if ( IsScooting ) {
                     Vector2 pos = Vector2.Zero;
-                    if (_facingDirection == Direction.Right) {
-                        pos = _body.Position + new Vector2(CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
+                    if ( _facingDirection == Direction.Right ) {
+                        pos = _body.Position +
+                              new Vector2(CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
                     } else {
-                        pos = _body.Position + new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);                                                
+                        pos = _body.Position +
+                              new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
                     }
                     EnceladusGame.Instance.Register(new Bomb(pos, _world, _facingDirection));
                 } else {
                     Direction shotDirection;
-                    var position = GetShotParameters(out shotDirection);
+                    var position = GetShotPlacement(out shotDirection);
                     EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
                 }
             } else if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
                 Direction shotDirection;
-                var position = GetShotParameters(out shotDirection);
+                var position = GetShotPlacement(out shotDirection);
                 EnceladusGame.Instance.Register(new Missile(position, _world, shotDirection));
             }
         }
@@ -537,7 +545,7 @@ namespace Enceladus.Entity {
         /// <summary>
         /// Returns the original location and direction to place a new shot in the game world.
         /// </summary>
-        private Vector2 GetShotParameters(out Direction shotDirection) {
+        private Vector2 GetShotPlacement(out Direction shotDirection) {
             shotDirection = GetAimDirection();
 
             Vector2 position = _body.Position;
@@ -578,7 +586,7 @@ namespace Enceladus.Entity {
             }
 
             // Fine tuning the shot placement.
-            // Numbers determined experimentally. 
+            // Numbers determined experimentally and with pixel counting.
             // It is a mess.
             Vector2 tuning;
             switch ( shotDirection ) {
@@ -588,12 +596,14 @@ namespace Enceladus.Entity {
                         tuning = ShotAdjustmentDuckingRight;
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingRight;
-                        if ( !IsStandingStill() ) {
-                            if ( IsRunningSpeed() ) {
-                                tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);
-                            } else {
-                                tuning += new Vector2(0, -.06f);
-                            }
+                        if ( IsStandingStill() ) {
+                            tuning += new Vector2(0, -.06f);
+                        } else if ( IsWalkingSpeed() ) {
+                            tuning += new Vector2(0, -.06f);
+                        } else if ( IsJoggingSpeed() ) {
+                            tuning += new Vector2(0, JoggingStraightAdjustments[_animationFrame]);
+                        } else {
+                            tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);                            
                         }
                     } else {
                         tuning = ShotAdjustmentJumpingRight;
@@ -657,7 +667,7 @@ namespace Enceladus.Entity {
                 default:
                     throw new ArgumentOutOfRangeException("shotDirection");
             }
-            if (_facingDirection == Direction.Left) {
+            if ( _facingDirection == Direction.Left ) {
                 tuning = new Vector2(-tuning.X, tuning.Y);
             }
 
@@ -687,30 +697,47 @@ namespace Enceladus.Entity {
         /*
          * A tedious set of animation-specific directions.
          */
-        private static readonly float[] RunningStraightAdjustments = new float[] {
-            ConvertUnits.ToSimUnits(-6), 
-            ConvertUnits.ToSimUnits(-6), 
+
+        private static readonly float[] RunningStraightAdjustments = new[] {
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-6),
             ConvertUnits.ToSimUnits(-9),
-            ConvertUnits.ToSimUnits(-10), 
-            ConvertUnits.ToSimUnits(-11), 
-            ConvertUnits.ToSimUnits(-11), 
-            ConvertUnits.ToSimUnits(-10), 
-            ConvertUnits.ToSimUnits(-9), 
-            ConvertUnits.ToSimUnits(-8), 
-            ConvertUnits.ToSimUnits(-8), 
-            ConvertUnits.ToSimUnits(-8),
-            ConvertUnits.ToSimUnits(-8), 
-            ConvertUnits.ToSimUnits(-8),
-            ConvertUnits.ToSimUnits(-8),
-            ConvertUnits.ToSimUnits(-8), 
-            ConvertUnits.ToSimUnits(-9), 
-            ConvertUnits.ToSimUnits(-9),
-            ConvertUnits.ToSimUnits(-9),
-            ConvertUnits.ToSimUnits(-9),
-            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-10),
+            ConvertUnits.ToSimUnits(-11),
+            ConvertUnits.ToSimUnits(-11),
+            ConvertUnits.ToSimUnits(-10),
             ConvertUnits.ToSimUnits(-9),
             ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-7),
             ConvertUnits.ToSimUnits(-6)
+        };
+
+        private static readonly float[] JoggingStraightAdjustments = new[] {
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-2),
+            ConvertUnits.ToSimUnits(-2),
+            ConvertUnits.ToSimUnits(-3),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-7),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-5),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
         };
 
         #endregion
@@ -934,7 +961,7 @@ namespace Enceladus.Entity {
         private void HandleSonar(GameTime gameTime) {
             if ( PlayerControl.Control.IsNewSonar() ) {
                 Direction shotDirection;
-                var position = GetShotParameters(out shotDirection);
+                var position = GetShotPlacement(out shotDirection);
                 EnceladusGame.Instance.Register(new Sonar(_world, position, shotDirection));
             }
         }
@@ -1284,24 +1311,27 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.RunAimStraight;
                     if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumRunAimStraightFrames;
-                        SetImage(_runAimStraightAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
+                        _animationFrame = (_animationFrame + 1) % NumRunAimStraightFrames;
+                        SetImage(_runAimStraightAnimation[_animationFrame],
+                                 _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.Up:
                     _currentAnimation = Animation.RunAimUp;
                     if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumRunAimFrames;
-                        SetImage(_runAimUpAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
+                        _animationFrame = (_animationFrame + 1) % NumRunAimFrames;
+                        SetImage(_runAimUpAnimation[_animationFrame],
+                                 _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.Down:
                     _currentAnimation = Animation.RunAimDown;
                     if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumRunAimFrames;
-                        SetImage(_runAimDownAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
+                        _animationFrame = (_animationFrame + 1) % NumRunAimFrames;
+                        SetImage(_runAimDownAnimation[_animationFrame],
+                                 _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.UpLeft:
@@ -1309,8 +1339,9 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.RunAimDiagonalUp;
                     if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumRunAimFrames;
-                        SetImage(_runAimDiagonalUpAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
+                        _animationFrame = (_animationFrame + 1) % NumRunAimFrames;
+                        SetImage(_runAimDiagonalUpAnimation[_animationFrame],
+                                 _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 case Direction.DownLeft:
@@ -1318,8 +1349,9 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.RunAimDiagonalDown;
                     if ( _timeSinceLastAnimationUpdate > timeTilAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumRunAimFrames;
-                        SetImage(_runAimDiagonalDownAnimation[_animationFrame++], _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
+                        _animationFrame = (_animationFrame + 1) % NumRunAimFrames;
+                        SetImage(_runAimDiagonalDownAnimation[_animationFrame],
+                                 _timeSinceLastAnimationUpdate % timeTilAnimationUpdate);
                     }
                     break;
                 default:
@@ -1338,24 +1370,24 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.JogAimStraight;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumJogFrames;
-                        SetImage(_jogAimStraightAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumJogFrames;
+                        SetImage(_jogAimStraightAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.Up:
                     _currentAnimation = Animation.JogAimUp;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumJogFrames;
-                        SetImage(_jogAimUpAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumJogFrames;
+                        SetImage(_jogAimUpAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.Down:
                     _currentAnimation = Animation.JogAimDown;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumJogFrames;
-                        SetImage(_jogAimDownAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumJogFrames;
+                        SetImage(_jogAimDownAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.UpLeft:
@@ -1363,8 +1395,8 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.JogAimDiagonalUp;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumJogFrames;
-                        SetImage(_jogAimDiagonalUpAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumJogFrames;
+                        SetImage(_jogAimDiagonalUpAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.DownLeft:
@@ -1372,8 +1404,8 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.JogAimDiagonalDown;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumJogFrames;
-                        SetImage(_jogAimDiagonalDownAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumJogFrames;
+                        SetImage(_jogAimDiagonalDownAnimation[_animationFrame], residualTime);
                     }
                     break;
                 default:
@@ -1392,24 +1424,24 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.WalkAimStraight;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumWalkAimStraightFrames;
-                        SetImage(_walkAimStraightAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumWalkAimStraightFrames;
+                        SetImage(_walkAimStraightAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.Up:
                     _currentAnimation = Animation.WalkAimUp;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumWalkAimFrames;
-                        SetImage(_walkAimUpAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumWalkAimFrames;
+                        SetImage(_walkAimUpAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.Down:
                     _currentAnimation = Animation.WalkAimDown;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumWalkAimFrames;
-                        SetImage(_walkAimDownAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumWalkAimFrames;
+                        SetImage(_walkAimDownAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.UpLeft:
@@ -1417,8 +1449,8 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.WalkAimDiagonalUp;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumWalkAimFrames;
-                        SetImage(_walkAimDiagonalUpAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumWalkAimFrames;
+                        SetImage(_walkAimDiagonalUpAnimation[_animationFrame], residualTime);
                     }
                     break;
                 case Direction.DownLeft:
@@ -1426,8 +1458,8 @@ namespace Enceladus.Entity {
                     _currentAnimation = Animation.WalkAimDiagonalDown;
                     if ( _timeSinceLastAnimationUpdate > timeTillAnimationUpdate
                          || _prevAnimation != _currentAnimation ) {
-                        _animationFrame %= NumWalkAimFrames;
-                        SetImage(_walkAimDiagonalDownAnimation[_animationFrame++], residualTime);
+                        _animationFrame = (_animationFrame + 1) % NumWalkAimFrames;
+                        SetImage(_walkAimDiagonalDownAnimation[_animationFrame], residualTime);
                     }
                     break;
                 default:
@@ -1445,33 +1477,36 @@ namespace Enceladus.Entity {
                         _currentAnimation = Animation.AimStraight;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < AimRightFrame
                                  || _animationFrame > AimRightFrame + 1 ) {
                                 _animationFrame = AimRightFrame;
                             }
-                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
+                            SetImage(_standAimAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.Up:
                         _currentAnimation = Animation.AimUp;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < AimUpFrame
                                  || _animationFrame > AimUpFrame + 1 ) {
                                 _animationFrame = AimUpFrame;
                             }
-                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
+                            SetImage(_standAimAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.Down:
                         _currentAnimation = Animation.AimDown;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < AimDownFrame
                                  || _animationFrame > AimDownFrame + 1 ) {
                                 _animationFrame = AimDownFrame;
                             }
-                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
+                            SetImage(_standAimAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.UpLeft:
@@ -1479,11 +1514,12 @@ namespace Enceladus.Entity {
                         _currentAnimation = Animation.AimDiagonalUp;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < AimUpRightFrame
                                  || _animationFrame > AimUpRightFrame + 1 ) {
                                 _animationFrame = AimUpRightFrame;
                             }
-                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
+                            SetImage(_standAimAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.DownLeft:
@@ -1491,11 +1527,12 @@ namespace Enceladus.Entity {
                         _currentAnimation = Animation.AimDiagonalDown;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < AimDownRightFrame
                                  || _animationFrame > AimDownRightFrame + 1 ) {
                                 _animationFrame = AimDownRightFrame;
                             }
-                            SetImage(_standAimAnimation[_animationFrame++], residualTime);
+                            SetImage(_standAimAnimation[_animationFrame], residualTime);
                         }
                         break;
                     default:
@@ -1508,33 +1545,36 @@ namespace Enceladus.Entity {
                         _currentAnimation = Animation.CrouchAimStraight;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < CrouchAimStraightFrame
                                  || _animationFrame > CrouchAimStraightFrame + 1 ) {
                                 _animationFrame = CrouchAimStraightFrame;
                             }
-                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
+                            SetImage(_crouchAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.Up:
                         _currentAnimation = Animation.CrouchAimUp;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < CrouchAimUpFrame
                                  || _animationFrame > CrouchAimUpFrame + 1 ) {
                                 _animationFrame = CrouchAimUpFrame;
                             }
-                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
+                            SetImage(_crouchAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.Down:
                         _currentAnimation = Animation.CrouchAimDown;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < CrouchAimDownFrame
                                  || _animationFrame > CrouchAimDownFrame + 1 ) {
                                 _animationFrame = CrouchAimDownFrame;
                             }
-                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
+                            SetImage(_crouchAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.UpLeft:
@@ -1542,11 +1582,12 @@ namespace Enceladus.Entity {
                         _currentAnimation = Animation.CrouchAimDiagonalUp;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < CrouchAimUpRightFrame
                                  || _animationFrame > CrouchAimUpRightFrame + 1 ) {
                                 _animationFrame = CrouchAimUpRightFrame;
                             }
-                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
+                            SetImage(_crouchAnimation[_animationFrame], residualTime);
                         }
                         break;
                     case Direction.DownLeft:
@@ -1554,11 +1595,12 @@ namespace Enceladus.Entity {
                         _currentAnimation = Animation.CrouchAimDiagonalDown;
                         if ( _timeSinceLastAnimationUpdate > timeTillAnimationChange
                              || _prevAnimation != _currentAnimation ) {
+                            _animationFrame++;
                             if ( _animationFrame < CrouchAimDownRightFrame
                                  || _animationFrame > CrouchAimDownRightFrame + 1 ) {
                                 _animationFrame = CrouchAimDownRightFrame;
                             }
-                            SetImage(_crouchAnimation[_animationFrame++], residualTime);
+                            SetImage(_crouchAnimation[_animationFrame], residualTime);
                         }
                         break;
                     default:
