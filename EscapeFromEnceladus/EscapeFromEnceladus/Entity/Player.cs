@@ -577,7 +577,9 @@ namespace Enceladus.Entity {
                 position += new Vector2(0, CharacterStandingHeight / 3f);
             }
 
-            // Fine tuning the shot placement.  Numbers determined experimentally
+            // Fine tuning the shot placement.
+            // Numbers determined experimentally. 
+            // It is a mess.
             Vector2 tuning;
             switch ( shotDirection ) {
                 case Direction.Left:
@@ -587,7 +589,11 @@ namespace Enceladus.Entity {
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingRight;
                         if ( !IsStandingStill() ) {
-                            tuning += new Vector2(0, -.06f);
+                            if ( IsRunningSpeed() ) {
+                                tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);
+                            } else {
+                                tuning += new Vector2(0, -.06f);
+                            }
                         }
                     } else {
                         tuning = ShotAdjustmentJumpingRight;
@@ -677,6 +683,35 @@ namespace Enceladus.Entity {
         private static readonly Vector2 ShotAdjustmentJumpingUpRight = new Vector2(.06f, .19f);
         private static readonly Vector2 ShotAdjustmentJumpingDownRight = new Vector2(.06f, .40f);
         private static readonly Vector2 ShotAdjustmentJumpingDown = new Vector2(.16f, -.20f);
+
+        /*
+         * A tedious set of animation-specific directions.
+         */
+        private static readonly float[] RunningStraightAdjustments = new float[] {
+            ConvertUnits.ToSimUnits(-6), 
+            ConvertUnits.ToSimUnits(-6), 
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-10), 
+            ConvertUnits.ToSimUnits(-11), 
+            ConvertUnits.ToSimUnits(-11), 
+            ConvertUnits.ToSimUnits(-10), 
+            ConvertUnits.ToSimUnits(-9), 
+            ConvertUnits.ToSimUnits(-8), 
+            ConvertUnits.ToSimUnits(-8), 
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8), 
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8), 
+            ConvertUnits.ToSimUnits(-9), 
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-9),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-6)
+        };
 
         #endregion
 
@@ -1538,6 +1573,10 @@ namespace Enceladus.Entity {
 
         private bool IsJoggingSpeed() {
             return Math.Abs(_body.LinearVelocity.X) <= Constants[PlayerMaxGroundSpeedMs] * .6f;
+        }
+
+        private bool IsRunningSpeed() {
+            return Math.Abs(_body.LinearVelocity.X) > Constants[PlayerMaxGroundSpeedMs] * .6f;
         }
 
         private bool IsWalkingSpeed() {
