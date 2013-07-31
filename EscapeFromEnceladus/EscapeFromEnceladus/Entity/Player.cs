@@ -597,9 +597,9 @@ namespace Enceladus.Entity {
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingRight;
                         if ( IsStandingStill() ) {
-                            tuning += new Vector2(0, -.06f);
+                            tuning += new Vector2(0, StandingAdjustments[_animationFrame]);
                         } else if ( IsWalkingSpeed() ) {
-                            tuning += new Vector2(0, -.06f);
+                            tuning += new Vector2(0, WalkingStraightAdjustments[_animationFrame]);
                         } else if ( IsJoggingSpeed() ) {
                             tuning += new Vector2(0, JoggingStraightAdjustments[_animationFrame]);
                         } else {
@@ -738,6 +738,55 @@ namespace Enceladus.Entity {
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(-1),
             ConvertUnits.ToSimUnits(-1),
+        };
+
+        private static readonly float[] WalkingStraightAdjustments = new[] {
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-7),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-7),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-5),
+            ConvertUnits.ToSimUnits(-5),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-5),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-5),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-7),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-8),
+            ConvertUnits.ToSimUnits(-7),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-6),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-5),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-4),
+            ConvertUnits.ToSimUnits(-5),            
+        };
+
+        private static readonly float[] StandingAdjustments = new[] {
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
         };
 
         #endregion
