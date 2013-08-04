@@ -556,45 +556,45 @@ namespace Enceladus.Entity {
             Vector2 position = _body.Position;
             switch ( shotDirection ) {
                 case Direction.Right:
-                    position += new Vector2(CharacterStandingWidth / 2f, -CharacterStandingHeight / 4.5f);
+                    position += new Vector2(CharacterStandingWidth/2f, -CharacterStandingHeight/4.5f);
                     break;
                 case Direction.Left:
-                    position += new Vector2(-(CharacterStandingWidth / 2f), -CharacterStandingHeight / 4.5f);
+                    position += new Vector2(-(CharacterStandingWidth/2f), -CharacterStandingHeight/4.5f);
                     break;
                 case Direction.Down:
-                    position += new Vector2(0, CharacterStandingHeight / 2 - .1f);
+                    position += new Vector2(0, CharacterStandingHeight/2 - .1f);
                     break;
                 case Direction.Up:
-                    position += new Vector2(0, -CharacterStandingHeight / 2 + .1f);
+                    position += new Vector2(0, -CharacterStandingHeight/2 + .1f);
                     break;
                 case Direction.UpLeft:
-                    position += new Vector2(-CharacterStandingWidth / 2 + .1f, -CharacterStandingHeight / 2 + .1f);
+                    position += new Vector2(-CharacterStandingWidth/2 + .1f, -CharacterStandingHeight/2 + .1f);
                     break;
                 case Direction.UpRight:
-                    position += new Vector2(CharacterStandingWidth / 2 - .1f, -CharacterStandingHeight / 2 + .1f);
+                    position += new Vector2(CharacterStandingWidth/2 - .1f, -CharacterStandingHeight/2 + .1f);
                     break;
                 case Direction.DownLeft:
-                    position += new Vector2(-CharacterStandingWidth / 2 + .1f, -CharacterStandingHeight / 4 + -.1f);
+                    position += new Vector2(-CharacterStandingWidth/2 + .1f, -CharacterStandingHeight/4 + -.1f);
                     break;
                 case Direction.DownRight:
-                    position += new Vector2(CharacterStandingWidth / 2 - .1f, -CharacterStandingHeight / 4 + -.1f);
+                    position += new Vector2(CharacterStandingWidth/2 - .1f, -CharacterStandingHeight/4 + -.1f);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("shotDirection");
             }
 
             // tuning params
-//            position += new Vector2(ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetX]), 
-//                ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetY]));
+            //            position += new Vector2(ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetX]), 
+            //                ConvertUnits.ToSimUnits(Constants[Projectile.ProjectileOffsetY]));
 
             if ( IsDucking && shotDirection != Direction.Down ) {
-                position += new Vector2(0, CharacterStandingHeight / 3f);
+                position += new Vector2(0, CharacterStandingHeight/3f);
             }
 
             // Fine tuning the shot placement.
             // Numbers determined experimentally and with pixel counting.
             // It is a mess.
-            Vector2 tuning;
+            Vector2 tuning = Vector2.Zero;
             switch ( shotDirection ) {
                 case Direction.Left:
                 case Direction.Right:
@@ -609,7 +609,7 @@ namespace Enceladus.Entity {
                         } else if ( IsJoggingSpeed() ) {
                             tuning += new Vector2(0, JoggingStraightAdjustments[_animationFrame]);
                         } else {
-                            tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);                            
+                            tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);
                         }
                     } else {
                         tuning = ShotAdjustmentJumpingRight;
@@ -645,7 +645,7 @@ namespace Enceladus.Entity {
                         tuning = ShotAdjustmentStandingUpRight;
                         if ( !IsStandingStill() ) {
                             if ( IsWalkingSpeed() ) {
-                               tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
+                                tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
                             } else if ( IsJoggingSpeed() ) {
 
                             } else {
@@ -661,13 +661,16 @@ namespace Enceladus.Entity {
                     if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingDownRight;
                     } else if ( IsStanding ) {
-                        tuning = ShotAdjustmentStandingDownRight;
                         if ( !IsStandingStill() ) {
                             if ( IsWalkingSpeed() ) {
-                                tuning += new Vector2(0, -.11f);
+                                tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
+                            } else if ( IsJoggingSpeed() ) {
+
                             } else {
-                                tuning += new Vector2(0, -.15f);
+                                tuning += new Vector2(0, -.07f);
                             }
+                        } else {
+                            tuning = ShotAdjustmentStandingDownRight;
                         }
                     } else {
                         tuning = ShotAdjustmentJumpingDownRight;
