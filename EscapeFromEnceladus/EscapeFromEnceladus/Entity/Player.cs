@@ -619,9 +619,21 @@ namespace Enceladus.Entity {
                     if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingUp;
                     } else if ( IsStanding ) {
-                        tuning = ShotAdjustmentStandingUp;
-                        if ( !IsStandingStill() ) {
-                            tuning += new Vector2(-.03f, 0);
+                        if ( IsStandingStill() ) {
+                            if (_facingDirection == Direction.Right)
+                            {
+                                tuning += new Vector2(ConvertUnits.ToSimUnits(6), StandingAdjustments[_animationFrame]);
+                            }
+                            else
+                            {
+                                tuning += new Vector2(ConvertUnits.ToSimUnits(7), StandingAdjustments[_animationFrame]);
+                            }
+                        } else if ( IsWalkingSpeed() ) {
+                            tuning += new Vector2(ConvertUnits.ToSimUnits(9), 0);
+                        } else if ( IsJoggingSpeed() ) {
+                            tuning += new Vector2(0, JoggingStraightAdjustments[_animationFrame]);
+                        } else {
+                            tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);
                         }
                     } else {
                         tuning = ShotAdjustmentJumpingUp;
@@ -629,7 +641,6 @@ namespace Enceladus.Entity {
                     break;
                 case Direction.Down:
                     if ( IsDucking ) {
-
                         tuning = ShotAdjustmentDuckingDown;
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingDown;
@@ -643,14 +654,14 @@ namespace Enceladus.Entity {
                         tuning = ShotAdjustmentDuckingUpRight;
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingUpRight;
-                        if ( !IsStandingStill() ) {
-                            if ( IsWalkingSpeed() ) {
-                                tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
-                            } else if ( IsJoggingSpeed() ) {
+                        if ( IsStandingStill() ) {
+                            tuning += new Vector2(0, StandingAdjustments[_animationFrame]);
+                        } else if ( IsWalkingSpeed() ) {
+                            tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
+                        } else if ( IsJoggingSpeed() ) {
 
-                            } else {
-                                tuning += new Vector2(0, -.07f);
-                            }
+                        } else {
+                            tuning += new Vector2(0, -.07f);
                         }
                     } else {
                         tuning = ShotAdjustmentJumpingUpRight;
@@ -660,18 +671,18 @@ namespace Enceladus.Entity {
                 case Direction.DownRight:
                     if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingDownRight;
-                    } else if ( IsStanding ) {
-                        if ( !IsStandingStill() ) {
-                            if ( IsWalkingSpeed() ) {
-                                tuning += new Vector2(0, WalkingAimUpRightAdjustments[_animationFrame]);
-                            } else if ( IsJoggingSpeed() ) {
+                    }
+                    else if ( IsStanding ) {
+                        if ( IsStandingStill() ) {
+                            tuning = ShotAdjustmentStandingDownRight + new Vector2(0, StandingAdjustments[_animationFrame]);
+                        } else if ( IsWalkingSpeed() ) {
+                            tuning += new Vector2(0, WalkingAimDownRightAdjustments[_animationFrame]);
+                        } else if ( IsJoggingSpeed() ) {
 
-                            } else {
-                                tuning += new Vector2(0, -.07f);
-                            }
                         } else {
-                            tuning = ShotAdjustmentStandingDownRight;
+                            tuning += new Vector2(0, -.07f);
                         }
+
                     } else {
                         tuning = ShotAdjustmentJumpingDownRight;
                     }
@@ -691,7 +702,7 @@ namespace Enceladus.Entity {
         #region ShotAdjustments
 
         private static readonly Vector2 ShotAdjustmentStandingRight = new Vector2(-.08f, .09f);
-        private static readonly Vector2 ShotAdjustmentStandingUp = new Vector2(.1f, 0f);
+        private static readonly Vector2 ShotAdjustmentStandingUp = new Vector2(0f, 0f);
         private static readonly Vector2 ShotAdjustmentStandingUpRight = new Vector2(-.02f, .26f);
         private static readonly Vector2 ShotAdjustmentStandingDownRight = new Vector2(-.02f, .24f);
         private static readonly Vector2 ShotAdjustmentStandingDown = new Vector2(.18f, -.36f);
@@ -804,18 +815,37 @@ namespace Enceladus.Entity {
             ConvertUnits.ToSimUnits(-2),
         };
 
+        private static readonly float[] WalkingAimDownRightAdjustments = new[] {
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(9),
+            ConvertUnits.ToSimUnits(9),
+            ConvertUnits.ToSimUnits(10),
+            ConvertUnits.ToSimUnits(10),
+            ConvertUnits.ToSimUnits(9),
+            ConvertUnits.ToSimUnits(9),
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(12),
+            ConvertUnits.ToSimUnits(12),
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(11),
+            ConvertUnits.ToSimUnits(11),
+        };
+
         private static readonly float[] StandingAdjustments = new[] {
-            ConvertUnits.ToSimUnits(0),
-            ConvertUnits.ToSimUnits(0),
-            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0), 
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(-1),
             ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(-1),
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(-1),
             ConvertUnits.ToSimUnits(0),
             ConvertUnits.ToSimUnits(0),
         };
