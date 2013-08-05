@@ -599,7 +599,7 @@ namespace Enceladus.Entity {
                 case Direction.Left:
                 case Direction.Right:
                     if ( IsDucking ) {
-                        tuning = ShotAdjustmentDuckingRight;
+                        tuning = ShotAdjustmentDuckingRight + new Vector2(0, DuckingAdjustments[_animationFrame]);
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingRight;
                         if ( IsStandingStill() ) {
@@ -612,12 +612,15 @@ namespace Enceladus.Entity {
                             tuning += new Vector2(0, RunningStraightAdjustments[_animationFrame]);
                         }
                     } else {
-                        tuning = ShotAdjustmentJumpingRight;
+                        tuning = ShotAdjustmentJumpingRight + new Vector2(0, JumpingAdjustments[_animationFrame]);
                     }
                     break;
                 case Direction.Up:
                     if ( IsDucking ) {
                         tuning = ShotAdjustmentDuckingUp;
+                        if ( _facingDirection == Direction.Left ) {
+                            tuning += new Vector2(ConvertUnits.ToSimUnits(1), 0);
+                        }
                     } else if ( IsStanding ) {
                         if ( IsStandingStill() ) {
                             if ( _facingDirection == Direction.Right ) {
@@ -638,22 +641,29 @@ namespace Enceladus.Entity {
                             //tuning += new Vector2(0, RunningUpAdjustments[_animationFrame]);
                         }
                     } else {
-                        tuning = ShotAdjustmentJumpingUp;
+                        tuning = ShotAdjustmentJumpingUp + new Vector2(0, JumpingAdjustments[_animationFrame]);
                     }
                     break;
                 case Direction.Down:
                     if ( IsDucking ) {
-                        tuning = ShotAdjustmentDuckingDown;
-                    } else if ( IsStanding ) {
+                        tuning = ShotAdjustmentDuckingDown  + new Vector2(0, DuckingAdjustments[_animationFrame]);
+                        if ( _facingDirection == Direction.Left ) {
+                            tuning += new Vector2(ConvertUnits.ToSimUnits(1), 0);
+                        }
+                    }
+                    else if (IsStanding) {
                         tuning = ShotAdjustmentStandingDown;
                     } else {
-                        tuning = ShotAdjustmentJumpingDown;
+                        tuning = ShotAdjustmentJumpingDown + new Vector2(0, JumpingAdjustments[_animationFrame]);
                     }
                     break;
                 case Direction.UpLeft:
                 case Direction.UpRight:
                     if ( IsDucking ) {
-                        tuning = ShotAdjustmentDuckingUpRight;
+                        tuning = ShotAdjustmentDuckingUpRight + new Vector2(0, DuckingAdjustments[_animationFrame]);
+                        if ( _facingDirection == Direction.Left ) {
+                            tuning += new Vector2(ConvertUnits.ToSimUnits(1), 0);
+                        }
                     } else if ( IsStanding ) {
                         tuning = ShotAdjustmentStandingUpRight;
                         if ( IsStandingStill() ) {
@@ -666,13 +676,16 @@ namespace Enceladus.Entity {
                             tuning += new Vector2(0, RunningUpRightAdjustments[_animationFrame]);
                         }
                     } else {
-                        tuning = ShotAdjustmentJumpingUpRight;
+                        tuning = ShotAdjustmentJumpingUpRight + new Vector2(0, JumpingAdjustments[_animationFrame]);
                     }
                     break;
                 case Direction.DownLeft:
                 case Direction.DownRight:
                     if ( IsDucking ) {
-                        tuning = ShotAdjustmentDuckingDownRight;
+                        tuning = ShotAdjustmentDuckingDownRight + new Vector2(0, DuckingAdjustments[_animationFrame]);
+                        if ( _facingDirection == Direction.Left ) {
+                            tuning += new Vector2(ConvertUnits.ToSimUnits(1), 0);
+                        }
                     }
                     else if ( IsStanding ) {
                         if ( IsStandingStill() ) {
@@ -686,7 +699,7 @@ namespace Enceladus.Entity {
                         }
 
                     } else {
-                        tuning = ShotAdjustmentJumpingDownRight;
+                        tuning = ShotAdjustmentJumpingDownRight + new Vector2(0, JumpingAdjustments[_animationFrame]);
                     }
                     break;
                 default:
@@ -704,15 +717,16 @@ namespace Enceladus.Entity {
         #region ShotAdjustments
 
         private static readonly Vector2 ShotAdjustmentStandingRight = new Vector2(-.08f, .09f);
-        private static readonly Vector2 ShotAdjustmentStandingUp = new Vector2(0f, 0f);
         private static readonly Vector2 ShotAdjustmentStandingUpRight = new Vector2(-.02f, .26f);
         private static readonly Vector2 ShotAdjustmentStandingDownRight = new Vector2(-.02f, .24f);
         private static readonly Vector2 ShotAdjustmentStandingDown = new Vector2(.18f, -.36f);
+        
         private static readonly Vector2 ShotAdjustmentDuckingRight = new Vector2(-.02f, -.25f);
         private static readonly Vector2 ShotAdjustmentDuckingUp = new Vector2(-.05f, -.33f);
         private static readonly Vector2 ShotAdjustmentDuckingDownRight = new Vector2(0f, -.09f);
         private static readonly Vector2 ShotAdjustmentDuckingUpRight = new Vector2(0f, -.36f);
         private static readonly Vector2 ShotAdjustmentDuckingDown = new Vector2(.06f, -.26f);
+        
         private static readonly Vector2 ShotAdjustmentJumpingRight = new Vector2(-.02f, .10f);
         private static readonly Vector2 ShotAdjustmentJumpingUp = new Vector2(.06f, .10f);
         private static readonly Vector2 ShotAdjustmentJumpingUpRight = new Vector2(.06f, .19f);
@@ -722,6 +736,39 @@ namespace Enceladus.Entity {
         /*
          * A tedious set of animation-specific directions.
          */
+
+        private static readonly float[] DuckingAdjustments = new[] {
+            ConvertUnits.ToSimUnits(0), 
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(1),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-1),
+            ConvertUnits.ToSimUnits(-2),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+        };
+
+        private static readonly float[] JumpingAdjustments = new[] {
+            ConvertUnits.ToSimUnits(0), 
+            ConvertUnits.ToSimUnits(4),
+            ConvertUnits.ToSimUnits(-11),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(4),
+            ConvertUnits.ToSimUnits(4),
+            ConvertUnits.ToSimUnits(4),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+            ConvertUnits.ToSimUnits(0),
+        };
+
 
         private static readonly float[] RunningStraightAdjustments = new[] {
             ConvertUnits.ToSimUnits(-6),
@@ -1453,18 +1500,21 @@ namespace Enceladus.Entity {
                     case Direction.Right:
                         _currentAnimation = Animation.JumpAimStraight;
                         if ( _currentAnimation != _prevAnimation ) {
+                            _animationFrame = JumpAimStraightFrame;
                             SetImage(_jumpAnimation[JumpAimStraightFrame], 0);
                         }
                         break;
                     case Direction.Up:
                         _currentAnimation = Animation.JumpAimUp;
                         if ( _currentAnimation != _prevAnimation ) {
+                            _animationFrame = JumpAimUpFrame;
                             SetImage(_jumpAnimation[JumpAimUpFrame], 0);
                         }
                         break;
                     case Direction.Down:
                         _currentAnimation = Animation.JumpAimDown;
                         if ( _currentAnimation != _prevAnimation ) {
+                            _animationFrame = JumpAimDownFrame;
                             SetImage(_jumpAnimation[JumpAimDownFrame], 0);
                         }
                         break;
@@ -1472,6 +1522,7 @@ namespace Enceladus.Entity {
                     case Direction.UpRight:
                         _currentAnimation = Animation.JumpAimDiagonalUp;
                         if ( _currentAnimation != _prevAnimation ) {
+                            _animationFrame = JumpAimUpRightFrame;
                             SetImage(_jumpAnimation[JumpAimUpRightFrame], 0);
                         }
 
@@ -1480,6 +1531,7 @@ namespace Enceladus.Entity {
                     case Direction.DownRight:
                         _currentAnimation = Animation.JumpAimDiagonalDown;
                         if ( _currentAnimation != _prevAnimation ) {
+                            _animationFrame = JumpAimDownRightFrame;
                             SetImage(_jumpAnimation[JumpAimDownRightFrame], 0);
                         }
                         break;
