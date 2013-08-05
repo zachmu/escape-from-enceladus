@@ -629,7 +629,11 @@ namespace Enceladus.Entity {
                                 tuning += new Vector2(ConvertUnits.ToSimUnits(7), StandingAdjustments[_animationFrame]);
                             }
                         } else if ( IsWalkingSpeed() ) {
-                            tuning += new Vector2(ConvertUnits.ToSimUnits(9), 0);
+                            if ( _facingDirection == Direction.Right ) {
+                                tuning += new Vector2(ConvertUnits.ToSimUnits(8), 0);
+                            } else {
+                                tuning += new Vector2(ConvertUnits.ToSimUnits(9), 0);                                
+                            }
                         }
                         else if ( IsJoggingSpeed() ) {
                             if ( _facingDirection == Direction.Right ) {
