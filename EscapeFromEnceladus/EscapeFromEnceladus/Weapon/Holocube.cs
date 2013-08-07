@@ -32,8 +32,11 @@ namespace Enceladus.Weapon {
         private Direction _direction;
         private World _world;
         private static Texture2D _image;
+        private float _alpha;
 
         private const int MaxRange = 30;
+        private const float MinAlpha = .2f;
+        private const float MaxAlpha = .9f;
 
         public static void LoadContent(ContentManager cm) {
             _image = cm.Load<Texture2D>("Projectile/Holocube0000");
@@ -48,7 +51,30 @@ namespace Enceladus.Weapon {
             _direction = direction;
             _angle = Projectile.GetAngle(direction);
             _world = world;
+            _alpha = MinAlpha;
             DetermineLength();
+            UpdateAlpha();
+        }
+
+        private static Random _random = new Random();
+        // Simple randomized flicker effect
+        private void UpdateAlpha() {
+            double rand = _random.NextDouble();
+            /*
+            if ( rand > .9f ) {
+                _alpha = (float)_random.NextDouble();
+                if ( _alpha < MinAlpha ) {
+                    _alpha = MinAlpha;
+                } else if ( _alpha > MaxAlpha ) {
+                    _alpha = MaxAlpha;
+                }
+            }
+             * */
+            if ( rand < .2f && _alpha > MinAlpha) {
+                _alpha = Math.Max(MinAlpha, _alpha - .1f);
+            } else if ( rand > .8f && _alpha < MaxAlpha ) {
+                _alpha = Math.Min(MaxAlpha, _alpha + .1f);
+            }
         }
 
         private void DetermineLength() {
@@ -80,7 +106,7 @@ namespace Enceladus.Weapon {
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-            spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor,
+            spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
                              0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
         }
 
