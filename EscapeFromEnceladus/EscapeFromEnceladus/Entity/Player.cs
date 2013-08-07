@@ -1940,6 +1940,7 @@ namespace Enceladus.Entity {
 
         public void Pickup(HealthPickup healthPickup) {
             Health += 10;
+            Health = Math.Min(HealthCapacity, Health);
             SoundEffectManager.Instance.PlaySoundEffect("pickup");
         }
 

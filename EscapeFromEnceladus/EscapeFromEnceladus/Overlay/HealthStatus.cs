@@ -11,19 +11,25 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Enceladus.Overlay {
     
     public class HealthStatus {
-        private const int ContainerOffset = 28;
-        private const int ContainerCapacity = 100;
-
-        private static readonly Vector2 Location = new Vector2(50, 50);
+        private static readonly Vector2 Location = new Vector2(30, 30);
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            DrawBackdrop(spriteBatch);
             DrawHealthBar(spriteBatch);
             DrawHealthText(spriteBatch);
         }
 
+        private void DrawBackdrop(SpriteBatch spriteBatch) {
+            int width = 322;
+            int height = 44;
+            Rectangle src = new Rectangle(0, 0, width, height);
+            Rectangle dest = new Rectangle((int) (Location.X - 10), (int) (Location.Y - 10), width, height);
+            spriteBatch.Draw(SharedGraphicalAssets.BlackBackdrop, dest, src, Color.White * .65f);
+        }
+
         private void DrawHealthText(SpriteBatch spriteBatch) {
-            Vector2 pos = Location + new Vector2(_outline.Width + 10, 0);
-            SpriteFont font = SharedGraphicalAssets.DialogFont;
+            Vector2 pos = Location + new Vector2(_outline.Width + 10, -10);
+            SpriteFont font = SharedGraphicalAssets.OverlayFont;
             String health = String.Format("{0:###}/{1:###}", Player.Instance.Health, Player.Instance.HealthCapacity);
             TextDrawing.DrawStringShadowed(font, spriteBatch, Color.Crimson, health, pos);
         }

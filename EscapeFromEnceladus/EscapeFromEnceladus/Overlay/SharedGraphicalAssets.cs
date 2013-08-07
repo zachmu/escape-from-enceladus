@@ -14,6 +14,7 @@ namespace Enceladus.Overlay {
         public static Texture2D YButton { get; private set; }
         public static Texture2D LTrigger { get; private set; }
         public static SpriteFont DialogFont { get; private set; }
+        public static SpriteFont OverlayFont { get; private set; }
         public static Texture2D BlackBackdrop { get; private set; }
         public static SpriteFont TitleFont { get; private set; }
         public static Texture2D[] Projectiles { get; private set; }
@@ -28,6 +29,7 @@ namespace Enceladus.Overlay {
             DialogFont = cm.Load<SpriteFont>("Fonts/November");
             DialogFont.LineSpacing -= 10;
             TitleFont = cm.Load<SpriteFont>("Fonts/November128");
+            OverlayFont = cm.Load<SpriteFont>("Fonts/November20");
             BlackBackdrop = cm.Load<Texture2D>("BlackBackdrop");
             DebugMarker = cm.Load<Texture2D>("welcome16");
 
