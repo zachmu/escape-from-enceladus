@@ -124,10 +124,10 @@ namespace Enceladus.Map {
                     foreach ( String weaponName in region.Properties.Keys ) {
                         switch ( weaponName ) {
                             case "shot":
-                                flags |= Shot.Flags;
+                                flags |= EnceladusGame.NormalWeaponDestructionFlag;
                                 break;
                             case "missile":
-                                flags |= Missile.Flags;
+                                flags |= EnceladusGame.MissileDestructionFlag;
                                 break;
                         }
                     }

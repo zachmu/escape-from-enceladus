@@ -18,7 +18,6 @@ namespace Enceladus.Weapon {
     /// </summary>
     public class Beam : GameEntityAdapter, IWeapon {
 
-        private bool _disposed;
         private static Texture2D _image;
         private Direction _direction;
         private Vector2 _start;
@@ -30,14 +29,6 @@ namespace Enceladus.Weapon {
         private const int ImageWidth = 16;
         private const int MaxRange = 30;
         private const float DamagePerSecond = 50;
-
-        public override void Dispose() {
-            _disposed = true;
-        }
-
-        public override bool Disposed {
-            get { return _disposed; }
-        }
 
         public static void LoadContent(ContentManager cm) {
             _image = cm.Load<Texture2D>("Projectile/Projectile0002");
@@ -69,7 +60,7 @@ namespace Enceladus.Weapon {
                     closestFraction = fraction;
                     closestPoint = point;
                 }
-                return 1;
+                return fraction;
             }, _start, end);
 
             _end = closestPoint;
@@ -115,10 +106,8 @@ namespace Enceladus.Weapon {
             }, _start, _end);
         }
 
-        public const int Flags = 4;
-
         public int DestructionFlags {
-            get { return Flags; }
+            get { return EnceladusGame.BeamDestructionFlag; }
         }
 
         public float BaseDamage {

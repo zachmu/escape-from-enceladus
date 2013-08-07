@@ -40,8 +40,6 @@ namespace Enceladus.Weapon {
             }
         }
 
-        public const int Flags = 4;
-
         public Bomb(Vector2 position, World world, Direction direction)
             : base(position, world, direction, 0, Width, Height) {
             Image = Animation[0];
@@ -60,7 +58,7 @@ namespace Enceladus.Weapon {
         }
 
         public override int DestructionFlags {
-            get { return Flags; }
+            get { return EnceladusGame.BombDestructionFlag; }
         }
 
         public override float BaseDamage {

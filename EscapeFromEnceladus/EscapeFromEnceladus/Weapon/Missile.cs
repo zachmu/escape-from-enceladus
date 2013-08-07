@@ -14,9 +14,6 @@ namespace Enceladus.Weapon {
         private const float Height = .25f;
         private static Texture2D Image { get; set; }
 
-        // Destruction flags
-        public const int Flags = 2;
-
         public Missile(Vector2 position, World world, Direction direction)
             : base(position, world, direction, Speed, Width, Height) {
             _body.Rotation = GetSpriteRotation(_direction);
@@ -46,7 +43,7 @@ namespace Enceladus.Weapon {
         }
 
         public override int DestructionFlags {
-            get { return Flags; }
+            get { return EnceladusGame.MissileDestructionFlag; }
         }
 
         public override float BaseDamage {

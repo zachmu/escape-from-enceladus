@@ -29,9 +29,17 @@ namespace Enceladus.Entity {
     /// such as static announcements on a timer.
     /// </summary>
     public abstract class GameEntityAdapter : IGameEntity {
-        public abstract void Dispose();
-        public abstract bool Disposed { get; }
         
+        protected bool _disposed;
+        
+        public virtual void Dispose() {
+            _disposed = true;
+        }
+
+        public virtual bool Disposed {
+            get { return _disposed; }
+        }
+
         public virtual void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             
         }

@@ -103,6 +103,11 @@ namespace Enceladus.Entity {
         /// </summary>
         private Beam _beam;
 
+        /// <summary>
+        /// The player's holocube tool when active, or null if none is active.
+        /// </summary>
+        private Holocube _cube;
+
         private Color _color = Color.SteelBlue;
 
         public Color Color {
@@ -424,9 +429,25 @@ namespace Enceladus.Entity {
             HandleShot(gameTime);
             HandleBeam(gameTime);
             HandleSonar(gameTime);
+            HandleCube(gameTime);
 
             UpdateFlash(gameTime);
             UpdateInvulnerable(gameTime);
+        }
+
+        private void HandleCube(GameTime gameTime) {
+            if ( _cube == null ) {
+                if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
+                    Direction direction;
+                    Vector2 position = GetShotPlacement(out direction);
+                    EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
+                }
+            } else if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftShoulder) ) {
+                Direction direction;
+                Vector2 position = GetShotPlacement(out direction);
+                _cube.UpdateProjection(_world, position, direction);
+            }
+
         }
 
         private void HandleBeam(GameTime gameTime) {
