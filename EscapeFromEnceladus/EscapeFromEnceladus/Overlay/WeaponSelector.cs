@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Entity;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Overlay {
 
@@ -9,6 +13,53 @@ namespace Enceladus.Overlay {
     /// A weapon selector overlay
     /// </summary>
     public class WeaponSelector {
+
+        private const int Margin = 10;
+        private const int TopOffset = 20;
+
+        public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            int width = spriteBatch.GraphicsDevice.Viewport.Width;
+            Vector2 topLeftPos = new Vector2(width / 2 - _outline.Width / 2 - Margin, TopOffset);
+
+            DrawBackdrop(topLeftPos, spriteBatch);
+            DrawItemSelection(topLeftPos, spriteBatch);
+            //DrawText(topLeftPos, spriteBatch);
+        }
+
+        private void DrawBackdrop(Vector2 topLeftPos, SpriteBatch spriteBatch) {
+            int width = 2 * Margin + _outline.Width;
+            int height = 2 * Margin + _outline.Height;
+            Rectangle src = new Rectangle(0, 0, width, height);
+            Rectangle dest = new Rectangle((int) topLeftPos.X, (int) topLeftPos.Y, width, height);
+            spriteBatch.Draw(SharedGraphicalAssets.BlackBackdrop, dest, src, Color.White * .65f);
+        }
+
+        private void DrawText(Vector2 topLeftPos, SpriteBatch spriteBatch) {
+            Vector2 pos = topLeftPos + new Vector2(_outline.Width + 10, -10);
+            SpriteFont font = SharedGraphicalAssets.OverlayFont;
+            String health = String.Format("{0:###}/{1:###}", Player.Instance.Health, Player.Instance.HealthCapacity);
+            TextDrawing.DrawStringShadowed(font, spriteBatch, Color.Crimson, health, pos);
+        }
+
+        private void DrawItemSelection(Vector2 topLeftPos, SpriteBatch spriteBatch) {
+            Vector2 pos = topLeftPos + new Vector2(Margin);
+            spriteBatch.Draw(_outline, pos, Color.White);
+            spriteBatch.Draw(_holocube, pos, Color.White * .65f);
+        }
+
+        public static void LoadContent(ContentManager cm) {
+            _outline = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0000");
+            _beam = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0001");
+            _holocube = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0002");
+        }
+
+        public void Update(GameTime gameTime) {
+            // TODO
+        }
+
+        private static Texture2D _outline;
+        private static Texture2D _beam;
+        private static Texture2D _holocube;
 
     }
 }

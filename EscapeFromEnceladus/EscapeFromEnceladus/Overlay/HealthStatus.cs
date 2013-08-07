@@ -31,7 +31,7 @@ namespace Enceladus.Overlay {
             Vector2 pos = Location + new Vector2(_outline.Width + 10, -10);
             SpriteFont font = SharedGraphicalAssets.OverlayFont;
             String health = String.Format("{0:###}/{1:###}", Player.Instance.Health, Player.Instance.HealthCapacity);
-            TextDrawing.DrawStringShadowed(font, spriteBatch, Color.Crimson, health, pos);
+            TextDrawing.DrawStringShadowed(font, spriteBatch, Color.Crimson * .65f, health, pos);
         }
 
         private void DrawHealthBar(SpriteBatch spriteBatch) {
@@ -40,7 +40,7 @@ namespace Enceladus.Overlay {
             pos += new Vector2(2, 2);
 
             Rectangle rect = new Rectangle(0, 0, (int) ((Player.Instance.Health / Player.Instance.HealthCapacity) * _bar.Width), _bar.Height);
-            spriteBatch.Draw(_bar, pos, rect, Color.White);
+            spriteBatch.Draw(_bar, pos, rect, Color.White * .65f);
         }
 
         public void LoadContent(ContentManager cm) {

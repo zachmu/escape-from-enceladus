@@ -43,6 +43,10 @@ namespace Enceladus {
             get { return _graphics; }
         }
 
+        int _totalFrames = 0;
+        float _elapsedTime = 0.0f;
+        int _fps = 0;
+
         private SpriteBatch _spriteBatch;
         private TileLevel _tileLevel;
         private PlayerIndex _slot;
@@ -68,7 +72,9 @@ namespace Enceladus {
         private WaitHandle _roomChangeWaitHandle;
         private Vector2 _nextPlayerPosition;
 
+        // Screen overlay elements
         private HealthStatus _healthStatus;
+        private WeaponSelector _weaponSelector;
         private VisitationMap _visitationMap;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
@@ -148,6 +154,7 @@ namespace Enceladus {
             _camera = new Camera2D(_graphics.GraphicsDevice);
             _player = new Player(new Vector2(73, 28), _world); 
             _healthStatus = new HealthStatus();
+            _weaponSelector = new WeaponSelector();
             _inputHelper = new InputHelper();
             PlayerControl.Control = new PlayerGamepadControl();
 
@@ -366,6 +373,7 @@ namespace Enceladus {
             Beam.LoadContent(Content);
             Holocube.LoadContent(Content);
             HealthPickup.LoadContent(Content);
+            WeaponSelector.LoadContent(Content);
             GenericCollectibleItem.LoadContent(Content);
             Bomb.LoadContent(Content);
             Sonar.LoadContent(Content);
@@ -395,7 +403,15 @@ namespace Enceladus {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            
+             
+            // FPS counter
+            _elapsedTime += (float) gameTime.ElapsedGameTime.TotalMilliseconds;            
+            if ( _elapsedTime >= 1000f ) {
+                _fps = _totalFrames;
+                _totalFrames = 0;
+                _elapsedTime %= 1000f;
+            }
+
             KeyboardState keyboardState = Keyboard.GetState();
             if ( keyboardState.IsKeyDown(Keys.Escape) )
                 this.Exit();
@@ -440,6 +456,7 @@ namespace Enceladus {
                     _playerPositionMonitor.Update(true);
                     _eventManager.Update(gameTime);
                     _visitationMap.Update(gameTime);
+                    _weaponSelector.Update(gameTime);
                     _cameraDirector.Update(gameTime);
 
                     UpdateMode();
@@ -571,6 +588,9 @@ namespace Enceladus {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
 
+            // FPS counter
+            _totalFrames++;
+
             switch ( _drawMode ) {
                 case Mode.TitleScreen:
                     _titleScreen.Draw(_spriteBatch);
@@ -595,7 +615,7 @@ namespace Enceladus {
                     break;
             }
 
-            DebugDraw();
+            DebugDraw(gameTime);
 
             base.Draw(gameTime);
         }
@@ -710,6 +730,7 @@ namespace Enceladus {
         private void DrawOverlays() {
             _spriteBatch.Begin();
             _healthStatus.Draw(_spriteBatch, _camera);
+            _weaponSelector.Draw(_spriteBatch, _camera);
             _visitationMap.Draw(_spriteBatch);
             if ( _mode == Mode.Paused ) {
                 _pauseScreen.Draw(_spriteBatch, _camera);
@@ -720,17 +741,19 @@ namespace Enceladus {
         /// <summary>
         /// Draws various debugging information
         /// </summary>
-        private void DebugDraw() {
+        /// <param name="time"></param>
+        private void DebugDraw(GameTime time) {
             // Finally, debug info
             if ( Constants.Get(DebugCamera) >= 1 ) {
                 _spriteBatch.Begin(0, null, null, null, null, null, _camera.DisplayView);
                 _camera.Draw(_spriteBatch);
                 _spriteBatch.End();
-            }
 
-            _spriteBatch.Begin();
-            Constants.Draw(_spriteBatch);
-            _spriteBatch.End();
+                _spriteBatch.Begin();
+                Constants.Draw(_spriteBatch);
+                _spriteBatch.DrawString(SharedGraphicalAssets.DialogFont, "" + _fps + " " + time.IsRunningSlowly, new Vector2(20), Color.White);
+                _spriteBatch.End();
+            }
 
             Matrix projection = _camera.SimProjection;
             Matrix view = _camera.SimView;
