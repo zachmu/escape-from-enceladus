@@ -138,7 +138,7 @@ namespace Enceladus.Entity {
         public Player(Vector2 position, World world) {
             _instance = this;
 
-            HealthCapacity = 650;
+            HealthCapacity = 100;
             Health = 100;
 
             Equipment = new Equipment();
@@ -181,8 +181,8 @@ namespace Enceladus.Entity {
             _body.OnSeparation += (a, b) => UpdateStanding();
         }
 
-        public int Health { get; private set; }
-        public int HealthCapacity { get; private set; }
+        public float Health { get; private set; }
+        public float HealthCapacity { get; private set; }
 
         public Equipment Equipment { get; private set; }
 
@@ -424,7 +424,7 @@ namespace Enceladus.Entity {
             HandleScooter(gameTime);
             UpdateImage(gameTime);
 
-            // Some moves rely on a proper animation info, 
+            // Some moves rely on proper animation info, 
             // so we do them after the image update.
             HandleShot(gameTime);
             HandleBeam(gameTime);
@@ -447,7 +447,6 @@ namespace Enceladus.Entity {
                 Vector2 position = GetShotPlacement(out direction);
                 _cube.UpdateProjection(_world, position, direction);
             }
-
         }
 
         private void HandleBeam(GameTime gameTime) {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Enceladus.Entity;
 using Enceladus.Event;
+using Enceladus.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,10 +18,9 @@ namespace Enceladus.Map {
         private readonly bool[,] _knownScreens;
         private readonly int _numScreensX;
         private readonly int _numScreensY;
-        
-        private bool _activeFlash;
+
+        private readonly Oscillator _flash = new Oscillator(FlashTimeMs, false);
         private const int FlashTimeMs = 500;
-        private int _timeSinceFlashChange = 0;
 
         private const int MapOverlayWidth = 7;
         private const int MapOverlayHeight = 7;
@@ -129,11 +129,7 @@ namespace Enceladus.Map {
             GetPlayerScreen(out playerScreenX, out playerScreenY);
             _visitedScreens[playerScreenX, playerScreenY] = true;
             _knownScreens[playerScreenX, playerScreenY] = true;
-            _timeSinceFlashChange += gameTime.ElapsedGameTime.Milliseconds;
-            if ( _timeSinceFlashChange >= FlashTimeMs ) {
-                _activeFlash = !_activeFlash;
-                _timeSinceFlashChange = 0;
-            }
+            _flash.Update(gameTime);
         }
 
         /// <summary>
