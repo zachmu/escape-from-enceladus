@@ -1,3 +1,7 @@
+using Enceladus.Entity;
+using FarseerPhysics.Dynamics;
+using Microsoft.Xna.Framework;
+
 namespace Enceladus.Weapon {
     /// <summary>
     /// A basic weapon, capable of doing damage to things.

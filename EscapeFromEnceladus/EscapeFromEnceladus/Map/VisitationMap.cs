@@ -59,8 +59,8 @@ namespace Enceladus.Map {
         private static readonly Texture2D[] _walls = new Texture2D[NumWalls];
 
         // X offset is from the right side of the screen, since that's its orientation
-        private const int DrawOffsetX = 40 + MapOverlayWidth + CellWidthPixels * MapOverlayWidth;
-        private const int DrawOffsetY = 40;
+        private const int DrawOffsetX = 20 + MapOverlayWidth + CellWidthPixels * MapOverlayWidth;
+        private const int DrawOffsetY = 20;
 
         public VisitationMap(TileLevel level) {
             _level = level;

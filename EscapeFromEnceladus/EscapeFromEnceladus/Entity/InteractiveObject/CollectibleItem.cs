@@ -95,7 +95,8 @@ namespace Enceladus.Entity.InteractiveObject {
     /// </summary>
     public enum CollectibleItem {
         BasicGun,
-        Missile,
+        Beam,
+        Holocube,
         Wheel,
         Bomb,
         Sonar,
@@ -103,16 +104,11 @@ namespace Enceladus.Entity.InteractiveObject {
 
     class WheelAnnouncement : GameEntityAdapter {
 
-        private bool _disposed = false;
         private double _timer = 5000;
 
         public override void Dispose() {
-            _disposed = true;
+            base.Dispose();
             EnceladusGame.Instance.UnsetMode();
-        }
-
-        public override bool Disposed {
-            get { return _disposed; }
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {

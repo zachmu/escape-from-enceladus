@@ -33,6 +33,7 @@ namespace Enceladus.Weapon {
         private World _world;
         private static Texture2D _image;
         private float _alpha;
+        private bool _projecting;
 
         private const int MaxRange = 30;
         private const float MinAlpha = .2f;
@@ -88,6 +89,7 @@ namespace Enceladus.Weapon {
             float closestFraction = 1;
             Vector2 closestPoint = end;
             Vector2 closestCorner = end;
+            _projecting = false;
             _world.RayCast((fixture, point, normal, fraction) => {
                 if ( ((fixture.GetUserData().IsDoor && !fixture.GetUserData().Door.IsOpen())
                       || fixture.GetUserData().IsTerrain) && fraction < closestFraction ) {
@@ -96,15 +98,16 @@ namespace Enceladus.Weapon {
                     // back up the ray just a tad
                     Vector2 less = _start + (diff * fraction) - (angle * .02f);
                     closestCorner = Region.GetContainingTile(less);
+                    _projecting = true;
                 }
-                return fraction;
+                return 1;
             }, _start, end);
 
             _end = closestPoint;
             _cubeCorner = closestCorner;
         }
 
-        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {            
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
             spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
                              0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);

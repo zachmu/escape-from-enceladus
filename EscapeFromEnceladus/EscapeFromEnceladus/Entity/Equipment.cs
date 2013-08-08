@@ -38,6 +38,10 @@ namespace Enceladus.Entity {
             save.Equipment = this;
         }
 
+        public int NumSelectableTools {
+            get { return 2; }
+        }
+
         public void LoadFromSave(SaveState save) {
             _CollectibleItems.Clear();
             _CollectibleItems.UnionWith(save.Equipment._CollectibleItems);

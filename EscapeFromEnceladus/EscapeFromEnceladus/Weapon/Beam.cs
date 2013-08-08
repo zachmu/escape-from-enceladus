@@ -60,7 +60,7 @@ namespace Enceladus.Weapon {
                     closestFraction = fraction;
                     closestPoint = point;
                 }
-                return fraction;
+                return 1;
             }, _start, end);
 
             _end = closestPoint;

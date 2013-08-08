@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enceladus.Entity.InteractiveObject;
 using Enceladus.Event;
 using Enceladus.Map;
 using Enceladus.Overlay;
@@ -98,6 +99,8 @@ namespace Enceladus.Entity {
         /// </summary>
         private long _timeUntilRegainControl;
 
+        private CollectibleItem _activeItem;
+
         /// <summary>
         /// The player's beam weapon when active, or null if none is active.
         /// </summary>
@@ -142,6 +145,8 @@ namespace Enceladus.Entity {
             Health = 100;
 
             Equipment = new Equipment();
+            // TODO: Fix
+            _activeItem = CollectibleItem.Beam;
 
             _world = world;
         }
@@ -436,20 +441,32 @@ namespace Enceladus.Entity {
         }
 
         private void HandleCube(GameTime gameTime) {
-            if ( _cube == null ) {
-                if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
-                    Direction direction;
-                    Vector2 position = GetShotPlacement(out direction);
-                    EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
+            if ( _activeItem != CollectibleItem.Holocube ) {
+                if ( _cube != null ) {
+                    _cube.Dispose();
+                    _cube = null;
                 }
-            } else if ( InputHelper.Instance.GamePadState.IsButtonDown(Buttons.LeftShoulder) ) {
-                Direction direction;
-                Vector2 position = GetShotPlacement(out direction);
+                return;
+            }
+
+            Direction direction;
+            Vector2 position = GetShotPlacement(out direction);
+            if ( _cube == null ) {
+                EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
+            } else {
                 _cube.UpdateProjection(_world, position, direction);
             }
         }
 
         private void HandleBeam(GameTime gameTime) {
+            if ( _activeItem != CollectibleItem.Beam ) {
+                if ( _beam != null ) {
+                    _beam.Dispose();
+                    _beam = null;
+                }
+                return;
+            }
+
             if ( _beam == null ) {
                 if ( PlayerControl.Control.IsNewBeam() ) {
                     Direction direction;
@@ -1987,6 +2004,13 @@ namespace Enceladus.Entity {
 
         protected void UpdateFlash(GameTime gameTime) {
             _flashAnimation.UpdateFlash(gameTime);
+        }
+
+        /// <summary>
+        /// Notifies the player that the item selected has changed to the given one.
+        /// </summary>
+        public void SelectedItemChanged(CollectibleItem item) {
+            _activeItem = item;
         }
     }
 
