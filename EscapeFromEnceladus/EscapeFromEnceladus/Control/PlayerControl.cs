@@ -27,8 +27,8 @@ namespace Enceladus.Control
         bool IsKeyboardControl();
         bool IsNewConfirmButton();
         bool IsNewCancelButton();
-        bool IsNewBeam();
-        bool IsBeamButtonDown();
+        bool IsNewSecondaryFire();
+        bool IsSecondaryFireButtonDown();
         bool IsNewLeftWeaponScroll();
         bool IsNewRightWeaponScroll();
     }
@@ -114,11 +114,11 @@ namespace Enceladus.Control
             return InputHelper.Instance.IsNewButtonPress(Buttons.B);
         }
 
-        public bool IsNewBeam() {
+        public bool IsNewSecondaryFire() {
             return InputHelper.Instance.IsNewButtonPress(Buttons.RightShoulder);
         }
 
-        public bool IsBeamButtonDown() {
+        public bool IsSecondaryFireButtonDown() {
             return InputHelper.Instance.GamePadState.IsButtonDown(Buttons.RightShoulder);
         }
 
@@ -247,11 +247,11 @@ namespace Enceladus.Control
             return InputHelper.Instance.IsNewKeyPress(Keys.Back);
         }
 
-        public bool IsNewBeam() {
+        public bool IsNewSecondaryFire() {
             return InputHelper.Instance.IsNewKeyPress(Keys.V);
         }
 
-        public bool IsBeamButtonDown() {
+        public bool IsSecondaryFireButtonDown() {
             return InputHelper.Instance.KeyboardState.IsKeyDown(Keys.V);
         }
 

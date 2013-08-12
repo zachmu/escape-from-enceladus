@@ -432,16 +432,18 @@ namespace Enceladus.Entity {
             // Some moves rely on proper animation info, 
             // so we do them after the image update.
             HandleShot(gameTime);
-            HandleBeam(gameTime);
-            HandleSonar(gameTime);
             HandleCube(gameTime);
+            if ( !IsScooting ) {
+                HandleBeam(gameTime);
+                HandleSonar(gameTime);
+            }
 
             UpdateFlash(gameTime);
             UpdateInvulnerable(gameTime);
         }
 
         private void HandleCube(GameTime gameTime) {
-            if ( _activeItem != CollectibleItem.Holocube ) {
+            if ( _activeItem != CollectibleItem.Holocube || IsScooting ) {
                 if ( _cube != null ) {
                     _cube.Dispose();
                     _cube = null;
@@ -456,6 +458,9 @@ namespace Enceladus.Entity {
             } else {
                 _cube.UpdateProjection(_world, position, direction);
             }
+            if ( PlayerControl.Control.IsNewSecondaryFire() ) {
+                _cube.Fire();
+            }
         }
 
         private void HandleBeam(GameTime gameTime) {
@@ -468,12 +473,12 @@ namespace Enceladus.Entity {
             }
 
             if ( _beam == null ) {
-                if ( PlayerControl.Control.IsNewBeam() ) {
+                if ( PlayerControl.Control.IsNewSecondaryFire() ) {
                     Direction direction;
                     Vector2 position = GetShotPlacement(out direction);
                     EnceladusGame.Instance.Register(_beam = new Beam(_world, position, direction));
                 }
-            } else if ( PlayerControl.Control.IsBeamButtonDown() ) {
+            } else if ( PlayerControl.Control.IsSecondaryFireButtonDown() ) {
                 Direction direction;
                 Vector2 position = GetShotPlacement(out direction);
                 _beam.Update(_world, position, direction);

@@ -6,7 +6,9 @@ using Enceladus.Entity;
 using Enceladus.Farseer;
 using Enceladus.Map;
 using Enceladus.Overlay;
+using Enceladus.Util;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,21 +20,14 @@ namespace Enceladus.Weapon {
     /// </summary>
     public class Holocube : GameEntityAdapter, IWeapon {
 
-        private enum Mode {
-            Projection,
-            Creation,
-            Solid,
-            Dissolving
-        }
-
         private Vector2 _start;
         private float _angle;
         private Vector2 _end;
         private Vector2 _cubeCorner;
         private Direction _direction;
         private World _world;
-        private static Texture2D _image;
-        private static Texture2D _projectionImage;
+        internal static Texture2D Image;
+        internal static Texture2D ProjectionImage;
         private float _alpha;
         private bool _projecting;
 
@@ -41,8 +36,8 @@ namespace Enceladus.Weapon {
         private const float MaxAlpha = .9f;
 
         public static void LoadContent(ContentManager cm) {
-            _image = cm.Load<Texture2D>("Projectile/Holocube0000");
-            _projectionImage = cm.Load<Texture2D>("Projectile/Holocube0001");
+            Image = cm.Load<Texture2D>("Projectile/Holocube0000");
+            ProjectionImage = cm.Load<Texture2D>("Projectile/Holocube0001");
         }
 
         public Holocube(World world, Vector2 start, Direction direction) {
@@ -112,17 +107,19 @@ namespace Enceladus.Weapon {
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             // Draw the cube itself
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-            spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
+            spriteBatch.Draw(Image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
                              0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
 
             // Draw the projector beam
-            Vector2 origin = new Vector2(0, _projectionImage.Height / 2);
+            Vector2 origin = new Vector2(0, ProjectionImage.Height / 2);
 
             Vector2 beamEnd = _cubeCorner + new Vector2(.5f);
             Vector2 diff = (beamEnd - _start);
             float length = diff.Length();
+
+            // Don't draw the beam if it's too close to the player, since it looks funny
             if ( length > 2 ) {
-                float unitLegth = ConvertUnits.ToSimUnits(_projectionImage.Width);
+                float unitLegth = ConvertUnits.ToSimUnits(ProjectionImage.Width);
                 float lengthRatio = length / unitLegth;
                 float widthRatio;
                 switch ( _direction ) {
@@ -144,13 +141,17 @@ namespace Enceladus.Weapon {
 
                 float angle = (float) Math.Atan2(-diff.Y, diff.X);
 
-                spriteBatch.Draw(_projectionImage, ConvertUnits.ToDisplayUnits(_start), null,
+                spriteBatch.Draw(ProjectionImage, ConvertUnits.ToDisplayUnits(_start), null,
                                  SolidColorEffect.DisabledColor * _alpha,
                                  -angle, origin, new Vector2(lengthRatio, widthRatio),
                                  SpriteEffects.None, 1.0f);
             }
         }
 
+        public void Fire() {
+            HolocubeBlock block = new HolocubeBlock(_world, _cubeCorner);
+            EnceladusGame.Instance.Register(block);
+        }
 
         public int DestructionFlags {
             get { return EnceladusGame.HolocubeDestructionFlag; }
@@ -158,6 +159,67 @@ namespace Enceladus.Weapon {
 
         public float BaseDamage {
             get { return 1; }
+        }
+    }
+
+    /// <summary>
+    /// Static, solid holocube that has been placed.
+    /// </summary>
+    public class HolocubeBlock : GameEntityAdapter {
+
+
+        private enum Mode {
+            Projection,
+            Creation,
+            Solid,
+            Dissolving
+        }
+
+        private Vector2 _cubeCorner;
+        private Timer _timeToLive;
+        private Body _block;
+
+        public HolocubeBlock(World world, Vector2 cubeCorner) {
+            _cubeCorner = cubeCorner;
+            _timeToLive = new Timer(10000);
+            _block = BodyFactory.CreateRectangle(world, TileLevel.TileSize, TileLevel.TileSize, 1f, UserData.NewTerrain());
+            _block.IsStatic = true;
+            _block.CollisionCategories = EnceladusGame.TerrainCategory;
+            _block.CollidesWith = Category.All;
+            _block.Position = cubeCorner + new Vector2(TileLevel.TileSize / 2f);
+        }
+
+        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
+            spriteBatch.Draw(Holocube.Image, displayPosition, null, SolidColorEffect.DisabledColor,
+                             0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+        }
+
+        public override void Update(GameTime gameTime) {
+            _timeToLive.Update(gameTime);
+            if ( !Disposed && _timeToLive.IsTimeUp() ) {
+                Dispose();
+            }
+        }
+
+        public override Vector2 Position {
+            get { return _cubeCorner; }
+        }
+
+        public override void Dispose() {
+            if ( _block != null ) {
+                _block.Dispose();
+            }
+        }
+
+        public override bool Disposed {
+            get {
+                if ( _block != null ) {
+                    return _block.IsDisposed;
+                } else {
+                    return false;
+                }
+            }
         }
     }
 }
