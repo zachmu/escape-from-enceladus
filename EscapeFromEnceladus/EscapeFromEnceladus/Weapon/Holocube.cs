@@ -32,6 +32,7 @@ namespace Enceladus.Weapon {
         private Direction _direction;
         private World _world;
         private static Texture2D _image;
+        private static Texture2D _projectionImage;
         private float _alpha;
         private bool _projecting;
 
@@ -41,6 +42,7 @@ namespace Enceladus.Weapon {
 
         public static void LoadContent(ContentManager cm) {
             _image = cm.Load<Texture2D>("Projectile/Holocube0000");
+            _projectionImage = cm.Load<Texture2D>("Projectile/Holocube0001");
         }
 
         public Holocube(World world, Vector2 start, Direction direction) {
@@ -107,10 +109,46 @@ namespace Enceladus.Weapon {
             _cubeCorner = closestCorner;
         }
 
-        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {            
+        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            // Draw the cube itself
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
             spriteBatch.Draw(_image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
                              0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+
+            // Draw the projector beam
+            Vector2 origin = new Vector2(0, _projectionImage.Height / 2);
+
+            Vector2 beamEnd = _cubeCorner + new Vector2(.5f);
+            Vector2 diff = (beamEnd - _start);
+            float length = diff.Length();
+            if ( length > 2 ) {
+                float unitLegth = ConvertUnits.ToSimUnits(_projectionImage.Width);
+                float lengthRatio = length / unitLegth;
+                float widthRatio;
+                switch ( _direction ) {
+                    case Direction.Left:
+                    case Direction.Right:
+                    case Direction.Up:
+                    case Direction.Down:
+                        widthRatio = 1f;
+                        break;
+                    case Direction.UpLeft:
+                    case Direction.UpRight:
+                    case Direction.DownLeft:
+                    case Direction.DownRight:
+                        widthRatio = (float) Math.Sqrt(2);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                float angle = (float) Math.Atan2(-diff.Y, diff.X);
+
+                spriteBatch.Draw(_projectionImage, ConvertUnits.ToDisplayUnits(_start), null,
+                                 SolidColorEffect.DisabledColor * _alpha,
+                                 -angle, origin, new Vector2(lengthRatio, widthRatio),
+                                 SpriteEffects.None, 1.0f);
+            }
         }
 
 
