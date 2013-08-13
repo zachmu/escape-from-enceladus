@@ -777,7 +777,7 @@ namespace Enceladus {
             bool overlapping = false;
             Instance._world.QueryAABB(fixture => {
                 if ( !fixture.IsSensor && (fixture.GetUserData().IsPlayer || fixture.GetUserData().IsEnemy ||
-                                           fixture.GetUserData().IsProjectile || fixture.GetUserData().IsDoor) ) {
+                                           fixture.GetUserData().IsProjectile || fixture.GetUserData().IsUserTool) ) {
                     overlapping = true;
                     return false;
                 }

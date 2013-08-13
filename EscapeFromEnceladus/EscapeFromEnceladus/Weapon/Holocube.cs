@@ -7,6 +7,7 @@ using Enceladus.Farseer;
 using Enceladus.Map;
 using Enceladus.Overlay;
 using Enceladus.Util;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
@@ -79,8 +80,9 @@ namespace Enceladus.Weapon {
             Vector2 closestCorner = end;
             _projecting = false;
             _world.RayCast((fixture, point, normal, fraction) => {
-                if ( ((fixture.GetUserData().IsDoor && !fixture.GetUserData().Door.IsOpen())
-                      || fixture.GetUserData().IsTerrain) && fraction < closestFraction ) {
+                if ( fraction < closestFraction && 
+                     ((fixture.GetUserData().IsDoor && !fixture.GetUserData().Door.IsOpen())
+                     || (fixture.GetUserData().IsTerrain && !fixture.GetUserData().IsUserTool)) ) {
                     closestFraction = fraction;
                     closestPoint = point;
                     // back up the ray just a tad
@@ -93,13 +95,17 @@ namespace Enceladus.Weapon {
 
             _end = closestPoint;
             _cubeCorner = closestCorner;
+
+            _legalPlacement = !EnceladusGame.EntitiesOverlapping(new AABB(_cubeCorner + new Vector2(.01f), _cubeCorner + new Vector2(TileLevel.TileSize - .02f)));
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            Color color = _legalPlacement ? SolidColorEffect.DisabledColor : Color.PaleVioletRed;
+
             if ( _projecting ) {
                 // Draw the cube itself
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-                spriteBatch.Draw(Image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
+                spriteBatch.Draw(Image, displayPosition, null, color * _alpha,
                                  0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
             }
 
@@ -135,14 +141,13 @@ namespace Enceladus.Weapon {
                 float angle = (float) Math.Atan2(-diff.Y, diff.X);
 
                 spriteBatch.Draw(ProjectionImage, ConvertUnits.ToDisplayUnits(_start), null,
-                                 SolidColorEffect.DisabledColor * _alpha,
-                                 -angle, origin, new Vector2(lengthRatio, widthRatio),
+                                 color * _alpha, -angle, origin, new Vector2(lengthRatio, widthRatio),
                                  SpriteEffects.None, 1.0f);
             }
         }
 
         public void Fire() {
-            if ( _projecting ) {
+            if ( _projecting && _legalPlacement ) {
                 HolocubeBlock block = new HolocubeBlock(_world, _cubeCorner);
                 EnceladusGame.Instance.Register(block);
                 PlacedBlocks.Enqueue(block);
@@ -163,6 +168,7 @@ namespace Enceladus.Weapon {
         private const int MaxNumBlocks = 1;
 
         private static readonly Queue<HolocubeBlock> PlacedBlocks = new Queue<HolocubeBlock>();
+        private bool _legalPlacement;
     }
 
     /// <summary>
@@ -170,17 +176,10 @@ namespace Enceladus.Weapon {
     /// </summary>
     public class HolocubeBlock : GameEntityAdapter {
 
-        private enum Mode {
-            Projection,
-            Creation,
-            Solid,
-            Dissolving
-        }
-
-        private Vector2 _cubeCorner;
-        private Timer _timeToLive;
-        private Body _block;
-        private World _world;
+        private readonly Vector2 _cubeCorner;
+        private readonly Timer _timeToLive;
+        private readonly Body _block;
+        private readonly World _world;
         private const double DissolveTimeMs = 2000;
         private const double SolidTimeMs = 8000;
         private float _alpha;

@@ -152,7 +152,7 @@
   <object name="LabDoor" type="Door" x="30723" y="3328" width="118" height="186"/>
   <object type="Door" x="30724" y="1667" width="112" height="191"/>
  </objectgroup>
- <objectgroup name="Destruction" width="1000" height="1000" visible="0">
+ <objectgroup name="Destruction" width="1000" height="1000">
   <object x="18537" y="1090" width="61" height="53"/>
   <object x="17455" y="1280" width="60" height="127"/>
   <object x="16746" y="1280" width="190" height="120"/>
@@ -160,6 +160,7 @@
   <object x="15472" y="1994" width="182" height="105"/>
   <object x="14190" y="1606" width="373" height="177"/>
   <object x="22852" y="3210" width="2818" height="122"/>
+  <object x="15240" y="519" width="113" height="251"/>
  </objectgroup>
  <objectgroup name="NPC" width="1000" height="1000">
   <object name="ProfessorIapetus" x="17982" y="1764" width="163" height="216">

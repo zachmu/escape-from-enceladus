@@ -1983,10 +1983,14 @@ namespace Enceladus.Entity {
 
         public void Save(SaveState save) {
             Equipment.Save(save);
+            save.PlayerHealth = Health;
+            save.PlayerHealthCapacity = HealthCapacity;
         }
 
         public void LoadFromSave(SaveState save) {
             Equipment.LoadFromSave(save);
+            HealthCapacity = save.PlayerHealthCapacity ?? 100;
+            Health = save.PlayerHealth;
         }
 
         /// <summary>

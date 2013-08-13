@@ -13,11 +13,10 @@ namespace Enceladus.Farseer {
     public static class FarseerExtensions {
         
         /// <summary>
-        /// Returns the custom user data for the body given, 
-        /// returning an empty object if none was established.
+        /// Returns the custom user data for the body given, returning an empty object if none was established.
         /// </summary>
         public static UserData GetUserData(this Body body) {
-            return (UserData) (body == null ? new UserData() : body.UserData ?? body.FixtureList.First().GetUserData());
+            return (UserData) (body == null ? new UserData() : body.UserData ?? body.FixtureList.FirstOrDefault(fixture => fixture.UserData != null).GetUserData());
         }
 
         /// <summary>

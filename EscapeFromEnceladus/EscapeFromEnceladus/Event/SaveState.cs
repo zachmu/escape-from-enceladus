@@ -30,6 +30,8 @@ namespace Enceladus.Event {
         public HashSet<GameMilestone> Milestones;
         public DateTime? SaveTime = null;
         public Equipment Equipment;
+        public float PlayerHealth;
+        public float? PlayerHealthCapacity;
         public HashSet<Vector2> CollectedItems; 
 
         /*
