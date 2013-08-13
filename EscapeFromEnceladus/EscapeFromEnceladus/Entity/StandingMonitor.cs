@@ -30,7 +30,7 @@ namespace Enceladus.Entity {
         /// Updates the standing and ceiling status using the body's current contacts, 
         /// given the location of its lowest point.
         /// </summary>
-        public void UpdateStanding(Body body, World world, Vector2 standingLocation) {
+        public void UpdateStanding(Body body, World world, Vector2 standingLocation, float width) {
 
             bool isStanding = false;
             bool isTouchingCeiling = false;
@@ -57,14 +57,18 @@ namespace Enceladus.Entity {
              */
             float delta = .1f;
             if ( !isStanding ) {
-                Vector2 start = standingLocation + new Vector2(0, -delta);
-                world.RayCast((fixture, point, normal, fraction) => {
-                    if ( fixture.GetUserData().IsTerrain ) {
-                        isStanding = true;
-                        return 0;
-                    }
-                    return -1;
-                }, start, start + new Vector2(0, 2 * delta));
+                foreach ( Vector2 start in new Vector2[] {
+                    standingLocation + new Vector2(-width / 2, -delta),
+                    standingLocation + new Vector2(width / 2, -delta),
+                } ) {
+                    world.RayCast((fixture, point, normal, fraction) => {
+                        if ( fixture.GetUserData().IsTerrain ) {
+                            isStanding = true;
+                            return 0;
+                        }
+                        return -1;
+                    }, start, start + new Vector2(0, 2 * delta));
+                }
             }
 
             if ( IgnoreStandingUpdatesNextNumFrames <= 0 ) {

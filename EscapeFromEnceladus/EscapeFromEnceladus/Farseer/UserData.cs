@@ -16,6 +16,7 @@ namespace Enceladus.Farseer {
         public bool IsProjectile { get; private set; }
         public bool IsDoor { get; private set; }
         public bool IsDestructibleRegion { get; private set; }
+        public bool IsUserTool { get; private set; }
 
         public IEnemy Enemy { get; private set; }
         public Projectile Projectile { get; private set; }
@@ -44,6 +45,10 @@ namespace Enceladus.Farseer {
 
         public static UserData NewDestructionRegion(DestructionRegion destructionRegion) {
             return new UserData() { IsDestructibleRegion = true, Destruction = destructionRegion};
+        }
+
+        public static UserData NewHolocube() {
+            return new UserData() { IsUserTool = true, IsTerrain = true };
         }
     }
 }

@@ -440,13 +440,13 @@ namespace Enceladus {
 
                         StepWorld(gameTime);
 
-                        foreach ( IGameEntity ent in _entities ) {
-                            ent.Update(gameTime);
-                        }
-
                         // Make sure our game mode hasn't changed before giving the player a chance to respond
                         if ( _mode == Mode.NormalControl ) {
                             _player.Update(gameTime);
+                        }
+
+                        foreach ( IGameEntity ent in _entities ) {
+                            ent.Update(gameTime);
                         }
 
                         _tileLevel.Update(gameTime);

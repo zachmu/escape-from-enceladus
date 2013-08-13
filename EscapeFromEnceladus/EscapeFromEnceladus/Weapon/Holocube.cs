@@ -182,11 +182,13 @@ namespace Enceladus.Weapon {
         public HolocubeBlock(World world, Vector2 cubeCorner) {
             _cubeCorner = cubeCorner;
             _timeToLive = new Timer(10000);
-            _block = BodyFactory.CreateRectangle(world, TileLevel.TileSize, TileLevel.TileSize, 1f, UserData.NewTerrain());
+            _block = BodyFactory.CreateRectangle(world, TileLevel.TileSize, TileLevel.TileSize, 1f, UserData.NewHolocube());
             _block.IsStatic = true;
             _block.CollisionCategories = EnceladusGame.TerrainCategory;
             _block.CollidesWith = Category.All;
             _block.Position = cubeCorner + new Vector2(TileLevel.TileSize / 2f);
+
+            Player.Instance.NotifyTerrainChange();
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -209,6 +211,7 @@ namespace Enceladus.Weapon {
         public override void Dispose() {
             if ( _block != null ) {
                 _block.Dispose();
+                Player.Instance.NotifyTerrainChange();
             }
         }
 

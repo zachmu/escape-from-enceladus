@@ -161,7 +161,7 @@ namespace Enceladus.Weapon {
                     if ( b.GetUserData().IsEnemy ) {
                         HitEnemy(b.GetUserData().Enemy);
                     } else if ( b.GetUserData().IsTerrain ) {
-                        HitTerrain(contact);
+                        HitTerrain(a, b, contact);
                     } else if ( b.GetUserData().IsDoor ) {
                         if ( b.GetUserData().Door.IsOpen() ) {
                             return false;
@@ -204,7 +204,7 @@ namespace Enceladus.Weapon {
             }
         }
 
-        protected void HitTerrain(Contact contact) {
+        protected void HitTerrain(Fixture fixtureA, Fixture fixtureB, Contact contact) {
             if ( _defunct ) {
                 return;
             }
@@ -220,8 +220,13 @@ namespace Enceladus.Weapon {
                     _timeToLiveMs = 0;
                 }
             } else {
-                Console.WriteLine("Missed a tile. Collision was {0},{1} with normal {2}",
-                                  points[0], points[1], normal);
+                UserData userData = fixtureB.GetUserData();
+                if ( userData.IsUserTool ) {
+                    BounceOff();
+                } else {
+                    Console.WriteLine("Missed a tile. Collision was {0},{1} with normal {2}",
+                                      points[0], points[1], normal);
+                }
             }
         }
 

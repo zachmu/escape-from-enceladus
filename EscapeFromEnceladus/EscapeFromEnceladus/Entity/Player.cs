@@ -2001,7 +2001,7 @@ namespace Enceladus.Entity {
         /// Updates the standing and ceiling status using the body's current contacts.
         /// </summary>
         protected void UpdateStanding() {
-            _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation());
+            _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width);
             IsStanding = _standingMonitor.IsStanding;
         }
 
