@@ -21,6 +21,8 @@ namespace Enceladus.Util {
             _timeTillAlarmMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
         }
 
+        public double TimeLeft { get { return _timeTillAlarmMs; } }
+
         public bool IsTimeUp() {
             return _timeTillAlarmMs <= 0;
         }

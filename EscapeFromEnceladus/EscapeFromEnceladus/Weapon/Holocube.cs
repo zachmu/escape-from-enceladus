@@ -54,20 +54,11 @@ namespace Enceladus.Weapon {
             UpdateAlpha();
         }
 
-        private static Random _random = new Random();
+        internal static Random Random = new Random();
+
         // Simple randomized flicker effect
         private void UpdateAlpha() {
-            double rand = _random.NextDouble();
-            /*
-            if ( rand > .9f ) {
-                _alpha = (float)_random.NextDouble();
-                if ( _alpha < MinAlpha ) {
-                    _alpha = MinAlpha;
-                } else if ( _alpha > MaxAlpha ) {
-                    _alpha = MaxAlpha;
-                }
-            }
-             * */
+            double rand = Random.NextDouble();
             if ( rand < .2f && _alpha > MinAlpha) {
                 _alpha = Math.Max(MinAlpha, _alpha - .1f);
             } else if ( rand > .8f && _alpha < MaxAlpha ) {
@@ -178,6 +169,9 @@ namespace Enceladus.Weapon {
         private Vector2 _cubeCorner;
         private Timer _timeToLive;
         private Body _block;
+        private const double DissolveTimeMs = 2000;
+        private const double SolidTimeMs = 8000;
+        private float _alpha;
 
         public HolocubeBlock(World world, Vector2 cubeCorner) {
             _cubeCorner = cubeCorner;
@@ -187,13 +181,14 @@ namespace Enceladus.Weapon {
             _block.CollisionCategories = EnceladusGame.TerrainCategory;
             _block.CollidesWith = Category.All;
             _block.Position = cubeCorner + new Vector2(TileLevel.TileSize / 2f);
+            _alpha = .95f;
 
             Player.Instance.NotifyTerrainChange();
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-            spriteBatch.Draw(Holocube.Image, displayPosition, null, SolidColorEffect.DisabledColor,
+            spriteBatch.Draw(Holocube.Image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
                              0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
         }
 
@@ -202,7 +197,21 @@ namespace Enceladus.Weapon {
             if ( !Disposed && _timeToLive.IsTimeUp() ) {
                 Dispose();
             }
+            UpdateAlpha();
         }
+
+        // Simple randomized flicker effect
+        private void UpdateAlpha() {
+            double rand = Holocube.Random.NextDouble();
+            double minAlpha = _timeToLive.TimeLeft > DissolveTimeMs ? .8f : .1f;
+            double maxAlpha = _timeToLive.TimeLeft > DissolveTimeMs ? 1f : _timeToLive.TimeLeft / DissolveTimeMs * .8f;
+            if ( rand < .3f ) {
+                _alpha = (float) Math.Max(minAlpha, _alpha - .05f);
+            } else if ( rand > .7f ) {
+                _alpha = (float) Math.Min(maxAlpha, _alpha + .05f);
+            }
+        }
+
 
         public override Vector2 Position {
             get { return _cubeCorner; }
