@@ -26,7 +26,7 @@ namespace Enceladus.Farseer {
         /// has empty user data.
         /// </summary>
         public static UserData GetUserData(this Fixture fixture) {
-            return (UserData) (fixture == null ? new UserData() : fixture.Body.UserData ?? new UserData());
+            return (UserData) (fixture == null ? new UserData() : fixture.UserData ?? fixture.Body.UserData ?? new UserData());
         }
 
         public static AABB GetTransformedAABB(this Fixture fixture, int childIndex) {

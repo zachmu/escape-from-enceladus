@@ -158,7 +158,6 @@ namespace Enceladus.Entity {
             }
 
             _body = BodyFactory.CreateRectangle(_world, CharacterStandingWidth, CharacterStandingHeight, 10f);
-            _body.FixtureList.First().UserData = "body";
             Height = CharacterStandingHeight;
             Width = CharacterStandingWidth;
             ConfigureBody(position);
@@ -175,7 +174,6 @@ namespace Enceladus.Entity {
                                  EnceladusGame.PlayerSensorCategory;
             _body.CollisionCategories = EnceladusGame.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
-            _body.FixtureList.First().UserData = "body";
 
             _body.OnCollision += (a, b, contact) => {
                 if ( contact.IsTouching() ) {
