@@ -96,10 +96,12 @@ namespace Enceladus.Weapon {
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            // Draw the cube itself
-            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-            spriteBatch.Draw(Image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
-                             0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+            if ( _projecting ) {
+                // Draw the cube itself
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
+                spriteBatch.Draw(Image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha,
+                                 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+            }
 
             // Draw the projector beam
             Vector2 origin = new Vector2(0, ProjectionImage.Height / 2);
@@ -140,8 +142,14 @@ namespace Enceladus.Weapon {
         }
 
         public void Fire() {
-            HolocubeBlock block = new HolocubeBlock(_world, _cubeCorner);
-            EnceladusGame.Instance.Register(block);
+            if ( _projecting ) {
+                HolocubeBlock block = new HolocubeBlock(_world, _cubeCorner);
+                EnceladusGame.Instance.Register(block);
+                PlacedBlocks.Enqueue(block);
+                if ( PlacedBlocks.Count > MaxNumBlocks ) {
+                    PlacedBlocks.Dequeue().Destroy();
+                }
+            }
         }
 
         public int DestructionFlags {
@@ -151,13 +159,16 @@ namespace Enceladus.Weapon {
         public float BaseDamage {
             get { return 1; }
         }
+
+        private const int MaxNumBlocks = 1;
+
+        private static readonly Queue<HolocubeBlock> PlacedBlocks = new Queue<HolocubeBlock>();
     }
 
     /// <summary>
     /// Static, solid holocube that has been placed.
     /// </summary>
     public class HolocubeBlock : GameEntityAdapter {
-
 
         private enum Mode {
             Projection,
@@ -169,21 +180,24 @@ namespace Enceladus.Weapon {
         private Vector2 _cubeCorner;
         private Timer _timeToLive;
         private Body _block;
+        private World _world;
         private const double DissolveTimeMs = 2000;
         private const double SolidTimeMs = 8000;
         private float _alpha;
 
         public HolocubeBlock(World world, Vector2 cubeCorner) {
             _cubeCorner = cubeCorner;
-            _timeToLive = new Timer(10000);
+            _timeToLive = new Timer(SolidTimeMs + DissolveTimeMs);
             _block = BodyFactory.CreateRectangle(world, TileLevel.TileSize, TileLevel.TileSize, 1f, UserData.NewHolocube());
             _block.IsStatic = true;
             _block.CollisionCategories = EnceladusGame.TerrainCategory;
             _block.CollidesWith = Category.All;
             _block.Position = cubeCorner + new Vector2(TileLevel.TileSize / 2f);
-            _alpha = .95f;
+            _alpha = 1f;
 
             Player.Instance.NotifyTerrainChange();
+
+            _world = world;
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -203,8 +217,8 @@ namespace Enceladus.Weapon {
         // Simple randomized flicker effect
         private void UpdateAlpha() {
             double rand = Holocube.Random.NextDouble();
-            double minAlpha = _timeToLive.TimeLeft > DissolveTimeMs ? .8f : .1f;
-            double maxAlpha = _timeToLive.TimeLeft > DissolveTimeMs ? 1f : _timeToLive.TimeLeft / DissolveTimeMs * .8f;
+            double minAlpha = _timeToLive.TimeLeft > DissolveTimeMs ? .75f : .1f;
+            double maxAlpha = _timeToLive.TimeLeft > DissolveTimeMs ? 1f : _timeToLive.TimeLeft / DissolveTimeMs * .75f;
             if ( rand < .3f ) {
                 _alpha = (float) Math.Max(minAlpha, _alpha - .05f);
             } else if ( rand > .7f ) {
@@ -232,6 +246,14 @@ namespace Enceladus.Weapon {
                     return false;
                 }
             }
+        }
+
+        public void Destroy() {
+            Dispose();
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, Holocube.Image,
+                                                                 SolidColorEffect.DisabledColor * _alpha, null,
+                                                                 _cubeCorner + new Vector2(TileLevel.TileSize / 2), 4,
+                                                                 4f));
         }
     }
 }

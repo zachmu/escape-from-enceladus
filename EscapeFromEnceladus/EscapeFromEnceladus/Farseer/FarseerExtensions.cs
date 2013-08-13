@@ -17,7 +17,7 @@ namespace Enceladus.Farseer {
         /// returning an empty object if none was established.
         /// </summary>
         public static UserData GetUserData(this Body body) {
-            return (UserData) (body == null ? new UserData() : body.UserData ?? new UserData());
+            return (UserData) (body == null ? new UserData() : body.UserData ?? body.FixtureList.First().GetUserData());
         }
 
         /// <summary>
