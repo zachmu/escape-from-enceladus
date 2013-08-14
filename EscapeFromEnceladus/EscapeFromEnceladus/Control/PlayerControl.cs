@@ -16,6 +16,7 @@ namespace Enceladus.Control
         bool IsRunButtonDown();
         bool IsNewRunButton();
         bool IsNewShot();
+        bool IsShotButtonDown();
         bool IsNewSonar();
         bool IsNewScooter();
         bool IsScooterButtonDown();
@@ -68,6 +69,10 @@ namespace Enceladus.Control
 
         public bool IsNewShot() {
             return InputHelper.Instance.IsNewButtonPress(ShootButton) || InputHelper.Instance.IsNewButtonPress(AltShootButton);
+        }
+
+        public bool IsShotButtonDown() {
+            return InputHelper.Instance.GamePadState.IsButtonDown(ShootButton) || InputHelper.Instance.GamePadState.IsButtonDown(AltShootButton);
         }
 
         public bool IsNewSonar() {
@@ -160,6 +165,10 @@ namespace Enceladus.Control
 
         public bool IsNewShot() {
             return InputHelper.Instance.IsNewKeyPress(ShootKey);
+        }
+
+        public bool IsShotButtonDown() {
+            return InputHelper.Instance.KeyboardState.IsKeyDown(ShootKey);
         }
 
         public bool IsNewSonar() {

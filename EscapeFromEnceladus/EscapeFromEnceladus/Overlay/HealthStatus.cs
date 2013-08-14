@@ -30,7 +30,7 @@ namespace Enceladus.Overlay {
         private void DrawHealthText(SpriteBatch spriteBatch) {
             Vector2 pos = Location + new Vector2(_outline.Width + 10, -10);
             SpriteFont font = SharedGraphicalAssets.OverlayFont;
-            String health = String.Format("{0:###}/{1:###}", Player.Instance.Health, Player.Instance.HealthCapacity);
+            String health = String.Format("{0,3:000}/{1,3:000}", Player.Instance.Health, Player.Instance.HealthCapacity);
             TextDrawing.DrawStringShadowed(font, spriteBatch, Color.Crimson * .65f, health, pos);
         }
 

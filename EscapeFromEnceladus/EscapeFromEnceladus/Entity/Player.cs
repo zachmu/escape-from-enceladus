@@ -531,10 +531,10 @@ namespace Enceladus.Entity {
                     var position = GetShotPlacement(out shotDirection);
                     EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
                 }
-            } else if ( InputHelper.Instance.IsNewButtonPress(Buttons.LeftShoulder) ) {
+            } else if ( !IsScooting && PlayerControl.Control.IsShotButtonDown() ) {
                 Direction shotDirection;
                 var position = GetShotPlacement(out shotDirection);
-                EnceladusGame.Instance.Register(new Missile(position, _world, shotDirection));
+                EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));                
             }
         }
 
