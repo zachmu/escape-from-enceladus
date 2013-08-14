@@ -140,8 +140,9 @@ namespace Enceladus.Entity {
 
         public int RapidFireSetting { get; set; }
         private double _shotChargeTime = 0;
+        private double _cumulativeShotChargeTime = 0;
         private const double MaxChargeTimeMs = 4000;
-        private const double ChargeWaitTimeMs = 200;
+        private const double ChargeWaitTimeMs = 250;
 
         /// <summary>
         /// How long a shot must charge at each rapid fire setting before discharging
@@ -153,7 +154,7 @@ namespace Enceladus.Entity {
             0, 7, 3, .9f, .25f,
         };
         private static readonly float[] ChargeShotScale = new float[] {
-            0, 3, 2, .9f, .5f,
+            0, 2, 1.5f, .9f, .5f,
         };
 
         public Player(Vector2 position, World world) {
@@ -544,6 +545,10 @@ namespace Enceladus.Entity {
                 EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
             } else if ( PlayerControl.Control.IsShotButtonDown() ) {
                 _shotChargeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+                _cumulativeShotChargeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+                if ( RapidFireSetting < 3 && _cumulativeShotChargeTime >= ChargeWaitTimeMs ) {
+                    SoundEffectManager.Instance.PlayOngoingEffect("chargeShot");
+                }
                 if ( _shotChargeTime > ShotTimeThresholdsMs[RapidFireSetting] ) {
                     _shotChargeTime %= ShotTimeThresholdsMs[RapidFireSetting];
                     Direction shotDirection;
@@ -551,9 +556,10 @@ namespace Enceladus.Entity {
                     EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection,
                                                              ChargeShotScale[RapidFireSetting],
                                                              ChargeShotDamage[RapidFireSetting]));
+                    SoundEffectManager.Instance.StopOngoingEffect("chargeShot");
                 }
             } else {
-                if ( _shotChargeTime > ChargeWaitTimeMs && RapidFireSetting == 0 ) {
+                if ( _shotChargeTime >= ChargeWaitTimeMs && RapidFireSetting == 0 ) {
                     Direction shotDirection;
                     var position = GetShotPlacement(out shotDirection);
                     if ( _shotChargeTime > MaxChargeTimeMs ) {
@@ -564,6 +570,8 @@ namespace Enceladus.Entity {
                                                              1 + 9 * scale));
                 }
                 _shotChargeTime = 0;
+                _cumulativeShotChargeTime = 0;
+                SoundEffectManager.Instance.StopOngoingEffect("chargeShot");
             }
         }
 

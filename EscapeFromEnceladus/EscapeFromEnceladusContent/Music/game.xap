@@ -337,8 +337,8 @@ Wave Bank
     Windows Bank Path Edited = 0;
     Seek Tables = 1;
     Compression Preset Name = <none>;
-    Bank Last Revised Low = 2049719568;
-    Bank Last Revised High = 30313011;
+    Bank Last Revised Low = 3184041467;
+    Bank Last Revised High = 30316841;
 
     Wave
     {
@@ -659,6 +659,29 @@ Wave Bank
             File Type = 1;
             Last Modified Low = 4199114144;
             Last Modified High = 30313010;
+        }
+    }
+
+    Wave
+    {
+        Name = chargeShot;
+        File = ..\Sounds\chargeShot.wav;
+        Build Settings Last Modified Low = 3143989177;
+        Build Settings Last Modified High = 30316841;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 26502;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 2376506917;
+            Last Modified High = 30316840;
         }
     }
 }
@@ -1329,6 +1352,62 @@ Sound Bank
         }
     }
 
+    Sound
+    {
+        Name = chargeShot;
+        Volume = -1200;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Loop Count = 255;
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Pitch Variation
+                {
+                    Min = 110;
+                    Max = 110;
+                    Operator = 1;
+                    New Variation On Loop = 1;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = chargeShot;
+                    Entry Index = 14;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
     Cue
     {
         Name = sonarPing;
@@ -1604,6 +1683,26 @@ Sound Bank
         {
             Name = enemyHit;
             Index = 13;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = chargeShot;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = chargeShot;
+            Index = 14;
             Weight Min = 0;
             Weight Max = 255;
         }

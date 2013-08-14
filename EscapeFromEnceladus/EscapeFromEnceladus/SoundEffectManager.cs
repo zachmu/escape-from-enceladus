@@ -21,7 +21,8 @@ namespace Enceladus {
         private AudioEngine _audioEngine;
         private SoundBank _soundBank;
         private WaveBank _waveBank;
-        private readonly List<string> _pendingCues = new List<string>(); 
+        private readonly List<string> _pendingCues = new List<string>();
+        private readonly Dictionary<string, Cue> _ongoingCues = new Dictionary<string, Cue>();
 
         public SoundEffectManager() {
             _instance = this;
@@ -40,6 +41,21 @@ namespace Enceladus {
                 cue.Play();
             }
             _pendingCues.Clear();
+            
+            // Start any new ongoing sounds
+            if ( _ongoingCues.ContainsValue(null) ) {
+                Dictionary<string, Cue> newCues = new Dictionary<string, Cue>();
+                foreach ( var pendingCue in _ongoingCues.Keys ) {
+                    if ( _ongoingCues[pendingCue] == null ) {
+                        Cue cue = _soundBank.GetCue(pendingCue);
+                        cue.Play();
+                        newCues[pendingCue] = cue;
+                    }
+                }
+                foreach ( var cue in newCues.Keys ) {
+                    _ongoingCues[cue] = newCues[cue];
+                }
+            }
         }
 
         /// <summary>
@@ -47,6 +63,28 @@ namespace Enceladus {
         /// </summary>
         public void PlaySoundEffect(string soundEffect) {
             _pendingCues.Add(soundEffect);
+        }
+
+        /// <summary>
+        /// Starts playing a sound that will need to be manually stopped later
+        /// </summary>
+        public void PlayOngoingEffect(string soundEffect) {
+            if ( !_ongoingCues.ContainsKey(soundEffect) ) {
+                _ongoingCues.Add(soundEffect, null);
+            }
+        }
+
+        /// <summary>
+        /// Stops the sound effect given, if it's playing
+        /// </summary>
+        public void StopOngoingEffect(string soundEffect) {
+            if ( _ongoingCues.ContainsKey(soundEffect) ) {
+                Cue ongoingCue = _ongoingCues[soundEffect];
+                if ( ongoingCue != null && ongoingCue.IsPlaying ) {
+                    ongoingCue.Stop(AudioStopOptions.AsAuthored);
+                    _ongoingCues.Remove(soundEffect);
+                }
+            }
         }
     }
 }
