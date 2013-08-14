@@ -15,14 +15,21 @@ namespace Enceladus.Weapon {
     public class Shot : Projectile, IGameEntity {
         private const int Speed = 25;
 
-        private static Texture2D Image { get; set; }       
+        private static Texture2D Image { get; set; }
 
         // Destruction flags
         public const int Flags = 1;
 
-        public Shot(Vector2 position, World world, Direction direction)
-            : base(position, world, direction, Speed, ConvertUnits.ToSimUnits(16), ConvertUnits.ToSimUnits(6)) {
+        private float _damage;
+        private Vector2 _scale;
+
+        public Shot(Vector2 position, World world, Direction direction) : this(position, world, direction, 1f, 1f) {
+        }
+
+        public Shot(Vector2 position, World world, Direction direction, float sizeScale, float damage)
+            : base(position, world, direction, Speed, ConvertUnits.ToSimUnits(16) * sizeScale, ConvertUnits.ToSimUnits(6) * sizeScale) {
             _body.Rotation = GetSpriteRotation(_direction);
+            _scale = new Vector2(sizeScale);
             SoundEffectManager.Instance.PlaySoundEffect("laser");
         }
 
@@ -35,9 +42,9 @@ namespace Enceladus.Weapon {
                 Vector2 position = _body.Position;
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(position);
                 spriteBatch.Draw(Image,
-                                 new Rectangle((int) displayPosition.X, (int) displayPosition.Y, Image.Width, Image.Height),
+                                 displayPosition,
                                  null, SolidColorEffect.DisabledColor * GetAlpha(), _body.Rotation,
-                                 new Vector2(Image.Width / 2, Image.Height / 2),
+                                 new Vector2(Image.Width / 2, Image.Height / 2), _scale,
                                  SpriteEffects.None, 0);
             }
         }
@@ -55,7 +62,7 @@ namespace Enceladus.Weapon {
         }
 
         public override float BaseDamage {
-            get { return 1; }
+            get { return _damage; }
         }
     }
 }

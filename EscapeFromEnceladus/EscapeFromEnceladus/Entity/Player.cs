@@ -140,12 +140,20 @@ namespace Enceladus.Entity {
 
         public int RapidFireSetting { get; set; }
         private double _shotChargeTime = 0;
+        private const double MaxChargeTimeMs = 4000;
+        private const double ChargeWaitTimeMs = 200;
 
         /// <summary>
         /// How long a shot must charge at each rapid fire setting before discharging
         /// </summary>
         private static readonly double[] ShotTimeThresholdsMs = new double[] {
-            double.MaxValue, 1000, 500, 200, 50
+            double.MaxValue, 1000, 500, 150, 50
+        };
+        private static readonly float[] ChargeShotDamage = new float[] {
+            0, 7, 3, .9f, .25f,
+        };
+        private static readonly float[] ChargeShotScale = new float[] {
+            0, 3, 2, .9f, .5f,
         };
 
         public Player(Vector2 position, World world) {
@@ -441,6 +449,7 @@ namespace Enceladus.Entity {
             // Some moves rely on proper animation info, 
             // so we do them after the image update.
             HandleShot(gameTime);
+            HandleBomb(gameTime);
             HandleCube(gameTime);
             if ( !IsScooting ) {
                 HandleBeam(gameTime);
@@ -523,35 +532,58 @@ namespace Enceladus.Entity {
         }
 
         /// <summary>
-        /// Handles firing any weapons
+        /// Handles firing the primary weapon
         /// </summary>
         private void HandleShot(GameTime gameTime) {
+            if ( IsScooting )
+                return;
+
             if ( PlayerControl.Control.IsNewShot() ) {
-                if ( IsScooting ) {
-                    Vector2 pos = Vector2.Zero;
-                    if ( _facingDirection == Direction.Right ) {
-                        pos = _body.Position +
-                              new Vector2(CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
-                    } else {
-                        pos = _body.Position +
-                              new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
-                    }
-                    EnceladusGame.Instance.Register(new Bomb(pos, _world, _facingDirection));
-                } else {
-                    Direction shotDirection;
-                    var position = GetShotPlacement(out shotDirection);
-                    EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
-                }
-            } else if ( !IsScooting && PlayerControl.Control.IsShotButtonDown() ) {
+                Direction shotDirection;
+                var position = GetShotPlacement(out shotDirection);
+                EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
+            } else if ( PlayerControl.Control.IsShotButtonDown() ) {
                 _shotChargeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
                 if ( _shotChargeTime > ShotTimeThresholdsMs[RapidFireSetting] ) {
                     _shotChargeTime %= ShotTimeThresholdsMs[RapidFireSetting];
                     Direction shotDirection;
                     var position = GetShotPlacement(out shotDirection);
-                    EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
+                    EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection,
+                                                             ChargeShotScale[RapidFireSetting],
+                                                             ChargeShotDamage[RapidFireSetting]));
                 }
             } else {
+                if ( _shotChargeTime > ChargeWaitTimeMs && RapidFireSetting == 0 ) {
+                    Direction shotDirection;
+                    var position = GetShotPlacement(out shotDirection);
+                    if ( _shotChargeTime > MaxChargeTimeMs ) {
+                        _shotChargeTime = MaxChargeTimeMs;
+                    }
+                    float scale = (float) (_shotChargeTime / MaxChargeTimeMs);
+                    EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection, 1 + 3 * scale,
+                                                             1 + 9 * scale));
+                }
                 _shotChargeTime = 0;
+            }
+        }
+
+        /// <summary>
+        /// Handles laying a bomb while scooting
+        /// </summary>
+        private void HandleBomb(GameTime gameTime) {
+            if ( !IsScooting )
+                return;
+
+            if ( PlayerControl.Control.IsNewShot() ) {
+                Vector2 pos = Vector2.Zero;
+                if ( _facingDirection == Direction.Right ) {
+                    pos = _body.Position +
+                          new Vector2(CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
+                } else {
+                    pos = _body.Position +
+                          new Vector2(-CharacterScootingWidth / 2, CharacterScootingHeight / 2 - Bomb.Height / 2);
+                }
+                EnceladusGame.Instance.Register(new Bomb(pos, _world, _facingDirection));
             }
         }
 
