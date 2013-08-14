@@ -32,6 +32,8 @@ namespace Enceladus.Control
         bool IsSecondaryFireButtonDown();
         bool IsNewLeftWeaponScroll();
         bool IsNewRightWeaponScroll();
+        bool IsNewRapidFireIncrease();
+        bool IsNewRapidFireDecrease();
     }
 
     /// <summary>
@@ -133,6 +135,14 @@ namespace Enceladus.Control
 
         public bool IsNewRightWeaponScroll() {
             return InputHelper.Instance.IsNewButtonPress(Buttons.DPadRight);
+        }
+
+        public bool IsNewRapidFireIncrease() {
+            return InputHelper.Instance.IsNewButtonPress(Buttons.DPadUp);
+        }
+
+        public bool IsNewRapidFireDecrease() {
+            return InputHelper.Instance.IsNewButtonPress(Buttons.DPadDown);
         }
     }
 
@@ -270,6 +280,14 @@ namespace Enceladus.Control
 
         public bool IsNewRightWeaponScroll() {
             return InputHelper.Instance.IsNewKeyPress(Keys.P);
+        }
+
+        public bool IsNewRapidFireIncrease() {
+            return InputHelper.Instance.IsNewKeyPress(Keys.D8);
+        }
+
+        public bool IsNewRapidFireDecrease() {
+            return InputHelper.Instance.IsNewKeyPress(Keys.D9);
         }
     }
 }

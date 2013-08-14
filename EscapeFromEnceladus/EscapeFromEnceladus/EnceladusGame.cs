@@ -76,6 +76,7 @@ namespace Enceladus {
         private HealthStatus _healthStatus;
         private WeaponSelector _weaponSelector;
         private VisitationMap _visitationMap;
+        private RapidFire _rapidFire;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
@@ -155,6 +156,7 @@ namespace Enceladus {
             _player = new Player(new Vector2(73, 28), _world); 
             _healthStatus = new HealthStatus();
             _weaponSelector = new WeaponSelector();
+            _rapidFire = new RapidFire();
             _inputHelper = new InputHelper();
             PlayerControl.Control = new PlayerGamepadControl();
 
@@ -374,6 +376,7 @@ namespace Enceladus {
             Holocube.LoadContent(Content);
             HealthPickup.LoadContent(Content);
             WeaponSelector.LoadContent(Content);
+            RapidFire.LoadContent(Content);
             GenericCollectibleItem.LoadContent(Content);
             Bomb.LoadContent(Content);
             Sonar.LoadContent(Content);
@@ -457,6 +460,7 @@ namespace Enceladus {
                     _eventManager.Update(gameTime);
                     _visitationMap.Update(gameTime);
                     _weaponSelector.Update(gameTime);
+                    _rapidFire.Update(gameTime);
                     _cameraDirector.Update(gameTime);
 
                     UpdateMode();
@@ -731,6 +735,7 @@ namespace Enceladus {
             _spriteBatch.Begin();
             _healthStatus.Draw(_spriteBatch, _camera);
             _weaponSelector.Draw(_spriteBatch, _camera);
+            _rapidFire.Draw(_spriteBatch, _camera);
             _visitationMap.Draw(_spriteBatch);
             if ( _mode == Mode.Paused ) {
                 _pauseScreen.Draw(_spriteBatch, _camera);

@@ -532,9 +532,9 @@ namespace Enceladus.Entity {
                     EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
                 }
             } else if ( !IsScooting && PlayerControl.Control.IsShotButtonDown() ) {
-                Direction shotDirection;
-                var position = GetShotPlacement(out shotDirection);
-                EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));                
+//                Direction shotDirection;
+  //              var position = GetShotPlacement(out shotDirection);
+    //            EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));                
             }
         }
 
@@ -596,10 +596,10 @@ namespace Enceladus.Entity {
             Vector2 position = _body.Position;
             switch ( shotDirection ) {
                 case Direction.Right:
-                    position += new Vector2(CharacterStandingWidth/2f, -CharacterStandingHeight/4.5f);
+                    position += new Vector2(CharacterStandingWidth/2f - .1f, -CharacterStandingHeight/4.5f);
                     break;
                 case Direction.Left:
-                    position += new Vector2(-(CharacterStandingWidth/2f), -CharacterStandingHeight/4.5f);
+                    position += new Vector2(-(CharacterStandingWidth/2f - .1f), -CharacterStandingHeight/4.5f);
                     break;
                 case Direction.Down:
                     position += new Vector2(0, CharacterStandingHeight/2 - .1f);
@@ -690,7 +690,7 @@ namespace Enceladus.Entity {
                     break;
                 case Direction.Down:
                     if ( IsDucking ) {
-                        tuning = ShotAdjustmentDuckingDown  + new Vector2(0, DuckingAdjustments[_animationFrame]);
+                        tuning = ShotAdjustmentDuckingDown;//  + new Vector2(0, DuckingAdjustments[_animationFrame]);
                         if ( _facingDirection == Direction.Left ) {
                             tuning += new Vector2(ConvertUnits.ToSimUnits(1), 0);
                         }
