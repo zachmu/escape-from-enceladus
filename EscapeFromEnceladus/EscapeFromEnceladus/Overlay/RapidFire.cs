@@ -57,12 +57,13 @@ namespace Enceladus.Overlay {
                 if ( _rapidFireLevel < 0 ) {
                     _rapidFireLevel = Player.Instance.Equipment.NumSelectableTools - 1;
                 }
-                //Player.Instance.SelectedItemChanged(_itemsByIndex[_selectedWeapon]);
+                Player.Instance.RapidFireSetting = _rapidFireLevel;
             } else if ( PlayerControl.Control.IsNewRapidFireIncrease() ) {
                 _rapidFireLevel++;
                 if ( _rapidFireLevel >= NumImages ) {
                     _rapidFireLevel = NumImages - 1;
                 }
+                Player.Instance.RapidFireSetting = _rapidFireLevel;
             }
         }
 

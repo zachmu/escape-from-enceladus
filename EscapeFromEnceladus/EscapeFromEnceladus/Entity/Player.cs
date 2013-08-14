@@ -138,6 +138,16 @@ namespace Enceladus.Entity {
             get { return _body.LinearVelocity; }
         }
 
+        public int RapidFireSetting { get; set; }
+        private double _shotChargeTime = 0;
+
+        /// <summary>
+        /// How long a shot must charge at each rapid fire setting before discharging
+        /// </summary>
+        private static readonly double[] ShotTimeThresholdsMs = new double[] {
+            double.MaxValue, 1000, 500, 200, 50
+        };
+
         public Player(Vector2 position, World world) {
             _instance = this;
 
@@ -149,6 +159,7 @@ namespace Enceladus.Entity {
             _activeItem = CollectibleItem.Beam;
 
             _world = world;
+            RapidFireSetting = 0;
         }
 
         // Creates the simulated body at the specified position
@@ -532,9 +543,15 @@ namespace Enceladus.Entity {
                     EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
                 }
             } else if ( !IsScooting && PlayerControl.Control.IsShotButtonDown() ) {
-//                Direction shotDirection;
-  //              var position = GetShotPlacement(out shotDirection);
-    //            EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));                
+                _shotChargeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+                if ( _shotChargeTime > ShotTimeThresholdsMs[RapidFireSetting] ) {
+                    _shotChargeTime %= ShotTimeThresholdsMs[RapidFireSetting];
+                    Direction shotDirection;
+                    var position = GetShotPlacement(out shotDirection);
+                    EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection));
+                }
+            } else {
+                _shotChargeTime = 0;
             }
         }
 
