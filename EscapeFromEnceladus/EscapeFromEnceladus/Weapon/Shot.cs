@@ -30,6 +30,7 @@ namespace Enceladus.Weapon {
             : base(position, world, direction, Speed, ConvertUnits.ToSimUnits(16) * sizeScale, ConvertUnits.ToSimUnits(6) * sizeScale) {
             _body.Rotation = GetSpriteRotation(_direction);
             _scale = new Vector2(sizeScale);
+            _damage = damage;
             SoundEffectManager.Instance.PlaySoundEffect("laser");
         }
 

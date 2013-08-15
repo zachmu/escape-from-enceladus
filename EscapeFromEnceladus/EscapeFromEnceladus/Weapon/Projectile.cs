@@ -155,17 +155,19 @@ namespace Enceladus.Weapon {
         /// </summary>
         protected virtual OnCollisionEventHandler CollisionHandler() {
             return (a, b, contact) => {
-                _body.IgnoreGravity = false;
 
                 if ( !_defunct ) {
                     if ( b.GetUserData().IsEnemy ) {
+                        _body.IgnoreGravity = false;
                         HitEnemy(b.GetUserData().Enemy);
                     } else if ( b.GetUserData().IsTerrain ) {
+                        _body.IgnoreGravity = false;
                         HitTerrain(a, b, contact);
                     } else if ( b.GetUserData().IsDoor ) {
                         if ( b.GetUserData().Door.IsOpen() ) {
                             return false;
                         } else {
+                            _body.IgnoreGravity = false;
                             HitDoor(b.GetUserData().Door);
                         }
                     } else {

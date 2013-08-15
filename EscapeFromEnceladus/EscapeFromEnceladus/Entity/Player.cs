@@ -138,7 +138,14 @@ namespace Enceladus.Entity {
             get { return _body.LinearVelocity; }
         }
 
-        public int RapidFireSetting { get; set; }
+        public int RapidFireSetting {
+            get { return _rapidFireSetting; }
+            set {
+                _rapidFireSetting = value;
+                StopChargeSoundEffect();
+            }
+        }
+
         private double _shotChargeTime = 0;
         private double _cumulativeShotChargeTime = 0;
         private const double MaxChargeTimeMs = 4000;
@@ -168,7 +175,6 @@ namespace Enceladus.Entity {
             _activeItem = CollectibleItem.Beam;
 
             _world = world;
-            RapidFireSetting = 0;
         }
 
         // Creates the simulated body at the specified position
@@ -485,8 +491,7 @@ namespace Enceladus.Entity {
         private void HandleBeam(GameTime gameTime) {
             if ( _activeItem != CollectibleItem.Beam ) {
                 if ( _beam != null ) {
-                    _beam.Dispose();
-                    _beam = null;
+                    DisposeBeam();
                 }
                 return;
             }
@@ -496,15 +501,23 @@ namespace Enceladus.Entity {
                     Direction direction;
                     Vector2 position = GetShotPlacement(out direction);
                     EnceladusGame.Instance.Register(_beam = new Beam(_world, position, direction));
+                    SoundEffectManager.Instance.PlayOngoingEffect("buzz");
+                    SoundEffectManager.Instance.PlayOngoingEffect("buzzLong");
                 }
             } else if ( PlayerControl.Control.IsSecondaryFireButtonDown() ) {
                 Direction direction;
                 Vector2 position = GetShotPlacement(out direction);
                 _beam.Update(_world, position, direction);
             } else {
-                _beam.Dispose();
-                _beam = null;
+                DisposeBeam();
             }
+        }
+
+        private void DisposeBeam() {
+            _beam.Dispose();
+            _beam = null;
+            SoundEffectManager.Instance.StopOngoingEffect("buzz");
+            SoundEffectManager.Instance.StopOngoingEffect("buzzLong");
         }
 
         private void UpdateInvulnerable(GameTime gameTime) {
@@ -547,7 +560,17 @@ namespace Enceladus.Entity {
                 _shotChargeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
                 _cumulativeShotChargeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
                 if ( RapidFireSetting < 3 && _cumulativeShotChargeTime >= ChargeWaitTimeMs ) {
-                    SoundEffectManager.Instance.PlayOngoingEffect("chargeShot");
+                    switch ( RapidFireSetting ) {
+                        case 0:
+                            SoundEffectManager.Instance.PlayOngoingEffect("chargeShot");
+                            break;
+                        case 1:
+                            SoundEffectManager.Instance.PlayOngoingEffect("chargeShotHigher");
+                            break;
+                        case 2:
+                            SoundEffectManager.Instance.PlayOngoingEffect("chargeShotHighest");
+                            break;
+                    }
                 }
                 if ( _shotChargeTime > ShotTimeThresholdsMs[RapidFireSetting] ) {
                     _shotChargeTime %= ShotTimeThresholdsMs[RapidFireSetting];
@@ -556,7 +579,7 @@ namespace Enceladus.Entity {
                     EnceladusGame.Instance.Register(new Shot(position, _world, shotDirection,
                                                              ChargeShotScale[RapidFireSetting],
                                                              ChargeShotDamage[RapidFireSetting]));
-                    SoundEffectManager.Instance.StopOngoingEffect("chargeShot");
+                    StopChargeSoundEffect();
                 }
             } else {
                 if ( _shotChargeTime >= ChargeWaitTimeMs && RapidFireSetting == 0 ) {
@@ -571,8 +594,14 @@ namespace Enceladus.Entity {
                 }
                 _shotChargeTime = 0;
                 _cumulativeShotChargeTime = 0;
-                SoundEffectManager.Instance.StopOngoingEffect("chargeShot");
+                StopChargeSoundEffect();
             }
+        }
+
+        private static void StopChargeSoundEffect() {
+            SoundEffectManager.Instance.StopOngoingEffect("chargeShot");
+            SoundEffectManager.Instance.StopOngoingEffect("chargeShotHigher");
+            SoundEffectManager.Instance.StopOngoingEffect("chargeShotHighest");
         }
 
         /// <summary>
@@ -2027,6 +2056,7 @@ namespace Enceladus.Entity {
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
         protected readonly StandingMonitor _standingMonitor = new StandingMonitor();
         private Timer _invulnerabilityTimer;
+        private int _rapidFireSetting;
 
         /// <summary>
         /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 

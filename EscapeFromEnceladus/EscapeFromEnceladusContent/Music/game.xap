@@ -226,12 +226,6 @@ Wave Bank
     Streaming = 1;
     Seek Tables = 1;
     Compression Preset Name = <none>;
-    Xbox Bank Last Modified Low = 0;
-    Xbox Bank Last Modified High = 0;
-    PC Bank Last Modified Low = 0;
-    PC Bank Last Modified High = 0;
-    Header Last Modified Low = 0;
-    Header Last Modified High = 0;
     Bank Last Revised Low = 1836800528;
     Bank Last Revised High = 30301998;
 
@@ -337,8 +331,8 @@ Wave Bank
     Windows Bank Path Edited = 0;
     Seek Tables = 1;
     Compression Preset Name = <none>;
-    Bank Last Revised Low = 3184041467;
-    Bank Last Revised High = 30316841;
+    Bank Last Revised Low = 391896249;
+    Bank Last Revised High = 30316881;
 
     Wave
     {
@@ -682,6 +676,121 @@ Wave Bank
             File Type = 1;
             Last Modified Low = 2376506917;
             Last Modified High = 30316840;
+        }
+    }
+
+    Wave
+    {
+        Name = buzzLong;
+        File = ..\Sounds\buzzLong.wav;
+        Build Settings Last Modified Low = 1069383189;
+        Build Settings Last Modified High = 30316876;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 129640;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 88687096;
+            Last Modified High = 30316876;
+        }
+    }
+
+    Wave
+    {
+        Name = buzz;
+        File = ..\Sounds\buzz.wav;
+        Build Settings Last Modified Low = 1069383189;
+        Build Settings Last Modified High = 30316876;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 38756;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 2991932980;
+            Last Modified High = 30316870;
+        }
+    }
+
+    Wave
+    {
+        Name = nope;
+        File = ..\Sounds\nope.wav;
+        Build Settings Last Modified Low = 1989410897;
+        Build Settings Last Modified High = 30316879;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 12372;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 1786279279;
+            Last Modified High = 30316879;
+        }
+    }
+
+    Wave
+    {
+        Name = chargeShotHighest;
+        File = ..\Sounds\chargeShotHighest.wav;
+        Build Settings Last Modified Low = 1048545445;
+        Build Settings Last Modified High = 30316880;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 26492;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 824752645;
+            Last Modified High = 30316880;
+        }
+    }
+
+    Wave
+    {
+        Name = chargeShotHigher;
+        File = ..\Sounds\chargeShotHigher.wav;
+        Build Settings Last Modified Low = 1048555446;
+        Build Settings Last Modified High = 30316880;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 1;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 26492;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 426099843;
+            Last Modified High = 30316880;
         }
     }
 }
@@ -1355,7 +1464,7 @@ Sound Bank
     Sound
     {
         Name = chargeShot;
-        Volume = -1200;
+        Volume = -2030;
         Pitch = 0;
         Priority = 0;
 
@@ -1401,6 +1510,277 @@ Sound Bank
                     Bank Index = 1;
                     Entry Name = chargeShot;
                     Entry Index = 14;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = buzzLong;
+        Volume = -2700;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Loop Count = 255;
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Pitch Variation
+                {
+                    Min = 100;
+                    Max = 100;
+                    Operator = 0;
+                    New Variation On Loop = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = buzzLong;
+                    Entry Index = 15;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = buzz;
+        Volume = -2700;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Loop Count = 255;
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Pitch Variation
+                {
+                    Min = 600;
+                    Max = 800;
+                    Operator = 0;
+                    New Variation On Loop = 1;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = buzz;
+                    Entry Index = 16;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = nope;
+        Volume = -400;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = nope;
+                    Entry Index = 17;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = chargeShotHighest;
+        Volume = -1670;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Loop Count = 255;
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Pitch Variation
+                {
+                    Min = 100;
+                    Max = 100;
+                    Operator = 1;
+                    New Variation On Loop = 1;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = chargeShotHighest;
+                    Entry Index = 18;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
+
+    Sound
+    {
+        Name = chargeShotHigher;
+        Volume = -1670;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Loop Count = 255;
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Pitch Variation
+                {
+                    Min = 100;
+                    Max = 100;
+                    Operator = 1;
+                    New Variation On Loop = 1;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = SoundEffects;
+                    Bank Index = 1;
+                    Entry Name = chargeShotHigher;
+                    Entry Index = 19;
                     Weight = 255;
                     Weight Min = 0;
                 }
@@ -1703,6 +2083,106 @@ Sound Bank
         {
             Name = chargeShot;
             Index = 14;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = buzzLong;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = buzzLong;
+            Index = 15;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = buzz;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = buzz;
+            Index = 16;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = nope;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = nope;
+            Index = 17;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = chargeShotHighest;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = chargeShotHighest;
+            Index = 18;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = chargeShotHigher;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = chargeShotHigher;
+            Index = 19;
             Weight Min = 0;
             Weight Max = 255;
         }

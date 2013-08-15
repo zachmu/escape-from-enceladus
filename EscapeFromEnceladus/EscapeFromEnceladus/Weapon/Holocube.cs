@@ -154,6 +154,8 @@ namespace Enceladus.Weapon {
                 if ( PlacedBlocks.Count > MaxNumBlocks ) {
                     PlacedBlocks.Dequeue().Destroy();
                 }
+            } else {
+                SoundEffectManager.Instance.PlaySoundEffect("nope");
             }
         }
 
