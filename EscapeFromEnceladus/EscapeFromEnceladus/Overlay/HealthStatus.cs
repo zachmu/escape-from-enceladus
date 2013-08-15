@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Overlay {
     
-    public class HealthStatus {
+    public class HealthStatus : IOverlayElement {
         private static readonly Vector2 Location = new Vector2(30, 30);
 
         public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
@@ -41,6 +41,16 @@ namespace Enceladus.Overlay {
 
             Rectangle rect = new Rectangle(0, 0, (int) ((Player.Instance.Health / Player.Instance.HealthCapacity) * _bar.Width), _bar.Height);
             spriteBatch.Draw(_bar, pos, rect, Color.White * .65f);
+        }
+
+        private float _lastHealth;
+        private float _lastCapacity;
+
+        public bool Update(GameTime gameTime) {
+            bool needsRedraw = _lastHealth != Player.Instance.Health || _lastCapacity != Player.Instance.HealthCapacity;
+            _lastHealth = Player.Instance.Health;
+            _lastCapacity = Player.Instance.HealthCapacity;
+            return needsRedraw;
         }
 
         public void LoadContent(ContentManager cm) {

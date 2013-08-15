@@ -14,7 +14,7 @@ namespace Enceladus.Overlay {
     /// <summary>
     /// A weapon selector overlay
     /// </summary>
-    public class WeaponSelector {
+    public class WeaponSelector : IOverlayElement {
 
         private const int Margin = 10;
         private const int TopOffset = 20;
@@ -59,17 +59,21 @@ namespace Enceladus.Overlay {
             };
         }
 
-        public void Update(GameTime gameTime) {
+        public bool Update(GameTime gameTime) {
             if ( PlayerControl.Control.IsNewLeftWeaponScroll() ) {
                 _selectedWeapon--;
                 if ( _selectedWeapon < 0 ) {
                     _selectedWeapon = Player.Instance.Equipment.NumSelectableTools - 1;
                 }
                 Player.Instance.SelectedItemChanged(_itemsByIndex[_selectedWeapon]);
+                return true;
             } else if ( PlayerControl.Control.IsNewRightWeaponScroll() ) {
                 _selectedWeapon = (_selectedWeapon + 1) % Player.Instance.Equipment.NumSelectableTools;
                 Player.Instance.SelectedItemChanged(_itemsByIndex[_selectedWeapon]);
-            } 
+                return true;
+            }
+
+            return false;
         }
 
         private static Texture2D _outline;

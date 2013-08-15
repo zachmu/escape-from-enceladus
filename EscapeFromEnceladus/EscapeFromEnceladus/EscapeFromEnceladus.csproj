@@ -111,7 +111,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Overlay\IOverlayElement.cs" />
     <Compile Include="Overlay\RapidFire.cs" />
+    <Compile Include="Overlay\VisitationMapOverlay.cs" />
     <Compile Include="Overlay\WeaponSelector.cs" />
     <Compile Include="SoundEffectManager.cs" />
     <Compile Include="EnceladusGame.cs" />

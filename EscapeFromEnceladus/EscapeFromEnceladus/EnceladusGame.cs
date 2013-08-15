@@ -76,6 +76,7 @@ namespace Enceladus {
         private HealthStatus _healthStatus;
         private WeaponSelector _weaponSelector;
         private VisitationMap _visitationMap;
+        private VisitationMapOverlay _visitationMapOverlay;
         private RapidFire _rapidFire;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
@@ -335,6 +336,7 @@ namespace Enceladus {
             LoadStaticContent();
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
             _visitationMap = new VisitationMap(_tileLevel);
+            _visitationMapOverlay = new VisitationMapOverlay(_visitationMap);
             _healthStatus.LoadContent(Content);
             _backgroundManager.LoadContent();
             _audioEngine = new AudioEngine("Content/Music/game.xgs");
@@ -381,7 +383,7 @@ namespace Enceladus {
             Bomb.LoadContent(Content);
             Sonar.LoadContent(Content);
             SolidColorEffect.LoadContent(Content);
-            VisitationMap.LoadContent(Content);
+            VisitationMapOverlay.LoadContent(Content);
             NPC.LoadContent(Content);
             Constants.font = Content.Load<SpriteFont>("DebugFont");
             Camera2D.LoadContent(Content);
@@ -736,7 +738,7 @@ namespace Enceladus {
             _healthStatus.Draw(_spriteBatch, _camera);
             _weaponSelector.Draw(_spriteBatch, _camera);
             _rapidFire.Draw(_spriteBatch, _camera);
-            _visitationMap.Draw(_spriteBatch);
+            _visitationMapOverlay.Draw(_spriteBatch);
             if ( _mode == Mode.Paused ) {
                 _pauseScreen.Draw(_spriteBatch, _camera);
             }

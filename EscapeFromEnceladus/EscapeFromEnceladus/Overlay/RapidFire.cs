@@ -9,11 +9,10 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Overlay {
-
     /// <summary>
     /// Rapid fire status screen overlay
     /// </summary>
-    public class RapidFire {
+    public class RapidFire : IOverlayElement {
 
         private const int Margin = 10;
         private const int TopOffset = 20;
@@ -51,20 +50,23 @@ namespace Enceladus.Overlay {
             }
         }
 
-        public void Update(GameTime gameTime) {
+        public bool Update(GameTime gameTime) {
             if ( PlayerControl.Control.IsNewRapidFireDecrease() ) {
                 _rapidFireLevel--;
                 if ( _rapidFireLevel < 0 ) {
                     _rapidFireLevel = Player.Instance.Equipment.NumSelectableTools - 1;
                 }
                 Player.Instance.RapidFireSetting = _rapidFireLevel;
+                return true;
             } else if ( PlayerControl.Control.IsNewRapidFireIncrease() ) {
                 _rapidFireLevel++;
                 if ( _rapidFireLevel >= NumImages ) {
                     _rapidFireLevel = NumImages - 1;
                 }
                 Player.Instance.RapidFireSetting = _rapidFireLevel;
+                return true;
             }
+            return false;
         }
 
         private static Texture2D[] _images;
