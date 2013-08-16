@@ -35,11 +35,13 @@ namespace Enceladus.Overlay {
         public void PrepareDraw(SpriteBatch spriteBatch) {
             if ( _screenOverlay == null || _needsRedraw ) {
                 GraphicsDevice graphics = spriteBatch.GraphicsDevice;
-                PresentationParameters pp = graphics.PresentationParameters;
-                _screenRectangle = new Rectangle(0, 0,
-                                                 pp.BackBufferWidth,
-                                                 pp.BackBufferHeight);
-                _screenOverlay = new RenderTarget2D(graphics, pp.BackBufferWidth, pp.BackBufferHeight);
+                if ( _screenOverlay == null ) {
+                    PresentationParameters pp = graphics.PresentationParameters;
+                    _screenRectangle = new Rectangle(0, 0,
+                                                     pp.BackBufferWidth,
+                                                     pp.BackBufferHeight);
+                    _screenOverlay = new RenderTarget2D(graphics, pp.BackBufferWidth, pp.BackBufferHeight);
+                }
 
                 graphics.SetRenderTarget(_screenOverlay);
                 graphics.Clear(Color.Transparent);
