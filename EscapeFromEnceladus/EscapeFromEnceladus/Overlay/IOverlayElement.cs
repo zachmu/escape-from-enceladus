@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Overlay {
 
@@ -11,5 +12,10 @@ namespace Enceladus.Overlay {
         /// Updates this element and returns whether it needs to be redrawn as a result.
         /// </summary>
         bool Update(GameTime gameTime);
+
+        /// <summary>
+        /// Draws the overlay onto the screen.
+        /// </summary>
+        void Draw(SpriteBatch spriteBatch);
     }
 }

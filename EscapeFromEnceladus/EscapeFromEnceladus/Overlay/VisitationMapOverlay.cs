@@ -68,17 +68,14 @@ namespace Enceladus.Overlay {
         /// Draws the map as an overlay.
         /// </summary>
         public void Draw(SpriteBatch spriteBatch) {
-            int playerScreenX, playerScreenY;
-            _visitationMap.GetPlayerScreen(out playerScreenX, out playerScreenY);
-
             Vector2 drawOffset = new Vector2(spriteBatch.GraphicsDevice.Viewport.Width - DrawOffsetX, DrawOffsetY);
             spriteBatch.Draw(_backdrop, new Rectangle((int) drawOffset.X, (int) drawOffset.Y, OverlayWidthPixels, OverlayHeightPixels), Color.Black * .25f);
 
             for ( int y = 0; y < MapOverlayHeight; y++ ) {
-                int cellY = playerScreenY - MapOverlayHeight / 2 + y;
+                int cellY = _playerScreenY - MapOverlayHeight / 2 + y;
                 if ( cellY >= 0 && cellY < _visitationMap.NumScreensY ) {
                     for ( int x = 0; x < MapOverlayWidth; x++ ) {
-                        int cellX = playerScreenX - MapOverlayWidth / 2 + x;
+                        int cellX = _playerScreenX - MapOverlayWidth / 2 + x;
                         if ( cellX >= 0 && cellX < _visitationMap.NumScreensX ) {
                             DrawCell(spriteBatch, drawOffset, x, y, cellX, cellY);
                         }
@@ -180,9 +177,15 @@ namespace Enceladus.Overlay {
             _backdrop = cm.Load<Texture2D>("Overlay/Map/Backdrop");
         }
 
-
+        private int _playerScreenX;
+        private int _playerScreenY;
         public bool Update(GameTime gameTime) {
-            throw new NotImplementedException();
+            int playerX, playerY;
+            _visitationMap.GetPlayerScreen(out playerX, out playerY);
+            bool redrawNeeded = playerX != _playerScreenX || playerY != _playerScreenY;
+            _playerScreenX = playerX;
+            _playerScreenY = playerY;
+            return redrawNeeded;
         }
     }
 }

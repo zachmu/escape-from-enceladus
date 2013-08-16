@@ -13,7 +13,7 @@ namespace Enceladus.Overlay {
     public class HealthStatus : IOverlayElement {
         private static readonly Vector2 Location = new Vector2(30, 30);
 
-        public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+        public void Draw(SpriteBatch spriteBatch) {
             DrawBackdrop(spriteBatch);
             DrawHealthBar(spriteBatch);
             DrawHealthText(spriteBatch);
@@ -53,12 +53,12 @@ namespace Enceladus.Overlay {
             return needsRedraw;
         }
 
-        public void LoadContent(ContentManager cm) {
+        public static void LoadContent(ContentManager cm) {
             _outline = cm.Load<Texture2D>("Overlay/HealthBar/Outline0000");
             _bar = cm.Load<Texture2D>("Overlay/HealthBar/Bar0000");
         }
 
-        private Texture2D _outline;
-        private Texture2D _bar;
+        private static Texture2D _outline;
+        private static Texture2D _bar;
     }
 }

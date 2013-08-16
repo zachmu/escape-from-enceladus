@@ -24,7 +24,7 @@ namespace Enceladus.Overlay {
 
         private int _rapidFireLevel = 0;
 
-        public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+        public void Draw(SpriteBatch spriteBatch) {
             int width = spriteBatch.GraphicsDevice.Viewport.Width;
             Vector2 topLeftPos = new Vector2(width / 2 - ImageWidth / 2 - Margin - 200, TopOffset);
 

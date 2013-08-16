@@ -27,7 +27,7 @@ namespace Enceladus.Overlay {
             _itemsByIndex[1] = CollectibleItem.Holocube;
         }
 
-        public void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+        public void Draw(SpriteBatch spriteBatch) {
             int width = spriteBatch.GraphicsDevice.Viewport.Width;
             Vector2 topLeftPos = new Vector2(width / 2 - _outline.Width / 2 - Margin, TopOffset);
 

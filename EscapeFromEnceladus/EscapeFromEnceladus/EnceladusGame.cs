@@ -71,13 +71,8 @@ namespace Enceladus {
         private SoundEffectManager _soundEffectManager;
         private WaitHandle _roomChangeWaitHandle;
         private Vector2 _nextPlayerPosition;
-
-        // Screen overlay elements
-        private HealthStatus _healthStatus;
-        private WeaponSelector _weaponSelector;
         private VisitationMap _visitationMap;
-        private VisitationMapOverlay _visitationMapOverlay;
-        private RapidFire _rapidFire;
+        private OverlayManager _overlayManager;
 
         private readonly List<IGameEntity> _entities = new List<IGameEntity>();
         private readonly List<IGameEntity> _entitiesToAdd = new List<IGameEntity>();
@@ -155,9 +150,6 @@ namespace Enceladus {
             _world = new World(new Vector2(0, Constants.Get(Gravity)));
             _camera = new Camera2D(_graphics.GraphicsDevice);
             _player = new Player(new Vector2(73, 28), _world); 
-            _healthStatus = new HealthStatus();
-            _weaponSelector = new WeaponSelector();
-            _rapidFire = new RapidFire();
             _inputHelper = new InputHelper();
             PlayerControl.Control = new PlayerGamepadControl();
 
@@ -336,8 +328,10 @@ namespace Enceladus {
             LoadStaticContent();
             _tileLevel = new TileLevel(Content, Path.Combine(Content.RootDirectory, Path.Combine("Maps", "Ship.tmx")), _world);
             _visitationMap = new VisitationMap(_tileLevel);
-            _visitationMapOverlay = new VisitationMapOverlay(_visitationMap);
-            _healthStatus.LoadContent(Content);
+
+            _overlayManager = new OverlayManager(new HealthStatus(), new RapidFire(), new WeaponSelector(),
+                                                 new VisitationMapOverlay(_visitationMap));
+
             _backgroundManager.LoadContent();
             _audioEngine = new AudioEngine("Content/Music/game.xgs");
             _musicManager.LoadContent(_audioEngine, Content);
@@ -376,6 +370,7 @@ namespace Enceladus {
             Missile.LoadContent(Content);
             Beam.LoadContent(Content);
             Holocube.LoadContent(Content);
+            HealthStatus.LoadContent(Content);
             HealthPickup.LoadContent(Content);
             WeaponSelector.LoadContent(Content);
             RapidFire.LoadContent(Content);
@@ -461,8 +456,7 @@ namespace Enceladus {
                     _playerPositionMonitor.Update(true);
                     _eventManager.Update(gameTime);
                     _visitationMap.Update(gameTime);
-                    _weaponSelector.Update(gameTime);
-                    _rapidFire.Update(gameTime);
+                    _overlayManager.Update(gameTime);
                     _cameraDirector.Update(gameTime);
 
                     UpdateMode();
@@ -651,6 +645,10 @@ namespace Enceladus {
         /// </summary>
         private void DrawGameWorld(float alpha) {
 
+            // Perversely, we need to draw the overlays first, 
+            // since they need to clear a screen-sized piece of real estate.
+            _overlayManager.PrepareDraw(_spriteBatch);
+
             using (
                 // Render first to a new back buffer
                 RenderTarget2D renderTarget = new RenderTarget2D(_graphics.GraphicsDevice,
@@ -734,15 +732,12 @@ namespace Enceladus {
         /// Draws all overlays on top of the game screen
         /// </summary>
         private void DrawOverlays() {
-            _spriteBatch.Begin();
-            _healthStatus.Draw(_spriteBatch, _camera);
-            _weaponSelector.Draw(_spriteBatch, _camera);
-            _rapidFire.Draw(_spriteBatch, _camera);
-            _visitationMapOverlay.Draw(_spriteBatch);
+            _overlayManager.Draw(_spriteBatch, _camera);
             if ( _mode == Mode.Paused ) {
+                _spriteBatch.Begin();
                 _pauseScreen.Draw(_spriteBatch, _camera);
+                _spriteBatch.End();
             }
-            _spriteBatch.End();
         }
 
         /// <summary>
