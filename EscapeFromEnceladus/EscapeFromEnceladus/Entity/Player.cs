@@ -111,6 +111,13 @@ namespace Enceladus.Entity {
         /// </summary>
         private Holocube _cube;
 
+        /// <summary>
+        /// The player's hoverboots when firing, or null otherwise
+        /// </summary>
+        private HoverBoots _hover;
+
+        private bool IsHoverActive { get { return _hover != null && !_hover.Disposed; } }
+
         private Color _color = Color.SteelBlue;
 
         public Color Color {
@@ -196,6 +203,7 @@ namespace Enceladus.Entity {
             _body.Position = position;
             _body.FixedRotation = true;
             _body.SleepingAllowed = false;
+            _body.IgnoreGravity = IsHoverActive;
             _body.CollidesWith = EnceladusGame.TerrainCategory | EnceladusGame.EnemyCategory |
                                  EnceladusGame.PlayerSensorCategory;
             _body.CollisionCategories = EnceladusGame.PlayerCategory;
@@ -1245,10 +1253,16 @@ namespace Enceladus.Entity {
         private void HandleJump(GameTime gameTime) {
 
             if ( PlayerControl.Control.IsNewJump() ) {
-                if ( IsStanding ) {
+                if ( IsStanding && _hover == null ) {
                     _jumpInitiated = true;
                     _airBoostTime = 0;
                     _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
+                } else {
+                    if ( _hover == null ) {
+                        ActivateHover();
+                    } else {
+                        DeactivateHover();
+                    }
                 }
             } else if ( PlayerControl.Control.IsJumpButtonDown() ) {
                 if ( _standingMonitor.IsTouchingCeiling ) {
@@ -1262,6 +1276,19 @@ namespace Enceladus.Entity {
                 _airBoostTime = -1;
                 _jumpInitiated = false;
             }
+
+            if ( _hover != null && _hover.Disposed ) {
+                DeactivateHover();
+            }
+        }
+
+        /// <summary>
+        /// Activates the hover boots
+        /// </summary>
+        private void ActivateHover() {
+            EnceladusGame.Instance.Register(_hover = new HoverBoots(5000));
+            _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, 0f);
+            _body.IgnoreGravity = true;
         }
 
         /// <summary>
@@ -1998,6 +2025,8 @@ namespace Enceladus.Entity {
         #endregion
 
         public void HitBy(IEnemy enemy) {
+            DeactivateHover();
+
             // TODO: adjust based on equipment
             Health -= enemy.BaseDamage;
             if ( Health <= 0 ) {
@@ -2094,6 +2123,15 @@ namespace Enceladus.Entity {
         protected void UpdateStanding() {
             _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width);
             IsStanding = _standingMonitor.IsStanding;
+            if ( IsStanding && _hover != null ) {
+                DeactivateHover();
+            }            
+        }
+
+        private void DeactivateHover() {
+            _hover.Dispose();
+            _hover = null;
+            _body.IgnoreGravity = false;
         }
 
         protected void UpdateFlash(GameTime gameTime) {

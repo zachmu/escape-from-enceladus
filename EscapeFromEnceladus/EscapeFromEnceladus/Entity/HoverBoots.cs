@@ -28,7 +28,7 @@ namespace Enceladus.Entity {
             position += new Vector2(0,  Player.Instance.Height / 2);
             Vector2 displayPos = ConvertUnits.ToDisplayUnits(position);
 
-            Vector2 origin = new Vector2(0, 32);
+            Vector2 origin = new Vector2(32, 0);
             spriteBatch.Draw(_animation[_animationFrame.StateNumber], displayPos, null, Color.Turquoise, 0f, origin, 1f, SpriteEffects.None, 0f);
         }
 
