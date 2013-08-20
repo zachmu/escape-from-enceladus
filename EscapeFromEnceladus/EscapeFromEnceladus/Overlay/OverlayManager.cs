@@ -13,7 +13,7 @@ namespace Enceladus.Overlay {
     /// </summary>
     public class OverlayManager : GameEntityAdapter {
         
-        private List<IOverlayElement> _overlayElements = new List<IOverlayElement>();
+        private readonly List<IOverlayElement> _overlayElements = new List<IOverlayElement>();
 
         public OverlayManager(params IOverlayElement[] elements) {
             _overlayElements.AddRange(elements);

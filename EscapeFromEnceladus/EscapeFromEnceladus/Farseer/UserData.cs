@@ -24,31 +24,31 @@ namespace Enceladus.Farseer {
         public DestructionRegion Destruction { get; private set; }
 
         public static UserData NewTerrain() {
-            return new UserData() { IsTerrain = true };
+            return new UserData { IsTerrain = true };
         }
 
         public static UserData NewEnemy(IEnemy enemy) {
-            return new UserData() { IsEnemy = true, Enemy = enemy };
+            return new UserData { IsEnemy = true, Enemy = enemy };
         }
 
         public static UserData NewProjectile(Projectile projectile) {
-            return new UserData() { IsProjectile = true, Projectile = projectile };
+            return new UserData { IsProjectile = true, Projectile = projectile };
         }
 
         public static UserData NewPlayer() {
-            return new UserData() { IsPlayer = true };
+            return new UserData { IsPlayer = true };
         }
 
         public static UserData NewDoor(Door door) {
-            return new UserData() { IsDoor = true, Door = door };
+            return new UserData { IsDoor = true, Door = door };
         }
 
         public static UserData NewDestructionRegion(DestructionRegion destructionRegion) {
-            return new UserData() { IsDestructibleRegion = true, Destruction = destructionRegion};
+            return new UserData { IsDestructibleRegion = true, Destruction = destructionRegion};
         }
 
         public static UserData NewHolocube() {
-            return new UserData() { IsUserTool = true, IsTerrain = true };
+            return new UserData { IsUserTool = true, IsTerrain = true };
         }
     }
 }
