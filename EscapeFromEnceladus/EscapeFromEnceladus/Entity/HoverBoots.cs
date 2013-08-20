@@ -17,7 +17,7 @@ namespace Enceladus.Entity {
 
         private static Texture2D[] _animation;
         private const int NumImages = 8;
-        private readonly Counter _animationFrame = new Counter(80, NumImages);
+        private readonly Counter _animationFrame = new Counter(40, NumImages);
 
         public HoverBoots(double durationMs) {
             _timeToLive = new Timer(durationMs);

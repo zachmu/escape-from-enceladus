@@ -115,8 +115,8 @@ namespace Enceladus.Entity {
         /// The player's hoverboots when firing, or null otherwise
         /// </summary>
         private HoverBoots _hover;
-
         private bool IsHoverActive { get { return _hover != null && !_hover.Disposed; } }
+        private bool _canHover = false;
 
         private Color _color = Color.SteelBlue;
 
@@ -1258,10 +1258,11 @@ namespace Enceladus.Entity {
                     _airBoostTime = 0;
                     _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -Constants[PlayerJumpSpeed]);
                 } else {
-                    if ( _hover == null ) {
+                    if ( _hover == null && _canHover ) {
                         ActivateHover();
                     } else {
                         DeactivateHover();
+                        _canHover = false;
                     }
                 }
             } else if ( PlayerControl.Control.IsJumpButtonDown() ) {
@@ -1286,9 +1287,25 @@ namespace Enceladus.Entity {
         /// Activates the hover boots
         /// </summary>
         private void ActivateHover() {
-            EnceladusGame.Instance.Register(_hover = new HoverBoots(5000));
-            _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, 0f);
-            _body.IgnoreGravity = true;
+            if ( !IsHoverActive ) {
+                EnceladusGame.Instance.Register(_hover = new HoverBoots(500));
+                _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, 0f);
+                _body.IgnoreGravity = true;
+                UpdateStanding();
+                _canHover = false;
+            }
+        }
+
+        /// <summary>
+        /// Deactivates the hover boots
+        /// </summary>
+        private void DeactivateHover() {
+            if ( _hover != null ) {
+                _hover.Dispose();
+                _hover = null;
+            }
+            _body.IgnoreGravity = false;
+            UpdateStanding();
         }
 
         /// <summary>
@@ -2121,19 +2138,16 @@ namespace Enceladus.Entity {
         /// Updates the standing and ceiling status using the body's current contacts.
         /// </summary>
         protected void UpdateStanding() {
-            _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width);
-            IsStanding = _standingMonitor.IsStanding;
-            if ( IsStanding && _hover != null ) {
-                DeactivateHover();
-            }            
+            if ( IsHoverActive ) {
+                IsStanding = true;
+            } else {
+                _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width);
+                IsStanding = _standingMonitor.IsStanding;
+                if ( IsStanding ) {
+                    _canHover = true;
+                }
+            }
         }
-
-        private void DeactivateHover() {
-            _hover.Dispose();
-            _hover = null;
-            _body.IgnoreGravity = false;
-        }
-
         protected void UpdateFlash(GameTime gameTime) {
             _flashAnimation.UpdateFlash(gameTime);
         }
