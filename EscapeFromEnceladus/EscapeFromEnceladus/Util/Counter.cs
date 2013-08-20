@@ -12,8 +12,8 @@ namespace Enceladus.Util {
     public class Counter {
         
         private readonly double _periodMs;
+        private readonly int _numStates;
         private double _timer;
-        private int _numStates;
 
         public Counter(double periodMs, int numStates) {
             _periodMs = periodMs;
