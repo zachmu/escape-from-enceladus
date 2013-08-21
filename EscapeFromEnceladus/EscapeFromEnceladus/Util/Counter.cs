@@ -13,13 +13,12 @@ namespace Enceladus.Util {
         
         private readonly double _periodMs;
         private readonly int _numStates;
-        private double _timer;
+        private double _timer = 0d;
 
         public Counter(double periodMs, int numStates) {
             _periodMs = periodMs;
-            StateNumber = 0;
-            _timer = periodMs;
             _numStates = numStates;
+            StateNumber = 0;
         }
 
         public int StateNumber { get; private set; }
