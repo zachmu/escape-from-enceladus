@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entity\HoverBoots.cs" />
+    <Compile Include="Entity\PlayerEcho.cs" />
     <Compile Include="Overlay\IOverlayElement.cs" />
     <Compile Include="Overlay\OverlayManager.cs" />
     <Compile Include="Overlay\RapidFire.cs" />

@@ -502,6 +502,14 @@ Content\Enemy\Beetle\Beetle0004.xnb
 Content\Debug\Cross0000.xnb
 Content\Debug\Cross0001.xnb
 Content\Pickups\Wheel0000.xnb
+Content\Maps\blocks64_padded.xnb
+Content\Background\stars1.xnb
+Content\Maps\surface_1_padded.xnb
+Content\Maps\caveTiles1_64_padded.xnb
+Content\Maps\shipTiles1_64_padded.xnb
+Content\Maps\surface_1_64_padded.xnb
+Content\Background\ShipBackground.xnb
+Content\Maps\shipTiles2_64_padded.xnb
 Content\Sounds\Bomb.xnb
 Content\Sounds\SonarHit.xnb
 Content\Sounds\SonarPing.xnb
@@ -517,14 +525,6 @@ Content\Fonts\November128.xnb
 Content\Effects\Effect1.xnb
 Content\Effects\Wave.xnb
 Content\Effects\SolidColor.xnb
-Content\Maps\blocks64_padded.xnb
-Content\Background\stars1.xnb
-Content\Maps\surface_1_padded.xnb
-Content\Maps\caveTiles1_64_padded.xnb
-Content\Maps\shipTiles1_64_padded.xnb
-Content\Maps\surface_1_64_padded.xnb
-Content\Background\ShipBackground.xnb
-Content\Maps\shipTiles2_64_padded.xnb
 Content\Maps\bricks2v2_64_padded.xnb
 Content\Enemy\Turret\Turret0000.xnb
 Content\Enemy\Turret\Turret0001.xnb
@@ -539,7 +539,6 @@ Content\Overlay\ItemSelection\ItemSelection0000.xnb
 Content\Overlay\ItemSelection\ItemSelection0001.xnb
 Content\Overlay\ItemSelection\ItemSelection0002.xnb
 Content\Projectile\Holocube0001.xnb
-Content\Fonts\November20.xnb
 Content\Overlay\RapidFire\RapidFire0000.xnb
 Content\Overlay\RapidFire\RapidFire0001.xnb
 Content\Overlay\RapidFire\RapidFire0002.xnb
@@ -553,6 +552,7 @@ Content\Projectile\HoverBoots0004.xnb
 Content\Projectile\HoverBoots0005.xnb
 Content\Projectile\HoverBoots0006.xnb
 Content\Projectile\HoverBoots0007.xnb
+Content\Fonts\November20.xnb
 Content\Music\game.xgs
 Content\Music\Songs.xwb
 Content\Music\SoundEffects.xwb

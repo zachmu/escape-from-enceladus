@@ -232,6 +232,9 @@ namespace Enceladus.Entity {
         private void SetImage(Texture2D image, double timeSinceLastUpdate) {
             if ( _image != image ) {
                 _timeSinceLastAnimationUpdate = timeSinceLastUpdate;
+                if ( _isDashing ) {
+                    EnceladusGame.Instance.Register(new PlayerEcho(_image, GetStandingLocation(), _facingDirection == Direction.Left));
+                }
             }
             _image = image;
         }
@@ -457,7 +460,7 @@ namespace Enceladus.Entity {
             UpdateBookkeepingCounters(gameTime);
 
             HandleMovement(gameTime);
-            HandleBoost(gameTime);
+            HandleDash(gameTime);
             HandleJump(gameTime);
             HandleScooter(gameTime);
             UpdateImage(gameTime);
@@ -1136,7 +1139,7 @@ namespace Enceladus.Entity {
                                     _body.LinearVelocity = new Vector2(-minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
                                 } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxGroundSpeedMs] ) {
-                                    if ( PlayerControl.Control.IsRunButtonDown() ) {
+                                    if ( PlayerControl.Control.IsRunButtonDown() && !_isDashing ) {
                                         _body.LinearVelocity -= new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
@@ -1153,7 +1156,7 @@ namespace Enceladus.Entity {
                                     _body.LinearVelocity = new Vector2(minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
                                 } else if ( Math.Abs(_body.LinearVelocity.X) < Constants[PlayerMaxGroundSpeedMs] ) {
-                                    if ( PlayerControl.Control.IsRunButtonDown() ) {
+                                    if (PlayerControl.Control.IsRunButtonDown() && !_isDashing ) {
                                         _body.LinearVelocity += new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
@@ -1248,7 +1251,15 @@ namespace Enceladus.Entity {
             return gameTime.ElapsedGameTime.Milliseconds / 1000f * acceleration;
         }
 
-        private void HandleBoost(GameTime gameTime) {
+        private void HandleDash(GameTime gameTime) {
+            if ( _isDashing ) {
+                _dashTimer.Update(gameTime);
+                if ( _dashTimer.IsTimeUp() ) {
+                    StopDash();
+                    return;
+                }
+            }
+
             if ( !IsStanding ) {
                 return;
             }
@@ -1264,15 +1275,49 @@ namespace Enceladus.Entity {
             }
         }
 
-        private void Dash() {
-            switch ( _facingDirection ) {
+        private void StopDash() {
+            switch (_facingDirection) {
                 case Direction.Right:
-                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxGroundSpeedMs], _body.LinearVelocity.Y);
+                    _body.LinearVelocity = new Vector2(_dashReturnVelocity, _body.LinearVelocity.Y);
                     break;
                 case Direction.Left:
-                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxGroundSpeedMs], _body.LinearVelocity.Y);
+                    _body.LinearVelocity = new Vector2(-_dashReturnVelocity, _body.LinearVelocity.Y);
                     break;
             }
+            _isDashing = false;
+        }
+
+        /// <summary>
+        /// NAPA
+        /// 730 SE 9th Ave
+        /// </summary>
+        private void Dash() {
+            float velocity = Math.Abs(_body.LinearVelocity.X);
+            float newVelocity;
+            if ( velocity < 5 ) {
+                newVelocity = 10;
+            } else if ( velocity < 10 ) {
+                newVelocity = 15;
+            } else if ( velocity < 15 ) {
+                newVelocity = 20;
+            } else if ( velocity < 20 ) {
+                newVelocity = 25;
+            } else {
+                newVelocity = 30;
+            }
+
+            switch ( _facingDirection ) {
+                case Direction.Right:
+                    _body.LinearVelocity = new Vector2(newVelocity, _body.LinearVelocity.Y);
+                    break;
+                case Direction.Left:
+                    _body.LinearVelocity = new Vector2(-newVelocity, _body.LinearVelocity.Y);
+                    break;
+            }
+
+            _isDashing = true;
+            _dashTimer = new Timer(500);
+            _dashReturnVelocity = velocity + 3;
         }
 
         /// <summary>
@@ -2131,8 +2176,11 @@ namespace Enceladus.Entity {
         protected readonly StandingMonitor _standingMonitor = new StandingMonitor();
         private Timer _invulnerabilityTimer;
         private int _rapidFireSetting;
-        private double _timeSinceRunButton
-            ;
+        private double _timeSinceRunButton;
+
+        private bool _isDashing;
+        private Timer _dashTimer;
+        private float _dashReturnVelocity;
 
         /// <summary>
         /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 
