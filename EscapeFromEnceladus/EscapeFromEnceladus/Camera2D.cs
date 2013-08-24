@@ -210,7 +210,7 @@ namespace Enceladus {
                 Vector2 adjustmentSpeed = 100f * delta * inertia;
 
                 // clamp the movement to a max and min speed
-                float minSpeed = 4f;
+                float minSpeed = 2f;
                 float maxSpeed = 30f;
                 if ( adjustmentSpeed.Length() > maxSpeed ) {
                     adjustmentSpeed.Normalize();

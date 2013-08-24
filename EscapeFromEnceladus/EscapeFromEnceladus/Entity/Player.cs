@@ -1284,7 +1284,7 @@ namespace Enceladus.Entity {
                     _body.LinearVelocity = new Vector2(Math.Min(Math.Abs(_body.LinearVelocity.X), _dashReturnVelocity), _body.LinearVelocity.Y);
                     break;
                 case Direction.Left:
-                    _body.LinearVelocity = new Vector2(Math.Max(Math.Abs(_body.LinearVelocity.X), -_dashReturnVelocity), _body.LinearVelocity.Y);
+                    _body.LinearVelocity = new Vector2(Math.Max(_body.LinearVelocity.X, -_dashReturnVelocity), _body.LinearVelocity.Y);
                     break;
             }
             _isDashing = false;
@@ -1297,15 +1297,15 @@ namespace Enceladus.Entity {
             float velocity = Math.Abs(_body.LinearVelocity.X);
             float newVelocity;
             if ( velocity < 5 ) {
-                newVelocity = 10;
-            } else if ( velocity < 10 ) {
                 newVelocity = 15;
-            } else if ( velocity < 15 ) {
-                newVelocity = 20;
-            } else if ( velocity < 20 ) {
+            } else if ( velocity < 10 ) {
                 newVelocity = 25;
+            } else if ( velocity < 15 ) {
+                newVelocity = 35;
+            } else if ( velocity < 20 ) {
+                newVelocity = 40;
             } else {
-                newVelocity = 30;
+                newVelocity = 45;
             }
 
             switch ( _facingDirection ) {
