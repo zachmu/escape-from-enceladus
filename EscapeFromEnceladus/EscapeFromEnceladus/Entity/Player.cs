@@ -1275,21 +1275,23 @@ namespace Enceladus.Entity {
             }
         }
 
+        /// <summary>
+        /// Stops dashing
+        /// </summary>
         private void StopDash() {
-            switch (_facingDirection) {
+            switch ( _facingDirection ) {
                 case Direction.Right:
-                    _body.LinearVelocity = new Vector2(_dashReturnVelocity, _body.LinearVelocity.Y);
+                    _body.LinearVelocity = new Vector2(Math.Min(Math.Abs(_body.LinearVelocity.X), _dashReturnVelocity), _body.LinearVelocity.Y);
                     break;
                 case Direction.Left:
-                    _body.LinearVelocity = new Vector2(-_dashReturnVelocity, _body.LinearVelocity.Y);
+                    _body.LinearVelocity = new Vector2(Math.Max(Math.Abs(_body.LinearVelocity.X), -_dashReturnVelocity), _body.LinearVelocity.Y);
                     break;
             }
             _isDashing = false;
         }
 
         /// <summary>
-        /// NAPA
-        /// 730 SE 9th Ave
+        /// Begins a dash move
         /// </summary>
         private void Dash() {
             float velocity = Math.Abs(_body.LinearVelocity.X);
