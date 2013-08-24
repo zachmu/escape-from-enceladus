@@ -457,6 +457,7 @@ namespace Enceladus.Entity {
             UpdateBookkeepingCounters(gameTime);
 
             HandleMovement(gameTime);
+            HandleBoost(gameTime);
             HandleJump(gameTime);
             HandleScooter(gameTime);
             UpdateImage(gameTime);
@@ -1245,6 +1246,33 @@ namespace Enceladus.Entity {
 
         private float GetVelocityDelta(float acceleration, GameTime gameTime) {
             return gameTime.ElapsedGameTime.Milliseconds / 1000f * acceleration;
+        }
+
+        private void HandleBoost(GameTime gameTime) {
+            if ( !IsStanding ) {
+                return;
+            }
+
+            if ( PlayerControl.Control.IsNewRunButton() && Math.Abs(_body.LinearVelocity.X) > 1f) {
+                if ( _timeSinceRunButton > 0 && _timeSinceRunButton < 200 ) {
+                    Dash();
+                } else {
+                    _timeSinceRunButton = 0;
+                }
+            } else {
+                _timeSinceRunButton += gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+        }
+
+        private void Dash() {
+            switch ( _facingDirection ) {
+                case Direction.Right:
+                    _body.LinearVelocity = new Vector2(Constants[PlayerMaxGroundSpeedMs], _body.LinearVelocity.Y);
+                    break;
+                case Direction.Left:
+                    _body.LinearVelocity = new Vector2(-Constants[PlayerMaxGroundSpeedMs], _body.LinearVelocity.Y);
+                    break;
+            }
         }
 
         /// <summary>
@@ -2103,6 +2131,8 @@ namespace Enceladus.Entity {
         protected readonly StandingMonitor _standingMonitor = new StandingMonitor();
         private Timer _invulnerabilityTimer;
         private int _rapidFireSetting;
+        private double _timeSinceRunButton
+            ;
 
         /// <summary>
         /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 
