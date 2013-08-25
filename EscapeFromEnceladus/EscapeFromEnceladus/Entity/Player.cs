@@ -232,9 +232,6 @@ namespace Enceladus.Entity {
         private void SetImage(Texture2D image, double timeSinceLastUpdate) {
             if ( _image != image ) {
                 _timeSinceLastAnimationUpdate = timeSinceLastUpdate;
-                if ( _isDashing ) {
-                    EnceladusGame.Instance.Register(new PlayerEcho(_image, GetStandingLocation(), _facingDirection == Direction.Left));
-                }
             }
             _image = image;
         }
@@ -454,9 +451,6 @@ namespace Enceladus.Entity {
         /// Updates the player for elapsed game time.
         /// </summary>
         public void Update(GameTime gameTime) {
-            KeyboardState keyboardState = Keyboard.GetState();
-            GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-
             UpdateBookkeepingCounters(gameTime);
 
             HandleMovement(gameTime);
@@ -477,6 +471,11 @@ namespace Enceladus.Entity {
 
             UpdateFlash(gameTime);
             UpdateInvulnerable(gameTime);
+
+            if ( _isDashing ) {
+                EnceladusGame.Instance.Register(new PlayerEcho(_image, GetStandingLocation(),
+                                                               _facingDirection == Direction.Left));
+            }
         }
 
         private void HandleCube(GameTime gameTime) {
@@ -1143,7 +1142,7 @@ namespace Enceladus.Entity {
                                         _body.LinearVelocity -= new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
-                                } else {
+                                } else if ( !_isDashing ) {
                                     _body.LinearVelocity = new Vector2(-Constants[PlayerMaxGroundSpeedMs],
                                                                        _body.LinearVelocity.Y);
                                 }
@@ -1160,7 +1159,7 @@ namespace Enceladus.Entity {
                                         _body.LinearVelocity += new Vector2(
                                             GetVelocityDelta(Constants[PlayerAccelerationMss], gameTime), 0);
                                     }
-                                } else {
+                                } else if ( !_isDashing ) {
                                     _body.LinearVelocity = new Vector2(Constants[PlayerMaxGroundSpeedMs],
                                                                        _body.LinearVelocity.Y);
                                 }
@@ -1248,7 +1247,11 @@ namespace Enceladus.Entity {
         }
 
         private float GetVelocityDelta(float acceleration, GameTime gameTime) {
-            return gameTime.ElapsedGameTime.Milliseconds / 1000f * acceleration;
+            return GetVelocityDelta(acceleration, (float) gameTime.ElapsedGameTime.TotalMilliseconds);
+        }
+
+        private float GetVelocityDelta(float acceleration, float gameTime) {
+            return gameTime / 1000f * acceleration;
         }
 
         private void HandleDash(GameTime gameTime) {
@@ -1305,7 +1308,7 @@ namespace Enceladus.Entity {
             } else if ( velocity < 20 ) {
                 newVelocity = 40;
             } else {
-                newVelocity = 45;
+                newVelocity = 50;
             }
 
             switch ( _facingDirection ) {
@@ -1318,8 +1321,8 @@ namespace Enceladus.Entity {
             }
 
             _isDashing = true;
-            _dashTimer = new Timer(500);
-            _dashReturnVelocity = velocity + 3;
+            _dashTimer = new Timer(350);
+            _dashReturnVelocity = velocity + GetVelocityDelta(Constants[PlayerAccelerationMss], 500f);
         }
 
         /// <summary>
