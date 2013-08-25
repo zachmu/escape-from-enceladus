@@ -39,7 +39,8 @@ namespace Enceladus.Entity {
         }
 
         public int NumSelectableTools {
-            get { return 2; }
+            // TODO: determine actual number
+            get { return 3; }
         }
 
         public void LoadFromSave(SaveState save) {

@@ -499,6 +499,28 @@ namespace Enceladus.Entity {
             }
         }
 
+        private void HandleSpringboard(GameTime gameTime) {
+            if ( _activeItem != CollectibleItem.Springboard || IsScooting ) {
+                if ( _cube != null ) {
+                    _cube.Dispose();
+                    _cube = null;
+                }
+                return;
+            }
+
+            Direction direction;
+            Vector2 position = GetShotPlacement(out direction);
+            if ( _cube == null ) {
+                EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
+            } else {
+                _cube.UpdateProjection(_world, position, direction);
+            }
+            if ( PlayerControl.Control.IsNewSecondaryFire() ) {
+                _cube.Fire();
+            }
+        }
+
+
         private void HandleBeam(GameTime gameTime) {
             if ( _activeItem != CollectibleItem.Beam ) {
                 if ( _beam != null ) {

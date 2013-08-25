@@ -370,6 +370,7 @@ namespace Enceladus {
             Missile.LoadContent(Content);
             Beam.LoadContent(Content);
             Holocube.LoadContent(Content);
+            Projection.LoadContent(Content);
             HoverBoots.LoadContent(Content);
             HealthStatus.LoadContent(Content);
             HealthPickup.LoadContent(Content);

@@ -25,6 +25,7 @@ namespace Enceladus.Overlay {
         static WeaponSelector() {
             _itemsByIndex[0] = CollectibleItem.Beam;
             _itemsByIndex[1] = CollectibleItem.Holocube;
+            _itemsByIndex[2] = CollectibleItem.Springboard;
         }
 
         public void Draw(SpriteBatch spriteBatch) {
@@ -53,9 +54,11 @@ namespace Enceladus.Overlay {
             _outline = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0000");
             _beam = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0001");
             _holocube = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0002");
+            _springboard = cm.Load<Texture2D>("Overlay/ItemSelection/ItemSelection0003");
             _images = new Texture2D[] {
                 _beam,
                 _holocube,
+                _springboard
             };
         }
 
@@ -79,6 +82,7 @@ namespace Enceladus.Overlay {
         private static Texture2D _outline;
         private static Texture2D _beam;
         private static Texture2D _holocube;
+        private static Texture2D _springboard;
         private static Texture2D[] _images;
     }
 }

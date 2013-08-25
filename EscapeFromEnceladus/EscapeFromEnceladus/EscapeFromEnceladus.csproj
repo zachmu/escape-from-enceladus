@@ -190,6 +190,7 @@
     <Compile Include="Weapon\IWeapon.cs" />
     <Compile Include="Weapon\Missile.cs" />
     <Compile Include="Weapon\Projectile.cs" />
+    <Compile Include="Weapon\Projection.cs" />
     <Compile Include="Weapon\Shot.cs" />
     <Compile Include="Entity\Player.cs" />
     <Compile Include="Overlay\HealthStatus.cs" />
@@ -199,6 +200,7 @@
     <Compile Include="Farseer\UserData.cs" />
     <Compile Include="Weapon\PostProcessingEffect.cs" />
     <Compile Include="Weapon\Sonar.cs" />
+    <Compile Include="Weapon\Springboard.cs" />
     <Compile Include="Xbox\CompatibilityExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

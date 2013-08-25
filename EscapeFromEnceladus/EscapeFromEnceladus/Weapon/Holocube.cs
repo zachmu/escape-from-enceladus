@@ -23,14 +23,13 @@ namespace Enceladus.Weapon {
 
         private Vector2 _start;
         private float _angle;
-        private Vector2 _end;
         private Vector2 _cubeCorner;
         private Direction _direction;
         private World _world;
         internal static Texture2D Image;
-        internal static Texture2D ProjectionImage;
         private float _alpha;
         private bool _projecting;
+        private readonly Projection _projection;
 
         private const int MaxRange = 30;
         private const float MinAlpha = .2f;
@@ -38,10 +37,11 @@ namespace Enceladus.Weapon {
 
         public static void LoadContent(ContentManager cm) {
             Image = cm.Load<Texture2D>("Projectile/Holocube0000");
-            ProjectionImage = cm.Load<Texture2D>("Projectile/Holocube0001");
         }
 
         public Holocube(World world, Vector2 start, Direction direction) {
+            _projection = new Projection();
+            _alpha = MinAlpha;
             UpdateProjection(world, start, direction);
         }
 
@@ -50,9 +50,9 @@ namespace Enceladus.Weapon {
             _direction = direction;
             _angle = Projectile.GetAngle(direction);
             _world = world;
-            _alpha = MinAlpha;
             DetermineLength();
             UpdateAlpha();
+            _projection.Update(_start, _cubeCorner, _direction);
         }
 
         internal static Random Random = new Random();
@@ -76,7 +76,6 @@ namespace Enceladus.Weapon {
             angle.Normalize();
 
             float closestFraction = 1;
-            Vector2 closestPoint = end;
             Vector2 closestCorner = end;
             _projecting = false;
             _world.RayCast((fixture, point, normal, fraction) => {
@@ -84,7 +83,6 @@ namespace Enceladus.Weapon {
                      ((fixture.GetUserData().IsDoor && !fixture.GetUserData().Door.IsOpen())
                      || (fixture.GetUserData().IsTerrain && !fixture.GetUserData().IsUserTool)) ) {
                     closestFraction = fraction;
-                    closestPoint = point;
                     // back up the ray just a tad
                     Vector2 less = _start + (diff * fraction) - (angle * .02f);
                     closestCorner = Region.GetContainingTile(less);
@@ -93,7 +91,6 @@ namespace Enceladus.Weapon {
                 return 1;
             }, _start, end);
 
-            _end = closestPoint;
             _cubeCorner = closestCorner;
 
             _legalPlacement = !EnceladusGame.EntitiesOverlapping(new AABB(_cubeCorner + new Vector2(.01f), _cubeCorner + new Vector2(TileLevel.TileSize - .02f)));
@@ -109,40 +106,13 @@ namespace Enceladus.Weapon {
                                  0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
             }
 
-            // Draw the projector beam
-            Vector2 origin = new Vector2(0, ProjectionImage.Height / 2);
-
             Vector2 beamEnd = _cubeCorner + new Vector2(.5f);
             Vector2 diff = (beamEnd - _start);
             float length = diff.Length();
 
             // Don't draw the beam if it's too close to the player, since it looks funny
             if ( length > 2 ) {
-                float unitLegth = ConvertUnits.ToSimUnits(ProjectionImage.Width);
-                float lengthRatio = length / unitLegth;
-                float widthRatio;
-                switch ( _direction ) {
-                    case Direction.Left:
-                    case Direction.Right:
-                    case Direction.Up:
-                    case Direction.Down:
-                        widthRatio = 1f;
-                        break;
-                    case Direction.UpLeft:
-                    case Direction.UpRight:
-                    case Direction.DownLeft:
-                    case Direction.DownRight:
-                        widthRatio = (float) Math.Sqrt(2);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                float angle = (float) Math.Atan2(-diff.Y, diff.X);
-
-                spriteBatch.Draw(ProjectionImage, ConvertUnits.ToDisplayUnits(_start), null,
-                                 color * _alpha, -angle, origin, new Vector2(lengthRatio, widthRatio),
-                                 SpriteEffects.None, 1.0f);
+                _projection.Draw(spriteBatch, camera, color * _alpha);
             }
         }
 

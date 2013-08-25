@@ -100,6 +100,8 @@ namespace Enceladus.Entity.InteractiveObject {
         Wheel,
         Bomb,
         Sonar,
+        DashBooster,
+        Springboard,
     }
 
     class WheelAnnouncement : GameEntityAdapter {
