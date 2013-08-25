@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enceladus.Map;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -48,6 +49,33 @@ namespace Enceladus.Farseer {
                 return 1;
             }, start, end);
             return closestFixture;
+        }
+
+        /// <summary>
+        /// Returns the location of the corner of the closest tile intersected, or Vector2.Zero if there is no intersection.
+        /// </summary>
+        public static Vector2 RayCastTileCorner(this World world, Vector2 start, Vector2 end) {
+            Vector2 closestCorner = end;
+            Vector2 diff = end - start;
+            Vector2 angle = diff;
+            angle.Normalize();
+
+            float closestFraction = 1;
+            bool intersected = false;
+            world.RayCast((fixture, point, normal, fraction) => {
+                if ( fraction < closestFraction &&
+                     ((fixture.GetUserData().IsDoor && !fixture.GetUserData().Door.IsOpen())
+                      || (fixture.GetUserData().IsTerrain && !fixture.GetUserData().IsUserTool)) ) {
+                    closestFraction = fraction;
+                    // back up the ray just a tad
+                    Vector2 less = start + (diff * fraction) - (angle * .02f);
+                    closestCorner = Region.GetContainingTile(less);
+                    intersected = true;
+                }
+                return 1;
+            }, start, end);
+
+            return intersected ? closestCorner : Vector2.Zero;
         }
 
         /// <summary>

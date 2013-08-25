@@ -183,6 +183,7 @@
     <Compile Include="Overlay\TitleScreen.cs" />
     <Compile Include="Util\Counter.cs" />
     <Compile Include="Util\Oscillator.cs" />
+    <Compile Include="Util\RandomWalk.cs" />
     <Compile Include="Util\Timer.cs" />
     <Compile Include="Weapon\Beam.cs" />
     <Compile Include="Weapon\Bomb.cs" />

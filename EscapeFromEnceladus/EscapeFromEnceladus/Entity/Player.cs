@@ -492,7 +492,7 @@ namespace Enceladus.Entity {
             if ( _cube == null ) {
                 EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
             } else {
-                _cube.UpdateProjection(_world, position, direction);
+                _cube.UpdateProjection(position, direction);
             }
             if ( PlayerControl.Control.IsNewSecondaryFire() ) {
                 _cube.Fire();
@@ -513,7 +513,7 @@ namespace Enceladus.Entity {
             if ( _cube == null ) {
                 EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
             } else {
-                _cube.UpdateProjection(_world, position, direction);
+                _cube.UpdateProjection(position, direction);
             }
             if ( PlayerControl.Control.IsNewSecondaryFire() ) {
                 _cube.Fire();
