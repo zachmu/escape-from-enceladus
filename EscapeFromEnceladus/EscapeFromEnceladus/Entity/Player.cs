@@ -208,14 +208,6 @@ namespace Enceladus.Entity {
                                  EnceladusGame.PlayerSensorCategory;
             _body.CollisionCategories = EnceladusGame.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
-
-            _body.OnCollision += (a, b, contact) => {
-                if ( contact.IsTouching() ) {
-                    UpdateStanding();
-                }
-                return true;
-            };
-            _body.OnSeparation += (a, b) => UpdateStanding();
         }
 
         public float Health { get; private set; }
@@ -471,6 +463,7 @@ namespace Enceladus.Entity {
 
             UpdateFlash(gameTime);
             UpdateInvulnerable(gameTime);
+            UpdateStanding();
 
             if ( _isDashing ) {
                 EnceladusGame.Instance.Register(new PlayerEcho(_image, GetStandingLocation(),
@@ -568,11 +561,6 @@ namespace Enceladus.Entity {
         private void UpdateBookkeepingCounters(GameTime gameTime) {
             if ( _timeUntilRegainControl > 0 ) {
                 _timeUntilRegainControl -= gameTime.ElapsedGameTime.Milliseconds;
-            }
-
-            if ( _terrainChanged && _standingMonitor.IgnoreStandingUpdatesNextNumFrames <= 0 ) {
-                UpdateStanding();
-                _terrainChanged = false;
             }
 
             _standingMonitor.UpdateCounters();
@@ -2196,7 +2184,6 @@ namespace Enceladus.Entity {
             SoundEffectManager.Instance.PlaySoundEffect("pickup");
         }
 
-        private bool _terrainChanged;
         protected World _world;
         protected Body _body;
         protected readonly FlashAnimation _flashAnimation = new FlashAnimation();
@@ -2208,16 +2195,6 @@ namespace Enceladus.Entity {
         private bool _isDashing;
         private Timer _dashTimer;
         private float _dashReturnVelocity;
-
-        /// <summary>
-        /// Unfortunately, we can't rely on Box2d to properly notify us when we hit or 
-        /// leave the ground or ceiling when bodies are being created or destroyed.  
-        /// This method allows knowledgable callers to suggest updating the standing info 
-        /// on the next update cycle.
-        /// </summary>
-        public void NotifyTerrainChange() {
-            _terrainChanged = true;
-        }
 
         public void Save(SaveState save) {
             Equipment.Save(save);
@@ -2246,7 +2223,7 @@ namespace Enceladus.Entity {
             if ( IsHoverActive ) {
                 IsStanding = true;
             } else {
-                _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width);
+                _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width - .05f);
                 IsStanding = _standingMonitor.IsStanding;
                 if ( IsStanding ) {
                     _canHover = true;

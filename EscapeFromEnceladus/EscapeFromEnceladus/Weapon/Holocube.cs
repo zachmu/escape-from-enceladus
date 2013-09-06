@@ -99,7 +99,10 @@ namespace Enceladus.Weapon {
                 EnceladusGame.Instance.Register(block);
                 PlacedBlocks.Enqueue(block);
                 if ( PlacedBlocks.Count > MaxNumBlocks ) {
-                    PlacedBlocks.Dequeue().Destroy();
+                    HolocubeBlock holocubeBlock = PlacedBlocks.Dequeue();
+                    if ( !holocubeBlock.Disposed ) {
+                        holocubeBlock.Destroy();
+                    }
                 }
             } else {
                 SoundEffectManager.Instance.PlaySoundEffect("nope");
@@ -143,8 +146,6 @@ namespace Enceladus.Weapon {
             _block.Position = cubeCorner + new Vector2(TileLevel.TileSize / 2f);
             _alpha = new RandomWalk(1f, .05f, .3f, .7f);
 
-            Player.Instance.NotifyTerrainChange();
-
             _world = world;
         }
 
@@ -175,7 +176,6 @@ namespace Enceladus.Weapon {
         public override void Dispose() {
             if ( _block != null ) {
                 _block.Dispose();
-                Player.Instance.NotifyTerrainChange();
             }
         }
 

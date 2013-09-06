@@ -632,8 +632,6 @@ namespace Enceladus.Map {
                     //Console.WriteLine("Creating edges took {0} ticks", watch.ElapsedTicks);
                 }
             }
-
-            Player.Instance.NotifyTerrainChange();
         }
 
         /// <summary>
