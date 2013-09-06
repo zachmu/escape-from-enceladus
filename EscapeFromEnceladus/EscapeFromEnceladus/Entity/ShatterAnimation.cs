@@ -35,6 +35,12 @@ namespace Enceladus.Entity {
         private static Random random = new Random();
 
         /// <summary>
+        /// Only allow a set number of shatter particles at once to preserve frame rate.
+        /// </summary>
+        private static readonly Queue<Piece> GlobalPieces = new Queue<Piece>();
+        private const int MaxPieces = 150;
+
+        /// <summary>
         /// Begins a new destruction animation for the image given.
         /// </summary>
         /// <param name="world"> </param>
@@ -77,6 +83,20 @@ namespace Enceladus.Entity {
             int displayHeightOffset = height / 2;
             float simHeightOffset = ConvertUnits.ToSimUnits(displayHeightOffset);
 
+            // Clean out the global piece cache if we're in danger of going over it
+            if ( numPieces * numPieces + GlobalPieces.Count > MaxPieces ) {
+                Queue<Piece> tempQueue = new Queue<Piece>();
+                while ( GlobalPieces.Count > 0 ) {
+                    Piece p = GlobalPieces.Dequeue();
+                    if ( !p.Body.IsDisposed ) {
+                        tempQueue.Enqueue(p);
+                    }
+                }
+                while ( tempQueue.Count > 0 ) {
+                    GlobalPieces.Enqueue(tempQueue.Dequeue());
+                }
+            }
+
             int i = 0;
             for ( int x = 0; x < numPieces; x++ ) {
                 for ( int y = 0; y < numPieces; y++ ) {
@@ -92,7 +112,15 @@ namespace Enceladus.Entity {
                     body.Restitution = .6f;
                     body.Friction = .1f;
                     AssignRandomDirection(body);
-                    _pieces[i++] = new Piece(body, x, y);
+                    Piece piece = new Piece(body, x, y);
+                    GlobalPieces.Enqueue(piece);
+                    if ( GlobalPieces.Count > MaxPieces ) {
+                        Piece p = GlobalPieces.Dequeue();
+                        if ( !p.Body.IsDisposed ) {
+                            p.Body.Dispose();
+                        }
+                    }
+                    _pieces[i++] = piece;
                 }
             }
         }
@@ -145,7 +173,7 @@ namespace Enceladus.Entity {
             float alpha = 1f - (float) _timeAlive / (float) TimeToLiveMs;
             int xOffset = _originRectangle.X;
             int yOffset = _originRectangle.Y;
-            foreach ( Piece piece in _pieces ) {
+            foreach ( Piece piece in _pieces.Where(piece => !piece.Body.IsDisposed) ) {
                 Vector2 displayPosition = ConvertUnits.ToDisplayUnits(piece.Body.Position);
                 Vector2 origin = new Vector2(_displayPieceWidth / 2, _displayPieceHeight / 2);
                 float rotation = piece.Body.Rotation;
