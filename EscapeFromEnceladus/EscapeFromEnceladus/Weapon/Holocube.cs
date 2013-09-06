@@ -21,81 +21,55 @@ namespace Enceladus.Weapon {
     /// </summary>
     public class Holocube : GameEntityAdapter, IWeapon {
 
-        private Vector2 _start;
-        private float _angle;
-        private Vector2 _cubeCorner;
-        private Direction _direction;
         private World _world;
-        internal static Texture2D Image;
+        internal static Texture2D HolocubeImage;
         private readonly RandomWalk _alpha;
-        private bool _projecting;
+        private readonly ProjectionBeam _projectionBeam;
         private readonly Projection _projection;
 
-        private const int MaxRange = 30;
         private const float MinAlpha = .2f;
         private const float MaxAlpha = .9f;
 
         public static void LoadContent(ContentManager cm) {
-            Image = cm.Load<Texture2D>("Projectile/Holocube0000");
+            HolocubeImage = cm.Load<Texture2D>("Projectile/Holocube0000");
         }
 
         public Holocube(World world, Vector2 start, Direction direction) {
-            _projection = new Projection();
+            _projectionBeam = new ProjectionBeam();
+            _projection = new Projection(world, HolocubeImage);
             _alpha = new RandomWalk(1, .1f, .2f, .8f);
             _world = world;
             UpdateProjection(start, direction);
         }
 
         public void UpdateProjection(Vector2 start, Direction direction) {
-            _start = start;
-            _direction = direction;
-            _angle = Projectile.GetAngle(direction);
-            _alpha.Update(MinAlpha, MaxAlpha);
-            DetermineLength();
+            _projection.UpdateProjection(start, direction);
         }
 
-        internal static Random Random = new Random();
-
-        private void DetermineLength() {
-
-            // Don't forget to invert the y coordinate because of the differing y axes
-            Vector2 diff = new Vector2((float) Math.Cos(_angle) * MaxRange, (float) -Math.Sin(_angle) * MaxRange);
-            Vector2 end = _start + diff;
-
-            _cubeCorner = _world.RayCastTileCorner(_start, end);
-            if ( _cubeCorner == Vector2.Zero ) {
-                _projecting = false;
-                _cubeCorner = end;
-            } else {
-                _projecting = true;
-            }
-
-            _legalPlacement = !EnceladusGame.EntitiesOverlapping(new AABB(_cubeCorner + new Vector2(.01f), _cubeCorner + new Vector2(TileLevel.TileSize - .02f)));
+        public override void Update(GameTime gameTime) {
+            _alpha.Update(MinAlpha, MaxAlpha);
         }
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
-            Color color = _legalPlacement && _projecting ? SolidColorEffect.DisabledColor : Color.PaleVioletRed;
+            Color color = _projection.IsProjecting && _projection.IsLegalPlacement ? SolidColorEffect.DisabledColor : Color.PaleVioletRed;
 
-            if ( _projecting ) {
-                // Draw the cube itself
-                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-                spriteBatch.Draw(Image, displayPosition, null, color * _alpha.Value,
-                                 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+            if ( _projection.IsProjecting ) {
+                _projection.Draw(spriteBatch, camera, color * _alpha.Value);
             }
 
-            Vector2 beamEnd = _cubeCorner + new Vector2(.5f);
-            Vector2 diff = (beamEnd - _start);
+            Vector2 beamEnd = _projection.CubeCorner + new Vector2(.5f);
+            Vector2 diff = (beamEnd - _projection.Start);
             float length = diff.Length();
 
             // Don't draw the beam if it's too close to the player, since it looks funny
             if ( length > 2 ) {
-                _projection.Draw(spriteBatch, _start, _cubeCorner, _direction, color * _alpha.Value);
+                _projectionBeam.Draw(spriteBatch, _projection.Start, _projection.CubeCorner, _projection.Direction, color * _alpha.Value);
             }
         }
 
         public void Fire() {
-            if ( _projecting && _legalPlacement ) {
-                HolocubeBlock block = new HolocubeBlock(_world, _cubeCorner);
+            if ( _projection.IsProjecting && _projection.IsLegalPlacement ) {
+                HolocubeBlock block = new HolocubeBlock(_world, _projection.CubeCorner);
                 EnceladusGame.Instance.Register(block);
                 PlacedBlocks.Enqueue(block);
                 if ( PlacedBlocks.Count > MaxNumBlocks ) {
@@ -118,9 +92,7 @@ namespace Enceladus.Weapon {
         }
 
         private const int MaxNumBlocks = 1;
-
         private static readonly Queue<HolocubeBlock> PlacedBlocks = new Queue<HolocubeBlock>();
-        private bool _legalPlacement;
     }
 
     /// <summary>
@@ -151,7 +123,7 @@ namespace Enceladus.Weapon {
 
         public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
             Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
-            spriteBatch.Draw(Holocube.Image, displayPosition, null, SolidColorEffect.DisabledColor * _alpha.Value,
+            spriteBatch.Draw(Holocube.HolocubeImage, displayPosition, null, SolidColorEffect.DisabledColor * _alpha.Value,
                              0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
         }
 
@@ -191,7 +163,7 @@ namespace Enceladus.Weapon {
 
         public void Destroy() {
             Dispose();
-            EnceladusGame.Instance.Register(new ShatterAnimation(_world, Holocube.Image,
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, Holocube.HolocubeImage,
                                                                  SolidColorEffect.DisabledColor * _alpha.Value, null,
                                                                  _cubeCorner + new Vector2(TileLevel.TileSize / 2), 4,
                                                                  4f));

@@ -112,6 +112,11 @@ namespace Enceladus.Entity {
         private Holocube _cube;
 
         /// <summary>
+        /// The player's springboard tool when active, or null if none is active.
+        /// </summary>
+        private Springboard _springboard;
+
+        /// <summary>
         /// The player's hoverboots when firing, or null otherwise
         /// </summary>
         private HoverBoots _hover;
@@ -456,6 +461,8 @@ namespace Enceladus.Entity {
             HandleShot(gameTime);
             HandleBomb(gameTime);
             HandleCube(gameTime);
+            HandleSpringboard(gameTime);
+
             if ( !IsScooting ) {
                 HandleBeam(gameTime);
                 HandleSonar(gameTime);
@@ -494,22 +501,22 @@ namespace Enceladus.Entity {
 
         private void HandleSpringboard(GameTime gameTime) {
             if ( _activeItem != CollectibleItem.Springboard || IsScooting ) {
-                if ( _cube != null ) {
-                    _cube.Dispose();
-                    _cube = null;
+                if ( _springboard != null ) {
+                    _springboard.Dispose();
+                    _springboard = null;
                 }
                 return;
             }
 
             Direction direction;
             Vector2 position = GetShotPlacement(out direction);
-            if ( _cube == null ) {
-                EnceladusGame.Instance.Register(_cube = new Holocube(_world, position, direction));
+            if ( _springboard == null ) {
+                EnceladusGame.Instance.Register(_springboard = new Springboard(_world, position, direction));
             } else {
-                _cube.UpdateProjection(position, direction);
+                _springboard.UpdateProjection(position, direction);
             }
             if ( PlayerControl.Control.IsNewSecondaryFire() ) {
-                _cube.Fire();
+                _springboard.Fire();
             }
         }
 

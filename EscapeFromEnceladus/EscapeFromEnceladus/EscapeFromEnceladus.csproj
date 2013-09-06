@@ -192,6 +192,7 @@
     <Compile Include="Weapon\Missile.cs" />
     <Compile Include="Weapon\Projectile.cs" />
     <Compile Include="Weapon\Projection.cs" />
+    <Compile Include="Weapon\ProjectionBeam.cs" />
     <Compile Include="Weapon\Shot.cs" />
     <Compile Include="Entity\Player.cs" />
     <Compile Include="Overlay\HealthStatus.cs" />

@@ -5,56 +5,88 @@ using System.Text;
 using Enceladus.Entity;
 using Enceladus.Farseer;
 using Enceladus.Map;
+using FarseerPhysics.Collision;
+using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Weapon {
-
+    
     /// <summary>
-    /// Weapon projection beam, one tile wide.
+    /// A projected (not yet real) weapon or tool placement, aligned to the world grid.
     /// </summary>
-    public class Projection : GameEntityAdapter {
+    public class Projection {
 
-        public static Texture2D ProjectionImage;
+        private Vector2 _start;
+        private float _angle;
+        private Direction _direction;
+        private Vector2 _cubeCorner;
+        private World _world;
+        private bool _projecting;
+        private bool _legalPlacement;
+        private Texture2D _image;
+        private const int MaxRange = 30;
 
-        public static void LoadContent(ContentManager cm) {
-            ProjectionImage = cm.Load<Texture2D>("Projectile/Holocube0001");
+        public Projection(World world, Texture2D image) {
+            _world = world;
+            _image = image;
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 start, Vector2 projectedTileCorner, Direction direction, Color color) {
-            // Draw the projector beam
-            Vector2 origin = new Vector2(0, ProjectionImage.Height / 2);
+        public bool IsLegalPlacement {
+            get { return _legalPlacement; }
+        }
 
-            Vector2 beamEnd = projectedTileCorner + new Vector2(TileLevel.TileSize / 2f);
-            Vector2 diff = (beamEnd - start);
-            float length = diff.Length();
+        public bool IsProjecting {
+            get { return _projecting; }
+        }
 
-            float unitLegth = ConvertUnits.ToSimUnits(ProjectionImage.Width);
-            float lengthRatio = length / unitLegth;
-            float widthRatio;
-            switch ( direction ) {
-                case Direction.Left:
-                case Direction.Right:
-                case Direction.Up:
-                case Direction.Down:
-                    widthRatio = 1f;
-                    break;
-                case Direction.UpLeft:
-                case Direction.UpRight:
-                case Direction.DownLeft:
-                case Direction.DownRight:
-                    widthRatio = (float) Math.Sqrt(2);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+        public Vector2 CubeCorner {
+            get { return _cubeCorner; }
+        }
+
+        public float Angle {
+            get { return _angle; }
+        }
+
+        public Vector2 Start {
+            get { return _start; }
+        }
+
+        public Direction Direction {
+            get { return _direction; }
+        }
+
+        public void UpdateProjection(Vector2 start, Direction direction) {
+            _start = start;
+            _direction = direction;
+            _angle = Projectile.GetAngle(direction);
+            DetermineLength();
+        }
+
+        private void DetermineLength() {
+
+            // Don't forget to invert the y coordinate because of the differing y axes
+            Vector2 diff = new Vector2((float) Math.Cos(Angle) * MaxRange, (float) -Math.Sin(Angle) * MaxRange);
+            Vector2 end = Start + diff;
+
+            _cubeCorner = _world.RayCastTileCorner(Start, end);
+            if ( CubeCorner == Vector2.Zero ) {
+                _projecting = false;
+                _cubeCorner = end;
+            } else {
+                _projecting = true;
             }
 
-            float angle = (float) Math.Atan2(-diff.Y, diff.X);
+            _legalPlacement = !EnceladusGame.EntitiesOverlapping(new AABB(CubeCorner + new Vector2(.01f), CubeCorner + new Vector2(TileLevel.TileSize - .02f)));
+        }
 
-            spriteBatch.Draw(ProjectionImage, ConvertUnits.ToDisplayUnits(start), null,
-                             color, -angle, origin, new Vector2(lengthRatio, widthRatio),
-                             SpriteEffects.None, 1.0f);
+        public void Draw(SpriteBatch spriteBatch, Camera2D camera, Color color) {
+
+            if ( IsProjecting ) {
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(CubeCorner);
+                spriteBatch.Draw(_image, displayPosition, null, color,
+                                 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+            }
         }
 
     }
