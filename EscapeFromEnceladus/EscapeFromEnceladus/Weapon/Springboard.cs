@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Enceladus.Entity;
+using Enceladus.Farseer;
 using Enceladus.Util;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
@@ -17,7 +18,7 @@ namespace Enceladus.Weapon {
     public class Springboard : GameEntityAdapter {
 
 
-        private World _world;
+        private readonly World _world;
         internal static Texture2D CompressedImage;
         internal static Texture2D ExpandedImage;
         private readonly RandomWalk _alpha;
@@ -37,7 +38,7 @@ namespace Enceladus.Weapon {
 
         public Springboard(World world, Vector2 start, Direction direction) {
             _projectionBeam = new ProjectionBeam();
-            _projection = new Projection(world, CompressedImage);
+            _projection = new Projection(world);
             _alpha = new RandomWalk(1, .1f, .2f, .8f);
             _world = world;
             UpdateProjection(start, direction);
@@ -55,7 +56,9 @@ namespace Enceladus.Weapon {
             Color color = _projection.IsProjecting && _projection.IsLegalPlacement ? SolidColorEffect.DisabledColor : Color.PaleVioletRed;
 
             if ( _projection.IsProjecting ) {
-                _projection.Draw(spriteBatch, camera, color * _alpha.Value);
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_projection.CubeCorner);
+                spriteBatch.Draw(CompressedImage, displayPosition, null, color * _alpha.Value,
+                                 0, new Vector2(0, 64), Vector2.One, SpriteEffects.None, 1.0f);
             }
 
             Vector2 beamEnd = _projection.CubeCorner + new Vector2(.5f);

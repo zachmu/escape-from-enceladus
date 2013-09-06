@@ -24,12 +24,10 @@ namespace Enceladus.Weapon {
         private World _world;
         private bool _projecting;
         private bool _legalPlacement;
-        private Texture2D _image;
         private const int MaxRange = 30;
 
-        public Projection(World world, Texture2D image) {
+        public Projection(World world) {
             _world = world;
-            _image = image;
         }
 
         public bool IsLegalPlacement {
@@ -79,15 +77,5 @@ namespace Enceladus.Weapon {
 
             _legalPlacement = !EnceladusGame.EntitiesOverlapping(new AABB(CubeCorner + new Vector2(.01f), CubeCorner + new Vector2(TileLevel.TileSize - .02f)));
         }
-
-        public void Draw(SpriteBatch spriteBatch, Camera2D camera, Color color) {
-
-            if ( IsProjecting ) {
-                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(CubeCorner);
-                spriteBatch.Draw(_image, displayPosition, null, color,
-                                 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
-            }
-        }
-
     }
 }

@@ -21,7 +21,7 @@ namespace Enceladus.Weapon {
     /// </summary>
     public class Holocube : GameEntityAdapter, IWeapon {
 
-        private World _world;
+        private readonly World _world;
         internal static Texture2D HolocubeImage;
         private readonly RandomWalk _alpha;
         private readonly ProjectionBeam _projectionBeam;
@@ -36,7 +36,7 @@ namespace Enceladus.Weapon {
 
         public Holocube(World world, Vector2 start, Direction direction) {
             _projectionBeam = new ProjectionBeam();
-            _projection = new Projection(world, HolocubeImage);
+            _projection = new Projection(world);
             _alpha = new RandomWalk(1, .1f, .2f, .8f);
             _world = world;
             UpdateProjection(start, direction);
@@ -54,7 +54,10 @@ namespace Enceladus.Weapon {
             Color color = _projection.IsProjecting && _projection.IsLegalPlacement ? SolidColorEffect.DisabledColor : Color.PaleVioletRed;
 
             if ( _projection.IsProjecting ) {
-                _projection.Draw(spriteBatch, camera, color * _alpha.Value);
+                Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_projection.CubeCorner);
+                spriteBatch.Draw(HolocubeImage, displayPosition, null, color,
+                                 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1.0f);
+
             }
 
             Vector2 beamEnd = _projection.CubeCorner + new Vector2(.5f);
