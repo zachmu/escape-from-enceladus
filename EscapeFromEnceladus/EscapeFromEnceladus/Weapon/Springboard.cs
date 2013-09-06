@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using Enceladus.Entity;
 using Enceladus.Farseer;
+using Enceladus.Map;
 using Enceladus.Util;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,7 +31,7 @@ namespace Enceladus.Weapon {
         private const float MaxAlpha = .9f;
 
         private const int MaxNumBlocks = 1;
-        private static readonly Queue<HolocubeBlock> PlacedSprings = new Queue<HolocubeBlock>();
+        private static readonly Queue<SpringboardBlock> PlacedSprings = new Queue<SpringboardBlock>();
 
         public static void LoadContent(ContentManager cm) {
             CompressedImage = cm.Load<Texture2D>("Projectile/SpringBoard0000");
@@ -73,19 +75,87 @@ namespace Enceladus.Weapon {
 
         public void Fire() {
             if ( _projection.IsProjecting && _projection.IsLegalPlacement ) {
-                HolocubeBlock block = new HolocubeBlock(_world, _projection.CubeCorner);
+                SpringboardBlock block = new SpringboardBlock(_world, _projection.CubeCorner);
                 EnceladusGame.Instance.Register(block);
                 PlacedSprings.Enqueue(block);
                 if ( PlacedSprings.Count > MaxNumBlocks ) {
-                    HolocubeBlock holocubeBlock = PlacedSprings.Dequeue();
-                    if ( !holocubeBlock.Disposed ) {
-                        holocubeBlock.Destroy();
+                    SpringboardBlock springBlock = PlacedSprings.Dequeue();
+                    if ( !springBlock.Disposed ) {
+                        springBlock.Destroy();
                     }
                 }
             } else {
                 SoundEffectManager.Instance.PlaySoundEffect("nope");
             }
         }
-
     }
+
+    /// <summary>
+    /// Static, solid holocube that has been placed.
+    /// </summary>
+    public class SpringboardBlock : GameEntityAdapter {
+
+        private readonly Vector2 _cubeCorner;
+        private readonly Timer _timeToLive;
+        private readonly Body _block;
+        private readonly World _world;
+        private bool _expanded;
+
+        private Texture2D Image { get { return _expanded ? Springboard.ExpandedImage : Springboard.CompressedImage; } }
+
+        public SpringboardBlock(World world, Vector2 cubeCorner) {
+            _cubeCorner = cubeCorner;
+            _timeToLive = new Timer(10000);
+            _block = BodyFactory.CreateRectangle(world, TileLevel.TileSize, TileLevel.TileSize, 1f, UserData.NewHolocube());
+            _block.IsStatic = true;
+            _block.CollisionCategories = EnceladusGame.TerrainCategory;
+            _block.CollidesWith = Category.All;
+            _block.Position = cubeCorner + new Vector2(TileLevel.TileSize / 2f);
+
+            _world = world;
+        }
+
+        public override void Draw(SpriteBatch spriteBatch, Camera2D camera) {
+            Vector2 displayPosition = ConvertUnits.ToDisplayUnits(_cubeCorner);
+            spriteBatch.Draw(Image, displayPosition, null, SolidColorEffect.DisabledColor,
+                             0, new Vector2(0, 64), Vector2.One, SpriteEffects.None, 1.0f);
+        }
+
+        public override void Update(GameTime gameTime) {
+            _timeToLive.Update(gameTime);
+            if ( !Disposed && _timeToLive.IsTimeUp() ) {
+                Dispose();
+            }
+        }
+
+        public override Vector2 Position {
+            get { return _cubeCorner; }
+        }
+
+        public override void Dispose() {
+            if ( _block != null ) {
+                _block.Dispose();
+            }
+        }
+
+        public override bool Disposed {
+            get {
+                if ( _block != null ) {
+                    return _block.IsDisposed;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        public void Destroy() {
+            Dispose();
+            Rectangle originRectangle = new Rectangle(0, 64, 64, 64);
+            EnceladusGame.Instance.Register(new ShatterAnimation(_world, Image,
+                                                                 SolidColorEffect.DisabledColor, originRectangle, 
+                                                                 _cubeCorner + new Vector2(TileLevel.TileSize / 2), 4,
+                                                                 4f));
+        }
+    }
+
 }
