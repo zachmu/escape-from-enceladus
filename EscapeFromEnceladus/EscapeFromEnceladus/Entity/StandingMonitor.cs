@@ -50,24 +50,30 @@ namespace Enceladus.Entity {
                 contactEdge = contactEdge.Next;
             }
 
-            /*
-             * If we didn't find any contact points, it could mean that it's because Box2d isn't playing nicely with
-             * a newly created body (as when a tile reappears).  In that case, try to find the ground under our feet
-             * with a ray cast.
-             */
-            float delta = .1f;
-            if ( !isStanding ) {
-                foreach ( Vector2 start in new Vector2[] {
-                    standingLocation + new Vector2(-width / 2, -delta),
-                    standingLocation + new Vector2(width / 2, -delta),
-                } ) {
-                    world.RayCast((fixture, point, normal, fraction) => {
-                        if ( fixture.GetUserData().IsTerrain ) {
-                            isStanding = true;
-                            return 0;
-                        }
-                        return -1;
-                    }, start, start + new Vector2(0, 2 * delta));
+            // You can't touch the ceiling and the ground at once
+            if ( isTouchingCeiling ) {
+                isStanding = false;
+            } else {
+
+                /*
+                 * If we didn't find any contact points, it could mean that it's because Box2d isn't playing nicely with
+                 * a newly created body (as when a tile reappears).  In that case, try to find the ground under our feet
+                 * with a ray cast.
+                 */
+                float delta = .01f;
+                if ( !isStanding ) {
+                    foreach ( Vector2 start in new Vector2[] {
+                        standingLocation + new Vector2(-width / 2, -delta),
+                        standingLocation + new Vector2(width / 2, -delta),
+                    } ) {
+                        world.RayCast((fixture, point, normal, fraction) => {
+                            if ( fixture.GetUserData().IsTerrain ) {
+                                isStanding = true;
+                                return 0;
+                            }
+                            return -1;
+                        }, start, start + new Vector2(0, 2 * delta));
+                    }
                 }
             }
 
