@@ -93,7 +93,7 @@ namespace Enceladus.Weapon {
     /// <summary>
     /// Static, solid holocube that has been placed.
     /// </summary>
-    public class SpringboardBlock : GameEntityAdapter {
+    public class SpringboardBlock : GameEntityAdapter, IWeapon {
 
         private readonly Vector2 _cubeCorner;
         private readonly Timer _timeToLive;
@@ -126,6 +126,19 @@ namespace Enceladus.Weapon {
             if ( !Disposed && _timeToLive.IsTimeUp() ) {
                 Dispose();
             }
+            Launch();
+        }
+
+        private void Launch() {
+            Vector2 end = _block.Position - new Vector2(0, TileLevel.TileSize / 2f + .05f);
+            _world.RayCast((fixture, point, normal, fraction) => { 
+                if ( fixture.GetUserData().IsPlayer ) {
+                    Player.Instance.SpringboardLaunch();
+                } else if ( fixture.GetUserData().IsEnemy ) {
+                    fixture.GetUserData().Enemy.HitBy(this);
+                }
+                return 0;             
+            }, _block.Position, end);
         }
 
         public override Vector2 Position {
@@ -155,6 +168,12 @@ namespace Enceladus.Weapon {
                                                                  SolidColorEffect.DisabledColor, originRectangle, 
                                                                  _cubeCorner + new Vector2(TileLevel.TileSize / 2), 4,
                                                                  4f));
+        }
+
+        public int DestructionFlags { get { return 0; } }
+
+        public float BaseDamage {
+            get { return 1; } 
         }
     }
 

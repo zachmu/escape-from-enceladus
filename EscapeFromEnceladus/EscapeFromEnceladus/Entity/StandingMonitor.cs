@@ -77,10 +77,7 @@ namespace Enceladus.Entity {
                 }
             }
 
-            if ( IgnoreStandingUpdatesNextNumFrames <= 0 ) {
-                IsStanding = isStanding;
-            }
-
+            IsStanding = isStanding;
             IsTouchingCeiling = isTouchingCeiling;
         }
     }

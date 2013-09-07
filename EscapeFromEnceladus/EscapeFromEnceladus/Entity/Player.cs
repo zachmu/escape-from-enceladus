@@ -1441,11 +1441,12 @@ namespace Enceladus.Entity {
 
             float halfHeight = height / 2;
             var newPosition = GetNewBodyPosition(halfHeight, positionalCorrection);
-            
-            _body.Position = newPosition;
+
+            _body.SetTransformIgnoreContacts(ref newPosition, 0);
 
             PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
             shape.SetAsBox(width / 2, halfHeight);
+
             Height = height;
             Width = width;
         }
@@ -2246,6 +2247,11 @@ namespace Enceladus.Entity {
         /// </summary>
         public void SelectedItemChanged(CollectibleItem item) {
             _activeItem = item;
+        }
+
+        public void SpringboardLaunch() {
+            _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -20);
+            _jumpInitiated = true;
         }
     }
 
