@@ -63,8 +63,8 @@ namespace Enceladus.Entity {
                 float delta = .01f;
                 if ( !isStanding ) {
                     foreach ( Vector2 start in new Vector2[] {
-                        standingLocation + new Vector2(-width / 2, -delta),
-                        standingLocation + new Vector2(width / 2, -delta),
+                        standingLocation + new Vector2(-width / 2, -10 * delta),
+                        standingLocation + new Vector2(width / 2, -10 * delta),
                     } ) {
                         world.RayCast((fixture, point, normal, fraction) => {
                             if ( fixture.GetUserData().IsTerrain ) {
@@ -72,7 +72,7 @@ namespace Enceladus.Entity {
                                 return 0;
                             }
                             return -1;
-                        }, start, start + new Vector2(0, 2 * delta));
+                        }, start, start + new Vector2(0, 11 * delta));
                     }
                 }
             }

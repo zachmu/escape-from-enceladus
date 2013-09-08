@@ -1440,12 +1440,27 @@ namespace Enceladus.Entity {
             _standingMonitor.IgnoreStandingUpdatesNextNumFrames = 2;
 
             float halfHeight = height / 2;
+
+            /*
+             * Resizing the body sometimes results in our slight 
+             * overlap with the floor, resulting in Box2D detecting 
+             * a collision and bouncing the body upwards. To get 
+             * around this, we just disable any existing contact 
+             * edges with terrain for the next timestep.
+             */
+            ContactEdge edge = _body.ContactList;
+            while ( edge != null ) {
+                if ( edge.Contact.FixtureA.GetUserData().IsTerrain 
+                    || edge.Contact.FixtureB.GetUserData().IsTerrain ) {
+                    edge.Contact.Enabled = false;
+                }
+                edge = edge.Next;
+            }
+
             var newPosition = GetNewBodyPosition(halfHeight, positionalCorrection);
-
-            _body.SetTransformIgnoreContacts(ref newPosition, 0);
-
             PolygonShape shape = (PolygonShape) _body.FixtureList.First().Shape;
             shape.SetAsBox(width / 2, halfHeight);
+            _body.SetTransformIgnoreContacts(ref newPosition, 0);
 
             Height = height;
             Width = width;
