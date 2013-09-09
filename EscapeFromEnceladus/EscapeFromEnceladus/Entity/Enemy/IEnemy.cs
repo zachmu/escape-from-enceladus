@@ -19,5 +19,10 @@ namespace Enceladus.Entity.Enemy {
         bool HitBy(IWeapon projectile);
 
         void DoDamage(float damage);
+
+        /// <summary>
+        /// Handles being on top of a triggered springboard
+        /// </summary>
+        void SpringboardLaunch();
     }
 }

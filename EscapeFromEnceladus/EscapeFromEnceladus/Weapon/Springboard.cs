@@ -96,16 +96,19 @@ namespace Enceladus.Weapon {
     public class SpringboardBlock : GameEntityAdapter, IWeapon {
 
         private readonly Vector2 _cubeCorner;
-        private readonly Timer _timeToLive;
+        private Timer _timeToLive;
         private readonly Body _block;
         private readonly World _world;
-        private bool _expanded;
+        private bool _sprung;
+        private readonly Oscillator _expanded;
 
-        private Texture2D Image { get { return _expanded ? Springboard.ExpandedImage : Springboard.CompressedImage; } }
+        private Texture2D Image { get { return _expanded.IsActiveState ? Springboard.ExpandedImage : Springboard.CompressedImage; } }
 
         public SpringboardBlock(World world, Vector2 cubeCorner) {
             _cubeCorner = cubeCorner;
             _timeToLive = new Timer(10000);
+            _expanded = new Oscillator(50, false);
+
             _block = BodyFactory.CreateRectangle(world, TileLevel.TileSize, TileLevel.TileSize, 1f, UserData.NewHolocube());
             _block.IsStatic = true;
             _block.CollisionCategories = EnceladusGame.TerrainCategory;
@@ -126,19 +129,40 @@ namespace Enceladus.Weapon {
             if ( !Disposed && _timeToLive.IsTimeUp() ) {
                 Dispose();
             }
-            Launch();
+
+            if ( !_sprung ) {
+                Launch();
+            } else {
+                Oscillate(gameTime);
+            }
+        }
+
+        private void Oscillate(GameTime gameTime) {
+            _expanded.Update(gameTime);
         }
 
         private void Launch() {
             Vector2 end = _block.Position - new Vector2(0, TileLevel.TileSize / 2f + .05f);
-            _world.RayCast((fixture, point, normal, fraction) => { 
-                if ( fixture.GetUserData().IsPlayer ) {
-                    Player.Instance.SpringboardLaunch();
-                } else if ( fixture.GetUserData().IsEnemy ) {
-                    fixture.GetUserData().Enemy.HitBy(this);
-                }
-                return 0;             
-            }, _block.Position, end);
+            foreach ( Vector2 start in new Vector2[] {
+                _block.Position + new Vector2(-TileLevel.TileSize / 2f + .1f, 0), 
+                _block.Position + new Vector2(TileLevel.TileSize / 2f - .1f, 0), 
+            } ) {
+                _world.RayCast((fixture, point, normal, fraction) => {
+                    if ( fixture.GetUserData().IsPlayer ) {
+                        Player.Instance.SpringboardLaunch();
+                        Spring();
+                    } else if ( fixture.GetUserData().IsEnemy ) {
+                        fixture.GetUserData().Enemy.SpringboardLaunch();
+                        Spring();
+                    }
+                    return 0;
+                }, start, end);
+            }
+        }
+
+        private void Spring() {
+            _sprung = true;
+            _timeToLive = new Timer(500);
         }
 
         public override Vector2 Position {

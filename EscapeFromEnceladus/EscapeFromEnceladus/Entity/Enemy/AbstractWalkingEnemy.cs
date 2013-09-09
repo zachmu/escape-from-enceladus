@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Enceladus.Entity.Enemy {
 
-    public abstract class AbstractWalkingEnemy : IGameEntity, IEnemy {
+    public abstract class AbstractWalkingEnemy : IEnemy {
 
         protected const string EnemySpeed = "Enemy speed (m/s)";
 
@@ -118,6 +118,10 @@ namespace Enceladus.Entity.Enemy {
         public void DoDamage(float damage) {
             DamageTaken();
             _hitPoints -= damage;
+        }
+
+        public virtual void SpringboardLaunch() {
+            _body.LinearVelocity = new Vector2(_body.LinearVelocity.X, -20);
         }
 
         public void Dispose() {

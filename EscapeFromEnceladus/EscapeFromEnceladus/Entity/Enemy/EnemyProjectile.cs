@@ -60,6 +60,10 @@ namespace Enceladus.Entity.Enemy {
             HitBy(null);
         }
 
+        public void SpringboardLaunch() {
+            // no effect
+        }
+
         public override void Update(GameTime gameTime) {
             _timeToLiveMs -= gameTime.ElapsedGameTime.TotalMilliseconds;
             if ( _timeToLiveMs <= 0 ) {

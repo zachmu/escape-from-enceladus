@@ -329,6 +329,11 @@ namespace Enceladus.Entity.Enemy {
             _body.FixedRotation = false;
         }
 
+        public override void SpringboardLaunch() {
+            base.SpringboardLaunch();
+            Fall();
+        }
+
         /// <summary>
         /// Handles the turning (not moving) mode of movement
         /// </summary>

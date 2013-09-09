@@ -355,5 +355,9 @@ namespace Enceladus.Entity.Enemy {
             _hitPoints -= damage;
             _flashAnimation.SetFlashTime(150);
         }
+
+        public void SpringboardLaunch() {
+            // immobile enemy, no effect
+        }
     }
 }
