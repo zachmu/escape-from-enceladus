@@ -40,6 +40,10 @@ namespace Enceladus.Map {
             return (projectile.DestructionFlags & _weaponVulnerability) != 0;
         }
 
+        public bool DestroyedBy(int destructionFlag) {
+            return (_weaponVulnerability & destructionFlag) != 0;
+        }
+
         public void Dispose() {
             _body.Dispose();
         }

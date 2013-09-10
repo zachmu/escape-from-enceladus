@@ -213,6 +213,20 @@ namespace Enceladus.Entity {
                                  EnceladusGame.PlayerSensorCategory;
             _body.CollisionCategories = EnceladusGame.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
+
+            _world.ContactManager.OnBroadphaseCollision += (ref FixtureProxy a, ref FixtureProxy b) => {
+                if ( _isDashing 
+                    && (a.Fixture.GetUserData().IsPlayer || b.Fixture.GetUserData().IsPlayer) 
+                    && (a.Fixture.GetUserData().IsDestructibleRegion || b.Fixture.GetUserData().IsDestructibleRegion)) {
+                    Fixture f = a.Fixture.GetUserData().IsDestructibleRegion ? a.Fixture : b.Fixture;
+                    if ( (f.GetUserData().Destruction.DestroyedBy(EnceladusGame.DashDestructionFlag)) ) {
+                        Tile tile = TileLevel.CurrentLevel.GetTile(f.Body.Position);
+                        if ( tile != null ) {
+                            TileLevel.CurrentLevel.DestroyTile(tile);
+                        }
+                    }
+                }
+            };
         }
 
         public float Health { get; private set; }
@@ -1308,6 +1322,7 @@ namespace Enceladus.Entity {
                     break;
             }
             _isDashing = false;
+            _body.IsBullet = false;
         }
 
         /// <summary>
@@ -1338,6 +1353,7 @@ namespace Enceladus.Entity {
             }
 
             _isDashing = true;
+            _body.IsBullet = true;
             _dashTimer = new Timer(350);
             _dashReturnVelocity = velocity + GetVelocityDelta(Constants[PlayerAccelerationMss], 500f);
         }

@@ -126,8 +126,14 @@ namespace Enceladus.Map {
                             case "shot":
                                 flags |= EnceladusGame.NormalWeaponDestructionFlag;
                                 break;
-                            case "missile":
-                                flags |= EnceladusGame.MissileDestructionFlag;
+                            case "dash":
+                                flags |= EnceladusGame.DashDestructionFlag;
+                                break;
+                            case "bomb":
+                                flags |= EnceladusGame.BombDestructionFlag;
+                                break;
+                            case "beam":
+                                flags |= EnceladusGame.BeamDestructionFlag;
                                 break;
                         }
                     }

@@ -104,7 +104,7 @@ namespace Enceladus {
         public const Category PlayerSensorCategory = Category.Cat6;
 
         public const int NormalWeaponDestructionFlag = 1;
-        public const int MissileDestructionFlag = 2;
+        public const int DashDestructionFlag = 2;
         public const int BombDestructionFlag = 4;
         public const int BeamDestructionFlag = 8;
         public const int HolocubeDestructionFlag = 16;
