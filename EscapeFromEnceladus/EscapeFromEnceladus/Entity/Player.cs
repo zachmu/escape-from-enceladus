@@ -479,7 +479,7 @@ namespace Enceladus.Entity {
         }
 
         private void HandleCube(GameTime gameTime) {
-            if ( _activeItem != CollectibleItem.Holocube || IsScooting ) {
+            if ( _activeItem != CollectibleItem.Holocube || IsScooting || _endScooterInitiated ) {
                 if ( _cube != null ) {
                     _cube.Dispose();
                     _cube = null;
@@ -500,7 +500,7 @@ namespace Enceladus.Entity {
         }
 
         private void HandleSpringboard(GameTime gameTime) {
-            if ( _activeItem != CollectibleItem.Springboard || IsScooting ) {
+            if ( _activeItem != CollectibleItem.Springboard || IsScooting || _endScooterInitiated ) {
                 if ( _springboard != null ) {
                     _springboard.Dispose();
                     _springboard = null;
