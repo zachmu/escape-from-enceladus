@@ -38,6 +38,7 @@ namespace Enceladus {
 
     [Flags]
     public enum DestructionFlags {
+        None,
         NormalWeaponDestructionFlag,
         DashDestructionFlag, 
         BombDestructionFlag, 

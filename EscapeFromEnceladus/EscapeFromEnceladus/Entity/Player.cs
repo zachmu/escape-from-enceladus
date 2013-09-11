@@ -1191,7 +1191,11 @@ namespace Enceladus.Entity {
                             case Direction.Left:
                             case Direction.DownLeft:
                             case Direction.UpLeft:
+                                if ( _isDashing && _facingDirection != Direction.Left ) {
+                                    _isDashing = false;
+                                }
                                 _facingDirection = Direction.Left;
+                                
                                 if ( _body.LinearVelocity.X > -minLateralSpeed ) {
                                     _body.LinearVelocity = new Vector2(-minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
@@ -1208,7 +1212,11 @@ namespace Enceladus.Entity {
                             case Direction.Right:
                             case Direction.UpRight:
                             case Direction.DownRight:
+                                if ( _isDashing && _facingDirection != Direction.Right) {
+                                    _isDashing = false;
+                                }
                                 _facingDirection = Direction.Right;
+
                                 if ( _body.LinearVelocity.X < minLateralSpeed ) {
                                     _body.LinearVelocity = new Vector2(minLateralSpeed,
                                                                        _body.LinearVelocity.Y);
@@ -1225,10 +1233,12 @@ namespace Enceladus.Entity {
                             case Direction.Down:
                                 isDucking = true;
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                _isDashing = false;
                                 AdjustFacingDirectionForAim();
                                 break;
                             case Direction.Up:
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
+                                _isDashing = false;
                                 break;
                             default:
                                 _body.LinearVelocity = new Vector2(0, _body.LinearVelocity.Y);
@@ -1313,11 +1323,9 @@ namespace Enceladus.Entity {
         }
 
         private void HandleDash(GameTime gameTime) {
-            if ( _isDashing ) {
-                
-                // TODO: cancel out after slowing down
+            if ( _isDashing ) {               
                 _dashTimer.Update(gameTime);
-                if ( _dashTimer.IsTimeUp() ) {
+                if ( _dashTimer.IsTimeUp() || Math.Abs(_body.LinearVelocity.X) < Constants[PlayerInitRunSpeedMs] + 1) {
                     StopDash();
                     return;
                 }
