@@ -187,6 +187,22 @@ namespace Enceladus.Entity {
             _activeItem = CollectibleItem.Beam;
 
             _world = world;
+
+            _world.ContactManager.OnBroadphaseCollision += OnBroadphaseDashCollision;
+        }
+
+        private void OnBroadphaseDashCollision(ref FixtureProxy a, ref FixtureProxy b) {
+            if ( _isDashing
+                 && (a.Fixture.GetUserData().IsPlayer || b.Fixture.GetUserData().IsPlayer)
+                 && (a.Fixture.GetUserData().IsDestructibleRegion || b.Fixture.GetUserData().IsDestructibleRegion) ) {
+                Fixture f = a.Fixture.GetUserData().IsDestructibleRegion ? a.Fixture : b.Fixture;
+                if ( (f.GetUserData().Destruction.DestroyedBy(EnceladusGame.DashDestructionFlag)) ) {
+                    Tile tile = TileLevel.CurrentLevel.GetTile(f.Body.Position);
+                    if ( tile != null ) {
+                        TileLevel.CurrentLevel.DestroyTile(tile);
+                    }
+                }
+            }
         }
 
         // Creates the simulated body at the specified position
@@ -214,19 +230,30 @@ namespace Enceladus.Entity {
             _body.CollisionCategories = EnceladusGame.PlayerCategory;
             _body.UserData = UserData.NewPlayer();
 
-            _world.ContactManager.OnBroadphaseCollision += (ref FixtureProxy a, ref FixtureProxy b) => {
-                if ( _isDashing 
-                    && (a.Fixture.GetUserData().IsPlayer || b.Fixture.GetUserData().IsPlayer) 
-                    && (a.Fixture.GetUserData().IsDestructibleRegion || b.Fixture.GetUserData().IsDestructibleRegion)) {
-                    Fixture f = a.Fixture.GetUserData().IsDestructibleRegion ? a.Fixture : b.Fixture;
-                    if ( (f.GetUserData().Destruction.DestroyedBy(EnceladusGame.DashDestructionFlag)) ) {
-                        Tile tile = TileLevel.CurrentLevel.GetTile(f.Body.Position);
-                        if ( tile != null ) {
-                            TileLevel.CurrentLevel.DestroyTile(tile);
-                        }
+            _body.OnCollision += DashCollisionHandler;
+        }
+
+        /// <summary>
+        /// Monitor block breaking with dashes in two separate ways. 
+        /// In the broad phase, just look for an upcoming collision with 
+        /// the player and a destructible region. At full speed, this can't 
+        /// break blocks fast enough, so we also need to monitor dashing collisions
+        /// with the function below.
+        /// </summary>
+        private bool DashCollisionHandler(Fixture a, Fixture b, Contact contact) {
+            if ( _isDashing ) {
+                if ( b.GetUserData().IsTerrain && contact.GetPlayerNormal(_body).Y == 0 ) {
+                    FixedArray2<Vector2> points;
+                    Vector2 normal;
+                    contact.GetWorldManifold(out normal, out points);
+                    var tile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
+                    if ( tile != null && TileLevel.CurrentLevel.IsTileDestroyedBy(tile, EnceladusGame.DashDestructionFlag) ) {
+                        TileLevel.CurrentLevel.DestroyTile(tile);
+                        return false;
                     }
                 }
-            };
+            }
+            return true;
         }
 
         public float Health { get; private set; }
@@ -1287,6 +1314,8 @@ namespace Enceladus.Entity {
 
         private void HandleDash(GameTime gameTime) {
             if ( _isDashing ) {
+                
+                // TODO: cancel out after slowing down
                 _dashTimer.Update(gameTime);
                 if ( _dashTimer.IsTimeUp() ) {
                     StopDash();
@@ -1354,8 +1383,8 @@ namespace Enceladus.Entity {
 
             _isDashing = true;
             _body.IsBullet = true;
-            _dashTimer = new Timer(350);
-            _dashReturnVelocity = velocity + GetVelocityDelta(Constants[PlayerAccelerationMss], 500f);
+            _dashTimer = new Timer(500);
+            _dashReturnVelocity = velocity + GetVelocityDelta(Constants[PlayerAccelerationMss], 750f);
         }
 
         /// <summary>

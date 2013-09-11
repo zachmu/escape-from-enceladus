@@ -585,8 +585,15 @@ namespace Enceladus.Map {
         /// <summary>
         /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
         /// </summary>
-        private bool IsTileDestroyedBy(Tile hitTile, Projectile projectile) {
+        public bool IsTileDestroyedBy(Tile hitTile, Projectile projectile) {
             return _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(projectile));
+        }
+
+        /// <summary>
+        /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
+        /// </summary>
+        public bool IsTileDestroyedBy(Tile hitTile, int destructionFlags) {
+            return _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(destructionFlags));
         }
 
         /// <summary>
