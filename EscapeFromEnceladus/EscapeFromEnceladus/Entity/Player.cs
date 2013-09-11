@@ -196,7 +196,7 @@ namespace Enceladus.Entity {
                  && (a.Fixture.GetUserData().IsPlayer || b.Fixture.GetUserData().IsPlayer)
                  && (a.Fixture.GetUserData().IsDestructibleRegion || b.Fixture.GetUserData().IsDestructibleRegion) ) {
                 Fixture f = a.Fixture.GetUserData().IsDestructibleRegion ? a.Fixture : b.Fixture;
-                if ( (f.GetUserData().Destruction.DestroyedBy(EnceladusGame.DashDestructionFlag)) ) {
+                if ( f.GetUserData().Destruction.DestroyedBy(DestructionFlags.DashDestructionFlag) ) {
                     Tile tile = TileLevel.CurrentLevel.GetTile(f.Body.Position);
                     if ( tile != null ) {
                         TileLevel.CurrentLevel.DestroyTile(tile);
@@ -247,7 +247,7 @@ namespace Enceladus.Entity {
                     Vector2 normal;
                     contact.GetWorldManifold(out normal, out points);
                     var tile = TileLevel.CurrentLevel.GetCollidedTile(points[0], normal);
-                    if ( tile != null && TileLevel.CurrentLevel.IsTileDestroyedBy(tile, EnceladusGame.DashDestructionFlag) ) {
+                    if ( tile != null && TileLevel.CurrentLevel.IsTileDestroyedBy(tile, DestructionFlags.DashDestructionFlag) ) {
                         TileLevel.CurrentLevel.DestroyTile(tile);
                         return false;
                     }

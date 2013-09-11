@@ -194,7 +194,7 @@ namespace Enceladus.Weapon {
                                                                  4f));
         }
 
-        public int DestructionFlags { get { return 0; } }
+        public DestructionFlags DestructionFlags { get { return 0; } }
 
         public float BaseDamage {
             get { return 1; } 

@@ -17,9 +17,6 @@ namespace Enceladus.Weapon {
 
         private static Texture2D Image { get; set; }
 
-        // Destruction flags
-        public const int Flags = 1;
-
         private float _damage;
         private Vector2 _scale;
 
@@ -58,8 +55,8 @@ namespace Enceladus.Weapon {
             return mode == Mode.NormalControl; 
         }
 
-        public override int DestructionFlags {
-            get { return Flags; }
+        public override DestructionFlags DestructionFlags {
+            get { return DestructionFlags.NormalWeaponDestructionFlag; }
         }
 
         public override float BaseDamage {

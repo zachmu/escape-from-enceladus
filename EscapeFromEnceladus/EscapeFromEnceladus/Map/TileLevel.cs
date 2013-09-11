@@ -120,25 +120,25 @@ namespace Enceladus.Map {
                     Vector2 bottomRight =
                         ConvertUnits.ToSimUnits(new Vector2(region.X + region.Width, region.Y + region.Height));
 
-                    int flags = 0;
+                    DestructionFlags flags = 0;
                     foreach ( String weaponName in region.Properties.Keys ) {
                         switch ( weaponName ) {
                             case "shot":
-                                flags |= EnceladusGame.NormalWeaponDestructionFlag;
+                                flags |= DestructionFlags.NormalWeaponDestructionFlag;
                                 break;
                             case "dash":
-                                flags |= EnceladusGame.DashDestructionFlag;
+                                flags |= DestructionFlags.DashDestructionFlag;
                                 break;
                             case "bomb":
-                                flags |= EnceladusGame.BombDestructionFlag;
+                                flags |= DestructionFlags.BombDestructionFlag;
                                 break;
                             case "beam":
-                                flags |= EnceladusGame.BeamDestructionFlag;
+                                flags |= DestructionFlags.BeamDestructionFlag;
                                 break;
                         }
                     }
                     if ( flags == 0 ) {
-                        flags = 0xFFFF;
+                        flags = DestructionFlags.All ^ DestructionFlags.DashDestructionFlag;
                     }
 
                     Vector2 currTopLeft = topLeft;
@@ -592,7 +592,7 @@ namespace Enceladus.Map {
         /// <summary>
         /// Returns whether this tile is destroyed by the shot given, accoding to the destruction map.
         /// </summary>
-        public bool IsTileDestroyedBy(Tile hitTile, int destructionFlags) {
+        public bool IsTileDestroyedBy(Tile hitTile, DestructionFlags destructionFlags) {
             return _destructionRegions.Any(region => region.Contains(hitTile) && region.DestroyedBy(destructionFlags));
         }
 

@@ -57,8 +57,8 @@ namespace Enceladus.Weapon {
             }
         }
 
-        public override int DestructionFlags {
-            get { return EnceladusGame.BombDestructionFlag; }
+        public override DestructionFlags DestructionFlags {
+            get { return DestructionFlags.BombDestructionFlag; }
         }
 
         public override float BaseDamage {

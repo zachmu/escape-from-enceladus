@@ -252,7 +252,7 @@ namespace Enceladus.Weapon {
             _body.Dispose();
         }
 
-        public abstract int DestructionFlags { get; }
+        public abstract DestructionFlags DestructionFlags { get; }
         public abstract float BaseDamage { get; }
     }
 }

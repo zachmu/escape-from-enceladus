@@ -42,7 +42,7 @@ namespace Enceladus.Weapon {
             return mode == Mode.NormalControl; 
         }
 
-        public override int DestructionFlags {
+        public override DestructionFlags DestructionFlags {
             get { return 0; }
         }
 

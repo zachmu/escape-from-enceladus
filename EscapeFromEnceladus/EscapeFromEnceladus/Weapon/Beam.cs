@@ -106,8 +106,8 @@ namespace Enceladus.Weapon {
             }, _start, _end);
         }
 
-        public int DestructionFlags {
-            get { return EnceladusGame.BeamDestructionFlag; }
+        public DestructionFlags DestructionFlags {
+            get { return DestructionFlags.BeamDestructionFlag; }
         }
 
         public float BaseDamage {

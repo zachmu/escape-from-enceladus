@@ -86,8 +86,8 @@ namespace Enceladus.Weapon {
             }
         }
 
-        public int DestructionFlags {
-            get { return EnceladusGame.HolocubeDestructionFlag; }
+        public DestructionFlags DestructionFlags {
+            get { return DestructionFlags.HolocubeDestructionFlag; }
         }
 
         public float BaseDamage {

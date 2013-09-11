@@ -17,11 +17,11 @@ namespace Enceladus.Map {
     public class DestructionRegion : Region {
 
         // Bitwise or of weapon flags
-        public int _weaponVulnerability;
+        public DestructionFlags _weaponVulnerability;
 
         private Body _body;
 
-        public DestructionRegion(World world, Vector2 topLeft, Vector2 bottomRight, int weaponVulnerability)
+        public DestructionRegion(World world, Vector2 topLeft, Vector2 bottomRight, DestructionFlags weaponVulnerability)
             : base(AdjustToTileBoundary(topLeft), AdjustToTileBoundary(bottomRight)) {
             _body = BodyFactory.CreateRectangle(world, Width, Height, 0);
             _body.IsStatic = true;
@@ -40,7 +40,7 @@ namespace Enceladus.Map {
             return (projectile.DestructionFlags & _weaponVulnerability) != 0;
         }
 
-        public bool DestroyedBy(int destructionFlag) {
+        public bool DestroyedBy(DestructionFlags destructionFlag) {
             return (_weaponVulnerability & destructionFlag) != 0;
         }
 

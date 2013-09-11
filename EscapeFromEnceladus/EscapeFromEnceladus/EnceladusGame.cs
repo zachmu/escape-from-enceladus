@@ -36,6 +36,16 @@ namespace Enceladus {
         Death
     }
 
+    [Flags]
+    public enum DestructionFlags {
+        NormalWeaponDestructionFlag,
+        DashDestructionFlag, 
+        BombDestructionFlag, 
+        BeamDestructionFlag, 
+        HolocubeDestructionFlag,
+        All = 0xFFFF,
+    }
+
     public class EnceladusGame : Game {
         private readonly GraphicsDeviceManager _graphics;
 
@@ -103,11 +113,11 @@ namespace Enceladus {
         public const Category NPCCategory = Category.Cat5;
         public const Category PlayerSensorCategory = Category.Cat6;
 
-        public const int NormalWeaponDestructionFlag = 1;
-        public const int DashDestructionFlag = 2;
-        public const int BombDestructionFlag = 4;
-        public const int BeamDestructionFlag = 8;
-        public const int HolocubeDestructionFlag = 16;
+//        public const int NormalWeaponDestructionFlag = 1;
+//        public const int DashDestructionFlag = 2;
+//        public const int BombDestructionFlag = 4;
+//        public const int BeamDestructionFlag = 8;
+//        public const int HolocubeDestructionFlag = 16;
 
         public static Boolean Debug = true;
 

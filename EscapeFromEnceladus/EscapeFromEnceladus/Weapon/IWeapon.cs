@@ -10,7 +10,7 @@ namespace Enceladus.Weapon {
         /// <summary>
         /// Returns the destruction flags for this projectile.
         /// </summary>
-        int DestructionFlags { get; }
+        DestructionFlags DestructionFlags { get; }
 
         /// <summary>
         /// Returns the base damage for this projectile.
