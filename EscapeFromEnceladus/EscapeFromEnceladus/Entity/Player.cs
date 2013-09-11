@@ -1277,7 +1277,7 @@ namespace Enceladus.Entity {
                                 // move right instantaneously unless you are moving too fast to the left
                                 if ( _body.LinearVelocity.X > -fastJumpSpeed && _body.LinearVelocity.X < minLateralSpeed ) {
                                     _body.LinearVelocity = new Vector2(minLateralSpeed, _body.LinearVelocity.Y);
-                                    // you can brake a fast jump, but you can't turn it around until it's slow enough
+                                // you can brake a fast jump, but you can't turn it around until it's slow enough
                                 } else if ( _body.LinearVelocity.X <= -fastJumpSpeed ) {
                                     _body.LinearVelocity += new Vector2(
                                         GetVelocityDelta(Constants[PlayerAirBrakeMss], gameTime), 0);
@@ -1350,13 +1350,18 @@ namespace Enceladus.Entity {
         /// Stops dashing
         /// </summary>
         private void StopDash() {
-            switch ( _facingDirection ) {
-                case Direction.Right:
-                    _body.LinearVelocity = new Vector2(Math.Min(Math.Abs(_body.LinearVelocity.X), _dashReturnVelocity), _body.LinearVelocity.Y);
-                    break;
-                case Direction.Left:
-                    _body.LinearVelocity = new Vector2(Math.Max(_body.LinearVelocity.X, -_dashReturnVelocity), _body.LinearVelocity.Y);
-                    break;
+            if ( IsStanding ) {
+                switch ( _facingDirection ) {
+                    case Direction.Right:
+                        _body.LinearVelocity =
+                            new Vector2(Math.Min(Math.Abs(_body.LinearVelocity.X), _dashReturnVelocity),
+                                        _body.LinearVelocity.Y);
+                        break;
+                    case Direction.Left:
+                        _body.LinearVelocity = new Vector2(Math.Max(_body.LinearVelocity.X, -_dashReturnVelocity),
+                                                           _body.LinearVelocity.Y);
+                        break;
+                }
             }
             _isDashing = false;
             _body.IsBullet = false;
@@ -1393,6 +1398,20 @@ namespace Enceladus.Entity {
             _body.IsBullet = true;
             _dashTimer = new Timer(500);
             _dashReturnVelocity = velocity + GetVelocityDelta(Constants[PlayerAccelerationMss], 750f);
+
+            // When we first begin dashing, break any dash-vulnerable blocks we're already in contact with.
+            // Only new contacts will trigger the collision handlers.
+            ContactEdge edge = _body.ContactList;
+            while ( edge != null ) {
+                if ( edge.Contact.FixtureA.GetUserData().IsTerrain || edge.Contact.FixtureB.GetUserData().IsTerrain ) {
+                    if ( edge.Contact.FixtureA.GetUserData().IsTerrain ) {
+                        DashCollisionHandler(edge.Contact.FixtureB, edge.Contact.FixtureA, edge.Contact);
+                    } else {
+                        DashCollisionHandler(edge.Contact.FixtureA, edge.Contact.FixtureB, edge.Contact);                        
+                    }
+                }
+                edge = edge.Next;
+            }
         }
 
         /// <summary>
