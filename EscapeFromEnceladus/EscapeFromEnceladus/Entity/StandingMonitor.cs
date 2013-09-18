@@ -42,7 +42,7 @@ namespace Enceladus.Entity {
                       (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor)) ) {
                     Vector2 normal = contactEdge.Contact.GetPlayerNormal(body);
                     if ( normal.Y < -.4 ) {
-                        isStanding = true;
+                 //       isStanding = true;
                     } else if ( normal.Y > .8 ) {
                         isTouchingCeiling = true;
                     }
@@ -60,7 +60,7 @@ namespace Enceladus.Entity {
                  * a newly created body (as when a tile reappears).  In that case, try to find the ground under our feet
                  * with a ray cast.
                  */
-                float delta = .01f;
+                float delta = .03f;
                 if ( !isStanding ) {
                     foreach ( Vector2 start in new Vector2[] {
                         standingLocation + new Vector2(-width / 2, -10 * delta),

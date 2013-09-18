@@ -495,6 +495,7 @@ namespace Enceladus.Entity {
         /// </summary>
         public void Update(GameTime gameTime) {
             UpdateBookkeepingCounters(gameTime);
+            UpdateStanding();
 
             HandleMovement(gameTime);
             HandleDash(gameTime);
@@ -516,7 +517,6 @@ namespace Enceladus.Entity {
 
             UpdateFlash(gameTime);
             UpdateInvulnerable(gameTime);
-            UpdateStanding();
 
             if ( _isDashing ) {
                 EnceladusGame.Instance.Register(new PlayerEcho(_image, GetStandingLocation(),
@@ -2326,11 +2326,12 @@ namespace Enceladus.Entity {
                 _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width - .05f);
                 
                 // If we haven't jumped, stick to the ground unless it's a cliff
-                if ( _onGround && !_standingMonitor.IsStanding ) {
+                if ( _onGround && !_jumpInitiated && !_standingMonitor.IsStanding ) {
                     float closestFraction = 1;
                     Vector2 closestPoint = Vector2.Zero;
+                    Vector2 closestNormal = new Vector2();
 
-                    foreach (var start in new Vector2[] {
+                    foreach (var start in new[] {
                         GetStandingLocation() + new Vector2(Width / 2f, 0),
                         GetStandingLocation() + new Vector2(-Width / 2f, 0),
                     } ) {
@@ -2338,12 +2339,19 @@ namespace Enceladus.Entity {
                             if ( fixture.GetUserData().IsTerrain && fraction < closestFraction ) {
                                 closestFraction = fraction;
                                 closestPoint = point;
+                                closestNormal = normal;
                             }
                             return 1;
-                        }, start, start + new Vector2(0, .7f));
+                        }, start, start + new Vector2(0, .9f));
                     }
                     if ( closestPoint != Vector2.Zero ) {
-                        _body.Position = new Vector2(_body.Position.X, closestPoint.Y - Height / 2);
+                        _body.Position = new Vector2(_body.Position.X, closestPoint.Y - Height / 2 - .01f);
+                        // tweak the velocity to match the normal of the stuck-to slope
+                        float speed = _body.LinearVelocity.Length();
+                        // The rotation won't work properly unless we flip the y axis
+                        closestNormal = new Vector2(closestNormal.X, -closestNormal.Y);
+                        Vector2 rotated = Vector2.Transform(closestNormal, Matrix.CreateRotationZ(_facingDirection == Direction.Left ? Projectile.PiOverTwo : -Projectile.PiOverTwo));
+                        _body.LinearVelocity = new Vector2(rotated.X, -rotated.Y) * speed;
                     } else {
                         _onGround = false;
                         IsStanding = false;
