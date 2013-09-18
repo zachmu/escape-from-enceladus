@@ -5,7 +5,9 @@ using System.Text;
 using Enceladus.Event;
 using Enceladus.Farseer;
 using Enceladus.Map;
+using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Object = Enceladus.Map.Object;
 
@@ -18,6 +20,7 @@ namespace Enceladus.Entity.InteractiveObject {
         public const string Save = "save";
         public const string Powerup = "powerup";
         private const string Event = "event";
+        private const string Ramp = "ramp";
 
         public static IGameEntity Create(World world, Map.Object obj) {
             var topLeft = ConvertUnits.ToSimUnits(new Vector2(obj.X, obj.Y));
@@ -31,9 +34,28 @@ namespace Enceladus.Entity.InteractiveObject {
                     return CreatePowerup(topLeft, bottomRight, world, obj);
                 case Event:
                     return CreateEvent(topLeft, bottomRight, world, obj);
+                case Ramp:
+                    return CreateRamp(world, obj, topLeft, bottomRight);                        
                 default:
                     throw new ArgumentException("Unexpected type of object: %s", obj.Type);
             }
+        }
+
+        private static IGameEntity CreateRamp(World world, Object o, Vector2 topLeft, Vector2 bottomRight) {
+            Vertices vertices = new Vertices();
+            float height = ConvertUnits.ToSimUnits(o.Height);           
+            var bottomLeft = Region.AdjustToTileBoundary(topLeft + new Vector2(0, height));
+            vertices.Add(bottomLeft);
+            vertices.Add(Region.AdjustToTileBoundary(bottomLeft + new Vector2(height, -height)));
+            vertices.Add(Region.AdjustToTileBoundary(bottomRight - new Vector2(height)));
+            vertices.Add(Region.AdjustToTileBoundary(bottomRight));
+
+            var loopShape = BodyFactory.CreateLoopShape(world, vertices);
+            loopShape.CollisionCategories = EnceladusGame.TerrainCategory;
+            loopShape.CollidesWith = Category.All;
+            loopShape.UserData = UserData.NewTerrain();
+
+            return null;
         }
 
         /// <summary>

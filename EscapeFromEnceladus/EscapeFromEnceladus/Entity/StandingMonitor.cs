@@ -41,7 +41,7 @@ namespace Enceladus.Entity {
                      (contactEdge.Contact.IsTouching() &&
                       (contactEdge.Other.GetUserData().IsTerrain || contactEdge.Other.GetUserData().IsDoor)) ) {
                     Vector2 normal = contactEdge.Contact.GetPlayerNormal(body);
-                    if ( normal.Y < -.8 ) {
+                    if ( normal.Y < -.4 ) {
                         isStanding = true;
                     } else if ( normal.Y > .8 ) {
                         isTouchingCeiling = true;

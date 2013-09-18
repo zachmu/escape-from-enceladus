@@ -123,6 +123,11 @@ namespace Enceladus.Entity {
         private bool IsHoverActive { get { return _hover != null && !_hover.Disposed; } }
         private bool _canHover = false;
 
+        /// <summary>
+        /// Whether the player is on the ground
+        /// </summary>
+        private bool _onGround = true;
+
         private Color _color = Color.SteelBlue;
 
         public Color Color {
@@ -2319,7 +2324,35 @@ namespace Enceladus.Entity {
                 IsStanding = true;
             } else {
                 _standingMonitor.UpdateStanding(_body, _world, GetStandingLocation(), Width - .05f);
-                IsStanding = _standingMonitor.IsStanding;
+                
+                // If we haven't jumped, stick to the ground unless it's a cliff
+                if ( _onGround && !_standingMonitor.IsStanding ) {
+                    float closestFraction = 1;
+                    Vector2 closestPoint = Vector2.Zero;
+
+                    foreach (var start in new Vector2[] {
+                        GetStandingLocation() + new Vector2(Width / 2f, 0),
+                        GetStandingLocation() + new Vector2(-Width / 2f, 0),
+                    } ) {
+                        _world.RayCast((fixture, point, normal, fraction) => {
+                            if ( fixture.GetUserData().IsTerrain && fraction < closestFraction ) {
+                                closestFraction = fraction;
+                                closestPoint = point;
+                            }
+                            return 1;
+                        }, start, start + new Vector2(0, .7f));
+                    }
+                    if ( closestPoint != Vector2.Zero ) {
+                        _body.Position = new Vector2(_body.Position.X, closestPoint.Y - Height / 2);
+                    } else {
+                        _onGround = false;
+                        IsStanding = false;
+                    }
+                } else {
+                    IsStanding = _standingMonitor.IsStanding;
+                }
+                
+                _onGround = IsStanding & !_jumpInitiated;
                 if ( IsStanding ) {
                     _canHover = true;
                 }
